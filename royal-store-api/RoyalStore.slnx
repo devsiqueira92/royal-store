@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RoyalStore.API/RoyalStore.API.csproj" />
+    <Project Path="src/RoyalStore.Application/RoyalStore.Application.csproj" />
+    <Project Path="src/RoyalStore.Domain/RoyalStore.Domain.csproj" />
+    <Project Path="src/RoyalStore.Infrastructure/RoyalStore.Infrastructure.csproj" />
+  </Folder>
+</Solution>

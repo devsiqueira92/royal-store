@@ -1,0 +1,6 @@
+@RoyalStore.API_HostAddress = http://localhost:5245
+
+GET {{RoyalStore.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
