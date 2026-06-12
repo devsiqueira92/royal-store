@@ -84,11 +84,11 @@ public sealed class DependencyInjection : IInstallService
 
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("AcessoGerencial", policy =>
-                policy.RequireRole(
-                    Role.Admin,
-                    Role.Manager
-                ));
+            options.AddPolicy(PolicyNames.AdminOrManager, policy =>
+                policy.RequireRole(Role.Admin, Role.Manager));
+
+            options.AddPolicy(PolicyNames.Seller, policy =>
+                policy.RequireRole(Role.Seller));
         });
 
         services.AddScoped<ITokenService, JwtTokenService>();

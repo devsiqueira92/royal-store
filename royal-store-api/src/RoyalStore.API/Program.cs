@@ -1,3 +1,4 @@
+using RoyalStore.API.Authorization;
 using RoyalStore.API.Extensions;
 using RoyalStore.API.Middleware;
 using RoyalStore.Infrastructure;
@@ -24,6 +25,7 @@ app.UseHttpsRedirection();
 await DatabaseSeeder.SeedRolesAsync(app.Services);
 
 app.UseAuthentication();
+app.UseMiddleware<AuthorizationAuditMiddleware>();
 app.UseAuthorization();
 
 app.RegisterEndpointDefinitions();
