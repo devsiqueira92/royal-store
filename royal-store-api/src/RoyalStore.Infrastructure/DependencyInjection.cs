@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using RoyalStore.Application.Abstractions;
 using RoyalStore.Application.Abstractions.Authentication;
+using RoyalStore.Application.Abstractions.Catalog;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Email;
 using RoyalStore.Application.Abstractions.Security;
@@ -14,6 +15,7 @@ using RoyalStore.Application.Options;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Infrastructure.Authentication;
+using RoyalStore.Infrastructure.Catalog;
 using RoyalStore.Infrastructure.Email;
 using RoyalStore.Infrastructure.Identity;
 using RoyalStore.Infrastructure.Persistence;
@@ -89,7 +91,13 @@ public sealed class DependencyInjection : IInstallService
 
             options.AddPolicy(PolicyNames.Seller, policy =>
                 policy.RequireRole(Role.Seller));
+
+            options.AddPolicy(PolicyNames.Admin, policy =>
+                policy.RequireRole(Role.Admin));
         });
+
+        services.AddScoped<ICategoryUsageChecker, StubCategoryUsageChecker>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();

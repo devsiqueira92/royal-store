@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Services;
+using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Security;
@@ -14,6 +15,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     private readonly ITenantContext _tenantContext;
 
     public DbSet<Tenant> Tenants { get; set; } = null!;
+    public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
 
@@ -44,5 +46,8 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AssemblyReference).Assembly);
+
+        modelBuilder.Entity<Category>()
+            .HasQueryFilter(c => c.TenantId == _tenantContext.TenantId);
     }
 }

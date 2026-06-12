@@ -4,4 +4,5 @@ public static class PolicyNames
 {
     public const string AdminOrManager = "AdminOrManager";
     public const string Seller = "Seller";
+    public const string Admin = "Admin";
 }
