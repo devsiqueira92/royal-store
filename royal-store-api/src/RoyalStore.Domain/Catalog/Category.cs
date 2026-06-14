@@ -71,4 +71,6 @@ public sealed class Category : Entity, IAuditableEntity
         IsActive = false;
         return Result.Success();
     }
+
+    public ICollection<Product> Products { get; private set; } = [];
 }

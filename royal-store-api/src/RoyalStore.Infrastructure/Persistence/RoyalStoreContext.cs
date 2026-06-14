@@ -16,6 +16,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
     public DbSet<Tenant> Tenants { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
 
@@ -49,5 +50,8 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<Category>()
             .HasQueryFilter(c => c.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Product>()
+            .HasQueryFilter(p => p.TenantId == _tenantContext.TenantId);
     }
 }

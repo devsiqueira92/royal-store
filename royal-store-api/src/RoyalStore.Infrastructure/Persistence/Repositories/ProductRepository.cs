@@ -1,0 +1,46 @@
+using Microsoft.EntityFrameworkCore;
+using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Domain.Catalog;
+using RoyalStore.Infrastructure.Persistence;
+
+namespace RoyalStore.Infrastructure.Persistence.Repositories;
+
+public sealed class ProductRepository : IProductRepository
+{
+    private readonly RoyalStoreContext _context;
+
+    public ProductRepository(RoyalStoreContext context)
+    {
+        _context = context;
+    }
+
+    public async Task AddAsync(Product product, CancellationToken ct = default) =>
+        await _context.Products.AddAsync(product, ct);
+
+    public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        await _context.Products.FirstOrDefaultAsync(p => p.Id == id, ct);
+
+    public async Task<IReadOnlyList<Product>> GetAllAsync(
+        bool? isActive, Guid? categoryId, CancellationToken ct = default)
+    {
+        var query = _context.Products.AsQueryable();
+
+        if (isActive.HasValue)
+            query = query.Where(p => p.IsActive == isActive.Value);
+
+        if (categoryId.HasValue)
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+
+        return await query.ToListAsync(ct);
+    }
+
+    public async Task<bool> ExistsBySkuAsync(string sku, Guid? excludeId, CancellationToken ct = default) =>
+        await _context.Products.AnyAsync(
+            p => p.Sku == sku && (excludeId == null || p.Id != excludeId), ct);
+
+    public Task UpdateAsync(Product product, CancellationToken ct = default)
+    {
+        _context.Products.Update(product);
+        return Task.CompletedTask;
+    }
+}

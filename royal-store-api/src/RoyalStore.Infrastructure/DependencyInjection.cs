@@ -96,8 +96,9 @@ public sealed class DependencyInjection : IInstallService
                 policy.RequireRole(Role.Admin));
         });
 
-        services.AddScoped<ICategoryUsageChecker, StubCategoryUsageChecker>();
+        services.AddScoped<ICategoryUsageChecker, CategoryUsageChecker>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
