@@ -6,6 +6,7 @@ using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Security;
+using RoyalStore.Domain.Sellers;
 using RoyalStore.Domain.Tenants;
 
 namespace RoyalStore.Infrastructure.Persistence;
@@ -17,6 +18,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<Tenant> Tenants { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<Seller> Sellers { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
 
@@ -53,5 +55,8 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<Product>()
             .HasQueryFilter(p => p.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Seller>()
+            .HasQueryFilter(s => s.TenantId == _tenantContext.TenantId);
     }
 }
