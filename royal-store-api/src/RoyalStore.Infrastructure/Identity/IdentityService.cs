@@ -94,4 +94,8 @@ public sealed class IdentityService : IIdentityService
 
         return Result.Success();
     }
+
+    public Task<bool> UserNameExistsInTenantAsync(string userName, Guid tenantId, CancellationToken ct = default) =>
+        _userManager.Users.AnyAsync(
+            u => u.NormalizedUserName == _userManager.NormalizeName(userName) && u.TenantId == tenantId, ct);
 }

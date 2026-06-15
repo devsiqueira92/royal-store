@@ -17,4 +17,5 @@ public interface IIdentityService
     Task<string> GeneratePasswordResetTokenAsync(UserEntity user);
     Task<Result> ResetPasswordAsync(UserEntity user, string token, string newPassword);
     Task<Result> UpdateSecurityStampAsync(UserEntity user);
+    Task<bool> UserNameExistsInTenantAsync(string userName, Guid tenantId, CancellationToken ct = default);
 }

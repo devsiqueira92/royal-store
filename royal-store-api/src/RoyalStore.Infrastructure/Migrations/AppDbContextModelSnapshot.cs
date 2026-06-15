@@ -384,6 +384,9 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("RequiresPasswordChange")
+                        .HasColumnType("bit");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
