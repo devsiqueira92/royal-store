@@ -413,6 +413,43 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Sales.CashMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CashShiftId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("MovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("SyncedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CashShiftId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("CashMovements", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashShift", b =>
                 {
                     b.Property<Guid>("Id")
@@ -811,6 +848,20 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Sales.CashMovement", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Sales.CashShift", null)
+                        .WithMany("Movements")
+                        .HasForeignKey("CashShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RoyalStore.Domain.Identity.UserEntity", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashShift", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Identity.UserEntity", null)
@@ -872,6 +923,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashShift", b =>
                 {
+                    b.Navigation("Movements");
+
                     b.Navigation("Sales");
                 });
 

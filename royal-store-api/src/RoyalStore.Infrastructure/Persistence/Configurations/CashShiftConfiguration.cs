@@ -44,6 +44,11 @@ public sealed class CashShiftConfiguration : IEntityTypeConfiguration<CashShift>
             .HasForeignKey(s => s.CashShiftId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(e => e.Movements)
+            .WithOne()
+            .HasForeignKey(m => m.CashShiftId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(e => e.TenantId);
     }
 }
