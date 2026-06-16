@@ -4,7 +4,7 @@ This solution is using .NET 10 as backend and c# 14 version. The architecture mu
 Is a multitenancy application, sharing the same database for all clients.
 Program.cs must be clean. All services must be added via Services.InstallService method.
 
-**Active feature plan**: `specs/016-cashshift-lifecycle/plan.md`
+**Active feature plan**: `specs/017-offline-sale-sync/plan.md`
 **Constitution**: `.specify/memory/constitution.md`
 
 <!-- SPECKIT END -->

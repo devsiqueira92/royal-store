@@ -17,6 +17,9 @@ public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
         builder.Property(e => e.SaleId).IsRequired();
         builder.Property(e => e.ProductId).IsRequired();
 
+        builder.Property(e => e.ProductName).HasMaxLength(200).IsRequired();
+        builder.Property(e => e.ProductCode).HasMaxLength(100);
+
         builder.Property(e => e.Quantity)
             .HasColumnType("decimal(18,4)")
             .IsRequired();
