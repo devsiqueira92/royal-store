@@ -70,5 +70,14 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<Sale>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<SaleItem>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<SalePayment>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<CashMovement>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
     }
 }

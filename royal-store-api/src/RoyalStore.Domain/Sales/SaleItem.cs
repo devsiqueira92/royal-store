@@ -5,6 +5,7 @@ namespace RoyalStore.Domain.Sales;
 
 public sealed class SaleItem : Entity
 {
+    public Guid TenantId { get; private set; }
     public Guid SaleId { get; private set; }
     public Guid ProductId { get; private set; }
     public decimal Quantity { get; private set; }
@@ -15,10 +16,11 @@ public sealed class SaleItem : Entity
 
     private SaleItem() : base(Guid.NewGuid()) { }
 
-    private SaleItem(Guid id, Guid saleId, Guid productId, decimal quantity,
+    private SaleItem(Guid id, Guid tenantId, Guid saleId, Guid productId, decimal quantity,
         decimal unitPrice, decimal totalPrice, string ncm, string? cest)
         : base(id)
     {
+        TenantId = tenantId;
         SaleId = saleId;
         ProductId = productId;
         Quantity = quantity;
@@ -28,11 +30,14 @@ public sealed class SaleItem : Entity
         Cest = cest;
     }
 
-    public static Result<SaleItem> Create(Guid id, Guid saleId, Guid productId,
+    public static Result<SaleItem> Create(Guid id, Guid tenantId, Guid saleId, Guid productId,
         decimal quantity, decimal unitPrice, decimal totalPrice, string ncm, string? cest)
     {
         if (id == Guid.Empty)
             return Error.Validation("saleitem.id_required", "Sale item ID is required.");
+
+        if (tenantId == Guid.Empty)
+            return Error.Validation("saleitem.tenant_required", "Tenant identifier is required.");
 
         if (saleId == Guid.Empty)
             return Error.Validation("saleitem.sale_required", "Sale identifier is required.");
@@ -63,6 +68,6 @@ public sealed class SaleItem : Entity
                 return Error.Validation("saleitem.cest_too_long", "CEST must not exceed 7 characters.");
         }
 
-        return new SaleItem(id, saleId, productId, quantity, unitPrice, totalPrice, ncm, cest);
+        return new SaleItem(id, tenantId, saleId, productId, quantity, unitPrice, totalPrice, ncm, cest);
     }
 }

@@ -13,6 +13,7 @@ public sealed class CashMovementConfiguration : IEntityTypeConfiguration<CashMov
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.CashShiftId).IsRequired();
 
         builder.Property(e => e.UserId).HasMaxLength(450);
@@ -35,6 +36,7 @@ public sealed class CashMovementConfiguration : IEntityTypeConfiguration<CashMov
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.CashShiftId);
     }
 }

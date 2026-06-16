@@ -12,6 +12,7 @@ public sealed class SalePaymentConfiguration : IEntityTypeConfiguration<SalePaym
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.SaleId).IsRequired();
 
         builder.Property(e => e.Method)
@@ -22,6 +23,7 @@ public sealed class SalePaymentConfiguration : IEntityTypeConfiguration<SalePaym
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
+        builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.SaleId);
     }
 }
