@@ -100,6 +100,7 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ISellerRepository, SellerRepository>();
+        services.AddScoped<ICashShiftRepository, CashShiftRepository>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
