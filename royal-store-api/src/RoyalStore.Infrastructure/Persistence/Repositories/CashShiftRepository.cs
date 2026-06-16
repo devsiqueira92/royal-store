@@ -27,4 +27,10 @@ public sealed class CashShiftRepository : ICashShiftRepository
         _context.CashShifts.Update(cashShift);
         return Task.CompletedTask;
     }
+
+    public async Task<HashSet<Guid>> GetExistingIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default) =>
+        new HashSet<Guid>(await _context.CashShifts
+            .Where(cs => ids.Contains(cs.Id))
+            .Select(cs => cs.Id)
+            .ToListAsync(ct));
 }

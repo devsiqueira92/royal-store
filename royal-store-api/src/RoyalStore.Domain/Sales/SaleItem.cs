@@ -8,6 +8,8 @@ public sealed class SaleItem : Entity
     public Guid TenantId { get; private set; }
     public Guid SaleId { get; private set; }
     public Guid ProductId { get; private set; }
+    public string ProductName { get; private set; } = string.Empty;
+    public string? ProductCode { get; private set; }
     public decimal Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
     public decimal TotalPrice { get; private set; }
@@ -16,13 +18,16 @@ public sealed class SaleItem : Entity
 
     private SaleItem() : base(Guid.NewGuid()) { }
 
-    private SaleItem(Guid id, Guid tenantId, Guid saleId, Guid productId, decimal quantity,
+    private SaleItem(Guid id, Guid tenantId, Guid saleId, Guid productId,
+        string productName, string? productCode, decimal quantity,
         decimal unitPrice, decimal totalPrice, string ncm, string? cest)
         : base(id)
     {
         TenantId = tenantId;
         SaleId = saleId;
         ProductId = productId;
+        ProductName = productName;
+        ProductCode = productCode;
         Quantity = quantity;
         UnitPrice = unitPrice;
         TotalPrice = totalPrice;
@@ -31,7 +36,8 @@ public sealed class SaleItem : Entity
     }
 
     public static Result<SaleItem> Create(Guid id, Guid tenantId, Guid saleId, Guid productId,
-        decimal quantity, decimal unitPrice, decimal totalPrice, string ncm, string? cest)
+        string productName, string? productCode, decimal quantity,
+        decimal unitPrice, decimal totalPrice, string ncm, string? cest)
     {
         if (id == Guid.Empty)
             return Error.Validation("saleitem.id_required", "Sale item ID is required.");
@@ -54,6 +60,16 @@ public sealed class SaleItem : Entity
         if (totalPrice < 0)
             return Error.Validation("saleitem.total_price_negative", "Total price cannot be negative.");
 
+        if (string.IsNullOrWhiteSpace(productName))
+            return Error.Validation("saleitem.product_name_required", "Product name is required.");
+
+        productName = productName.Trim();
+        if (productName.Length > 200)
+            return Error.Validation("saleitem.product_name_too_long", "Product name must not exceed 200 characters.");
+
+        if (productCode is not null && productCode.Length > 100)
+            return Error.Validation("saleitem.product_code_too_long", "Product code must not exceed 100 characters.");
+
         if (string.IsNullOrWhiteSpace(ncm))
             return Error.Validation("saleitem.ncm_required", "NCM is required.");
 
@@ -68,6 +84,6 @@ public sealed class SaleItem : Entity
                 return Error.Validation("saleitem.cest_too_long", "CEST must not exceed 7 characters.");
         }
 
-        return new SaleItem(id, tenantId, saleId, productId, quantity, unitPrice, totalPrice, ncm, cest);
+        return new SaleItem(id, tenantId, saleId, productId, productName, productCode, quantity, unitPrice, totalPrice, ncm, cest);
     }
 }
