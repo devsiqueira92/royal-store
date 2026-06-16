@@ -6,6 +6,7 @@ using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Security;
+using RoyalStore.Domain.Sales;
 using RoyalStore.Domain.Sellers;
 using RoyalStore.Domain.Tenants;
 
@@ -18,6 +19,11 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<Tenant> Tenants { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<CashShift> CashShifts { get; set; } = null!;
+    public DbSet<CashMovement> CashMovements { get; set; } = null!;
+    public DbSet<Sale> Sales { get; set; } = null!;
+    public DbSet<SaleItem> SaleItems { get; set; } = null!;
+    public DbSet<SalePayment> SalePayments { get; set; } = null!;
     public DbSet<Seller> Sellers { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
@@ -58,5 +64,11 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<Seller>()
             .HasQueryFilter(s => s.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<CashShift>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Sale>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
     }
 }
