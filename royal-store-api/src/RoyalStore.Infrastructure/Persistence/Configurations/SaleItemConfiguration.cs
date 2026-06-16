@@ -13,6 +13,7 @@ public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.TenantId).IsRequired();
         builder.Property(e => e.SaleId).IsRequired();
         builder.Property(e => e.ProductId).IsRequired();
 
@@ -40,6 +41,7 @@ public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
             .HasForeignKey(e => e.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.SaleId);
     }
 }

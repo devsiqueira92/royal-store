@@ -434,6 +434,9 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -444,6 +447,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CashShiftId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("UserId");
 
@@ -596,6 +601,9 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -607,6 +615,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.HasIndex("SaleId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("SaleItems", (string)null);
                 });
@@ -626,9 +636,14 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SaleId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("SalePayments", (string)null);
                 });
