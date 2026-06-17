@@ -43,4 +43,13 @@ public sealed class ProductRepository : IProductRepository
         _context.Products.Update(product);
         return Task.CompletedTask;
     }
+
+    public async Task<IReadOnlyList<Product>> GetForCatalogAsync(DateTimeOffset? since, CancellationToken ct = default)
+    {
+        var query = _context.Products.AsQueryable();
+        query = since.HasValue
+            ? query.Where(p => p.UpdatedAt > since.Value)
+            : query.Where(p => p.IsActive);
+        return await query.ToListAsync(ct);
+    }
 }

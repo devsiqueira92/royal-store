@@ -33,4 +33,13 @@ public sealed class CategoryRepository : ICategoryRepository
         _context.Categories.Update(category);
         return Task.CompletedTask;
     }
+
+    public async Task<IReadOnlyList<Category>> GetForCatalogAsync(DateTimeOffset? since, CancellationToken ct = default)
+    {
+        var query = _context.Categories.AsQueryable();
+        query = since.HasValue
+            ? query.Where(c => c.UpdatedAt > since.Value)
+            : query.Where(c => c.IsActive);
+        return await query.ToListAsync(ct);
+    }
 }
