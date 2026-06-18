@@ -74,7 +74,7 @@ public sealed class Sale : Entity, IAuditableEntity
         FiscalStatus = newStatus;
         ExternalInvoiceId = newStatus == InvoiceStatus.Authorized ? externalInvoiceId : null;
         ReceiptPrintUrl = newStatus == InvoiceStatus.Authorized ? receiptPrintUrl : null;
-        FiscalErrorMessage = newStatus == InvoiceStatus.Rejected ? errorMessage : null;
+        FiscalErrorMessage = newStatus is InvoiceStatus.Rejected or InvoiceStatus.Pending ? errorMessage : null;
         return Result.Success();
     }
 }

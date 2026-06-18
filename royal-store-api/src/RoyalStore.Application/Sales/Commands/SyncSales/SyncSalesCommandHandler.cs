@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Abstractions.Fiscal;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Sales.DTOs;
 using RoyalStore.Domain.Common;
@@ -16,19 +17,22 @@ public sealed class SyncSalesCommandHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantContext _tenantContext;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IFiscalReceiptQueue _fiscalQueue;
 
     public SyncSalesCommandHandler(
         ISaleRepository saleRepository,
         ICashShiftRepository cashShiftRepository,
         IUnitOfWork unitOfWork,
         ITenantContext tenantContext,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IFiscalReceiptQueue fiscalQueue)
     {
         _saleRepository = saleRepository;
         _cashShiftRepository = cashShiftRepository;
         _unitOfWork = unitOfWork;
         _tenantContext = tenantContext;
         _currentUserService = currentUserService;
+        _fiscalQueue = fiscalQueue;
     }
 
     public async Task<Result<SyncSalesResponse>> Handle(
@@ -155,6 +159,9 @@ public sealed class SyncSalesCommandHandler
                 await _saleRepository.AddPaymentsAsync(paymentsToAdd, cancellationToken);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+                foreach (var sale in salesToAdd)
+                    await _fiscalQueue.QueueSaleAsync(sale.Id, cancellationToken);
+
                 results.AddRange(salesToAdd.Select(s => new SaleSyncItemResult(s.Id, SyncStatus.Created)));
             }
             catch (DbUpdateException)
@@ -171,6 +178,7 @@ public sealed class SyncSalesCommandHandler
                         await _saleRepository.AddItemsAsync(saleItems, cancellationToken);
                         await _saleRepository.AddPaymentsAsync(salePayments, cancellationToken);
                         await _unitOfWork.SaveChangesAsync(cancellationToken);
+                        await _fiscalQueue.QueueSaleAsync(sale.Id, cancellationToken);
 
                         results.Add(new SaleSyncItemResult(sale.Id, SyncStatus.Created));
                     }
