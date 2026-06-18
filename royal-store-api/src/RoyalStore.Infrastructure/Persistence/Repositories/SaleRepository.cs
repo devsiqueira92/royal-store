@@ -28,4 +28,13 @@ public sealed class SaleRepository : ISaleRepository
             .Where(s => ids.Contains(s.Id))
             .Select(s => s.Id)
             .ToListAsync(ct));
+
+    public async Task<Sale?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        await _context.Sales.FindAsync([id], ct);
+
+    public Task UpdateAsync(Sale sale, CancellationToken ct = default)
+    {
+        _context.Sales.Update(sale);
+        return Task.CompletedTask;
+    }
 }
