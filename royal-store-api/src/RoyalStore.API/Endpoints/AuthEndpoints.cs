@@ -1,6 +1,9 @@
+using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.Options;
 using RoyalStore.Application.Tenants.Commands.ChangePendingEmail;
 using RoyalStore.Application.Tenants.Commands.ForgotPassword;
 using RoyalStore.Application.Tenants.Commands.Login;
@@ -15,17 +18,26 @@ public sealed class AuthEndpoints : IEndpointDefinition
 {
     public void RegisterEndpoints(WebApplication app)
     {
-        var routes = app.MapGroup("api/auth").WithTags("Auth").AllowAnonymous();
+        // Deliberately NOT AllowAnonymous() at the group level: ASP.NET Core's
+        // AllowAnonymous metadata short-circuits authorization for every route
+        // in the group, even ones that later call .RequireAuthorization() —
+        // so each anonymous route below opts in individually instead, leaving
+        // "session" as the group's only authenticated route.
+        var routes = app.MapGroup("api/auth").WithTags("Auth");
 
-        routes.MapPost("register", Register);
-        routes.MapGet("verify-email", VerifyEmail);
-        routes.MapPost("login", Login);
-        routes.MapPost("forgot-password", ForgotPassword);
-        routes.MapPost("reset-password", ResetPassword);
+        routes.MapPost("register", Register).AllowAnonymous();
+        routes.MapGet("verify-email", VerifyEmail).AllowAnonymous();
+        routes.MapPost("login", Login).AllowAnonymous();
+        routes.MapPost("forgot-password", ForgotPassword).AllowAnonymous();
+        routes.MapPost("reset-password", ResetPassword).AllowAnonymous();
         routes.MapPost("resend-confirmation-email", ResendConfirmationEmail)
+            .AllowAnonymous()
             .RequireRateLimiting("resend-confirmation-email");
         routes.MapPost("change-pending-email", ChangePendingEmail)
+            .AllowAnonymous()
             .RequireRateLimiting("change-pending-email");
+        routes.MapPost("logout", Logout).AllowAnonymous();
+        routes.MapGet("session", Session).RequireAuthorization();
     }
 
     private static async Task<IResult> Register(IMediator mediator, RegisterTenantCommand command, CancellationToken ct)
@@ -34,10 +46,20 @@ public sealed class AuthEndpoints : IEndpointDefinition
         return result.ToHttpResult(r => TypedResults.Created($"/tenants/{r.TenantId}", r));
     }
 
-    private static async Task<IResult> Login(IMediator mediator, LoginCommand command, CancellationToken ct)
+    private static async Task<IResult> Login(
+        IMediator mediator,
+        LoginCommand command,
+        HttpContext httpContext,
+        IWebHostEnvironment environment,
+        IOptions<AuthCookieOptions> authCookieOptions,
+        CancellationToken ct)
     {
         var result = await mediator.Send(command, ct);
-        return result.ToHttpResult(token => TypedResults.Ok(token));
+        return result.ToHttpResult(token =>
+        {
+            httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, environment, authCookieOptions.Value);
+            return TypedResults.Ok(new { Message = "Login successful." });
+        });
     }
 
     private static async Task<IResult> VerifyEmail(
@@ -96,5 +118,27 @@ public sealed class AuthEndpoints : IEndpointDefinition
         {
             Message = "Your email has been updated. A new confirmation email has been sent."
         }));
+    }
+
+    private static IResult Logout(
+        HttpContext httpContext,
+        IWebHostEnvironment environment,
+        IOptions<AuthCookieOptions> authCookieOptions)
+    {
+        httpContext.Response.ClearAuthCookie(environment, authCookieOptions.Value);
+        return TypedResults.Ok(new { Message = "Logged out successfully." });
+    }
+
+    private static IResult Session(ClaimsPrincipal user)
+    {
+        // The JWT Bearer handler's default inbound claim mapping rewrites some
+        // standard short claim types (e.g. "email") to their long ClaimTypes.*
+        // equivalent when building the ClaimsPrincipal, even though the token
+        // itself was signed with the short JwtRegisteredClaimNames form.
+        var email = user.FindFirstValue(ClaimTypes.Email);
+        var tenantId = user.FindFirstValue("tenantId");
+        var role = user.FindFirstValue(ClaimTypes.Role);
+
+        return TypedResults.Ok(new { Email = email, TenantId = tenantId, Role = role });
     }
 }
