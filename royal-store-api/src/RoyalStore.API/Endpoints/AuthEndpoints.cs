@@ -15,7 +15,7 @@ public sealed class AuthEndpoints : IEndpointDefinition
     {
         var routes = app.MapGroup("api/auth").WithTags("Auth").AllowAnonymous();
 
-        routes.MapPost("", Register);
+        routes.MapPost("register", Register);
         routes.MapGet("verify-email", VerifyEmail);
         routes.MapPost("login", Login);
         routes.MapPost("forgot-password", ForgotPassword);
