@@ -15,6 +15,8 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import localeEn from '@angular/common/locales/en';
 import { errorInterceptor } from './shared/interceptors/error.interceptor';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 registerLocaleData(localeEn);
 
@@ -38,5 +40,9 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     { provide: LOCALE_ID, useValue: 'en-US' },
+    DialogService,
+    DynamicDialogRef,
+    MessageService,
+    ConfirmationService,
   ],
 };

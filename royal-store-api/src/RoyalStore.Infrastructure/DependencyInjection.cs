@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -25,6 +26,9 @@ using RoyalStore.Infrastructure.Security;
 using RoyalStore.Infrastructure.Services;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace RoyalStore.Infrastructure;
 
@@ -109,14 +113,35 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<IEmailService, ConsoleEmailService>();
         services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
         services.AddScoped<ISecurityAuditService, SecurityAuditService>();
+        services.AddScoped<IConfirmationResendRequestRepository, ConfirmationResendRequestRepository>();
 
         services.AddOptions<PasswordResetOptions>()
             .BindConfiguration("PasswordReset")
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<ResendConfirmationOptions>()
+            .BindConfiguration("ResendConfirmation")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.Configure<DataProtectionTokenProviderOptions>(o =>
             o.TokenLifespan = TimeSpan.FromMinutes(
                 configuration.GetValue<int>("PasswordReset:TokenExpiryMinutes", 60)));
+
+        services.AddRateLimiter(rateLimiterOptions =>
+        {
+            rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            rateLimiterOptions.AddPolicy("resend-confirmation-email", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = configuration.GetValue("ResendConfirmation:IpPermitLimit", 20),
+                        Window = TimeSpan.FromMinutes(
+                            configuration.GetValue("ResendConfirmation:IpWindowMinutes", 1))
+                    }));
+        });
     }
 }

@@ -9,10 +9,7 @@ public sealed class FiscalReceiptQueue : IFiscalReceiptQueue
 
     public ValueTask QueueSaleAsync(Guid saleId, CancellationToken ct = default)
     {
-        var queued = _channel.Writer.TryWrite(saleId);
-        if (!queued) {
-            _logger.LogWarning("Failed to queue sale {SaleId} to memory channel.", saleId);
-        }
+        _channel.Writer.TryWrite(saleId);
         return ValueTask.CompletedTask;
     }
 
