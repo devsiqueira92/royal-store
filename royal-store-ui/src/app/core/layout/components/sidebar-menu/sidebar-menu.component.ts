@@ -34,9 +34,9 @@ export class SidebarMenuComponent {
         icon: 'pi pi-home',
         items: [
           {
-            label: 'Appointments',
-            icon: 'pi pi-calendar',
-            routerLink: '/appointment',
+            label: 'Dashboard',
+            icon: 'pi pi-chart-bar',
+            routerLink: '/dashboard',
           },
           {
             label: 'Estoque',
@@ -44,66 +44,31 @@ export class SidebarMenuComponent {
             routerLink: '/inventory',
           },
           {
-            label: 'Pet',
-            icon: 'pi pi-crown',
-            routerLink: '/pet',
-          },
-          {
-            label: 'Proprietário',
-            icon: 'pi pi-user',
-            routerLink: '/owner',
-          },
-          {
-            label: 'Profissional',
-            icon: 'pi pi-user',
-            routerLink: '/professional',
-          },
-          {
-            label: 'Vacinas',
-            icon: 'pi pi-history',
-            routerLink: '/vaccine-history',
-          },
-          {
-            label: 'Protocolos',
-            icon: 'pi pi-list-check',
-            routerLink: '/protocol',
-          },
-        ],
-      },
-      {
-        label: 'Financeiro',
-        icon: 'pi pi-wallet',
-        items: [
-          {
-            label: 'Despesas',
-            icon: 'pi pi-receipt',
-            routerLink: '/installation',
-          },
-          {
-            label: 'Consultas',
+            label: 'PDV',
             icon: 'pi pi-dollar',
-            routerLink: '/pet',
-          },
-          {
-            label: 'Gráfico',
-            icon: 'pi pi-chart-bar',
-            routerLink: '/pet',
+            routerLink: '/sales',
           },
         ],
       },
+
       {
         label: 'Configurações',
         icon: 'pi pi-cog',
         items: [
           {
-            label: 'Installation',
-            icon: 'pi pi-eraser',
-            routerLink: '/installation',
+            label: 'Categorias',
+            icon: 'pi pi-tags',
+            routerLink: '/categories',
           },
           {
             label: 'Configuration',
-            icon: 'pi pi-heart',
-            routerLink: '/pet',
+            icon: 'pi pi-wrench',
+            routerLink: '/configuration',
+          },
+          {
+            label: 'Vendedores',
+            icon: 'pi pi-users',
+            routerLink: '/salespeople',
           },
         ],
       },

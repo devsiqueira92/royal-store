@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.Tenants.Commands.ChangePendingEmail;
 using RoyalStore.Application.Tenants.Commands.ForgotPassword;
 using RoyalStore.Application.Tenants.Commands.Login;
 using RoyalStore.Application.Tenants.Commands.RegisterTenant;
@@ -23,6 +24,8 @@ public sealed class AuthEndpoints : IEndpointDefinition
         routes.MapPost("reset-password", ResetPassword);
         routes.MapPost("resend-confirmation-email", ResendConfirmationEmail)
             .RequireRateLimiting("resend-confirmation-email");
+        routes.MapPost("change-pending-email", ChangePendingEmail)
+            .RequireRateLimiting("change-pending-email");
     }
 
     private static async Task<IResult> Register(IMediator mediator, RegisterTenantCommand command, CancellationToken ct)
@@ -80,6 +83,18 @@ public sealed class AuthEndpoints : IEndpointDefinition
         return result.ToHttpResult(() => TypedResults.Ok(new
         {
             Message = "If an account with this email exists and is not yet confirmed, a new confirmation email has been sent."
+        }));
+    }
+
+    private static async Task<IResult> ChangePendingEmail(
+        IMediator mediator,
+        ChangePendingEmailCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command, ct);
+        return result.ToHttpResult(() => TypedResults.Ok(new
+        {
+            Message = "Your email has been updated. A new confirmation email has been sent."
         }));
     }
 }
