@@ -1,0 +1,30 @@
+<div class="card">
+  <p-menubar>
+    <ng-template #start>
+      <p-button
+        size="small"
+        (click)="updateVisibility(!isSidebarVisible())"
+        icon="pi pi-bars"
+      ></p-button>
+    </ng-template>
+
+    <ng-template #end>
+      <ul class="d-flex align-items-center list-unstyled m-0">
+        <li class="mx-4">
+          <a class="cursor-pointer">
+            <i class="pi pi-bell" style="font-size: 1.2rem"></i>
+          </a>
+        </li>
+        <li>
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+            shape="circle"
+            (click)="userMenu.toggle($event)"
+          />
+
+          <p-menu #userMenu [model]="items" [popup]="true"></p-menu>
+        </li>
+      </ul>
+    </ng-template>
+  </p-menubar>
+</div>

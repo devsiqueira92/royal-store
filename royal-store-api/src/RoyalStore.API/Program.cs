@@ -22,6 +22,8 @@ app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseRateLimiter();
+
 await DatabaseSeeder.SeedRolesAsync(app.Services);
 
 app.UseAuthentication();

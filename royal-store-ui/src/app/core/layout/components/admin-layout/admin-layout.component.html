@@ -1,0 +1,9 @@
+<app-sidebar-menu></app-sidebar-menu>
+<div class="main-content" [class.content-pushed]="shouldPushContent()">
+  <app-header></app-header>
+
+  <div class="mt-4">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+as
