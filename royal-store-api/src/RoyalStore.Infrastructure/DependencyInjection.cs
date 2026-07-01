@@ -86,6 +86,18 @@ public sealed class DependencyInjection : IInstallService
                     RoleClaimType = ClaimTypes.Role,
                     ClockSkew = TimeSpan.Zero,
                 };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var cookieName = configuration["AuthCookie:CookieName"] ?? "access_token";
+                        if (context.Request.Cookies.TryGetValue(cookieName, out var token))
+                            context.Token = token;
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         services.AddAuthorization(options =>
@@ -130,6 +142,25 @@ public sealed class DependencyInjection : IInstallService
             .BindConfiguration("ChangePendingEmail")
             .ValidateDataAnnotations()
             .ValidateOnStart();
+
+        services.AddOptions<AuthCookieOptions>()
+            .BindConfiguration("AuthCookie")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<CorsOptions>()
+            .BindConfiguration("Cors")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddCors(corsOptions =>
+        {
+            corsOptions.AddPolicy("frontend", policy =>
+                policy.WithOrigins(configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+                    .AllowCredentials()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+        });
 
         services.Configure<DataProtectionTokenProviderOptions>(o =>
             o.TokenLifespan = TimeSpan.FromMinutes(

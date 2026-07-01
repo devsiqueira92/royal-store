@@ -24,6 +24,8 @@ app.UseHttpsRedirection();
 
 app.UseRateLimiter();
 
+app.UseCors("frontend");
+
 await DatabaseSeeder.SeedRolesAsync(app.Services);
 
 app.UseAuthentication();
