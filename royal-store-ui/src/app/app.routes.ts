@@ -2,14 +2,14 @@ import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from './core/layout/components/admin-layout/admin-layout.component';
 
 export const routes: Routes = [
-  //   {
-  //     path: 'auth',
-  //     // loadChildren: () =>
-  //     //   import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
-  //   },
+  {
+    path: 'auth',
+    loadChildren: () =>
+      import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
+  },
   {
     path: '',
-    component: AdminLayoutComponent, // Aplica o layout estrutural
+    component: AdminLayoutComponent,
     // canActivate: [authGuard], // Se não estiver logado, o guard barra aqui
     children: [
       //   {
