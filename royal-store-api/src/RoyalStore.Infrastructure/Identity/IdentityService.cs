@@ -98,4 +98,18 @@ public sealed class IdentityService : IIdentityService
     public Task<bool> UserNameExistsInTenantAsync(string userName, Guid tenantId, CancellationToken ct = default) =>
         _userManager.Users.AnyAsync(
             u => u.NormalizedUserName == _userManager.NormalizeName(userName) && u.TenantId == tenantId, ct);
+
+    public async Task<Result> ChangeEmailAsync(UserEntity user, string newEmail)
+    {
+        // SetEmailAsync already resets EmailConfirmed to false and rotates SecurityStamp
+        // internally, invalidating any previously issued confirmation token in one call.
+        var result = await _userManager.SetEmailAsync(user, newEmail);
+        if (!result.Succeeded)
+        {
+            var message = string.Join(" ", result.Errors.Select(e => e.Description));
+            return Result.Failure(Error.Validation("email_change.invalid_email", message));
+        }
+
+        return Result.Success();
+    }
 }

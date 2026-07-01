@@ -342,6 +342,46 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("ConfirmationResendRequests", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Identity.EmailChangeRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("WasSuccessful")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "TenantId", "WasSuccessful", "CreatedAt");
+
+                    b.ToTable("EmailChangeRequests", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Identity.PasswordResetRequest", b =>
                 {
                     b.Property<Guid>("Id")

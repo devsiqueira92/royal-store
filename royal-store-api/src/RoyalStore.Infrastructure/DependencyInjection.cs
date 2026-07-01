@@ -114,6 +114,7 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
         services.AddScoped<ISecurityAuditService, SecurityAuditService>();
         services.AddScoped<IConfirmationResendRequestRepository, ConfirmationResendRequestRepository>();
+        services.AddScoped<IEmailChangeRequestRepository, EmailChangeRequestRepository>();
 
         services.AddOptions<PasswordResetOptions>()
             .BindConfiguration("PasswordReset")
@@ -122,6 +123,11 @@ public sealed class DependencyInjection : IInstallService
 
         services.AddOptions<ResendConfirmationOptions>()
             .BindConfiguration("ResendConfirmation")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<ChangePendingEmailOptions>()
+            .BindConfiguration("ChangePendingEmail")
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
@@ -141,6 +147,16 @@ public sealed class DependencyInjection : IInstallService
                         PermitLimit = configuration.GetValue("ResendConfirmation:IpPermitLimit", 20),
                         Window = TimeSpan.FromMinutes(
                             configuration.GetValue("ResendConfirmation:IpWindowMinutes", 1))
+                    }));
+
+            rateLimiterOptions.AddPolicy("change-pending-email", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = configuration.GetValue("ChangePendingEmail:IpPermitLimit", 20),
+                        Window = TimeSpan.FromMinutes(
+                            configuration.GetValue("ChangePendingEmail:IpWindowMinutes", 1))
                     }));
         });
     }

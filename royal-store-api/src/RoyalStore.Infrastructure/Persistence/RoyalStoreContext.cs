@@ -28,6 +28,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
     public DbSet<ConfirmationResendRequest> ConfirmationResendRequests { get; set; } = null!;
+    public DbSet<EmailChangeRequest> EmailChangeRequests { get; set; } = null!;
 
     public RoyalStoreContext(DbContextOptions<RoyalStoreContext> options, ITenantContext tenantContext)
         : base(options)
