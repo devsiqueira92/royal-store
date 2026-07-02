@@ -6,6 +6,7 @@ import { RegisterRequest } from '../interfaces/register-request.interface';
 import { LoginRequest } from '../interfaces/login-request.interface';
 import { TokenResponse } from '../interfaces/token-response.interface';
 import { ForgotPasswordRequest } from '../interfaces/forgot-password-request.interface';
+import { ResendConfirmationEmailRequest } from '../interfaces/resend-confirmation-email-request.interface';
 import { ResetPasswordRequest } from '../interfaces/reset-password-request.interface';
 import { MessageResponse } from '../interfaces/message-response.interface';
 import { User } from '../interfaces/user.interface';
@@ -38,6 +39,15 @@ export class AuthService {
     return this.http.get<MessageResponse>(`${this.apiUrl}/verify-email`, {
       params: { userId, token },
     });
+  }
+
+  resendConfirmationEmail(
+    request: ResendConfirmationEmailRequest,
+  ): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/resend-confirmation-email`,
+      request,
+    );
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<MessageResponse> {

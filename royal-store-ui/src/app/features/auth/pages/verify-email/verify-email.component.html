@@ -1,1 +1,113 @@
-<p>verify-email works!</p>
+<div class="verify-email-page">
+  <div class="verify-email-card row">
+    @switch (status()) {
+      @case ('success') {
+        <div class="col-12 result-state">
+          <i class="pi pi-check-circle result-icon success"></i>
+          <h1 class="result-title">
+            {{ 'auth.verifyEmail.successTitle' | translate }}
+          </h1>
+          <p class="result-description">
+            {{ 'auth.verifyEmail.successDescription' | translate }}
+          </p>
+
+          <app-button
+            class="go-to-login-btn"
+            severity="primary"
+            label="auth.verifyEmail.goToLogin"
+            (onClick)="goToLogin()"
+          ></app-button>
+        </div>
+      }
+
+      @case ('error') {
+        <div class="col-12 result-state">
+          <i class="pi pi-times-circle result-icon error"></i>
+          <h1 class="result-title">
+            {{ 'auth.verifyEmail.errorTitle' | translate }}
+          </h1>
+          <p class="result-description">
+            {{ 'auth.verifyEmail.errorDescription' | translate }}
+          </p>
+
+          <app-button
+            class="go-to-login-btn"
+            severity="primary"
+            label="auth.verifyEmail.goToLogin"
+            (onClick)="goToLogin()"
+          ></app-button>
+        </div>
+      }
+
+      @case ('verifying') {
+        <div class="col-12 result-state">
+          <i class="pi pi-spin pi-spinner result-icon"></i>
+          <p class="result-description">
+            {{ 'auth.verifyEmail.verifying' | translate }}
+          </p>
+        </div>
+      }
+
+      @default {
+        <header class="col-12 verify-email-header">
+          <i class="pi pi-inbox header-icon"></i>
+          <h1 class="verify-email-title">
+            {{ 'auth.verifyEmail.title' | translate }}
+          </h1>
+          <p class="verify-email-description">
+            {{ 'auth.verifyEmail.description' | translate }}
+          </p>
+        </header>
+
+        <div class="col-12 email-display">
+          <span class="email-value">{{ email() }}</span>
+
+          <span class="edit-email">
+            {{ 'auth.verifyEmail.wrongAddress' | translate }}
+            <button type="button" class="edit-email-btn" (click)="editEmail()">
+              {{ 'auth.verifyEmail.editEmail' | translate }}
+            </button>
+          </span>
+        </div>
+
+        <div class="col-12 spam-notice">
+          <i class="pi pi-folder-open"></i>
+          <span>{{ 'auth.verifyEmail.spamNotice' | translate }}</span>
+        </div>
+
+        <div class="col-12 verify-email-actions">
+          <app-button
+            icon="pi pi-envelope"
+            severity="secondary"
+            label="auth.verifyEmail.resendEmail"
+            [disabled]="isResending()"
+            (onClick)="resendEmail()"
+          ></app-button>
+
+          <a
+            class="open-gmail-link"
+            href="https://mail.google.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ 'auth.verifyEmail.openGmail' | translate }}
+            <i class="pi pi-arrow-up-right"></i>
+          </a>
+        </div>
+
+        <div class="col-12 prototype-section">
+          <span class="prototype-label">
+            {{ 'auth.verifyEmail.prototypeLabel' | translate }}
+          </span>
+
+          <app-button
+            [text]="true"
+            severity="secondary"
+            label="auth.verifyEmail.simulateClick"
+            (onClick)="simulateVerifiedClick()"
+          ></app-button>
+        </div>
+      }
+    }
+  </div>
+</div>

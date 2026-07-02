@@ -17,6 +17,23 @@
       "title": "Create your Royal Store account",
       "subtitle": "Set up your store and start selling in minutes."
     },
+    "verifyEmail": {
+      "title": "Almost there — check your inbox",
+      "description": "We sent a verification link to confirm it's really you. Your login stays locked until you activate the account.",
+      "wrongAddress": "Wrong address?",
+      "editEmail": "Edit email",
+      "spamNotice": "Don't see it? Check your Spam or Promotions folder — verification emails sometimes land there.",
+      "resendEmail": "Resend email",
+      "openGmail": "Open Gmail",
+      "prototypeLabel": "PROTOTYPE · simulate the email link",
+      "simulateClick": "I clicked the link",
+      "verifying": "Verifying your email...",
+      "successTitle": "Email verified",
+      "successDescription": "Your account is now active. You can sign in.",
+      "errorTitle": "Verification failed",
+      "errorDescription": "This verification link is invalid or expired.",
+      "goToLogin": "Go to login"
+    },
     "button": {
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",

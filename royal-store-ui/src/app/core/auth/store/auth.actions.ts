@@ -14,7 +14,7 @@ export const AuthActions = createActionGroup({
     'Login Success': props<{ response: TokenResponse }>(),
     'Login Failure': props<{ error: string }>(),
     Register: props<{ request: RegisterRequest }>(),
-    'Register Success': emptyProps(),
+    'Register Success': props<{ email: string }>(),
     'Register Failure': props<{ error: string }>(),
     Logout: emptyProps(),
   },

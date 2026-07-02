@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { NotificationService } from '../../../shared/services/notification.service';
 import { AuthActions } from './auth.actions';
 
 export const checkAuthProfile = createEffect(
@@ -85,7 +84,7 @@ export const register = createEffect(
       ofType(AuthActions.register),
       switchMap(({ request }) =>
         authService.register(request).pipe(
-          map(() => AuthActions.registerSuccess()),
+          map(() => AuthActions.registerSuccess({ email: request.email })),
           catchError((error: HttpErrorResponse) =>
             of(
               AuthActions.registerFailure({
@@ -103,20 +102,12 @@ export const register = createEffect(
 );
 
 export const registerSuccessRedirect = createEffect(
-  (
-    actions$ = inject(Actions),
-    router = inject(Router),
-    notificationService = inject(NotificationService),
-  ) => {
+  (actions$ = inject(Actions), router = inject(Router)) => {
     return actions$.pipe(
       ofType(AuthActions.registerSuccess),
-      tap(() => {
-        notificationService.success({
-          summary: 'Account created',
-          detail: 'Your account was created. Please check your email to verify it.',
-        });
-        router.navigate(['/auth/login']);
-      }),
+      tap(({ email }) =>
+        router.navigate(['/auth/verify-email'], { queryParams: { email } }),
+      ),
     );
   },
   {
