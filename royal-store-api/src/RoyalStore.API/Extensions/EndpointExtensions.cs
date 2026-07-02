@@ -32,7 +32,9 @@ public static class EndpointExtensions
     {
         ErrorType.Validation => Results.BadRequest(new { error.Code, error.Message }),
         ErrorType.Conflict => Results.Conflict(new { error.Code, error.Message }),
-        ErrorType.Unauthorized => Results.Unauthorized(),
+        ErrorType.Unauthorized => Results.Json(
+            new { error.Code, error.Message },
+            statusCode: StatusCodes.Status401Unauthorized),
         ErrorType.NotFound => Results.NotFound(new { error.Code, error.Message }),
         ErrorType.RateLimit => Results.StatusCode(429),
         _ => Results.Problem(error.Message)

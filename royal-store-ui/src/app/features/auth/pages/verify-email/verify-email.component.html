@@ -80,9 +80,18 @@
             icon="pi pi-envelope"
             severity="secondary"
             label="auth.verifyEmail.resendEmail"
-            [disabled]="isResending()"
+            [disabled]="isResending() || cooldownRemaining() > 0"
             (onClick)="resendEmail()"
           ></app-button>
+
+          @if (cooldownRemaining() > 0) {
+            <span class="resend-cooldown">
+              {{
+                'auth.verifyEmail.resendCooldown'
+                  | translate: { seconds: cooldownRemaining() }
+              }}
+            </span>
+          }
 
           <a
             class="open-gmail-link"
@@ -93,19 +102,6 @@
             {{ 'auth.verifyEmail.openGmail' | translate }}
             <i class="pi pi-arrow-up-right"></i>
           </a>
-        </div>
-
-        <div class="col-12 prototype-section">
-          <span class="prototype-label">
-            {{ 'auth.verifyEmail.prototypeLabel' | translate }}
-          </span>
-
-          <app-button
-            [text]="true"
-            severity="secondary"
-            label="auth.verifyEmail.simulateClick"
-            (onClick)="simulateVerifiedClick()"
-          ></app-button>
         </div>
       }
     }

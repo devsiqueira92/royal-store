@@ -5,4 +5,7 @@ export const {
   selectUser,
   selectIsLoading,
   selectError,
+  selectVerificationEmail,
+  selectVerifyEmailStatus,
+  selectIsResendingConfirmation,
 } = authFeature;

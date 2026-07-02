@@ -8,6 +8,9 @@ import {
   selectIsLoading,
   selectError,
   selectUser,
+  selectVerificationEmail,
+  selectVerifyEmailStatus,
+  selectIsResendingConfirmation,
 } from '../store/auth.selectors';
 
 @Injectable({
@@ -20,6 +23,9 @@ export class AuthFacade {
   user$ = this.store.select(selectUser);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
+  verificationEmail$ = this.store.select(selectVerificationEmail);
+  verifyEmailStatus$ = this.store.select(selectVerifyEmailStatus);
+  isResendingConfirmation$ = this.store.select(selectIsResendingConfirmation);
 
   checkProfile(): void {
     this.store.dispatch(AuthActions.checkAuthProfile());
@@ -31,6 +37,14 @@ export class AuthFacade {
 
   register(request: RegisterRequest): void {
     this.store.dispatch(AuthActions.register({ request }));
+  }
+
+  verifyEmail(userId: string, token: string): void {
+    this.store.dispatch(AuthActions.verifyEmail({ userId, token }));
+  }
+
+  resendConfirmationEmail(email: string): void {
+    this.store.dispatch(AuthActions.resendConfirmationEmail({ email }));
   }
 
   logout(): void {

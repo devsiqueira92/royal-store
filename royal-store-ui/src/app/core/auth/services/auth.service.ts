@@ -38,6 +38,7 @@ export class AuthService {
   verifyEmail(userId: string, token: string): Observable<MessageResponse> {
     return this.http.get<MessageResponse>(`${this.apiUrl}/verify-email`, {
       params: { userId, token },
+      context: new HttpContext().set(BYPASS_GLOBAL_ERROR, true),
     });
   }
 

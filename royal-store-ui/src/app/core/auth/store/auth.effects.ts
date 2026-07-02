@@ -4,7 +4,10 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { AuthActions } from './auth.actions';
+
+const EMAIL_NOT_VERIFIED_CODE = 'auth.email_not_verified';
 
 export const checkAuthProfile = createEffect(
   (
@@ -37,13 +40,19 @@ export const login = createEffect(
       switchMap(({ request }) =>
         authService.login(request).pipe(
           map(response => AuthActions.loginSuccess({ response })),
-          catchError((error: HttpErrorResponse) =>
-            of(
+          catchError((error: HttpErrorResponse) => {
+            if (error.error?.code === EMAIL_NOT_VERIFIED_CODE) {
+              return of(
+                AuthActions.loginUnverified({ email: request.email }),
+              );
+            }
+
+            return of(
               AuthActions.loginFailure({
                 error: error.error?.message ?? 'error.unknowError',
               }),
-            ),
-          ),
+            );
+          }),
         ),
       ),
     );
@@ -70,6 +79,19 @@ export const loginSuccessRedirect = createEffect(
     return actions$.pipe(
       ofType(AuthActions.loginSuccess),
       tap(() => router.navigate(['/'])),
+    );
+  },
+  {
+    functional: true,
+    dispatch: false,
+  },
+);
+
+export const loginUnverifiedRedirect = createEffect(
+  (actions$ = inject(Actions), router = inject(Router)) => {
+    return actions$.pipe(
+      ofType(AuthActions.loginUnverified),
+      tap(() => router.navigate(['/auth/verify-email'])),
     );
   },
   {
@@ -105,8 +127,77 @@ export const registerSuccessRedirect = createEffect(
   (actions$ = inject(Actions), router = inject(Router)) => {
     return actions$.pipe(
       ofType(AuthActions.registerSuccess),
-      tap(({ email }) =>
-        router.navigate(['/auth/verify-email'], { queryParams: { email } }),
+      tap(() => router.navigate(['/auth/verify-email'])),
+    );
+  },
+  {
+    functional: true,
+    dispatch: false,
+  },
+);
+
+export const verifyEmail = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) => {
+    return actions$.pipe(
+      ofType(AuthActions.verifyEmail),
+      switchMap(({ userId, token }) =>
+        authService.verifyEmail(userId, token).pipe(
+          map(() => AuthActions.verifyEmailSuccess()),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              AuthActions.verifyEmailFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const resendConfirmationEmail = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) => {
+    return actions$.pipe(
+      ofType(AuthActions.resendConfirmationEmail),
+      switchMap(({ email }) =>
+        authService.resendConfirmationEmail({ email }).pipe(
+          map(response =>
+            AuthActions.resendConfirmationEmailSuccess({
+              message: response.message,
+            }),
+          ),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              AuthActions.resendConfirmationEmailFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const resendConfirmationEmailNotify = createEffect(
+  (
+    actions$ = inject(Actions),
+    notificationService = inject(NotificationService),
+  ) => {
+    return actions$.pipe(
+      ofType(AuthActions.resendConfirmationEmailSuccess),
+      tap(({ message }) =>
+        notificationService.success({
+          summary: 'Verification email sent',
+          detail: message,
+        }),
       ),
     );
   },

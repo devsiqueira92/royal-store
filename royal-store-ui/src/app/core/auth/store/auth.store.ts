@@ -3,8 +3,12 @@ import {
   login,
   loginSuccessProfile,
   loginSuccessRedirect,
+  loginUnverifiedRedirect,
   register,
   registerSuccessRedirect,
+  resendConfirmationEmail,
+  resendConfirmationEmailNotify,
+  verifyEmail,
 } from './auth.effects';
 
 export const authStore = {
@@ -12,6 +16,10 @@ export const authStore = {
   login,
   loginSuccessProfile,
   loginSuccessRedirect,
+  loginUnverifiedRedirect,
   register,
   registerSuccessRedirect,
+  resendConfirmationEmail,
+  resendConfirmationEmailNotify,
+  verifyEmail,
 };

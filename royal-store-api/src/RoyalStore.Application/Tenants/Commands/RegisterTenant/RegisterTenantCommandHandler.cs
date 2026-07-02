@@ -79,7 +79,7 @@ public sealed class RegisterTenantCommandHandler
                 capturedEncodedToken = Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 capturedUserId = createdUser.Id;
 
-                return Result<RegistrationResponse>.Success(new RegistrationResponse(tenant.Id));
+                return Result<RegistrationResponse>.Success(new RegistrationResponse(tenant.Id, command.Email));
             },
             cancellationToken);
 
@@ -114,7 +114,7 @@ public sealed class RegisterTenantCommandHandler
                 capturedEncodedToken = Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 capturedUserId = createdUser.Id;
 
-                return Result<RegistrationResponse>.Success(new RegistrationResponse(tenant.Id));
+                return Result<RegistrationResponse>.Success(new RegistrationResponse(tenant.Id, command.Email));
             },
             cancellationToken);
     }

@@ -1,18 +1,18 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
+  OnInit,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { AuthService } from '@app-core/auth/services/auth.service';
-import { NotificationService } from '@app/shared/services/notification.service';
+import { AuthFacade } from '@app-core/auth/facade/auth.facade';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
-import { AuthFacade } from '@app/core/auth/facade/auth.facade';
-import { filter, switchMap } from 'rxjs';
 
-type VerifyEmailStatus = 'pending' | 'verifying' | 'success' | 'error';
+const RESEND_COOLDOWN_SECONDS = 60;
 
 @Component({
   imports: [TranslatePipe, ButtonComponent],
@@ -20,35 +20,41 @@ type VerifyEmailStatus = 'pending' | 'verifying' | 'success' | 'error';
   styleUrl: './verify-email.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VerifyEmailComponent {
+export class VerifyEmailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private authService = inject(AuthService);
   private authFacade = inject(AuthFacade);
-  private notificationService = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
-  protected readonly email = signal(
-    this.route.snapshot.queryParamMap.get('email') ?? '',
+  protected readonly email = toSignal(this.authFacade.verificationEmail$, {
+    initialValue: null,
+  });
+
+  protected readonly status = toSignal(this.authFacade.verifyEmailStatus$, {
+    initialValue: 'idle',
+  });
+
+  protected readonly isResending = toSignal(
+    this.authFacade.isResendingConfirmation$,
+    { initialValue: false },
   );
 
-  protected readonly status = signal<VerifyEmailStatus>('pending');
-  protected readonly isResending = signal(false);
+  protected readonly cooldownRemaining = signal(0);
 
-  constructor() {
+  private cooldownIntervalId?: ReturnType<typeof setInterval>;
+
+  ngOnInit(): void {
     const userId = this.route.snapshot.queryParamMap.get('userId');
     const token = this.route.snapshot.queryParamMap.get('token');
 
     if (userId && token) {
-      this.verifyEmail(userId, token);
+      this.authFacade.verifyEmail(userId, token);
     }
-  }
 
-  private verifyEmail(userId: string, token: string): void {
-    this.status.set('verifying');
-
-    this.authService.verifyEmail(userId, token).subscribe({
-      next: () => this.status.set('success'),
-      error: () => this.status.set('error'),
+    this.destroyRef.onDestroy(() => {
+      if (this.cooldownIntervalId) {
+        clearInterval(this.cooldownIntervalId);
+      }
     });
   }
 
@@ -61,32 +67,29 @@ export class VerifyEmailComponent {
   }
 
   protected resendEmail(): void {
-    if (this.isResending()) {
+    const email = this.email();
+
+    if (!email || this.isResending() || this.cooldownRemaining() > 0) {
       return;
     }
 
-    this.isResending.set(true);
-
-    this.authFacade.user$
-      .pipe(
-        filter(user => !!user),
-        switchMap(user =>
-          this.authService.resendConfirmationEmail({ email: user.email }),
-        ),
-      )
-      .subscribe({
-        next: response => {
-          this.isResending.set(false);
-          this.notificationService.success({
-            summary: 'Verification email sent',
-            detail: response.message,
-          });
-        },
-        error: () => this.isResending.set(false),
-      });
+    this.authFacade.resendConfirmationEmail(email);
+    this.startCooldown();
   }
 
-  protected simulateVerifiedClick(): void {
-    this.status.set('success');
+  private startCooldown(): void {
+    this.cooldownRemaining.set(RESEND_COOLDOWN_SECONDS);
+
+    this.cooldownIntervalId = setInterval(() => {
+      const remaining = this.cooldownRemaining() - 1;
+
+      if (remaining <= 0) {
+        this.cooldownRemaining.set(0);
+        clearInterval(this.cooldownIntervalId);
+        return;
+      }
+
+      this.cooldownRemaining.set(remaining);
+    }, 1000);
   }
 }
