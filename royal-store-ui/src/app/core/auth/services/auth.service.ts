@@ -23,7 +23,9 @@ export class AuthService {
   }
 
   register(request: RegisterRequest): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/register`, request);
+    return this.http.post<void>(`${this.apiUrl}/register`, request, {
+      context: new HttpContext().set(BYPASS_GLOBAL_ERROR, true),
+    });
   }
 
   login(request: LoginRequest): Observable<TokenResponse> {

@@ -11,10 +11,10 @@
       autocomplete="off"
     />
     <label [for]="label"
-      >{{ label }}
+      >{{ label | translate }}
 
       @if (parentForm.controls[controlName].hasValidator(Validators.required)) {
-        <i class="pi pi-asterisk required-icon" style="font-size: 0.5rem"></i>
+        <i class="pi pi-asterisk required-icon"></i>
       }
     </label>
   </p-floatlabel>
@@ -33,6 +33,7 @@
         {{
           'formValidation.' +
             objectKeys(parentForm.controls[controlName].errors || {})[0]
+            | translate
         }}
       </span>
     }

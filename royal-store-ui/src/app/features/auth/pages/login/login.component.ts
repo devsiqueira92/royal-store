@@ -6,7 +6,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -19,11 +18,7 @@ import { PasswordFieldComponent } from '../../../../shared/components/form-field
 import { LinkComponent } from '../../../../shared/components/form-fields/link/link.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DividerModule } from 'primeng/divider';
-
-interface LoginForm {
-  email: FormControl<string | null>;
-  password: FormControl<string | null>;
-}
+import { LoginForm } from '../../models/login-form.interface';
 
 @Component({
   imports: [
@@ -49,12 +44,8 @@ export class LoginComponent {
   private authFacade = inject(AuthFacade);
 
   protected readonly formGroup: FormGroup<LoginForm>;
-
   protected readonly isLoading$ = this.authFacade.isLoading$;
-
-  protected readonly loginError = toSignal(this.authFacade.error$, {
-    initialValue: null,
-  });
+  protected readonly error$ = this.authFacade.error$;
 
   constructor() {
     this.formGroup = this.buildForm();

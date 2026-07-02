@@ -4,12 +4,10 @@
       <h1 class="login-title">{{ 'auth.title' | translate }}</h1>
       <p class="login-subtitle">{{ 'auth.subtitle' | translate }}</p>
 
-      @if (loginError()) {
-        <p-message
-          styleClass="login-error"
-          severity="error"
-          [text]="loginError()!"
-        />
+      @if (error$ | async; as error) {
+        <p-message styleClass="register-error" severity="error">
+          {{ error }}
+        </p-message>
       }
     </header>
 
@@ -29,10 +27,7 @@
       >
       </app-password-field>
 
-      <app-link
-        class="forgot-password-link"
-        routerLink="/auth/forgot-password"
-      >
+      <app-link class="forgot-password-link" routerLink="/auth/forgot-password">
         {{ 'auth.button.forgotPassword' | translate }}
       </app-link>
     </div>

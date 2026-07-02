@@ -4,6 +4,7 @@ import {
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -17,6 +18,7 @@ import { PasswordModule } from 'primeng/password';
     MessageModule,
     FloatLabelModule,
     PasswordModule,
+    TranslatePipe,
   ],
   templateUrl: './password-field.component.html',
   styleUrl: './password-field.component.scss',

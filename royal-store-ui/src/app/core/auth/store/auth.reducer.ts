@@ -57,6 +57,21 @@ export const authFeature = createFeature({
       isLoading: false,
       error: error,
     })),
+    on(AuthActions.register, (state): AuthState => ({
+      ...state,
+      isLoading: true,
+      error: null,
+    })),
+    on(AuthActions.registerSuccess, (state): AuthState => ({
+      ...state,
+      isLoading: false,
+      error: null,
+    })),
+    on(AuthActions.registerFailure, (state, { error }): AuthState => ({
+      ...state,
+      isLoading: false,
+      error: error,
+    })),
     on(AuthActions.logout, (): AuthState => ({
       isAuthenticated: false,
       user: null,

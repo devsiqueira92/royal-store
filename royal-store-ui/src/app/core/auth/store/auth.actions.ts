@@ -1,5 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { LoginRequest } from '../interfaces/login-request.interface';
+import { RegisterRequest } from '../interfaces/register-request.interface';
 import { TokenResponse } from '../interfaces/token-response.interface';
 import { User } from '../interfaces/user.interface';
 
@@ -12,6 +13,9 @@ export const AuthActions = createActionGroup({
     Login: props<{ request: LoginRequest }>(),
     'Login Success': props<{ response: TokenResponse }>(),
     'Login Failure': props<{ error: string }>(),
+    Register: props<{ request: RegisterRequest }>(),
+    'Register Success': emptyProps(),
+    'Register Failure': props<{ error: string }>(),
     Logout: emptyProps(),
   },
 });

@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { LoginRequest } from '../interfaces/login-request.interface';
+import { RegisterRequest } from '../interfaces/register-request.interface';
 import { AuthActions } from '../store/auth.actions';
 import {
   selectIsAuthenticated,
@@ -26,6 +27,10 @@ export class AuthFacade {
 
   login(request: LoginRequest): void {
     this.store.dispatch(AuthActions.login({ request }));
+  }
+
+  register(request: RegisterRequest): void {
+    this.store.dispatch(AuthActions.register({ request }));
   }
 
   logout(): void {

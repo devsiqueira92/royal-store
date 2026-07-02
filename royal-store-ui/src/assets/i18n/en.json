@@ -7,11 +7,26 @@
     "subtitle": "Manage payments, payouts, and your store.",
     "email": "Email",
     "password": "Password",
+    "confirmPassword": "Confirm password",
+    "storeName": "Store name",
+    "document": "Document number",
+    "documentType": "Document type",
     "newToRoyalStore": "New to Royal Store?",
+    "alreadyHaveAccount": "Already have an account?",
+    "register": {
+      "title": "Create your Royal Store account",
+      "subtitle": "Set up your store and start selling in minutes."
+    },
     "button": {
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",
       "createAccount": "Create account"
     }
+  },
+  "formValidation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "minlength": "Value is too short.",
+    "passwordMismatch": "Passwords do not match."
   }
 }

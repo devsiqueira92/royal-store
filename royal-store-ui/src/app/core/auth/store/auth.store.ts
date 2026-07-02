@@ -3,6 +3,8 @@ import {
   login,
   loginSuccessProfile,
   loginSuccessRedirect,
+  register,
+  registerSuccessRedirect,
 } from './auth.effects';
 
 export const authStore = {
@@ -10,4 +12,6 @@ export const authStore = {
   login,
   loginSuccessProfile,
   loginSuccessRedirect,
+  register,
+  registerSuccessRedirect,
 };

@@ -4,6 +4,7 @@ import {
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -16,6 +17,7 @@ import { MessageModule } from 'primeng/message';
     InputTextModule,
     MessageModule,
     FloatLabelModule,
+    TranslatePipe,
   ],
   templateUrl: './input-field.component.html',
   styleUrl: './input-field.component.scss',

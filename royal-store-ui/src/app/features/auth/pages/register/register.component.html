@@ -1,1 +1,85 @@
-<p>register works!</p>
+<div class="register-page">
+  <form id="register-form" class="register-card row" [formGroup]="formGroup">
+    <header class="col-12 register-header">
+      <h1 class="register-title">{{ 'auth.register.title' | translate }}</h1>
+      <p class="register-subtitle">
+        {{ 'auth.register.subtitle' | translate }}
+      </p>
+
+      @if (registerError$ | async; as error) {
+        <p-message styleClass="register-error" severity="error">
+          {{ error }}
+        </p-message>
+      }
+    </header>
+
+    <app-input-field
+      class="col-12"
+      [parentForm]="formGroup"
+      controlName="storeName"
+      [label]="'auth.storeName'"
+    >
+    </app-input-field>
+
+    <app-input-field
+      class="col-12"
+      [parentForm]="formGroup"
+      controlName="email"
+      [label]="'auth.email'"
+    >
+    </app-input-field>
+
+    <div class="col-12 document-type-group">
+      <span class="document-type-label">
+        {{ 'auth.documentType' | translate }}
+      </span>
+      <p-selectbutton
+        formControlName="documentType"
+        [options]="documentTypeOptions"
+        optionLabel="label"
+        optionValue="value"
+      />
+    </div>
+
+    <app-input-field
+      class="col-12"
+      [parentForm]="formGroup"
+      controlName="document"
+      [label]="'auth.document'"
+    >
+    </app-input-field>
+
+    <app-password-field
+      class="col-12"
+      [parentForm]="formGroup"
+      controlName="password"
+      [label]="'auth.password'"
+    >
+    </app-password-field>
+
+    <app-password-field
+      class="col-12"
+      [parentForm]="formGroup"
+      controlName="confirmPassword"
+      [label]="'auth.confirmPassword'"
+    >
+    </app-password-field>
+
+    <div class="col-12 submit-actions">
+      <app-button
+        class="submit-btn"
+        severity="primary"
+        label="auth.button.createAccount"
+        [disabled]="(isLoading$ | async)!"
+        (onClick)="onSubmit()"
+      ></app-button>
+
+      <div class="signin-hint">
+        <span>{{ 'auth.alreadyHaveAccount' | translate }}</span>
+        <app-link routerLink="/auth/login">
+          {{ 'auth.button.signIn' | translate }}
+        </app-link>
+      </div>
+    </div>
+  </form>
+</div>
