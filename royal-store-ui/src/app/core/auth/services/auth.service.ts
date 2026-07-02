@@ -8,6 +8,7 @@ import { TokenResponse } from '../interfaces/token-response.interface';
 import { ForgotPasswordRequest } from '../interfaces/forgot-password-request.interface';
 import { ResetPasswordRequest } from '../interfaces/reset-password-request.interface';
 import { MessageResponse } from '../interfaces/message-response.interface';
+import { User } from '../interfaces/user.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +16,10 @@ import { MessageResponse } from '../interfaces/message-response.interface';
 export class AuthService {
   private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/auth`;
+
+  getUserProfile(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/session`);
+  }
 
   register(request: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/register`, request);
@@ -31,10 +36,16 @@ export class AuthService {
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.apiUrl}/forgot-password`, request);
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/forgot-password`,
+      request,
+    );
   }
 
   resetPassword(request: ResetPasswordRequest): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.apiUrl}/reset-password`, request);
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/reset-password`,
+      request,
+    );
   }
 }

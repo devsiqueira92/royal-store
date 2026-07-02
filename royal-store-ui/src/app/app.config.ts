@@ -17,6 +17,10 @@ import localeEn from '@angular/common/locales/en';
 import { errorInterceptor } from './shared/interceptors/error.interceptor';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { provideStore } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { authFeature } from './core/auth/store/auth.reducer';
+import { authStore } from './core/auth/store/auth.store';
 
 registerLocaleData(localeEn);
 
@@ -39,6 +43,8 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
+    provideStore({ [authFeature.name]: authFeature.reducer }),
+    provideEffects(authStore),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,
     DynamicDialogRef,
