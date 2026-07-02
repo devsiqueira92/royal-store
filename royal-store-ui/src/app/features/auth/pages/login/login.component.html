@@ -1,1 +1,61 @@
-<p>login works!</p>
+<div class="login-page">
+  <form id="login-form" class="login-card row" [formGroup]="formGroup">
+    <header class="col-12 login-header">
+      <h1 class="login-title">{{ 'auth.title' | translate }}</h1>
+      <p class="login-subtitle">{{ 'auth.subtitle' | translate }}</p>
+
+      @if (loginError()) {
+        <p-message
+          styleClass="login-error"
+          severity="error"
+          [text]="loginError()!"
+        />
+      }
+    </header>
+
+    <app-input-field
+      class="col-12"
+      [parentForm]="formGroup"
+      controlName="email"
+      [label]="'auth.email'"
+    >
+    </app-input-field>
+
+    <div class="col-12 password-group">
+      <app-password-field
+        [parentForm]="formGroup"
+        controlName="password"
+        [label]="'auth.password'"
+      >
+      </app-password-field>
+
+      <app-link
+        class="forgot-password-link"
+        routerLink="/auth/forgot-password"
+      >
+        {{ 'auth.button.forgotPassword' | translate }}
+      </app-link>
+    </div>
+
+    <div class="col-12 submit-actions">
+      <app-button
+        class="submit-btn"
+        severity="primary"
+        label="auth.button.signIn"
+        [disabled]="(isLoading$ | async)!"
+        (onClick)="onSubmit()"
+      ></app-button>
+
+      <p-divider align="center" type="solid">
+        <span class="divider-text">{{ 'or' | translate }}</span>
+      </p-divider>
+
+      <div class="signup-hint">
+        <span>{{ 'auth.newToRoyalStore' | translate }}</span>
+        <app-link routerLink="/auth/register">
+          {{ 'auth.button.createAccount' | translate }}
+        </app-link>
+      </div>
+    </div>
+  </form>
+</div>

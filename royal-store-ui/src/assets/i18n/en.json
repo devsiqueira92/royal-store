@@ -1,4 +1,17 @@
 {
   "yes": "Sim",
-  "no": "No"
+  "no": "No",
+  "or": "or",
+  "auth": {
+    "title": "Sign in to Royal Store",
+    "subtitle": "Manage payments, payouts, and your store.",
+    "email": "Email",
+    "password": "Password",
+    "newToRoyalStore": "New to Royal Store?",
+    "button": {
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign in",
+      "createAccount": "Create account"
+    }
+  }
 }

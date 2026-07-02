@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -9,6 +9,7 @@ import { ForgotPasswordRequest } from '../interfaces/forgot-password-request.int
 import { ResetPasswordRequest } from '../interfaces/reset-password-request.interface';
 import { MessageResponse } from '../interfaces/message-response.interface';
 import { User } from '../interfaces/user.interface';
+import { BYPASS_GLOBAL_ERROR } from '../interceptor/bypass-error.context';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,9 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<TokenResponse> {
-    return this.http.post<TokenResponse>(`${this.apiUrl}/login`, request);
+    return this.http.post<TokenResponse>(`${this.apiUrl}/login`, request, {
+      context: new HttpContext().set(BYPASS_GLOBAL_ERROR, true),
+    });
   }
 
   verifyEmail(userId: string, token: string): Observable<MessageResponse> {
