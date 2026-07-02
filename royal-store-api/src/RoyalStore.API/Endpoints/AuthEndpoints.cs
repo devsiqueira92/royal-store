@@ -58,6 +58,7 @@ public sealed class AuthEndpoints : IEndpointDefinition
         return result.ToHttpResult(token =>
         {
             httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, environment, authCookieOptions.Value);
+            httpContext.Response.SetLoggedInCookie(token.ExpiresAt, authCookieOptions.Value);
             return TypedResults.Ok(new { Message = "Login successful." });
         });
     }
@@ -126,6 +127,7 @@ public sealed class AuthEndpoints : IEndpointDefinition
         IOptions<AuthCookieOptions> authCookieOptions)
     {
         httpContext.Response.ClearAuthCookie(environment, authCookieOptions.Value);
+        httpContext.Response.ClearLoggedInCookie(authCookieOptions.Value);
         return TypedResults.Ok(new { Message = "Logged out successfully." });
     }
 
