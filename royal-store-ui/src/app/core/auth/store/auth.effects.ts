@@ -40,7 +40,7 @@ export const login = createEffect(
           catchError((error: HttpErrorResponse) =>
             of(
               AuthActions.loginFailure({
-                error: error.error?.message ?? 'Invalid email or password.',
+                error: error.error?.message ?? 'error.unknowError',
               }),
             ),
           ),

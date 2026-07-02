@@ -1,0 +1,25 @@
+.link-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variant-inline {
+  color: #3b82f6;
+}
+.variant-inline:hover {
+  text-decoration: underline;
+}
+
+.variant-btn-primary {
+  background-color: #6366f1;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+}
+.variant-btn-primary:hover {
+  background-color: #4f46e5;
+}

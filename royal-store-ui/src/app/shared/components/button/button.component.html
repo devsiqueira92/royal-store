@@ -1,0 +1,13 @@
+<button
+  pButton
+  pRipple
+  [rounded]="rounded()"
+  [icon]="icon()"
+  [label]="label() | translate"
+  [severity]="severity()"
+  (click)="onClick.emit()"
+  [disabled]="disabled()"
+  [class]="severity()"
+  [pTooltip]="tooltip() | translate"
+  [text]="text()"
+></button>

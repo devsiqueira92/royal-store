@@ -21,6 +21,7 @@ import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { authFeature } from './core/auth/store/auth.reducer';
 import { authStore } from './core/auth/store/auth.store';
+import { authInterceptor } from './core/auth/interceptor/auth.interceptor';
 
 registerLocaleData(localeEn);
 
@@ -39,7 +40,7 @@ export const appConfig: ApplicationConfig = {
       fallbackLang: 'en',
       lang: 'en',
     }),
-    provideHttpClient(withInterceptors([errorInterceptor])),
+    provideHttpClient(withInterceptors([errorInterceptor, authInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),

@@ -1,0 +1,21 @@
+@if (routerLink()) {
+  <a
+    [routerLink]="routerLink()"
+    [queryParams]="queryParams()"
+    routerLinkActive="active"
+    [class]="classesCss()"
+  >
+    <ng-content></ng-content>
+  </a>
+}
+
+<!-- @if (href()) {
+  <a
+    [href]="href()"
+    [target]="target()"
+    [rel]="target() === '_blank' ? 'noopener noreferrer' : null"
+    [class]="classesCss()"
+  >
+    <ng-content></ng-content>
+  </a>
+} -->
