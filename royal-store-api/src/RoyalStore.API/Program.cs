@@ -20,11 +20,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
-app.UseHttpsRedirection();
+app.UseCors("frontend");
+
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 
 app.UseRateLimiter();
-
-app.UseCors("frontend");
 
 await DatabaseSeeder.SeedRolesAsync(app.Services);
 

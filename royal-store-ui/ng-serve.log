@@ -1,0 +1,24 @@
+[33m❯[39m Building...
+[32m✔[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m          [2m | [22m [1mRaw size[22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m         [2m | [22m [36m86.90 kB[39m[2m | [22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m           [2m | [22m [36m53.87 kB[39m[2m | [22m
+[32mchunk-BFOFJPRX.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m8.19 kB[39m[2m | [22m
+[32mchunk-YXXE3UYL.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m5.92 kB[39m[2m | [22m
+[32mchunk-GKD76IML.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m3.97 kB[39m[2m | [22m
+[32mchunk-VUJOFXKG.js[39m  [2m | [22m[2m-[22m              [2m | [22m[36m938 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m  [2m | [22m[1m159.78 kB[22m
+
+[1mLazy chunk files[22m   [2m | [22m[1mNames[22m          [2m | [22m [1mRaw size[22m
+[32mchunk-LHWV432Y.js[39m  [2m | [22m[2mauth-routes[22m    [2m | [22m [36m84.38 kB[39m[2m | [22m
+[32mchunk-IIVITTTK.js[39m  [2m | [22m[2mproduct-routes[22m [2m | [22m [36m10.25 kB[39m[2m | [22m
+[32mchunk-7HWGLWKV.js[39m  [2m | [22m[2mcategory-routes[22m[2m | [22m  [36m8.12 kB[39m[2m | [22m
+[32mchunk-AR6BUUNL.js[39m  [2m | [22m[2mseller-routes[22m  [2m | [22m  [36m8.11 kB[39m[2m | [22m
+[32mchunk-CHXPMA6L.js[39m  [2m | [22m[2m-[22m              [2m | [22m  [36m3.74 kB[39m[2m | [22m
+
+Application bundle generation complete. [1.918 seconds] - 2026-07-22T23:54:07.770Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4321[22m/[39m

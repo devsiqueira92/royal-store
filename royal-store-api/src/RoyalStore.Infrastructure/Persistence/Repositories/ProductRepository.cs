@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Domain.Catalog;
-using RoyalStore.Infrastructure.Persistence;
 
 namespace RoyalStore.Infrastructure.Persistence.Repositories;
 
@@ -18,12 +17,12 @@ public sealed class ProductRepository : IProductRepository
         await _context.Products.AddAsync(product, ct);
 
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        await _context.Products.FirstOrDefaultAsync(p => p.Id == id, ct);
+        await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync(
         bool? isActive, Guid? categoryId, CancellationToken ct = default)
     {
-        var query = _context.Products.AsQueryable();
+        var query = _context.Products.Include(p => p.Category).AsQueryable();
 
         if (isActive.HasValue)
             query = query.Where(p => p.IsActive == isActive.Value);

@@ -22,6 +22,14 @@ import { provideEffects } from '@ngrx/effects';
 import { authFeature } from './core/auth/store/auth.reducer';
 import { authStore } from './core/auth/store/auth.store';
 import { authInterceptor } from './core/auth/interceptor/auth.interceptor';
+import { sellerFeature } from './features/seller/store/seller.reducer';
+import { sellerStore } from './features/seller/store/seller.store';
+import { productFeature } from './features/product/store/product.reducer';
+import { productStore } from './features/product/store/product.store';
+import { categoryFeature } from './features/category/store/category.reducer';
+import { categoryStore } from './features/category/store/category.store';
+import { saleFeature } from './features/sale/store/sale.reducer';
+import { saleStore } from './features/sale/store/sale.store';
 
 registerLocaleData(localeEn);
 
@@ -44,8 +52,14 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideStore({ [authFeature.name]: authFeature.reducer }),
-    provideEffects(authStore),
+    provideStore({
+      [authFeature.name]: authFeature.reducer,
+      [sellerFeature.name]: sellerFeature.reducer,
+      [productFeature.name]: productFeature.reducer,
+      [categoryFeature.name]: categoryFeature.reducer,
+      [saleFeature.name]: saleFeature.reducer,
+    }),
+    provideEffects(authStore, sellerStore, productStore, categoryStore, saleStore),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,
     DynamicDialogRef,

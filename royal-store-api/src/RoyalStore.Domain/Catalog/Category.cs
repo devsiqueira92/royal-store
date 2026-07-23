@@ -14,6 +14,7 @@ public sealed class Category : Entity, IAuditableEntity
     public string CreatedBy { get; set; } = string.Empty;
     public DateTimeOffset UpdatedAt { get; set; }
     public string UpdatedBy { get; set; } = string.Empty;
+    public ICollection<Product> Products { get; private set; } = [];
 
     private Category() : base(Guid.NewGuid()) { }
 
@@ -72,5 +73,4 @@ public sealed class Category : Entity, IAuditableEntity
         return Result.Success();
     }
 
-    public ICollection<Product> Products { get; private set; } = [];
 }

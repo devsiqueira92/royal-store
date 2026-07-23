@@ -13,6 +13,25 @@ export const routes: Routes = [
     component: AdminLayoutComponent,
     canActivate: [authGuard], // Se não estiver logado, o guard barra aqui
     children: [
+      {
+        path: 'products',
+        loadChildren: () =>
+          import('./features/product/product.routes').then(
+            m => m.PRODUCT_ROUTES,
+          ),
+      },
+      {
+        path: 'categories',
+        loadChildren: () =>
+          import('./features/category/category.routes').then(
+            m => m.CATEGORY_ROUTES,
+          ),
+      },
+      {
+        path: 'sellers',
+        loadChildren: () =>
+          import('./features/seller/seller.routes').then(m => m.SELLER_ROUTES),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

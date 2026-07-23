@@ -6,6 +6,7 @@ public record ProductResponse(
     Guid Id,
     Guid TenantId,
     Guid CategoryId,
+    string CategoryName,
     string Name,
     string? Description,
     string? Sku,
@@ -23,8 +24,8 @@ public record ProductResponse(
     int Origin)
 {
     public static ProductResponse From(Product product) =>
-        new(product.Id, product.TenantId, product.CategoryId, product.Name, product.Description,
-            product.Sku, product.Price, product.CostPrice, product.StockQuantity,
+        new(product.Id, product.TenantId, product.CategoryId, product.Category.Name, product.Name,
+            product.Description, product.Sku, product.Price, product.CostPrice, product.StockQuantity,
             product.MinStockQuantity, product.IsStockTracked, product.IsActive,
             product.ImageUrl, product.UnitOfMeasure, product.Barcode, product.Ncm,
             product.Cest, product.Origin);

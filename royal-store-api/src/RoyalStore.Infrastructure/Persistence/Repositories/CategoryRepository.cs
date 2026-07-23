@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Domain.Catalog;
-using RoyalStore.Infrastructure.Persistence;
 
 namespace RoyalStore.Infrastructure.Persistence.Repositories;
 

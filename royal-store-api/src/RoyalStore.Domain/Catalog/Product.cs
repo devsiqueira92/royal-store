@@ -7,6 +7,7 @@ public sealed class Product : Entity, IAuditableEntity
 {
     public Guid TenantId { get; private set; }
     public Guid CategoryId { get; private set; }
+    public Category Category { get; private set; } = null!;
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public string? Sku { get; private set; }

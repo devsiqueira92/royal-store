@@ -44,5 +44,32 @@
     "email": "Enter a valid email address.",
     "minlength": "Value is too short.",
     "passwordMismatch": "Passwords do not match."
+  },
+  "product": {
+    "title": "Products",
+    "empty": "No products found.",
+    "columns": {
+      "imageUrl": "Image",
+      "name": "Name",
+      "categoryName": "Category",
+      "price": "Price",
+      "stockQuantity": "Stock"
+    }
+  },
+  "category": {
+    "title": "Categories",
+    "empty": "No categories found.",
+    "columns": {
+      "name": "Name",
+      "description": "Description",
+      "numberOfItems": "Items"
+    }
+  },
+  "seller": {
+    "title": "Sellers",
+    "empty": "No sellers found.",
+    "columns": {
+      "fullName": "Full name"
+    }
   }
 }

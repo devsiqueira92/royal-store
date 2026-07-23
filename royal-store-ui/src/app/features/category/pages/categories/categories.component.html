@@ -1,0 +1,25 @@
+<div class="categories-page">
+  <h1 class="page-title">{{ 'category.title' | translate }}</h1>
+
+  <p-table [value]="categories()" [loading]="isLoading()" dataKey="id">
+    <ng-template #header>
+      <tr>
+        <th>{{ 'category.columns.name' | translate }}</th>
+        <th>{{ 'category.columns.description' | translate }}</th>
+        <th>{{ 'category.columns.numberOfItems' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-category>
+      <tr>
+        <td>{{ category.name }}</td>
+        <td>{{ category.description }}</td>
+        <td>{{ category.numberOfItems }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="3">{{ 'category.empty' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
