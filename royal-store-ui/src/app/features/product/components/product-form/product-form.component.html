@@ -1,0 +1,202 @@
+<form
+  class="product-form"
+  [formGroup]="formGroup"
+  (ngSubmit)="onSubmit($event)"
+>
+  <header class="product-form__header">
+    <div>
+      <h2 class="product-form__title">{{ 'product.form.title' | translate }}</h2>
+      <p class="product-form__subtitle">
+        {{ 'product.form.subtitle' | translate }}
+      </p>
+    </div>
+    <button
+      type="button"
+      class="product-form__close"
+      [attr.aria-label]="'product.form.close' | translate"
+      (click)="onClose()"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+  </header>
+
+  <div
+    class="product-form__dropzone"
+    [class.product-form__dropzone--active]="isDragOver()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+  >
+    @if (imagePreviewUrl()) {
+      <img
+        [src]="imagePreviewUrl()"
+        alt=""
+        class="product-form__preview"
+      />
+    } @else {
+      <i class="pi pi-upload"></i>
+      <span>{{ 'product.form.dropImage' | translate }}</span>
+    }
+    <input
+      #fileInput
+      type="file"
+      accept="image/*"
+      hidden
+      (change)="onFileSelected($event)"
+    />
+  </div>
+
+  <label class="product-form__label" for="product-name">
+    {{ 'product.form.name' | translate }}
+  </label>
+  <input
+    id="product-name"
+    type="text"
+    class="product-form__input"
+    formControlName="name"
+    [placeholder]="'product.form.namePlaceholder' | translate"
+  />
+
+  <div class="product-form__row product-form__row--2">
+    <div>
+      <label class="product-form__label" for="product-sku">
+        {{ 'product.form.sku' | translate }}
+      </label>
+      <input
+        id="product-sku"
+        type="text"
+        class="product-form__input"
+        formControlName="sku"
+        [placeholder]="'product.form.skuPlaceholder' | translate"
+      />
+    </div>
+    <div>
+      <label class="product-form__label" for="product-barcode">
+        {{ 'product.form.barcode' | translate }}
+      </label>
+      <input
+        id="product-barcode"
+        type="text"
+        class="product-form__input"
+        formControlName="barcode"
+        [placeholder]="'product.form.barcodePlaceholder' | translate"
+      />
+    </div>
+  </div>
+
+  <label class="product-form__label" for="product-category">
+    {{ 'product.form.category' | translate }}
+  </label>
+  <select
+    id="product-category"
+    class="product-form__select"
+    formControlName="categoryId"
+  >
+    <option [ngValue]="null" disabled>
+      {{ 'product.form.categoryPlaceholder' | translate }}
+    </option>
+    @for (category of categories(); track category.id) {
+      <option [ngValue]="category.id">{{ category.name }}</option>
+    }
+  </select>
+
+  <div class="product-form__row product-form__row--3">
+    <div>
+      <label class="product-form__label" for="product-price">
+        {{ 'product.form.price' | translate }}
+      </label>
+      <input
+        id="product-price"
+        type="number"
+        min="0"
+        step="0.01"
+        class="product-form__input"
+        formControlName="price"
+        placeholder="$0.00"
+      />
+    </div>
+    <div>
+      <label class="product-form__label" for="product-cost">
+        {{ 'product.form.cost' | translate }}
+      </label>
+      <input
+        id="product-cost"
+        type="number"
+        min="0"
+        step="0.01"
+        class="product-form__input"
+        formControlName="costPrice"
+        placeholder="$0.00"
+      />
+    </div>
+    <div>
+      <label class="product-form__label" for="product-stock">
+        {{ 'product.form.stock' | translate }}
+      </label>
+      <input
+        id="product-stock"
+        type="number"
+        min="0"
+        step="1"
+        class="product-form__input"
+        formControlName="stockQuantity"
+        placeholder="0"
+      />
+    </div>
+  </div>
+
+  <span class="product-form__label">{{
+    'product.form.sizes' | translate
+  }}</span>
+  <div class="product-form__sizes">
+    @for (size of sizeOptions; track size) {
+      <button
+        type="button"
+        class="product-form__size"
+        [class.product-form__size--selected]="selectedSizes().includes(size)"
+        (click)="toggleSize(size)"
+      >
+        {{ size }}
+      </button>
+    }
+  </div>
+
+  <div class="product-form__active">
+    <div>
+      <span class="product-form__active-title">{{
+        'product.form.active' | translate
+      }}</span>
+      <span class="product-form__active-subtitle">{{
+        'product.form.activeHint' | translate
+      }}</span>
+    </div>
+    <button
+      type="button"
+      role="switch"
+      class="product-form__toggle"
+      [class.product-form__toggle--on]="formGroup.controls.isActive.value"
+      [attr.aria-checked]="formGroup.controls.isActive.value"
+      (click)="toggleActive()"
+    >
+      <span class="product-form__toggle-thumb"></span>
+    </button>
+  </div>
+
+  <div class="product-form__footer">
+    <button
+      type="button"
+      class="product-form__cancel"
+      (click)="onClose()"
+    >
+      {{ 'product.form.cancel' | translate }}
+    </button>
+    <button
+      type="submit"
+      class="product-form__submit"
+      [disabled]="formGroup.invalid"
+    >
+      {{ 'product.form.submit' | translate }}
+    </button>
+  </div>
+</form>

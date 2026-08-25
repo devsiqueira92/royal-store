@@ -161,6 +161,10 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Color")
+                        .HasMaxLength(35)
+                        .HasColumnType("nvarchar(35)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -233,10 +237,6 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -300,6 +300,80 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasFilter("[Sku] IS NOT NULL");
 
                     b.ToTable("Products", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsCover")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("ProductId", "IsCover")
+                        .IsUnique()
+                        .HasFilter("[IsCover] = 1");
+
+                    b.ToTable("ProductPhotos", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductSize", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("ProductId", "Size")
+                        .IsUnique();
+
+                    b.ToTable("ProductSizes", (string)null);
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Identity.ConfirmationResendRequest", b =>
@@ -945,10 +1019,30 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
                 {
-                    b.HasOne("RoyalStore.Domain.Catalog.Category", null)
+                    b.HasOne("RoyalStore.Domain.Catalog.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductPhoto", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
+                        .WithMany("Photos")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductSize", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
+                        .WithMany("Sizes")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -1023,6 +1117,13 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
+                {
+                    b.Navigation("Photos");
+
+                    b.Navigation("Sizes");
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashShift", b =>

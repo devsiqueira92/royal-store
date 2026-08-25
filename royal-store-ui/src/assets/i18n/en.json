@@ -47,22 +47,75 @@
   },
   "product": {
     "title": "Products",
+    "subtitle": "{{count}} items across {{categories}} categories",
+    "newProduct": "New product",
     "empty": "No products found.",
+    "edit": "Edit product",
+    "stats": {
+      "totalProducts": "Total products",
+      "inventoryValue": "Inventory value",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock"
+    },
+    "filters": {
+      "searchPlaceholder": "Filter products...",
+      "results": "{{count}} results"
+    },
+    "status": {
+      "inStock": "In stock",
+      "lowStock": "Low stock",
+      "outOfStock": "Out of stock"
+    },
     "columns": {
       "imageUrl": "Image",
       "name": "Name",
+      "product": "Product",
       "categoryName": "Category",
       "price": "Price",
-      "stockQuantity": "Stock"
+      "stockQuantity": "Stock",
+      "status": "Status"
+    },
+    "form": {
+      "title": "New product",
+      "subtitle": "Add an item to your catalog",
+      "close": "Close",
+      "dropImage": "drop product image",
+      "name": "Product name",
+      "namePlaceholder": "e.g. Linen Wrap Dress",
+      "sku": "SKU",
+      "skuPlaceholder": "MAR-0000",
+      "barcode": "Barcode",
+      "barcodePlaceholder": "Scan or type",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "price": "Price",
+      "cost": "Cost",
+      "stock": "Stock",
+      "sizes": "Available sizes",
+      "active": "Active",
+      "activeHint": "Visible in POS and catalog",
+      "cancel": "Cancel",
+      "submit": "Save product"
     }
   },
   "category": {
     "title": "Categories",
+    "subtitle": "Organize your catalog into collections.",
     "empty": "No categories found.",
-    "columns": {
+    "loading": "Loading categories...",
+    "form": {
+      "title": "New category",
       "name": "Name",
+      "namePlaceholder": "e.g. Knitwear",
       "description": "Description",
-      "numberOfItems": "Items"
+      "descriptionPlaceholder": "Short description (optional)",
+      "colorTag": "Color tag",
+      "submit": "Create category"
+    },
+    "card": {
+      "product": "{{count}} product",
+      "products": "{{count}} products",
+      "edit": "Edit category"
     }
   },
   "seller": {

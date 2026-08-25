@@ -17,12 +17,14 @@ public sealed class Product : Entity, IAuditableEntity
     public decimal? MinStockQuantity { get; private set; }
     public bool IsStockTracked { get; private set; }
     public bool IsActive { get; private set; }
-    public string? ImageUrl { get; private set; }
     public string UnitOfMeasure { get; private set; } = "UN";
     public string? Barcode { get; private set; }
     public string? Ncm { get; private set; }
     public string? Cest { get; private set; }
     public int Origin { get; private set; }
+
+    public ICollection<ProductSize> Sizes { get; private set; } = [];
+    public ICollection<ProductPhoto> Photos { get; private set; } = [];
 
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
@@ -33,7 +35,7 @@ public sealed class Product : Entity, IAuditableEntity
 
     private Product(Guid id, Guid tenantId, Guid categoryId, string name, string? description,
         string? sku, decimal price, decimal? costPrice, decimal stockQuantity,
-        decimal? minStockQuantity, bool isStockTracked, string? imageUrl,
+        decimal? minStockQuantity, bool isStockTracked,
         string unitOfMeasure, string? barcode, string? ncm, string? cest, int origin)
         : base(id)
     {
@@ -48,7 +50,6 @@ public sealed class Product : Entity, IAuditableEntity
         MinStockQuantity = minStockQuantity;
         IsStockTracked = isStockTracked;
         IsActive = true;
-        ImageUrl = imageUrl;
         UnitOfMeasure = unitOfMeasure;
         Barcode = barcode;
         Ncm = ncm;
@@ -59,7 +60,7 @@ public sealed class Product : Entity, IAuditableEntity
     public static Result<Product> Create(
         Guid tenantId, Guid categoryId, string name, string? description,
         string? sku, decimal price, decimal? costPrice, decimal stockQuantity,
-        decimal? minStockQuantity, bool isStockTracked, string? imageUrl,
+        decimal? minStockQuantity, bool isStockTracked,
         string unitOfMeasure, string? barcode, string? ncm, string? cest, int origin)
     {
         if (tenantId == Guid.Empty)
@@ -96,13 +97,13 @@ public sealed class Product : Entity, IAuditableEntity
 
         return new Product(Guid.NewGuid(), tenantId, categoryId, name, description,
             sku, price, costPrice, stockQuantity, minStockQuantity, isStockTracked,
-            imageUrl, unitOfMeasure, barcode, ncm, cest, origin);
+            unitOfMeasure, barcode, ncm, cest, origin);
     }
 
     public Result Update(
         Guid categoryId, string name, string? description,
         string? sku, decimal price, decimal? costPrice, decimal stockQuantity,
-        decimal? minStockQuantity, bool isStockTracked, string? imageUrl,
+        decimal? minStockQuantity, bool isStockTracked,
         string unitOfMeasure, string? barcode, string? ncm, string? cest, int origin)
     {
         if (!IsActive)
@@ -134,7 +135,6 @@ public sealed class Product : Entity, IAuditableEntity
         StockQuantity = stockQuantity;
         MinStockQuantity = minStockQuantity;
         IsStockTracked = isStockTracked;
-        ImageUrl = imageUrl;
         UnitOfMeasure = string.IsNullOrWhiteSpace(unitOfMeasure) ? "UN" : unitOfMeasure;
         Barcode = barcode;
         Ncm = ncm;
@@ -150,6 +150,61 @@ public sealed class Product : Entity, IAuditableEntity
             return Result.Failure(Error.Conflict("product.already_disabled", "Product is already inactive."));
 
         IsActive = false;
+        return Result.Success();
+    }
+
+    public Result AssignSizes(IEnumerable<SizeValue> sizes)
+    {
+        var sizeList = sizes.ToList();
+
+        if (sizeList.Contains(SizeValue.Osfa) && sizeList.Count > 1)
+            return Result.Failure(Error.Validation("product.osfa_conflict", "OSFA cannot be combined with other sizes."));
+
+        Sizes.Clear();
+
+        foreach (var size in sizeList.Distinct())
+            Sizes.Add(new ProductSize(Id, TenantId, size));
+
+        return Result.Success();
+    }
+
+    public Result<ProductPhoto> AddPhoto(Guid tenantId, string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return Error.Validation("photo.url_required", "Photo URL is required.");
+
+        if (url.Length > 2048)
+            return Error.Validation("photo.url_too_long", "Photo URL must not exceed 2048 characters.");
+
+        var photo = new ProductPhoto(Id, tenantId, url);
+        Photos.Add(photo);
+        return photo;
+    }
+
+    public Result RemovePhoto(Guid photoId)
+    {
+        var photo = Photos.FirstOrDefault(p => p.Id == photoId);
+        if (photo is null)
+            return Result.Failure(Error.NotFound("photo.not_found", "Photo not found for this product."));
+
+        if (photo.IsCover)
+            return Result.Failure(Error.Validation("photo.cover_deletion_blocked",
+                "Cannot delete the cover photo. Set another photo as cover first."));
+
+        Photos.Remove(photo);
+        return Result.Success();
+    }
+
+    public Result SetCoverPhoto(Guid photoId)
+    {
+        var photo = Photos.FirstOrDefault(p => p.Id == photoId);
+        if (photo is null)
+            return Result.Failure(Error.NotFound("photo.not_found", "Photo not found for this product."));
+
+        foreach (var existing in Photos.Where(p => p.IsCover))
+            existing.UnsetCover();
+
+        photo.SetAsCover();
         return Result.Success();
     }
 }

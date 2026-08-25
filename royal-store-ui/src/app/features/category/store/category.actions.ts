@@ -1,7 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { Category } from '../interfaces/category.interface';
-import { CreateCategoryRequest } from '../interfaces/create-category-request.interface';
-import { UpdateCategoryRequest } from '../interfaces/update-category-request.interface';
+import { CategoryRequest } from '../interfaces/category-request.interface';
 
 export const CategoryActions = createActionGroup({
   source: 'Category',
@@ -12,10 +11,10 @@ export const CategoryActions = createActionGroup({
     'Load Category': props<{ id: string }>(),
     'Load Category Success': props<{ category: Category }>(),
     'Load Category Failure': props<{ error: string }>(),
-    'Create Category': props<{ request: CreateCategoryRequest }>(),
+    'Create Category': props<{ request: CategoryRequest }>(),
     'Create Category Success': props<{ category: Category }>(),
     'Create Category Failure': props<{ error: string }>(),
-    'Update Category': props<{ id: string; request: UpdateCategoryRequest }>(),
+    'Update Category': props<{ id: string; request: CategoryRequest }>(),
     'Update Category Success': props<{ category: Category }>(),
     'Update Category Failure': props<{ error: string }>(),
     'Disable Category': props<{ id: string }>(),

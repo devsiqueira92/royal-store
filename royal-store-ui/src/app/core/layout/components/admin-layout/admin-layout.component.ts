@@ -9,10 +9,16 @@ import { HeaderComponent } from '../header/header.component';
 import { RouterOutlet } from '@angular/router';
 import { LayoutService } from '../../services/layout.service';
 import { DeviceService } from '../../services/device.service';
+import { DetailsSidebarComponent } from '../details-sidebar/details-sidebar.component';
 
 @Component({
   selector: 'app-admin-layout',
-  imports: [SidebarMenuComponent, HeaderComponent, RouterOutlet],
+  imports: [
+    SidebarMenuComponent,
+    HeaderComponent,
+    RouterOutlet,
+    DetailsSidebarComponent,
+  ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

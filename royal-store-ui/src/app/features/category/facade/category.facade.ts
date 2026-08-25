@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { CreateCategoryRequest } from '../interfaces/create-category-request.interface';
-import { UpdateCategoryRequest } from '../interfaces/update-category-request.interface';
+import { CategoryRequest } from '../interfaces/category-request.interface';
 import { CategoryActions } from '../store/category.actions';
 import {
   selectCategories,
@@ -29,11 +28,11 @@ export class CategoryFacade {
     this.store.dispatch(CategoryActions.loadCategory({ id }));
   }
 
-  createCategory(request: CreateCategoryRequest): void {
+  createCategory(request: CategoryRequest): void {
     this.store.dispatch(CategoryActions.createCategory({ request }));
   }
 
-  updateCategory(id: string, request: UpdateCategoryRequest): void {
+  updateCategory(id: string, request: CategoryRequest): void {
     this.store.dispatch(CategoryActions.updateCategory({ id, request }));
   }
 

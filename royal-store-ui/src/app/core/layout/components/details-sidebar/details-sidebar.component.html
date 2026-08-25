@@ -1,0 +1,10 @@
+<p-drawer
+  [visible]="layoutService.sidebarVisible()"
+  (visibleChange)="handleVisibilityChange($event)"
+  position="right"
+  [modal]="true"
+  [style]="{ width: drawerWidth() }"
+  [closable]="false"
+>
+  <ng-container #dynamicContent></ng-container>
+</p-drawer>

@@ -20,7 +20,9 @@ public sealed class GetCategoriesQueryHandler
         CancellationToken cancellationToken)
     {
         var categories = await _categoryRepository.GetAllAsync(cancellationToken);
-        IReadOnlyList<CategoryResponse> response = categories.Select(CategoryResponse.From).ToList();
+        IReadOnlyList<CategoryResponse> response = categories
+            .Select(c => CategoryResponse.From(c.Category, c.ProductCount))
+            .ToList();
         return Result<IReadOnlyList<CategoryResponse>>.Success(response);
     }
 }

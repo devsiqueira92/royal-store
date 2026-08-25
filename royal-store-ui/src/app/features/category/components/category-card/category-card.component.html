@@ -1,0 +1,19 @@
+<article class="category-card">
+  <div class="category-card__bar" [style.background]="category().color"></div>
+  <div class="category-card__body">
+    <div class="category-card__info">
+      <h3 class="category-card__name">{{ category().name }}</h3>
+      <p class="category-card__count">
+        {{ countLabelKey() | translate: { count: category().productCount } }}
+      </p>
+    </div>
+    <button
+      type="button"
+      class="category-card__edit"
+      [attr.aria-label]="'category.card.edit' | translate"
+      (click)="loadDetails(category().id)"
+    >
+      <i class="pi pi-pencil"></i>
+    </button>
+  </div>
+</article>

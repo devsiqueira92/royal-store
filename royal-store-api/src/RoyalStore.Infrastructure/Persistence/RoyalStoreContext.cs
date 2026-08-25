@@ -19,6 +19,8 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<Tenant> Tenants { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<ProductSize> ProductSizes { get; set; } = null!;
+    public DbSet<ProductPhoto> ProductPhotos { get; set; } = null!;
     public DbSet<CashShift> CashShifts { get; set; } = null!;
     public DbSet<CashMovement> CashMovements { get; set; } = null!;
     public DbSet<Sale> Sales { get; set; } = null!;
@@ -62,6 +64,12 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(c => c.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<Product>()
+            .HasQueryFilter(p => p.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ProductSize>()
+            .HasQueryFilter(s => s.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ProductPhoto>()
             .HasQueryFilter(p => p.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<Seller>()

@@ -7,8 +7,10 @@ public record CategoryResponse(
     Guid TenantId,
     string Name,
     string? Description,
-    bool IsActive)
+    string? Color,
+    bool IsActive,
+    int ProductCount)
 {
-    public static CategoryResponse From(Category category) =>
-        new(category.Id, category.TenantId, category.Name, category.Description, category.IsActive);
+    public static CategoryResponse From(Category category, int productCount = 0) =>
+        new(category.Id, category.TenantId, category.Name, category.Description, category.Color, category.IsActive, productCount);
 }

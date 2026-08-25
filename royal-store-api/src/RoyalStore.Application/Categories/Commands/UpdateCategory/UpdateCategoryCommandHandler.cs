@@ -42,7 +42,7 @@ public sealed class UpdateCategoryCommandHandler
         if (nameExists)
             return Error.Conflict("category.name_conflict", $"A category named '{command.Name}' already exists.");
 
-        var updateResult = category.Update(command.Name, command.Description);
+        var updateResult = category.Update(command.Name, command.Description, command.Color);
         if (!updateResult.IsSuccess)
             return updateResult.Error;
 

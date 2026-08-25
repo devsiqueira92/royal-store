@@ -1,0 +1,9 @@
+@if ((selectedCateogry$ | async) && !(loading$ | async)) {
+  <app-category-form
+    (submit)="onUpdate($event)"
+    [mode]="mode.edit"
+    [parentForm]="formGroup"
+  ></app-category-form>
+} @else {
+  <h3>loading...</h3>
+}
