@@ -14,7 +14,6 @@ public record CreateProductCommand(
     decimal StockQuantity,
     decimal? MinStockQuantity,
     bool IsStockTracked,
-    string? ImageUrl,
     string UnitOfMeasure,
     string? Barcode,
     string? Ncm,

@@ -55,7 +55,7 @@ public sealed class UpdateProductCommandHandler
         var updateResult = product.Update(
             command.CategoryId, command.Name, command.Description,
             command.Sku, command.Price, command.CostPrice, command.StockQuantity,
-            command.MinStockQuantity, command.IsStockTracked, command.ImageUrl,
+            command.MinStockQuantity, command.IsStockTracked,
             command.UnitOfMeasure, command.Barcode, command.Ncm, command.Cest, command.Origin);
 
         if (!updateResult.IsSuccess)

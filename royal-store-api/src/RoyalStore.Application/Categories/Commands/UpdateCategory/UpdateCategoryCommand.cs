@@ -4,4 +4,4 @@ using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Categories.Commands.UpdateCategory;
 
-public record UpdateCategoryCommand(Guid Id, string Name, string? Description) : IRequest<Result<CategoryResponse>>;
+public record UpdateCategoryCommand(Guid Id, string Name, string? Description, string? Color) : IRequest<Result<CategoryResponse>>;

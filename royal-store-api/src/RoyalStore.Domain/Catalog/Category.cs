@@ -8,6 +8,7 @@ public sealed class Category : Entity, IAuditableEntity
     public Guid TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string? Description { get; private set; }
+    public string? Color { get; private set; }
     public bool IsActive { get; private set; }
 
     public DateTimeOffset CreatedAt { get; set; }
@@ -18,16 +19,17 @@ public sealed class Category : Entity, IAuditableEntity
 
     private Category() : base(Guid.NewGuid()) { }
 
-    private Category(Guid id, Guid tenantId, string name, string? description)
+    private Category(Guid id, Guid tenantId, string name, string? description, string? color)
         : base(id)
     {
         TenantId = tenantId;
         Name = name;
         Description = description;
+        Color = color;
         IsActive = true;
     }
 
-    public static Result<Category> Create(Guid tenantId, string name, string? description)
+    public static Result<Category> Create(Guid tenantId, string name, string? description, string? color)
     {
         if (tenantId == Guid.Empty)
             return Error.Validation("category.tenant_required", "Tenant identifier is required.");
@@ -43,10 +45,10 @@ public sealed class Category : Entity, IAuditableEntity
         if (description is not null && description.Length > 500)
             return Error.Validation("category.description_too_long", "Category description must not exceed 500 characters.");
 
-        return new Category(Guid.NewGuid(), tenantId, name, description);
+        return new Category(Guid.NewGuid(), tenantId, name, description, color);
     }
 
-    public Result Update(string name, string? description)
+    public Result Update(string name, string? description, string? color)
     {
         if (string.IsNullOrWhiteSpace(name))
             return Result.Failure(Error.Validation("category.name_required", "Category name is required."));
@@ -61,6 +63,7 @@ public sealed class Category : Entity, IAuditableEntity
 
         Name = name;
         Description = description;
+        Color = color;
         return Result.Success();
     }
 

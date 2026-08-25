@@ -1,25 +1,30 @@
-<div class="categories-page">
-  <h1 class="page-title">{{ 'category.title' | translate }}</h1>
+<section class="categories-page">
+  <div class="categories-page__header">
+    <h1 class="categories-page__title">{{ 'category.title' | translate }}</h1>
+    <p class="categories-page__subtitle">
+      {{ 'category.subtitle' | translate }}
+    </p>
+  </div>
 
-  <p-table [value]="categories()" [loading]="isLoading()" dataKey="id">
-    <ng-template #header>
-      <tr>
-        <th>{{ 'category.columns.name' | translate }}</th>
-        <th>{{ 'category.columns.description' | translate }}</th>
-        <th>{{ 'category.columns.numberOfItems' | translate }}</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-category>
-      <tr>
-        <td>{{ category.name }}</td>
-        <td>{{ category.description }}</td>
-        <td>{{ category.numberOfItems }}</td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="3">{{ 'category.empty' | translate }}</td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
+  <div class="categories-page__layout">
+    <div>
+      <router-outlet></router-outlet>
+    </div>
+
+    @if (isLoading$ | async) {
+      <p class="categories-page__status">
+        {{ 'category.loading' | translate }}
+      </p>
+    } @else {
+      <div class="categories-page__grid">
+        @for (category of (categoryCards$ | async) ?? []; track category.id) {
+          <app-category-card [category]="category" />
+        } @empty {
+          <p class="categories-page__empty">
+            {{ 'category.empty' | translate }}
+          </p>
+        }
+      </div>
+    }
+  </div>
+</section>

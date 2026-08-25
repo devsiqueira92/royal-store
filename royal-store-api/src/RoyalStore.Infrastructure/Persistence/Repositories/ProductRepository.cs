@@ -17,12 +17,20 @@ public sealed class ProductRepository : IProductRepository
         await _context.Products.AddAsync(product, ct);
 
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        await _context.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id, ct);
+        await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Sizes)
+            .Include(p => p.Photos)
+            .FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync(
         bool? isActive, Guid? categoryId, CancellationToken ct = default)
     {
-        var query = _context.Products.Include(p => p.Category).AsQueryable();
+        var query = _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Sizes)
+            .Include(p => p.Photos)
+            .AsQueryable();
 
         if (isActive.HasValue)
             query = query.Where(p => p.IsActive == isActive.Value);

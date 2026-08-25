@@ -19,8 +19,10 @@ public sealed class CategoryRepository : ICategoryRepository
     public async Task<Category?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Categories.FirstOrDefaultAsync(c => c.Id == id, ct);
 
-    public async Task<IReadOnlyList<Category>> GetAllAsync(CancellationToken ct = default) =>
-        await _context.Categories.ToListAsync(ct);
+    public async Task<IReadOnlyList<CategoryWithProductCount>> GetAllAsync(CancellationToken ct = default) =>
+        await _context.Categories
+            .Select(c => new CategoryWithProductCount(c, c.Products.Count))
+            .ToListAsync(ct);
 
     public async Task<bool> ExistsByNameAsync(string name, Guid? excludeId, CancellationToken ct = default) =>
         await _context.Categories.AnyAsync(

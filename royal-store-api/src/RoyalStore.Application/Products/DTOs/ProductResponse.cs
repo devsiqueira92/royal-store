@@ -7,6 +7,7 @@ public record ProductResponse(
     Guid TenantId,
     Guid CategoryId,
     string CategoryName,
+    string? CategoryColor,
     string Name,
     string? Description,
     string? Sku,
@@ -16,17 +17,21 @@ public record ProductResponse(
     decimal? MinStockQuantity,
     bool IsStockTracked,
     bool IsActive,
-    string? ImageUrl,
     string UnitOfMeasure,
     string? Barcode,
     string? Ncm,
     string? Cest,
-    int Origin)
+    int Origin,
+    IReadOnlyList<string> Sizes,
+    string? CoverPhotoUrl,
+    IReadOnlyList<ProductPhotoResponse> Photos)
 {
     public static ProductResponse From(Product product) =>
-        new(product.Id, product.TenantId, product.CategoryId, product.Category.Name, product.Name,
-            product.Description, product.Sku, product.Price, product.CostPrice, product.StockQuantity,
+        new(product.Id, product.TenantId, product.CategoryId, product.Category.Name, product.Category.Color,
+            product.Name, product.Description, product.Sku, product.Price, product.CostPrice, product.StockQuantity,
             product.MinStockQuantity, product.IsStockTracked, product.IsActive,
-            product.ImageUrl, product.UnitOfMeasure, product.Barcode, product.Ncm,
-            product.Cest, product.Origin);
+            product.UnitOfMeasure, product.Barcode, product.Ncm, product.Cest, product.Origin,
+            product.Sizes.Select(s => s.Size.ToString()).ToList(),
+            product.Photos.FirstOrDefault(p => p.IsCover)?.Url,
+            product.Photos.Select(p => new ProductPhotoResponse(p.Id, p.Url, p.IsCover)).ToList());
 }

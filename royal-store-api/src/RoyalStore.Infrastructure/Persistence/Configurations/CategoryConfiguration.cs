@@ -22,6 +22,10 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(c => c.Description)
             .HasMaxLength(500);
 
+
+        builder.Property(c => c.Color)
+            .HasMaxLength(35);
+
         builder.Property(c => c.IsActive)
             .IsRequired();
 

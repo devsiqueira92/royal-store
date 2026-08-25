@@ -41,7 +41,7 @@ public sealed class CreateCategoryCommandHandler
         if (nameExists)
             return Error.Conflict("category.name_conflict", $"A category named '{command.Name}' already exists.");
 
-        var categoryResult = Category.Create(tenantId, command.Name, command.Description);
+        var categoryResult = Category.Create(tenantId, command.Name, command.Description, command.Color);
         if (!categoryResult.IsSuccess)
             return categoryResult.Error;
 

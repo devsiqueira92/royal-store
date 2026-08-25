@@ -41,7 +41,7 @@ export class SidebarMenuComponent {
           {
             label: 'Estoque',
             icon: 'pi pi-warehouse',
-            routerLink: '/inventory',
+            routerLink: '/products',
           },
           {
             label: 'PDV',

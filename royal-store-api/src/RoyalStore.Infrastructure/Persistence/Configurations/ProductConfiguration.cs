@@ -44,9 +44,6 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.IsActive).IsRequired();
 
-        builder.Property(p => p.ImageUrl)
-            .HasMaxLength(2048);
-
         builder.Property(p => p.UnitOfMeasure)
             .HasMaxLength(6)
             .IsRequired()
@@ -72,6 +69,16 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(p => p.Sizes)
+            .WithOne()
+            .HasForeignKey(s => s.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.Photos)
+            .WithOne()
+            .HasForeignKey(ph => ph.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(p => new { p.TenantId, p.CategoryId });
 
