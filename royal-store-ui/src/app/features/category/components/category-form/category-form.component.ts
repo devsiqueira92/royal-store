@@ -18,10 +18,19 @@ import {
   CategoryFormControls,
 } from '../../interfaces/category.interface';
 import { CategoryRequest } from '../../interfaces/category-request.interface';
+import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
+import { TextareaFieldComponent } from '@app/shared/components/form-fields/textarea-field/textarea-field.component';
+import { ButtonComponent } from '@app/shared/components/button/button.component';
 
 @Component({
   selector: 'app-category-form',
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [
+    ReactiveFormsModule,
+    TranslatePipe,
+    InputFieldComponent,
+    TextareaFieldComponent,
+    ButtonComponent,
+  ],
   templateUrl: './category-form.component.html',
   styleUrl: './category-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

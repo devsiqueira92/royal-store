@@ -37,6 +37,8 @@ export class CategoryCardComponent {
 
   protected loadDetails(id: string) {
     this.categoryFacade.loadCategory(id);
-    this.detailsSidebarService.openDrawer(EditCategoryComponent);
+    this.detailsSidebarService.openDrawer(EditCategoryComponent, {
+      title: 'category.form.edit',
+    });
   }
 }
