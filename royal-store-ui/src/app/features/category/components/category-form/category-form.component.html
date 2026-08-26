@@ -1,4 +1,42 @@
 <form class="category-form" [formGroup]="parentForm()">
+  <app-input-field
+    controlName="name"
+    [parentForm]="parentForm()"
+    label="category.form.name"
+  ></app-input-field>
+
+  <app-textarea-field
+    controlName="description"
+    [parentForm]="parentForm()"
+    label="category.form.description"
+  ></app-textarea-field>
+
+  <span class="category-form__label">{{
+    'category.form.colorTag' | translate
+  }}</span>
+  <div class="category-form__colors">
+    @for (color of colorPalette; track color) {
+      <button
+        type="button"
+        class="category-form__swatch"
+        [class.category-form__swatch--selected]="selectedColor() === color"
+        [style.background]="color"
+        [style.--swatch-color]="color"
+        [attr.aria-label]="color"
+        (click)="selectColor(color)"
+      ></button>
+    }
+  </div>
+
+  <app-button
+    label="category.form.submit"
+    [disabled]="parentForm().invalid"
+    (click)="onSubmit($event)"
+  ></app-button>
+</form>
+
+<!-- 
+<form class="category-form" [formGroup]="parentForm()">
   <h2 class="category-form__title">{{ 'category.form.title' | translate }}</h2>
 
   <label class="category-form__label" for="category-name">
@@ -47,4 +85,4 @@
   >
     {{ 'category.form.submit' | translate }}
   </button>
-</form>
+</form> -->
