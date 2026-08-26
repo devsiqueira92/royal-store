@@ -1,0 +1,40 @@
+:host {
+  .product-form__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+  .product-form__title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
+
+  .product-form__subtitle {
+    margin: 0.1875rem 0 0;
+    font-size: 0.75rem;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .product-form__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+    border-radius: 0.375rem;
+    background: transparent;
+    color: light-dark(var(--p-surface-500), var(--p-surface-400));
+    cursor: pointer;
+
+    &:hover {
+      background: light-dark(var(--p-surface-100), var(--p-surface-800));
+    }
+  }
+}

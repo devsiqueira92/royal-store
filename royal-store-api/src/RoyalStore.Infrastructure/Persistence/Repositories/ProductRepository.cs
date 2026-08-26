@@ -19,7 +19,8 @@ public sealed class ProductRepository : IProductRepository
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Products
             .Include(p => p.Category)
-            .Include(p => p.Sizes)
+            .Include(p => p.Variants)
+            .Include(p => p.Tags).ThenInclude(t => t.Category)
             .Include(p => p.Photos)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
@@ -28,7 +29,8 @@ public sealed class ProductRepository : IProductRepository
     {
         var query = _context.Products
             .Include(p => p.Category)
-            .Include(p => p.Sizes)
+            .Include(p => p.Variants)
+            .Include(p => p.Tags).ThenInclude(t => t.Category)
             .Include(p => p.Photos)
             .AsQueryable();
 
@@ -40,10 +42,6 @@ public sealed class ProductRepository : IProductRepository
 
         return await query.ToListAsync(ct);
     }
-
-    public async Task<bool> ExistsBySkuAsync(string sku, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Products.AnyAsync(
-            p => p.Sku == sku && (excludeId == null || p.Id != excludeId), ct);
 
     public Task UpdateAsync(Product product, CancellationToken ct = default)
     {

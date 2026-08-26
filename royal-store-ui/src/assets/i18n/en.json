@@ -77,23 +77,65 @@
     },
     "form": {
       "title": "New product",
-      "subtitle": "Add an item to your catalog",
+      "subtitle": "Product details, tax classification and variants",
       "close": "Close",
-      "dropImage": "drop product image",
+      "section": {
+        "details": "Product details",
+        "variants": "Variants"
+      },
+      "images": "Images",
+      "imagesHint": "{{count}} images · click a tile to set the cover",
+      "cover": "Cover",
+      "addImage": "add",
       "name": "Product name",
       "namePlaceholder": "e.g. Linen Wrap Dress",
+      "description": "Description",
+      "descriptionPlaceholder": "Fabric, fit, care instructions...",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "unitOfMeasure": "Unit of measure",
+      "tags": "Tags",
+      "tagsPlaceholder": "Add tag + Enter",
+      "removeTag": "Remove tag",
+      "ncm": "NCM",
+      "ncmHint": "tax code",
+      "cest": "CEST",
+      "optional": "optional",
+      "active": "Active",
+      "activeHint": "Visible in POS and catalog",
+      "addVariant": "Add variant",
+      "variantsHint": "Each variant carries its own SKU, barcode, pricing and stock.",
+      "variantFallback": "New variant",
+      "duplicateVariant": "Duplicate variant",
+      "removeVariant": "Remove variant",
+      "size": "Size",
+      "sizePlaceholder": "e.g. M",
+      "color": "Color",
+      "colorPlaceholder": "Search a color",
       "sku": "SKU",
       "skuPlaceholder": "MAR-0000",
       "barcode": "Barcode",
       "barcodePlaceholder": "Scan or type",
-      "category": "Category",
-      "categoryPlaceholder": "Select a category",
       "price": "Price",
-      "cost": "Cost",
-      "stock": "Stock",
-      "sizes": "Available sizes",
-      "active": "Active",
-      "activeHint": "Visible in POS and catalog",
+      "cost": "Cost price",
+      "stockQty": "Stock qty",
+      "minStock": "Min stock",
+      "trackStock": "Track stock",
+      "trackStockHint": "Deducted on every sale",
+      "margin": "margin {{percent}}%",
+      "variant": {
+        "status": {
+          "inStock": "{{count}} in stock",
+          "lowStock": "Low · {{count}}",
+          "outOfStock": "Out of stock",
+          "untracked": "Untracked"
+        }
+      },
+      "summary": {
+        "variants": "{{count}} variants",
+        "units": "{{count}} units",
+        "priceRange": "Price range"
+      },
       "cancel": "Cancel",
       "submit": "Save product"
     }
@@ -123,6 +165,29 @@
     "empty": "No sellers found.",
     "columns": {
       "fullName": "Full name"
+    }
+  },
+
+  "enum": {
+    "sizes": {
+      "osfa": "One Size",
+      "xs": "XS",
+      "s": "S",
+      "m": "M",
+      "l": "L",
+      "xl": "XL",
+      "xxl": "XXL",
+      "xxxl": "XXXL"
+    },
+    "colorFamilies": {
+      "blue": "Blue",
+      "red": "Red",
+      "green": "Green",
+      "yellow": "Yellow",
+      "purple": "Purple",
+      "pink": "Pink",
+      "orange": "Orange",
+      "neutral": "Neutral"
     }
   }
 }

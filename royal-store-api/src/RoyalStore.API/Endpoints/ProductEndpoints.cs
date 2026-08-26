@@ -1,12 +1,15 @@
 using MediatR;
 using RoyalStore.API.Extensions;
 using RoyalStore.Application.Products.Commands.AddProductPhoto;
-using RoyalStore.Application.Products.Commands.AssignProductSizes;
+using RoyalStore.Application.Products.Commands.AddProductVariant;
+using RoyalStore.Application.Products.Commands.AssignProductTags;
 using RoyalStore.Application.Products.Commands.CreateProduct;
 using RoyalStore.Application.Products.Commands.DisableProduct;
 using RoyalStore.Application.Products.Commands.RemoveProductPhoto;
+using RoyalStore.Application.Products.Commands.RemoveProductVariant;
 using RoyalStore.Application.Products.Commands.SetProductCoverPhoto;
 using RoyalStore.Application.Products.Commands.UpdateProduct;
+using RoyalStore.Application.Products.Commands.UpdateProductVariant;
 using RoyalStore.Application.Products.Queries.GetProductById;
 using RoyalStore.Application.Products.Queries.GetProducts;
 using RoyalStore.Domain.Const;
@@ -27,7 +30,12 @@ public sealed class ProductEndpoints : IEndpointDefinition
         routes.MapGet("", GetAll);
         routes.MapGet("{id:guid}", GetById);
 
-        routes.MapPut("{id:guid}/sizes", AssignSizes);
+        routes.MapPost("{id:guid}/variants", AddVariant);
+        routes.MapPut("{id:guid}/variants/{variantId:guid}", UpdateVariant);
+        routes.MapDelete("{id:guid}/variants/{variantId:guid}", RemoveVariant);
+
+        routes.MapPut("{id:guid}/tags", AssignTags);
+
         routes.MapPost("{id:guid}/photos", AddPhoto);
         routes.MapDelete("{id:guid}/photos/{photoId:guid}", RemovePhoto);
         routes.MapPatch("{id:guid}/photos/{photoId:guid}/cover", SetCoverPhoto);
@@ -74,10 +82,41 @@ public sealed class ProductEndpoints : IEndpointDefinition
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
-    private static async Task<IResult> AssignSizes(
+    private static async Task<IResult> AddVariant(
         Guid id,
         IMediator mediator,
-        AssignProductSizesCommand command,
+        AddProductVariantCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command with { ProductId = id }, ct);
+        return result.ToHttpResult(r => TypedResults.Created($"/api/products/{id}/variants/{r.Id}", r));
+    }
+
+    private static async Task<IResult> UpdateVariant(
+        Guid id,
+        Guid variantId,
+        IMediator mediator,
+        UpdateProductVariantCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command with { ProductId = id, VariantId = variantId }, ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> RemoveVariant(
+        Guid id,
+        Guid variantId,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new RemoveProductVariantCommand(id, variantId), ct);
+        return result.ToHttpResult(() => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> AssignTags(
+        Guid id,
+        IMediator mediator,
+        AssignProductTagsCommand command,
         CancellationToken ct)
     {
         var result = await mediator.Send(command with { ProductId = id }, ct);

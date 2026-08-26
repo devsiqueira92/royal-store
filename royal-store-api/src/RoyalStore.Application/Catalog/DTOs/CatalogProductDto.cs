@@ -16,7 +16,10 @@ public record CatalogProductDto(
     bool IsActive,
     DateTimeOffset UpdatedAt)
 {
-    public static CatalogProductDto From(Product p) =>
-        new(p.Id, p.CategoryId, p.Name, p.Sku, p.Barcode, p.Price,
-            p.UnitOfMeasure, p.Ncm, p.Cest, p.Origin, p.IsActive, p.UpdatedAt);
+    public static CatalogProductDto From(Product p)
+    {
+        var first = p.Variants.FirstOrDefault();
+        return new(p.Id, p.CategoryId, p.Name, first?.Sku, first?.Barcode,
+            first?.Price ?? 0m, p.UnitOfMeasure, p.Ncm, p.Cest, p.Origin, p.IsActive, p.UpdatedAt);
+    }
 }

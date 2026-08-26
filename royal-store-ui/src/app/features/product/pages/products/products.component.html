@@ -118,14 +118,14 @@
           <td>
             <div class="product-cell">
               <div class="product-cell__thumb">
-                @if (product.imageUrl) {
-                  <img [src]="product.imageUrl" [alt]="product.name" />
+                @if (product.coverPhotoUrl) {
+                  <img [src]="product.coverPhotoUrl" [alt]="product.name" />
                 }
               </div>
               <div class="product-cell__info">
                 <span class="product-cell__name">{{ product.name }}</span>
-                @if (product.sku) {
-                  <span class="product-cell__sku">{{ product.sku }}</span>
+                @if (getVariantSummary(product); as summary) {
+                  <span class="product-cell__sku">{{ summary }}</span>
                 }
               </div>
             </div>
@@ -141,8 +141,18 @@
               {{ product.categoryName }}
             </div>
           </td>
-          <td>{{ product.price | currency }}</td>
-          <td>{{ product.stockQuantity }}</td>
+          <td>
+            @if (getPriceRange(product); as range) {
+              @if (range.min === range.max) {
+                {{ range.min | currency }}
+              } @else {
+                {{ range.min | currency }} – {{ range.max | currency }}
+              }
+            } @else {
+              —
+            }
+          </td>
+          <td>{{ getTotalStock(product) }}</td>
           <td>
             <p-tag
               [value]="getStatusLabelKey(product) | translate"

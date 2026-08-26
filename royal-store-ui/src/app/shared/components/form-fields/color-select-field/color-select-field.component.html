@@ -1,0 +1,71 @@
+<form [formGroup]="parentForm" class="mb-3 form-field">
+  <p-floatlabel variant="on">
+    <p-select
+      [formControlName]="controlName"
+      [invalid]="
+        parentForm.controls[controlName].touched &&
+        parentForm.controls[controlName].errors
+      "
+      [placeholder]="placeholder | translate"
+      [options]="groups()"
+      [group]="true"
+      optionGroupLabel="label"
+      optionLabel="label"
+      optionValue="value"
+      [filter]="true"
+      filterBy="searchText"
+      [showClear]="showClear"
+    >
+      <ng-template #group let-group>
+        <span class="color-select-field__group-label">{{ group.label }}</span>
+      </ng-template>
+
+      <ng-template #item let-item>
+        <span class="color-select-field__option">
+          <span
+            class="color-select-field__swatch"
+            [style.background]="item.hex"
+          ></span>
+          {{ item.label }}
+        </span>
+      </ng-template>
+
+      <ng-template #selectedItem let-selected>
+        <span class="color-select-field__option">
+          <span
+            class="color-select-field__swatch"
+            [style.background]="selected.hex"
+          ></span>
+          {{ selected.label }}
+        </span>
+      </ng-template>
+    </p-select>
+    <label [for]="label"
+      >{{ label | translate }}
+
+      @if (parentForm.controls[controlName].hasValidator(Validators.required)) {
+        <i class="pi pi-asterisk required-icon"></i>
+      }
+    </label>
+  </p-floatlabel>
+
+  <p-message
+    severity="error"
+    size="small"
+    variant="simple"
+    [style.position]="'absolute'"
+  >
+    @if (
+      parentForm.controls[controlName].touched &&
+      parentForm.controls[controlName].errors
+    ) {
+      <span class="error-message">
+        {{
+          'formValidation.' +
+            objectKeys(parentForm.controls[controlName].errors || {})[0]
+            | translate
+        }}
+      </span>
+    }
+  </p-message>
+</form>

@@ -12,11 +12,12 @@ import {
 import { Drawer } from 'primeng/drawer';
 import { DeviceService } from '../../services/device.service';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-details-sidebar',
-  imports: [Drawer, CommonModule],
+  imports: [Drawer, CommonModule, TranslatePipe],
   templateUrl: './details-sidebar.component.html',
   styleUrl: './details-sidebar.component.scss',
 })

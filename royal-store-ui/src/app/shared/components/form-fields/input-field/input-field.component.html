@@ -3,6 +3,9 @@
     <input
       class="w-100"
       pInputText
+      [type]="type"
+      [attr.min]="min"
+      [attr.step]="step"
       [formControlName]="controlName"
       [invalid]="
         parentForm.controls[controlName].touched &&

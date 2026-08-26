@@ -45,18 +45,9 @@ public sealed class UpdateProductCommandHandler
         if (category is null || !category.IsActive)
             return Error.Validation("product.category_invalid", "Category not found or inactive.");
 
-        if (command.Sku is not null)
-        {
-            var skuExists = await _productRepository.ExistsBySkuAsync(command.Sku, command.Id, cancellationToken);
-            if (skuExists)
-                return Error.Conflict("product.sku_conflict", $"A product with SKU '{command.Sku}' already exists.");
-        }
-
         var updateResult = product.Update(
             command.CategoryId, command.Name, command.Description,
-            command.Sku, command.Price, command.CostPrice, command.StockQuantity,
-            command.MinStockQuantity, command.IsStockTracked,
-            command.UnitOfMeasure, command.Barcode, command.Ncm, command.Cest, command.Origin);
+            command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin);
 
         if (!updateResult.IsSuccess)
             return updateResult.Error;

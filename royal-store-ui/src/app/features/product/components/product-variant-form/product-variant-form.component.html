@@ -1,0 +1,121 @@
+<div class="product-variant-form" [formGroup]="formGroup()">
+  <div class="product-variant-form__header">
+    <span class="product-variant-form__index">{{
+      index() + 1 | number: '2.0-0'
+    }}</span>
+    <span
+      class="product-variant-form__swatch"
+      [style.background]="swatchColor()"
+    ></span>
+    <span class="product-variant-form__label">
+      {{ variantLabel() || ('product.form.variantFallback' | translate) }}
+    </span>
+    <span
+      class="product-variant-form__badge product-variant-form__badge--{{
+        variantStatus()
+      }}"
+    >
+      {{
+        variantStatusLabelKey()
+          | translate: { count: formValues()?.stockQuantity }
+      }}
+    </span>
+    <div class="product-variant-form__actions">
+      <button
+        type="button"
+        [attr.aria-label]="'product.form.duplicateVariant' | translate"
+        (click)="duplicate.emit()"
+      >
+        <i class="pi pi-copy"></i>
+      </button>
+      <button
+        type="button"
+        [attr.aria-label]="'product.form.removeVariant' | translate"
+        [disabled]="!removable()"
+        (click)="remove.emit()"
+      >
+        <i class="pi pi-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="product-variant-form__row product-variant-form__row--2">
+    <app-select-field
+      controlName="size"
+      [parentForm]="formGroup()"
+      label="product.form.size"
+      [options]="sizes"
+    ></app-select-field>
+
+    <app-color-select-field
+      controlName="color"
+      [parentForm]="formGroup()"
+      label="product.form.color"
+    ></app-color-select-field>
+  </div>
+
+  <div class="product-variant-form__row product-variant-form__row--2">
+    <app-input-field
+      controlName="sku"
+      [parentForm]="formGroup()"
+      label="product.form.sku"
+    ></app-input-field>
+    <app-input-field
+      controlName="barcode"
+      [parentForm]="formGroup()"
+      label="product.form.barcode"
+    ></app-input-field>
+  </div>
+
+  <div class="product-variant-form__row product-variant-form__row--2">
+    <app-input-field
+      controlName="price"
+      [parentForm]="formGroup()"
+      label="product.form.price"
+      type="number"
+      [min]="0"
+      [step]="0.01"
+    ></app-input-field>
+    <app-input-field
+      controlName="costPrice"
+      [parentForm]="formGroup()"
+      label="product.form.cost"
+      type="number"
+      [min]="0"
+      [step]="0.01"
+    ></app-input-field>
+  </div>
+
+  <div class="product-variant-form__row product-variant-form__row--2">
+    <app-input-field
+      controlName="stockQuantity"
+      [parentForm]="formGroup()"
+      label="product.form.stockQty"
+      type="number"
+      [min]="0"
+      [step]="1"
+    ></app-input-field>
+    <app-input-field
+      controlName="minStockQuantity"
+      [parentForm]="formGroup()"
+      label="product.form.minStock"
+      type="number"
+      [min]="0"
+      [step]="1"
+    ></app-input-field>
+  </div>
+
+  <div class="product-variant-form__track">
+    <app-toggle-field
+      [parentForm]="formGroup()"
+      controlName="isStockTracked"
+      titleKey="product.form.trackStock"
+      subtitleKey="product.form.trackStockHint"
+    ></app-toggle-field>
+    @if (margin(); as margin) {
+      <span class="product-variant-form__margin">
+        {{ 'product.form.margin' | translate: { percent: margin } }}
+      </span>
+    }
+  </div>
+</div>
