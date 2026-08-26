@@ -210,20 +210,12 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Barcode")
-                        .HasMaxLength(14)
-                        .HasColumnType("nvarchar(14)");
-
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Cest")
                         .HasMaxLength(7)
                         .HasColumnType("nvarchar(7)");
-
-                    b.Property<decimal?>("CostPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -240,13 +232,6 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsStockTracked")
-                        .HasColumnType("bit");
-
-                    b.Property<decimal?>("MinStockQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -258,18 +243,6 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<int>("Origin")
                         .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Sku")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<decimal>("StockQuantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
@@ -294,10 +267,6 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("TenantId", "CategoryId");
-
-                    b.HasIndex("TenantId", "Sku")
-                        .IsUnique()
-                        .HasFilter("[Sku] IS NOT NULL");
 
                     b.ToTable("Products", (string)null);
                 });
@@ -349,31 +318,87 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("ProductPhotos", (string)null);
                 });
 
-            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductSize", b =>
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductTag", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TenantId");
+                    b.HasIndex("CategoryId");
 
-                    b.HasIndex("ProductId", "Size")
+                    b.HasIndex("ProductId", "CategoryId")
                         .IsUnique();
 
-                    b.ToTable("ProductSizes", (string)null);
+                    b.ToTable("ProductTags", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductVariant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Barcode")
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("CostPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsStockTracked")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("MinStockQuantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Size")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Sku")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("StockQuantity")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId", "Sku")
+                        .IsUnique()
+                        .HasFilter("[Sku] IS NOT NULL");
+
+                    b.ToTable("ProductVariants", (string)null);
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Identity.ConfirmationResendRequest", b =>
@@ -1037,10 +1062,27 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductSize", b =>
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductTag", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductVariant", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Catalog.Product", null)
-                        .WithMany("Sizes")
+                        .WithMany("Variants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1123,7 +1165,9 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Navigation("Photos");
 
-                    b.Navigation("Sizes");
+                    b.Navigation("Tags");
+
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashShift", b =>

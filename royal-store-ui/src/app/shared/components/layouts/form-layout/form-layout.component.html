@@ -1,0 +1,16 @@
+<section class="product-form__section">
+  <div class="product-form__section-heading">
+    <div class="heading-content">
+      <span class="product-form__section-index">{{ index() }}</span>
+      <h3>
+        {{ header() | translate }}
+        @if (headerDetails()) {
+          <span class="product-form__section-count">{{ headerDetails() }}</span>
+        }
+      </h3>
+    </div>
+
+    <ng-content select="[header-actions]"></ng-content>
+  </div>
+  <ng-content></ng-content>
+</section>

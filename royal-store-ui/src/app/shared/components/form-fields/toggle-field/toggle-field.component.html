@@ -1,0 +1,18 @@
+@if (titleKey) {
+  <div>
+    <span class="toggle-field__title">{{ titleKey | translate }}</span>
+    @if (subtitleKey) {
+      <span class="toggle-field__subtitle">{{ subtitleKey | translate }}</span>
+    }
+  </div>
+}
+<button
+  type="button"
+  role="switch"
+  class="toggle-field__switch"
+  [class.toggle-field__switch--on]="parentForm.controls[controlName].value"
+  [attr.aria-checked]="parentForm.controls[controlName].value"
+  (click)="toggle()"
+>
+  <span class="toggle-field__thumb"></span>
+</button>

@@ -44,23 +44,34 @@ public sealed class CreateProductCommandHandler
         if (category is null || !category.IsActive)
             return Error.Validation("product.category_invalid", "Category not found or inactive.");
 
-        if (command.Sku is not null)
-        {
-            var skuExists = await _productRepository.ExistsBySkuAsync(command.Sku, null, cancellationToken);
-            if (skuExists)
-                return Error.Conflict("product.sku_conflict", $"A product with SKU '{command.Sku}' already exists.");
-        }
-
         var productResult = Product.Create(
             tenantId, command.CategoryId, command.Name, command.Description,
-            command.Sku, command.Price, command.CostPrice, command.StockQuantity,
-            command.MinStockQuantity, command.IsStockTracked,
-            command.UnitOfMeasure, command.Barcode, command.Ncm, command.Cest, command.Origin);
+            command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin);
 
         if (!productResult.IsSuccess)
             return productResult.Error;
 
         var product = productResult.Value;
+
+        foreach (var v in command.Variants ?? [])
+        {
+            var variantResult = product.AddVariant(tenantId, v.Size, v.Color, v.Sku, v.Barcode,
+                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked);
+            if (!variantResult.IsSuccess)
+                return variantResult.Error;
+        }
+
+        if (command.TagIds is { Count: > 0 })
+        {
+            foreach (var tagId in command.TagIds)
+            {
+                var tagCategory = await _categoryRepository.GetByIdAsync(tagId, cancellationToken);
+                if (tagCategory is null)
+                    return Error.Validation("product.tag_invalid", $"Tag category '{tagId}' not found.");
+            }
+
+            product.AssignTags(command.TagIds);
+        }
 
         await _productRepository.AddAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -73,6 +84,7 @@ public sealed class CreateProductCommandHandler
             userId,
             cancellationToken);
 
-        return ProductResponse.From(product);
+        var saved = await _productRepository.GetByIdAsync(product.Id, cancellationToken);
+        return ProductResponse.From(saved!);
     }
 }

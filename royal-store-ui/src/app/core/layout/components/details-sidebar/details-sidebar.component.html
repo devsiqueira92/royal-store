@@ -6,5 +6,31 @@
   [style]="{ width: drawerWidth() }"
   [closable]="false"
 >
+  <ng-template #header>
+    @if (layoutService.contentToRender(); as content) {
+      <header class="product-form__header">
+        <div>
+          <h2 class="product-form__title">
+            {{ content.props?.title | translate }}
+          </h2>
+
+          @if (content.props?.subtitle) {
+            <p class="product-form__subtitle">
+              {{ content.props!.subtitle | translate }}
+            </p>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="product-form__close"
+          (click)="layoutService.closeDrawer()"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </header>
+    }
+  </ng-template>
+
   <ng-container #dynamicContent></ng-container>
 </p-drawer>

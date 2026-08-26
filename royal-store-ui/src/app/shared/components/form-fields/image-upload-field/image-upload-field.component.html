@@ -1,0 +1,46 @@
+<label class="image-upload-field__label" for="product-images">
+  {{ label() | translate }}
+  <span class="image-upload-field__label-hint">
+    {{ hintKey() | translate: { count: images().length } }}
+  </span>
+</label>
+<div class="image-upload-field__images" id="product-images">
+  @for (image of images(); track image.url; let i = $index) {
+    <button
+      type="button"
+      class="image-upload-field__tile"
+      [class.image-upload-field__tile--cover]="image.isCover"
+      (click)="setCoverImage(i)"
+    >
+      <img [src]="image.url" alt="" />
+      <span
+        class="image-upload-field__remove"
+        (click)="removeImage(i, $event)"
+      >
+        <i class="pi pi-times"></i>
+      </span>
+      @if (image.isCover) {
+        <span class="image-upload-field__cover-tag">{{
+          coverLabelKey() | translate
+        }}</span>
+      }
+    </button>
+  }
+  <div
+    class="image-upload-field__tile image-upload-field__tile--add"
+    (dragover)="$event.preventDefault()"
+    (drop)="onImagesDropped($event)"
+    (click)="imagesInput.click()"
+  >
+    <i class="pi pi-upload"></i>
+    <span>{{ addLabelKey() | translate }}</span>
+    <input
+      #imagesInput
+      type="file"
+      accept="image/*"
+      multiple
+      hidden
+      (change)="onImagesSelected($event)"
+    />
+  </div>
+</div>

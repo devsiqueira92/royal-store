@@ -26,7 +26,11 @@ export class InputFieldComponent {
   @Input({ required: true }) parentForm!: UntypedFormGroup;
   @Input({ required: true }) controlName!: string;
   @Input() label?: string;
+  @Input() placeholder?: string;
   @Input() id?: string;
+  @Input() type: string = 'text';
+  @Input() min?: number;
+  @Input() step?: number;
 
   objectKeys = Object.keys;
   Validators = Validators;

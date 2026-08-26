@@ -1,0 +1,41 @@
+<form [formGroup]="parentForm" class="mb-3 form-field">
+  <p-floatlabel variant="on">
+    <textarea
+      class="w-100"
+      pTextarea
+      [rows]="rows"
+      [formControlName]="controlName"
+      [invalid]="
+        parentForm.controls[controlName].touched &&
+        parentForm.controls[controlName].errors
+      "
+    ></textarea>
+    <label [for]="label"
+      >{{ label | translate }}
+
+      @if (parentForm.controls[controlName].hasValidator(Validators.required)) {
+        <i class="pi pi-asterisk required-icon"></i>
+      }
+    </label>
+  </p-floatlabel>
+
+  <p-message
+    severity="error"
+    size="small"
+    variant="simple"
+    [style.position]="'absolute'"
+  >
+    @if (
+      parentForm.controls[controlName].touched &&
+      parentForm.controls[controlName].errors
+    ) {
+      <span class="error-message">
+        {{
+          'formValidation.' +
+            objectKeys(parentForm.controls[controlName].errors || {})[0]
+            | translate
+        }}
+      </span>
+    }
+  </p-message>
+</form>

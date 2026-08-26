@@ -15,25 +15,8 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
         When(x => x.Description is not null, () =>
             RuleFor(x => x.Description).MaximumLength(500));
 
-        When(x => x.Sku is not null, () =>
-            RuleFor(x => x.Sku).MaximumLength(50));
-
-        RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
-
-        When(x => x.CostPrice.HasValue, () =>
-            RuleFor(x => x.CostPrice!.Value).GreaterThanOrEqualTo(0));
-
-        RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
-
-        When(x => x.MinStockQuantity.HasValue, () =>
-            RuleFor(x => x.MinStockQuantity!.Value).GreaterThanOrEqualTo(0));
-
         RuleFor(x => x.UnitOfMeasure)
-            .NotEmpty()
             .MaximumLength(6);
-
-        When(x => x.Barcode is not null, () =>
-            RuleFor(x => x.Barcode).MaximumLength(14));
 
         When(x => x.Ncm is not null, () =>
             RuleFor(x => x.Ncm)
@@ -46,5 +29,32 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                 .Matches(@"^\d+$").WithMessage("CEST must contain digits only."));
 
         RuleFor(x => x.Origin).InclusiveBetween(0, 8);
+
+        When(x => x.Variants is not null, () =>
+            RuleForEach(x => x.Variants).ChildRules(v =>
+            {
+                v.RuleFor(x => x)
+                    .Must(x => !string.IsNullOrWhiteSpace(x.Size) || !string.IsNullOrWhiteSpace(x.Color))
+                    .WithMessage("Each variant must have at least one of Size or Color.");
+
+                v.RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
+
+                v.When(x => x.CostPrice.HasValue, () =>
+                    v.RuleFor(x => x.CostPrice!.Value).GreaterThanOrEqualTo(0));
+
+                v.RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
+
+                v.When(x => x.Size is not null, () =>
+                    v.RuleFor(x => x.Size).MaximumLength(50));
+
+                v.When(x => x.Color is not null, () =>
+                    v.RuleFor(x => x.Color).MaximumLength(50));
+
+                v.When(x => x.Sku is not null, () =>
+                    v.RuleFor(x => x.Sku).MaximumLength(50));
+
+                v.When(x => x.Barcode is not null, () =>
+                    v.RuleFor(x => x.Barcode).MaximumLength(14));
+            }));
     }
 }

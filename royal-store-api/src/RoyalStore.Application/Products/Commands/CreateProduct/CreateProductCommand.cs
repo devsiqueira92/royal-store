@@ -8,14 +8,20 @@ public record CreateProductCommand(
     Guid CategoryId,
     string Name,
     string? Description,
+    string UnitOfMeasure,
+    string? Ncm,
+    string? Cest,
+    int Origin,
+    List<CreateVariantRequest>? Variants,
+    List<Guid>? TagIds) : IRequest<Result<ProductResponse>>;
+
+public record CreateVariantRequest(
+    string? Size,
+    string? Color,
     string? Sku,
+    string? Barcode,
     decimal Price,
     decimal? CostPrice,
     decimal StockQuantity,
     decimal? MinStockQuantity,
-    bool IsStockTracked,
-    string UnitOfMeasure,
-    string? Barcode,
-    string? Ncm,
-    string? Cest,
-    int Origin) : IRequest<Result<ProductResponse>>;
+    bool IsStockTracked);

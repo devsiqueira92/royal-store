@@ -23,34 +23,12 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Description)
             .HasMaxLength(500);
 
-        builder.Property(p => p.Sku)
-            .HasMaxLength(50);
-
-        builder.Property(p => p.Price)
-            .HasPrecision(18, 2)
-            .IsRequired();
-
-        builder.Property(p => p.CostPrice)
-            .HasPrecision(18, 2);
-
-        builder.Property(p => p.StockQuantity)
-            .HasPrecision(18, 3)
-            .IsRequired();
-
-        builder.Property(p => p.MinStockQuantity)
-            .HasPrecision(18, 3);
-
-        builder.Property(p => p.IsStockTracked).IsRequired();
-
         builder.Property(p => p.IsActive).IsRequired();
 
         builder.Property(p => p.UnitOfMeasure)
             .HasMaxLength(6)
             .IsRequired()
             .HasDefaultValue("UN");
-
-        builder.Property(p => p.Barcode)
-            .HasMaxLength(14);
 
         builder.Property(p => p.Ncm)
             .HasMaxLength(8);
@@ -70,9 +48,14 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(p => p.Sizes)
+        builder.HasMany(p => p.Variants)
             .WithOne()
-            .HasForeignKey(s => s.ProductId)
+            .HasForeignKey(v => v.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(p => p.Tags)
+            .WithOne()
+            .HasForeignKey(t => t.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(p => p.Photos)
@@ -81,9 +64,5 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(p => new { p.TenantId, p.CategoryId });
-
-        builder.HasIndex(p => new { p.TenantId, p.Sku })
-            .IsUnique()
-            .HasFilter("[Sku] IS NOT NULL");
     }
 }

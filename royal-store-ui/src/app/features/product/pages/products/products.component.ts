@@ -18,7 +18,7 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProductFacade } from '../../facade/product.facade';
-import { Product } from '../../interfaces/product.interface';
+import { Product, ProductVariant } from '../../interfaces/product.interface';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { ProductFormComponent } from '../../components/product-form/product-form.component';
 
@@ -101,7 +101,7 @@ export class ProductsComponent implements OnInit {
     const products = this.products();
     const categoryIds = new Set(products.map(product => product.categoryId));
     const inventoryValue = products.reduce(
-      (total, product) => total + product.price * product.stockQuantity,
+      (total, product) => total + this.getInventoryValue(product),
       0,
     );
     const lowStockCount = products.filter(
@@ -130,7 +130,9 @@ export class ProductsComponent implements OnInit {
       const matchesTerm =
         !term ||
         product.name.toLowerCase().includes(term) ||
-        (product.sku?.toLowerCase().includes(term) ?? false);
+        product.variants.some(variant =>
+          variant.sku?.toLowerCase().includes(term),
+        );
       const matchesCategory = !categoryId || product.categoryId === categoryId;
       const matchesStatus = !status || this.getStockStatus(product) === status;
 
@@ -143,22 +145,80 @@ export class ProductsComponent implements OnInit {
   }
 
   protected createProduct() {
-    this.detailsSidebarService.openDrawer(ProductFormComponent);
+    this.detailsSidebarService.openDrawer(ProductFormComponent, {
+      title: 'product.form.title',
+      subtitle: 'product.form.subtitle',
+    });
   }
 
-  protected getStockStatus(product: Product): StockStatus {
-    if (!product.isStockTracked) {
+  protected getInventoryValue(product: Product): number {
+    return product.variants.reduce(
+      (total, variant) => total + variant.price * variant.stockQuantity,
+      0,
+    );
+  }
+
+  protected getTotalStock(product: Product): number {
+    return product.variants.reduce(
+      (total, variant) => total + variant.stockQuantity,
+      0,
+    );
+  }
+
+  protected getPriceRange(
+    product: Product,
+  ): { min: number; max: number } | null {
+    if (product.variants.length === 0) {
+      return null;
+    }
+
+    const prices = product.variants.map(variant => variant.price);
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }
+
+  protected getVariantSummary(product: Product): string {
+    if (product.variants.length === 1) {
+      return product.variants[0].sku ?? '';
+    }
+
+    return product.variants.length > 0
+      ? `${product.variants.length} variants`
+      : '';
+  }
+
+  protected getVariantStatus(variant: ProductVariant): StockStatus {
+    if (!variant.isStockTracked) {
       return 'inStock';
     }
 
-    if (product.stockQuantity <= 0) {
+    if (variant.stockQuantity <= 0) {
       return 'outOfStock';
     }
 
     if (
-      product.minStockQuantity != null &&
-      product.stockQuantity <= product.minStockQuantity
+      variant.minStockQuantity != null &&
+      variant.stockQuantity <= variant.minStockQuantity
     ) {
+      return 'lowStock';
+    }
+
+    return 'inStock';
+  }
+
+  protected getStockStatus(product: Product): StockStatus {
+    if (product.variants.length === 0) {
+      return 'inStock';
+    }
+
+    const statuses = product.variants.map(variant =>
+      this.getVariantStatus(variant),
+    );
+
+    if (statuses.includes('outOfStock')) {
+      return 'outOfStock';
+    }
+
+    if (statuses.includes('lowStock')) {
       return 'lowStock';
     }
 
