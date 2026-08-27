@@ -12,6 +12,10 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
             .NotEmpty()
             .MaximumLength(120);
 
+        RuleFor(x => x.ReferenceCode)
+            .NotEmpty()
+            .MaximumLength(50);
+
         When(x => x.Description is not null, () =>
             RuleFor(x => x.Description).MaximumLength(500));
 

@@ -77,6 +77,7 @@
     },
     "form": {
       "title": "New product",
+      "edit": "Edit product",
       "subtitle": "Product details, tax classification and variants",
       "close": "Close",
       "section": {
@@ -89,6 +90,8 @@
       "addImage": "add",
       "name": "Product name",
       "namePlaceholder": "e.g. Linen Wrap Dress",
+      "referenceCode": "Reference code",
+      "referenceCodePlaceholder": "e.g. LWD",
       "description": "Description",
       "descriptionPlaceholder": "Fabric, fit, care instructions...",
       "category": "Category",
@@ -103,6 +106,9 @@
       "optional": "optional",
       "active": "Active",
       "activeHint": "Visible in POS and catalog",
+      "variantDefaultsHint": "Sets price, cost and min stock for the first variant, and pre-fills new variants. Unlock a variant's own fields with the pencil to override.",
+      "unlockPricing": "Edit this variant's price, cost and min stock",
+      "lockPricing": "Lock this variant's price, cost and min stock",
       "addVariant": "Add variant",
       "variantsHint": "Each variant carries its own SKU, barcode, pricing and stock.",
       "variantFallback": "New variant",

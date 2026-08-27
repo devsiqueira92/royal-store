@@ -23,6 +23,22 @@
     <div class="product-variant-form__actions">
       <button
         type="button"
+        class="product-variant-form__actions-toggle"
+        [class.product-variant-form__actions-toggle--active]="
+          !pricingLocked()
+        "
+        [attr.aria-label]="
+          (pricingLocked()
+            ? 'product.form.unlockPricing'
+            : 'product.form.lockPricing'
+          ) | translate
+        "
+        (click)="togglePricingLock()"
+      >
+        <i class="pi" [class.pi-lock]="pricingLocked()" [class.pi-lock-open]="!pricingLocked()"></i>
+      </button>
+      <button
+        type="button"
         [attr.aria-label]="'product.form.duplicateVariant' | translate"
         (click)="duplicate.emit()"
       >

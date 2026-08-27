@@ -41,4 +41,10 @@ export class ProductService {
   getById(id: string): Observable<Product> {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
+
+  removeVariant(productId: string, variantId: string): Observable<void> {
+    return this.http.delete<void>(
+      `${this.apiUrl}/${productId}/variants/${variantId}`,
+    );
+  }
 }

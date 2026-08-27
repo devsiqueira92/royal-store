@@ -30,7 +30,7 @@ public sealed class RemoveProductVariantCommandHandler
         if (!removeResult.IsSuccess)
             return removeResult;
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+        await _productRepository.UpdateAsync(product, null, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

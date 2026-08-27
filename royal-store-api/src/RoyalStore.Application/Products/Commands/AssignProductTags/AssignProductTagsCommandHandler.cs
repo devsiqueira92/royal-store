@@ -39,7 +39,7 @@ public sealed class AssignProductTagsCommandHandler
 
         product.AssignTags(command.TagIds);
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+        await _productRepository.UpdateAsync(product, null, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var saved = await _productRepository.GetByIdAsync(product.Id, cancellationToken);

@@ -9,12 +9,14 @@ public sealed class Product : Entity, IAuditableEntity
     public Guid CategoryId { get; private set; }
     public Category Category { get; private set; } = null!;
     public string Name { get; private set; } = string.Empty;
+    public string ReferenceCode { get; private set; } = string.Empty;
     public string? Description { get; private set; }
     public bool IsActive { get; private set; }
     public string UnitOfMeasure { get; private set; } = "UN";
     public string? Ncm { get; private set; }
     public string? Cest { get; private set; }
     public int Origin { get; private set; }
+    public int Version { get; private set; }
 
     public ICollection<ProductVariant> Variants { get; private set; } = [];
     public ICollection<ProductTag> Tags { get; private set; } = [];
@@ -27,13 +29,14 @@ public sealed class Product : Entity, IAuditableEntity
 
     private Product() : base(Guid.NewGuid()) { }
 
-    private Product(Guid id, Guid tenantId, Guid categoryId, string name, string? description,
+    private Product(Guid id, Guid tenantId, Guid categoryId, string name, string referenceCode, string? description,
         string unitOfMeasure, string? ncm, string? cest, int origin)
         : base(id)
     {
         TenantId = tenantId;
         CategoryId = categoryId;
         Name = name;
+        ReferenceCode = referenceCode;
         Description = description;
         IsActive = true;
         UnitOfMeasure = unitOfMeasure;
@@ -43,7 +46,7 @@ public sealed class Product : Entity, IAuditableEntity
     }
 
     public static Result<Product> Create(
-        Guid tenantId, Guid categoryId, string name, string? description,
+        Guid tenantId, Guid categoryId, string name, string referenceCode, string? description,
         string unitOfMeasure, string? ncm, string? cest, int origin)
     {
         if (tenantId == Guid.Empty)
@@ -60,6 +63,14 @@ public sealed class Product : Entity, IAuditableEntity
         if (name.Length > 120)
             return Error.Validation("product.name_too_long", "Product name must not exceed 120 characters.");
 
+        if (string.IsNullOrWhiteSpace(referenceCode))
+            return Error.Validation("product.reference_code_required", "Reference code is required.");
+
+        referenceCode = referenceCode.Trim();
+
+        if (referenceCode.Length > 50)
+            return Error.Validation("product.reference_code_too_long", "Reference code must not exceed 50 characters.");
+
         if (description is not null && description.Length > 500)
             return Error.Validation("product.description_too_long", "Description must not exceed 500 characters.");
 
@@ -69,12 +80,12 @@ public sealed class Product : Entity, IAuditableEntity
         if (string.IsNullOrWhiteSpace(unitOfMeasure))
             unitOfMeasure = "UN";
 
-        return new Product(Guid.NewGuid(), tenantId, categoryId, name, description,
+        return new Product(Guid.NewGuid(), tenantId, categoryId, name, referenceCode, description,
             unitOfMeasure, ncm, cest, origin);
     }
 
     public Result Update(
-        Guid categoryId, string name, string? description,
+        Guid categoryId, string name, string referenceCode, string? description,
         string unitOfMeasure, string? ncm, string? cest, int origin)
     {
         if (!IsActive)
@@ -91,18 +102,79 @@ public sealed class Product : Entity, IAuditableEntity
         if (name.Length > 120)
             return Result.Failure(Error.Validation("product.name_too_long", "Product name must not exceed 120 characters."));
 
+        if (string.IsNullOrWhiteSpace(referenceCode))
+            return Result.Failure(Error.Validation("product.reference_code_required", "Reference code is required."));
+
+        referenceCode = referenceCode.Trim();
+
+        if (referenceCode.Length > 50)
+            return Result.Failure(Error.Validation("product.reference_code_too_long", "Reference code must not exceed 50 characters."));
+
         if (origin is < 0 or > 8)
             return Result.Failure(Error.Validation("product.origin_invalid", "Origin must be between 0 and 8."));
 
         CategoryId = categoryId;
         Name = name;
+        ReferenceCode = referenceCode;
         Description = description;
         UnitOfMeasure = string.IsNullOrWhiteSpace(unitOfMeasure) ? "UN" : unitOfMeasure;
         Ncm = ncm;
         Cest = cest;
         Origin = origin;
+        Version++;
 
         return Result.Success();
+    }
+
+    public Result UpdateWithVariants(
+        Guid categoryId, string name, string referenceCode, string? description,
+        string unitOfMeasure, string? ncm, string? cest, int origin,
+        IReadOnlyList<NewVariantRequest> variantsToAdd,
+        IReadOnlyList<VariantUpdateRequest> variantsToUpdate)
+    {
+        var fieldsResult = Update(categoryId, name, referenceCode, description, unitOfMeasure, ncm, cest, origin);
+        if (!fieldsResult.IsSuccess)
+            return fieldsResult;
+
+        foreach (var update in variantsToUpdate)
+        {
+            if (Variants.All(v => v.Id != update.VariantId))
+                return Result.Failure(Error.NotFound("variant.not_found", $"Variant '{update.VariantId}' not found for this product."));
+        }
+
+        foreach (var update in variantsToUpdate)
+        {
+            var updateResult = UpdateVariant(
+                update.VariantId, update.Size, update.Color, update.Sku, update.Barcode,
+                update.Price, update.CostPrice, update.StockQuantity, update.MinStockQuantity, update.IsStockTracked);
+            if (!updateResult.IsSuccess)
+                return Result.Failure(AttributeError(updateResult.Error, $"Variant '{update.VariantId}'"));
+        }
+
+        foreach (var add in variantsToAdd)
+        {
+            var addResult = AddVariant(
+                TenantId, add.Size, add.Color, add.Sku, add.Barcode,
+                add.Price, add.CostPrice, add.StockQuantity, add.MinStockQuantity, add.IsStockTracked);
+            if (!addResult.IsSuccess)
+                return Result.Failure(AttributeError(addResult.Error, $"New variant (Size='{add.Size}', Color='{add.Color}')"));
+        }
+
+        return Result.Success();
+    }
+
+    private static Error AttributeError(Error error, string context)
+    {
+        var message = $"{context}: {error.Message}";
+        return error.Type switch
+        {
+            ErrorType.Validation => Error.Validation(error.Code, message),
+            ErrorType.NotFound => Error.NotFound(error.Code, message),
+            ErrorType.Conflict => Error.Conflict(error.Code, message),
+            ErrorType.Unauthorized => Error.Unauthorized(error.Code, message),
+            ErrorType.RateLimit => Error.RateLimit(error.Code, message),
+            _ => Error.Unexpected(error.Code, message)
+        };
     }
 
     public Result Disable()
@@ -111,6 +183,7 @@ public sealed class Product : Entity, IAuditableEntity
             return Result.Failure(Error.Conflict("product.already_disabled", "Product is already inactive."));
 
         IsActive = false;
+        Version++;
         return Result.Success();
     }
 
@@ -139,6 +212,7 @@ public sealed class Product : Entity, IAuditableEntity
         var variant = new ProductVariant(Id, tenantId, size, color, sku, barcode,
             price, costPrice, stockQuantity, minStockQuantity, isStockTracked);
         Variants.Add(variant);
+        Version++;
         return variant;
     }
 
@@ -148,7 +222,11 @@ public sealed class Product : Entity, IAuditableEntity
         if (variant is null)
             return Result.Failure(Error.NotFound("variant.not_found", "Variant not found for this product."));
 
+        if (Variants.Count == 1)
+            return Result.Failure(Error.Validation("product.zero_variants", "A product must have at least one variant."));
+
         Variants.Remove(variant);
+        Version++;
         return Result.Success();
     }
 
@@ -169,7 +247,11 @@ public sealed class Product : Entity, IAuditableEntity
         if (HasDuplicateVariant(variantId, size, color))
             return Result.Failure(Error.Conflict("variant.duplicate", "A variant with the same size and color already exists for this product."));
 
-        return variant.Update(size, color, sku, barcode, price, costPrice, stockQuantity, minStockQuantity, isStockTracked);
+        var updateResult = variant.Update(size, color, sku, barcode, price, costPrice, stockQuantity, minStockQuantity, isStockTracked);
+        if (updateResult.IsSuccess)
+            Version++;
+
+        return updateResult;
     }
 
     public Result AssignTags(IEnumerable<Guid> categoryIds)
@@ -177,6 +259,7 @@ public sealed class Product : Entity, IAuditableEntity
         Tags.Clear();
         foreach (var categoryId in categoryIds.Distinct())
             Tags.Add(new ProductTag(Id, TenantId, categoryId));
+        Version++;
         return Result.Success();
     }
 
@@ -190,6 +273,7 @@ public sealed class Product : Entity, IAuditableEntity
 
         var photo = new ProductPhoto(Id, tenantId, url);
         Photos.Add(photo);
+        Version++;
         return photo;
     }
 
@@ -204,6 +288,7 @@ public sealed class Product : Entity, IAuditableEntity
                 "Cannot delete the cover photo. Set another photo as cover first."));
 
         Photos.Remove(photo);
+        Version++;
         return Result.Success();
     }
 
@@ -217,6 +302,7 @@ public sealed class Product : Entity, IAuditableEntity
             existing.UnsetCover();
 
         photo.SetAsCover();
+        Version++;
         return Result.Success();
     }
 

@@ -7,6 +7,7 @@ namespace RoyalStore.Application.Products.Commands.CreateProduct;
 public record CreateProductCommand(
     Guid CategoryId,
     string Name,
+    string ReferenceCode,
     string? Description,
     string UnitOfMeasure,
     string? Ncm,

@@ -40,7 +40,7 @@ public sealed class AddProductVariantCommandHandler
         if (!variantResult.IsSuccess)
             return variantResult.Error;
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+        await _productRepository.AddVariantAsync(variantResult.Value, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return ProductVariantResponse.From(variantResult.Value);
