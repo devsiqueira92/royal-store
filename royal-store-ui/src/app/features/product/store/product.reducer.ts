@@ -65,7 +65,7 @@ export const productFeature = createFeature({
       isLoading: false,
       error,
     })),
-    on(ProductActions.updateProduct, (state): ProductState => ({
+    on(ProductActions.saveProductEdit, (state): ProductState => ({
       ...state,
       isLoading: true,
       error: null,
@@ -80,6 +80,26 @@ export const productFeature = createFeature({
     on(ProductActions.updateProductFailure, (state, { error }): ProductState => ({
       ...state,
       isLoading: false,
+      error,
+    })),
+    on(ProductActions.removeProductVariantSuccess, (state, { productId, variantId }): ProductState => {
+      const removeVariant = (product: Product) =>
+        product.id === productId
+          ? {
+              ...product,
+              variants: product.variants.filter(v => v.id !== variantId),
+            }
+          : product;
+
+      return {
+        ...state,
+        products: state.products.map(removeVariant),
+        selectedProduct:
+          state.selectedProduct && removeVariant(state.selectedProduct),
+      };
+    }),
+    on(ProductActions.removeProductVariantFailure, (state, { error }): ProductState => ({
+      ...state,
       error,
     })),
     on(ProductActions.disableProduct, (state): ProductState => ({

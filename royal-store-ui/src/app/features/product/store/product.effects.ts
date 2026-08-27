@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, concat, concatMap, from, map, of, switchMap } from 'rxjs';
 import { ProductService } from '../services/product.service';
 import { ProductActions } from './product.actions';
 
@@ -74,12 +74,12 @@ export const createProduct = createEffect(
   },
 );
 
-export const updateProduct = createEffect(
+export const saveProductEdit = createEffect(
   (actions$ = inject(Actions), productService = inject(ProductService)) => {
     return actions$.pipe(
-      ofType(ProductActions.updateProduct),
-      switchMap(({ id, request }) =>
-        productService.update(id, request).pipe(
+      ofType(ProductActions.saveProductEdit),
+      concatMap(({ id: productId, request, toRemove }) => {
+        const updateProduct$ = productService.update(productId, request).pipe(
           map(product => ProductActions.updateProductSuccess({ product })),
           catchError((error: HttpErrorResponse) =>
             of(
@@ -88,8 +88,34 @@ export const updateProduct = createEffect(
               }),
             ),
           ),
-        ),
-      ),
+        );
+
+        // Removal isn't part of the batch update contract — it must go
+        // through the standalone DELETE endpoint, one variant at a time,
+        // after the batch (whose `version` was captured before any removal)
+        // has been applied.
+        const removes$ = from(toRemove).pipe(
+          concatMap(variantId =>
+            productService.removeVariant(productId, variantId).pipe(
+              map(() =>
+                ProductActions.removeProductVariantSuccess({
+                  productId,
+                  variantId,
+                }),
+              ),
+              catchError((error: HttpErrorResponse) =>
+                of(
+                  ProductActions.removeProductVariantFailure({
+                    error: error.error?.message ?? 'error.unknowError',
+                  }),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        return concat(updateProduct$, removes$);
+      }),
     );
   },
   {

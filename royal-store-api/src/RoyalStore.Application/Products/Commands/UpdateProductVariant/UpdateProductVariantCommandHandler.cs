@@ -36,7 +36,7 @@ public sealed class UpdateProductVariantCommandHandler
         if (!updateResult.IsSuccess)
             return updateResult.Error;
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+        await _productRepository.UpdateAsync(product, null, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var variant = product.Variants.First(v => v.Id == command.VariantId);

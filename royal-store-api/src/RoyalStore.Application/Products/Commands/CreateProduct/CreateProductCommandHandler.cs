@@ -45,7 +45,7 @@ public sealed class CreateProductCommandHandler
             return Error.Validation("product.category_invalid", "Category not found or inactive.");
 
         var productResult = Product.Create(
-            tenantId, command.CategoryId, command.Name, command.Description,
+            tenantId, command.CategoryId, command.Name, command.ReferenceCode, command.Description,
             command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin);
 
         if (!productResult.IsSuccess)

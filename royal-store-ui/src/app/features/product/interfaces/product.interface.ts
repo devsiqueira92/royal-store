@@ -13,11 +13,13 @@ export interface Product {
   categoryName: string;
   categoryColor?: string;
   name: string;
+  referenceCode: string;
   description?: string;
   unitOfMeasure: string;
   ncm?: string;
   cest?: string;
   origin: number;
+  version: number;
   isActive: boolean;
   coverPhotoUrl?: string;
   photos: ProductPhoto[];
@@ -67,10 +69,14 @@ export interface ProductFormControls {
   id: FormControl<string | null>;
   categoryId: FormControl<string | null>;
   name: FormControl<string | null>;
+  referenceCode: FormControl<string | null>;
   description: FormControl<string | null>;
   unitOfMeasure: FormControl<string | null>;
   ncm: FormControl<string | null>;
   cest: FormControl<string | null>;
   isActive: FormControl<boolean | null>;
+  price: FormControl<number | null>;
+  costPrice: FormControl<number | null>;
+  minStockQuantity: FormControl<number | null>;
   variants: FormArray<FormGroup<ProductVariantFormControls>>;
 }

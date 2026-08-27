@@ -145,8 +145,17 @@ export class ProductsComponent implements OnInit {
   }
 
   protected createProduct() {
+    this.productFacade.clearSelectedProduct();
     this.detailsSidebarService.openDrawer(ProductFormComponent, {
       title: 'product.form.title',
+      subtitle: 'product.form.subtitle',
+    });
+  }
+
+  protected editProduct(product: Product) {
+    this.productFacade.loadProduct(product.id);
+    this.detailsSidebarService.openDrawer(ProductFormComponent, {
+      title: 'product.form.edit',
       subtitle: 'product.form.subtitle',
     });
   }

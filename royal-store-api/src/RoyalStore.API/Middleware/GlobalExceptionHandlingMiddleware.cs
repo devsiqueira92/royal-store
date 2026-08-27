@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace RoyalStore.API.Middleware;
 
 public sealed class GlobalExceptionHandlingMiddleware(
@@ -12,6 +14,24 @@ public sealed class GlobalExceptionHandlingMiddleware(
         }
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Defense-in-depth against a genuine concurrent save race that the
+            // application-layer version comparison couldn't catch (both requests
+            // loaded the same "current" version moments apart). Mirrors the shape
+            // ToHttpResult's MapError produces for Error.Conflict.
+            if (!context.Response.HasStarted)
+            {
+                context.Response.StatusCode = StatusCodes.Status409Conflict;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsJsonAsync(new
+                {
+                    code = "product.stale",
+                    message = "The product was modified by someone else. Reload and try again."
+                });
+            }
         }
         catch (Exception ex)
         {

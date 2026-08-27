@@ -12,6 +12,7 @@
         parentForm.controls[controlName].errors
       "
       autocomplete="off"
+      (blur)="blurred.emit()"
     />
     <label [for]="label"
       >{{ label | translate }}

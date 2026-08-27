@@ -11,6 +11,14 @@
       placeholder="product.form.namePlaceholder"
     ></app-input-field>
 
+    <app-input-field
+      controlName="referenceCode"
+      [parentForm]="formGroup"
+      label="product.form.referenceCode"
+      placeholder="product.form.referenceCodePlaceholder"
+      (blurred)="onReferenceCodeBlur()"
+    ></app-input-field>
+
     <app-textarea-field
       controlName="description"
       [parentForm]="formGroup"
@@ -57,6 +65,37 @@
         titleKey="product.form.active"
         subtitleKey="product.form.activeHint"
       ></app-toggle-field>
+    </div>
+
+    <p class="product-form__section-subtitle">
+      {{ 'product.form.variantDefaultsHint' | translate }}
+    </p>
+    <div class="product-form__row product-form__row--3">
+      <app-input-field
+        controlName="price"
+        [parentForm]="formGroup"
+        label="product.form.price"
+        type="number"
+        [min]="0"
+        [step]="0.01"
+      ></app-input-field>
+      <app-input-field
+        controlName="costPrice"
+        [parentForm]="formGroup"
+        label="product.form.cost"
+        type="number"
+        [min]="0"
+        [step]="0.01"
+      ></app-input-field>
+
+      <app-input-field
+        controlName="minStockQuantity"
+        [parentForm]="formGroup"
+        label="product.form.minStock"
+        type="number"
+        [min]="0"
+        [step]="1"
+      ></app-input-field>
     </div>
   </app-form-layout>
 
@@ -125,7 +164,7 @@
       <app-button
         label="product.form.submit"
         [disabled]="formGroup.invalid"
-        (ngSubmit)="onSubmit($event)"
+        (click)="onSubmit($event)"
       ></app-button>
     </div>
   </div>

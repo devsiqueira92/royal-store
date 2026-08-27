@@ -20,6 +20,10 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasMaxLength(120)
             .IsRequired();
 
+        builder.Property(p => p.ReferenceCode)
+            .HasMaxLength(50)
+            .IsRequired();
+
         builder.Property(p => p.Description)
             .HasMaxLength(500);
 
@@ -37,6 +41,10 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasMaxLength(7);
 
         builder.Property(p => p.Origin).IsRequired();
+
+        builder.Property(p => p.Version)
+            .IsRequired()
+            .IsConcurrencyToken();
 
         builder.Property(p => p.CreatedAt).IsRequired();
         builder.Property(p => p.CreatedBy).HasMaxLength(450).IsRequired();

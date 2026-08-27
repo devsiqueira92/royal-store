@@ -5,8 +5,9 @@ namespace RoyalStore.Application.Abstractions.Data;
 public interface IProductRepository
 {
     Task AddAsync(Product product, CancellationToken ct = default);
+    Task AddVariantAsync(ProductVariant variant, CancellationToken ct = default);
     Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetAllAsync(bool? isActive, Guid? categoryId, CancellationToken ct = default);
-    Task UpdateAsync(Product product, CancellationToken ct = default);
+    Task UpdateAsync(Product product, int? expectedVersion, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetForCatalogAsync(DateTimeOffset? since, CancellationToken ct = default);
 }

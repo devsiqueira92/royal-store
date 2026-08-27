@@ -92,6 +92,11 @@
       opacity: 0.4;
     }
   }
+
+  &-toggle--active {
+    background: light-dark(var(--p-primary-50), var(--p-primary-950));
+    color: light-dark(var(--p-primary-600), var(--p-primary-300));
+  }
 }
 
 .product-variant-form__row {

@@ -38,7 +38,7 @@ public sealed class DisableProductCommandHandler : IRequestHandler<DisableProduc
         if (!disableResult.IsSuccess)
             return disableResult;
 
-        await _productRepository.UpdateAsync(product, cancellationToken);
+        await _productRepository.UpdateAsync(product, null, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var userId = _currentUserService.CurrentUserId ?? "unknown";

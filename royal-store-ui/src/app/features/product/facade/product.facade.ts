@@ -34,8 +34,12 @@ export class ProductFacade {
     this.store.dispatch(ProductActions.createProduct({ request }));
   }
 
-  updateProduct(id: string, request: UpdateProductRequest): void {
-    this.store.dispatch(ProductActions.updateProduct({ id, request }));
+  saveProductEdit(
+    id: string,
+    request: UpdateProductRequest,
+    toRemove: string[],
+  ): void {
+    this.store.dispatch(ProductActions.saveProductEdit({ id, request, toRemove }));
   }
 
   disableProduct(id: string): void {

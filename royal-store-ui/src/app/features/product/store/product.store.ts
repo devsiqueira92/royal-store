@@ -2,7 +2,7 @@ import {
   loadProducts,
   loadProduct,
   createProduct,
-  updateProduct,
+  saveProductEdit,
   disableProduct,
 } from './product.effects';
 
@@ -10,6 +10,6 @@ export const productStore = {
   loadProducts,
   loadProduct,
   createProduct,
-  updateProduct,
+  saveProductEdit,
   disableProduct,
 };

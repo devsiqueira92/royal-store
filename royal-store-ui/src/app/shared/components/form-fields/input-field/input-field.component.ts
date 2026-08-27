@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, output } from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormGroup,
@@ -31,6 +31,8 @@ export class InputFieldComponent {
   @Input() type: string = 'text';
   @Input() min?: number;
   @Input() step?: number;
+
+  blurred = output<void>();
 
   objectKeys = Object.keys;
   Validators = Validators;

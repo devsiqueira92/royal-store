@@ -13,6 +13,7 @@ export interface CreateProductVariantRequest {
 export interface CreateProductRequest {
   categoryId: string;
   name: string;
+  referenceCode: string;
   description?: string;
   unitOfMeasure: string;
   ncm?: string;
