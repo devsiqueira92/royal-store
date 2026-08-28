@@ -106,6 +106,10 @@ public sealed class DependencyInjection : IInstallService
                 policy.RequireRole(Role.Admin, Role.Manager));
 
             options.AddPolicy(PolicyNames.Seller, policy =>
+                policy.RequireRole(Role.Seller)
+                    .RequireClaim("onboardingStatus", "completed"));
+
+            options.AddPolicy(PolicyNames.SellerOnboarding, policy =>
                 policy.RequireRole(Role.Seller));
 
             options.AddPolicy(PolicyNames.Admin, policy =>

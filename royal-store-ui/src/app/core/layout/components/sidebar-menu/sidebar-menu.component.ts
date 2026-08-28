@@ -68,7 +68,7 @@ export class SidebarMenuComponent {
           {
             label: 'Vendedores',
             icon: 'pi pi-users',
-            routerLink: '/salespeople',
+            routerLink: '/sellers',
           },
         ],
       },

@@ -1,0 +1,48 @@
+using MediatR;
+using RoyalStore.Application.Abstractions.Authentication;
+using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Abstractions.Services;
+using RoyalStore.Application.DTOs;
+using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Const;
+
+namespace RoyalStore.Application.Auth.Commands.RefreshToken;
+
+public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<TokenResponse>>
+{
+    private readonly IIdentityService _identityService;
+    private readonly ITokenService _tokenService;
+    private readonly ISellerRepository _sellerRepository;
+    private readonly ICurrentUserService _currentUserService;
+
+    public RefreshTokenCommandHandler(
+        IIdentityService identityService,
+        ITokenService tokenService,
+        ISellerRepository sellerRepository,
+        ICurrentUserService currentUserService)
+    {
+        _identityService = identityService;
+        _tokenService = tokenService;
+        _sellerRepository = sellerRepository;
+        _currentUserService = currentUserService;
+    }
+
+    public async Task<Result<TokenResponse>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    {
+        var userId = _currentUserService.CurrentUserId;
+        if (string.IsNullOrWhiteSpace(userId))
+            return Error.Unauthorized("auth.unauthenticated", "Not authenticated.");
+
+        var user = await _identityService.FindByIdAsync(userId);
+        if (user is null)
+            return Error.Unauthorized("auth.unauthenticated", "Not authenticated.");
+
+        var roles = await _identityService.GetRolesAsync(user);
+        var role = roles.FirstOrDefault() ?? string.Empty;
+
+        var onboardingCompleted = role != Role.Seller
+            || (await _sellerRepository.GetByUserIdAsync(user.Id, cancellationToken))?.OnboardingCompletedAt is not null;
+
+        return _tokenService.GenerateToken(user, role, onboardingCompleted);
+    }
+}

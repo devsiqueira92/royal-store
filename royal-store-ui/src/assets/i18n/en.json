@@ -168,9 +168,46 @@
   },
   "seller": {
     "title": "Sellers",
+    "subtitle": "People who can sign in and run the register.",
     "empty": "No sellers found.",
+    "viewDetails": "View details",
+    "toggleActive": "Activate or deactivate seller",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "columns": {
-      "fullName": "Full name"
+      "fullName": "Full name",
+      "seller": "Seller",
+      "role": "Role",
+      "email": "Email",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Edit seller",
+      "subtitle": "Grant register access",
+      "section": {
+        "details": "Seller details",
+        "permissions": "Permissions"
+      },
+      "fullName": "Full name",
+      "fullNamePlaceholder": "e.g. Sofia Reyes",
+      "email": "Email",
+      "emailPlaceholder": "name@marlowe.co",
+      "role": "Role",
+      "roles": {
+        "cashier": "Cashier",
+        "manager": "Manager",
+        "stock": "Stock"
+      },
+      "permissions": {
+        "processSales": "Process sales",
+        "applyDiscounts": "Apply discounts",
+        "manageProducts": "Manage products",
+        "manageSellers": "Manage sellers"
+      },
+      "cancel": "Cancel",
+      "submit": "Save seller"
     }
   },
 

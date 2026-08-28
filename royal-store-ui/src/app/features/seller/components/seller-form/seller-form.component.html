@@ -1,0 +1,67 @@
+<form class="seller-form" [formGroup]="formGroup" (submit)="onSubmit($event)">
+  <app-form-layout header="seller.form.section.details" [index]="1">
+    <app-input-field
+      controlName="fullName"
+      [parentForm]="formGroup"
+      label="seller.form.fullName"
+      placeholder="seller.form.fullNamePlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="email"
+      [parentForm]="formGroup"
+      label="seller.form.email"
+      placeholder="seller.form.emailPlaceholder"
+    ></app-input-field>
+
+    <div class="seller-form__field">
+      <span class="seller-form__label">{{ 'seller.form.role' | translate }}</span>
+      <div class="seller-form__segmented" role="radiogroup">
+        @for (option of roleOptions; track option.value) {
+          <button
+            type="button"
+            role="radio"
+            class="seller-form__segment"
+            [class.seller-form__segment--active]="
+              formGroup.controls.role.value === option.value
+            "
+            [attr.aria-checked]="formGroup.controls.role.value === option.value"
+            (click)="setRole(option.value)"
+          >
+            {{ option.labelKey | translate }}
+          </button>
+        }
+      </div>
+    </div>
+  </app-form-layout>
+
+  <app-form-layout header="seller.form.section.permissions" [index]="2">
+    <div class="seller-form__permissions">
+      @for (option of permissionOptions; track option.value) {
+        <label class="seller-form__permission">
+          <input
+            type="checkbox"
+            class="seller-form__checkbox"
+            [checked]="hasPermission(option.value)"
+            (change)="togglePermission(option.value)"
+          />
+          <span>{{ option.labelKey | translate }}</span>
+        </label>
+      }
+    </div>
+  </app-form-layout>
+
+  <div class="seller-form__footer">
+    <app-button
+      label="seller.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      label="seller.form.submit"
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

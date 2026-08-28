@@ -1,21 +1,67 @@
-<div class="sellers-page">
-  <h1 class="page-title">{{ 'seller.title' | translate }}</h1>
+<section class="sellers-page">
+  <header class="sellers-page__header">
+    <div>
+      <h1 class="sellers-page__title">{{ 'seller.title' | translate }}</h1>
+      <p class="sellers-page__subtitle">{{ 'seller.subtitle' | translate }}</p>
+    </div>
+  </header>
 
-  <p-table [value]="sellers()" [loading]="isLoading()" dataKey="id">
-    <ng-template #header>
-      <tr>
-        <th>{{ 'seller.columns.fullName' | translate }}</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-seller>
-      <tr>
-        <td>{{ seller.fullName }}</td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td>{{ 'seller.empty' | translate }}</td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
+  <div class="sellers-page__panel">
+    <p-table [value]="sellers()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'seller.columns.seller' | translate }}</th>
+          <th>{{ 'seller.columns.role' | translate }}</th>
+          <th>{{ 'seller.columns.email' | translate }}</th>
+          <th>{{ 'seller.columns.status' | translate }}</th>
+          <th class="sellers-page__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-seller>
+        <tr>
+          <td>
+            <div class="seller-cell">
+              <span class="seller-cell__avatar">{{
+                getInitials(seller.fullName)
+              }}</span>
+              <span class="seller-cell__name">{{ seller.fullName }}</span>
+            </div>
+          </td>
+          <td>
+            @if (getRoleLabelKey(seller); as roleKey) {
+              {{ roleKey | translate }}
+            } @else {
+              —
+            }
+          </td>
+          <td>{{ seller.email || '—' }}</td>
+          <td>
+            <div class="seller-status">
+              <app-switch
+                [checked]="seller.isActive"
+                [ariaLabel]="'seller.toggleActive' | translate"
+                (changed)="onActiveChange(seller, $event)"
+              />
+              
+            </div>
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'seller.viewDetails' | translate"
+              (onClick)="editSeller(seller)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">{{ 'seller.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

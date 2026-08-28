@@ -5,5 +5,5 @@ namespace RoyalStore.Application.Abstractions.Authentication;
 
 public interface ITokenService
 {
-    TokenResponse GenerateToken(UserEntity user, string role);
+    TokenResponse GenerateToken(UserEntity user, string role, bool onboardingCompleted);
 }

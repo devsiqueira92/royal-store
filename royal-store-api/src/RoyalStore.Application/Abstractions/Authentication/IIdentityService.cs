@@ -9,7 +9,10 @@ public interface IIdentityService
     Task<bool> CheckPasswordAsync(UserEntity user, string password);
     Task<IList<string>> GetRolesAsync(UserEntity user);
     Task<UserEntity?> FindByIdAsync(string userId);
+    Task<UserEntity?> FindByNameAsync(string userName);
     Task<Result<UserEntity>> CreateAsync(UserEntity user, string password);
+    Task<Result> ChangePasswordAsync(UserEntity user, string currentPassword, string newPassword);
+    Task<Result> ClearPasswordChangeFlagAsync(UserEntity user);
     Task<Result> AddToRoleAsync(UserEntity user, string role);
     Task<string> GenerateEmailConfirmationTokenAsync(UserEntity user);
     Task<Result> ConfirmEmailAsync(UserEntity user, string token);

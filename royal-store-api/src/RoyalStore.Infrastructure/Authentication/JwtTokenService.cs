@@ -18,7 +18,7 @@ public sealed class JwtTokenService : ITokenService
         _options = options.Value;
     }
 
-    public TokenResponse GenerateToken(UserEntity user, string role)
+    public TokenResponse GenerateToken(UserEntity user, string role, bool onboardingCompleted)
     {
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
@@ -30,6 +30,7 @@ public sealed class JwtTokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.Role, role),
             new Claim("tenantId", user.TenantId.ToString()),
+            new Claim("onboardingStatus", onboardingCompleted ? "completed" : "pending"),
         };
 
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(_options.ExpiryMinutes);

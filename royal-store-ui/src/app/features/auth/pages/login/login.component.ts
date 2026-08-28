@@ -66,6 +66,6 @@ export class LoginComponent {
 
     const { email, password } = this.formGroup.getRawValue();
 
-    this.authFacade.login({ email: email!, password: password! });
+    this.authFacade.login({ identifier: email!, password: password! });
   }
 }

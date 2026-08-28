@@ -6,11 +6,14 @@ public record SellerResponse(
     Guid Id,
     Guid TenantId,
     string FullName,
-    string Phone,
-    string Cpf,
+    string? Phone,
+    string? Cpf,
+    string? Email,
     bool IsActive,
-    string? UserId)
+    string? UserId,
+    DateTimeOffset? OnboardingCompletedAt)
 {
     public static SellerResponse From(Seller seller) =>
-        new(seller.Id, seller.TenantId, seller.FullName, seller.Phone, seller.Cpf, seller.IsActive, seller.UserId);
+        new(seller.Id, seller.TenantId, seller.FullName, seller.Phone, seller.Cpf, seller.Email,
+            seller.IsActive, seller.UserId, seller.OnboardingCompletedAt);
 }

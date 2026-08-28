@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.Auth.Commands.RefreshToken;
 using RoyalStore.Application.Options;
 using RoyalStore.Application.Tenants.Commands.ChangePendingEmail;
 using RoyalStore.Application.Tenants.Commands.ForgotPassword;
@@ -37,6 +38,7 @@ public sealed class AuthEndpoints : IEndpointDefinition
             .AllowAnonymous()
             .RequireRateLimiting("change-pending-email");
         routes.MapPost("logout", Logout).AllowAnonymous();
+        routes.MapPost("refresh", Refresh).RequireAuthorization();
         routes.MapGet("session", Session).RequireAuthorization();
     }
 
@@ -121,6 +123,22 @@ public sealed class AuthEndpoints : IEndpointDefinition
         }));
     }
 
+    private static async Task<IResult> Refresh(
+        IMediator mediator,
+        HttpContext httpContext,
+        IWebHostEnvironment environment,
+        IOptions<AuthCookieOptions> authCookieOptions,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new RefreshTokenCommand(), ct);
+        return result.ToHttpResult(token =>
+        {
+            httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, environment, authCookieOptions.Value);
+            httpContext.Response.SetLoggedInCookie(token.ExpiresAt, authCookieOptions.Value);
+            return TypedResults.Ok(new { Message = "Token refreshed." });
+        });
+    }
+
     private static IResult Logout(
         HttpContext httpContext,
         IWebHostEnvironment environment,
@@ -140,7 +158,8 @@ public sealed class AuthEndpoints : IEndpointDefinition
         var email = user.FindFirstValue(ClaimTypes.Email);
         var tenantId = user.FindFirstValue("tenantId");
         var role = user.FindFirstValue(ClaimTypes.Role);
+        var onboardingStatus = user.FindFirstValue("onboardingStatus");
 
-        return TypedResults.Ok(new { Email = email, TenantId = tenantId, Role = role });
+        return TypedResults.Ok(new { Email = email, TenantId = tenantId, Role = role, OnboardingStatus = onboardingStatus });
     }
 }
