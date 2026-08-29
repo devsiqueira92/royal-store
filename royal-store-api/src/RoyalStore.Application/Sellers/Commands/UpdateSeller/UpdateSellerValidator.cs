@@ -1,4 +1,6 @@
 using FluentValidation;
+using RoyalStore.Domain.Const;
+using RoyalStore.Domain.Permissions;
 
 namespace RoyalStore.Application.Sellers.Commands.UpdateSeller;
 
@@ -6,12 +8,20 @@ public sealed class UpdateSellerValidator : AbstractValidator<UpdateSellerComman
 {
     public UpdateSellerValidator()
     {
-        RuleFor(x => x.FullName)
-            .NotEmpty().WithErrorCode("seller.full_name_required").WithMessage("Full name is required.")
-            .MaximumLength(150).WithErrorCode("seller.full_name_too_long").WithMessage("Full name must not exceed 150 characters.");
+        RuleFor(x => x.SellerId)
+            .NotEmpty().WithErrorCode("seller.id_required").WithMessage("Seller id is required.");
 
-        RuleFor(x => x.Phone)
-            .NotEmpty().WithErrorCode("seller.phone_required").WithMessage("Phone is required.")
-            .MaximumLength(20).WithErrorCode("seller.phone_too_long").WithMessage("Phone must not exceed 20 characters.");
+        RuleForEach(x => x.Permissions)
+            .Must(name => !string.IsNullOrWhiteSpace(name) && PermissionCatalog.TryParse(name, out _))
+            .WithErrorCode("permission.unknown")
+            .WithMessage(name => $"'{name}' is not a known permission.");
+
+        When(x => x.Role is not null, () =>
+        {
+            RuleFor(x => x.Role!)
+                .Must(role => string.Equals(role, Role.Seller, StringComparison.OrdinalIgnoreCase))
+                .WithErrorCode("seller.role_not_changeable")
+                .WithMessage("This operation does not change roles.");
+        });
     }
 }

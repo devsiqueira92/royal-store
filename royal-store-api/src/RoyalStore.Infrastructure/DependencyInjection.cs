@@ -15,6 +15,7 @@ using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Options;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Identity;
+using RoyalStore.Domain.Permissions;
 using RoyalStore.Infrastructure.Authentication;
 using RoyalStore.Infrastructure.Catalog;
 using RoyalStore.Infrastructure.Email;
@@ -106,16 +107,28 @@ public sealed class DependencyInjection : IInstallService
                 policy.RequireRole(Role.Admin, Role.Manager));
 
             options.AddPolicy(PolicyNames.Seller, policy =>
+                policy.RequireRole(Role.Seller)
+                    .RequireClaim("onboardingStatus", "completed"));
+
+            options.AddPolicy(PolicyNames.SellerOnboarding, policy =>
                 policy.RequireRole(Role.Seller));
 
             options.AddPolicy(PolicyNames.Admin, policy =>
                 policy.RequireRole(Role.Admin));
+
+            foreach (var entry in PermissionCatalog.All)
+            {
+                options.AddPolicy(
+                    PolicyNames.PermissionPrefix + entry.Name,
+                    policy => policy.RequireClaim("permission", entry.Name));
+            }
         });
 
         services.AddScoped<ICategoryUsageChecker, CategoryUsageChecker>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ISellerRepository, SellerRepository>();
+        services.AddScoped<IPermissionGrantRepository, PermissionGrantRepository>();
         services.AddScoped<ICashShiftRepository, CashShiftRepository>();
         services.AddScoped<ISaleRepository, SaleRepository>();
 

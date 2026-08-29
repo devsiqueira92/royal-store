@@ -1,0 +1,41 @@
+<form class="seller-form" [formGroup]="formGroup" (submit)="onSubmit($event)">
+  <app-form-layout header="seller.form.section.details" [index]="1">
+    <app-input-field
+      controlName="fullName"
+      [parentForm]="formGroup"
+      label="seller.form.fullName"
+      placeholder="seller.form.fullNamePlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="email"
+      [parentForm]="formGroup"
+      label="seller.form.email"
+      placeholder="seller.form.emailPlaceholder"
+    ></app-input-field>
+  </app-form-layout>
+
+  <app-form-layout header="seller.form.section.permissions" [index]="2">
+    <app-seller-access
+      [resources]="permissionResources()"
+      [role]="role()"
+      [permissions]="permissions()"
+      (roleChange)="onRoleChange($event)"
+      (permissionsChange)="onPermissionsChange($event)"
+    ></app-seller-access>
+  </app-form-layout>
+
+  <div class="seller-form__footer">
+    <app-button
+      label="seller.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      label="seller.form.submit"
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

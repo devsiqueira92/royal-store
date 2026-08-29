@@ -1,5 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { Seller } from '../interfaces/seller.interface';
+import { Seller, SellerRole } from '../interfaces/seller.interface';
 import { SellerActions } from './seller.actions';
 
 export interface SellerState {
@@ -82,6 +82,42 @@ export const sellerFeature = createFeature({
       isLoading: false,
       error,
     })),
+    on(SellerActions.updateSellerPermissions, (state): SellerState => ({
+      ...state,
+      isLoading: true,
+      error: null,
+    })),
+    on(
+      SellerActions.updateSellerPermissionsSuccess,
+      (state, { permissions }): SellerState => {
+        const role = permissions.role.toLowerCase() as SellerRole;
+        const patch = (seller: Seller): Seller => ({
+          ...seller,
+          role,
+          permissions: permissions.grants,
+        });
+
+        return {
+          ...state,
+          sellers: state.sellers.map(s =>
+            s.id === permissions.sellerId ? patch(s) : s,
+          ),
+          selectedSeller:
+            state.selectedSeller?.id === permissions.sellerId
+              ? patch(state.selectedSeller)
+              : state.selectedSeller,
+          isLoading: false,
+        };
+      },
+    ),
+    on(
+      SellerActions.updateSellerPermissionsFailure,
+      (state, { error }): SellerState => ({
+        ...state,
+        isLoading: false,
+        error,
+      }),
+    ),
     on(SellerActions.deactivateSeller, (state): SellerState => ({
       ...state,
       isLoading: true,

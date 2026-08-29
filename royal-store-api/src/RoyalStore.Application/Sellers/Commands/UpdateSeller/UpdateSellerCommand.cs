@@ -4,8 +4,11 @@ using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Sellers.Commands.UpdateSeller;
 
+/// <summary>
+/// Replaces a Seller's individual permission grants. Does not change roles and
+/// does not touch onboarding fields.
+/// </summary>
 public record UpdateSellerCommand(
-    Guid Id,
-    string FullName,
-    string Phone,
-    string? UserId) : IRequest<Result<SellerResponse>>;
+    Guid SellerId,
+    string? Role,
+    IReadOnlyList<string> Permissions) : IRequest<Result<SellerPermissionsResponse>>;

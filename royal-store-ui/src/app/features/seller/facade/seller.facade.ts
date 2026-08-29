@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { CreateSellerRequest } from '../interfaces/create-seller-request.interface';
 import { UpdateSellerRequest } from '../interfaces/update-seller-request.interface';
+import { UpdateSellerPermissionsRequest } from '../interfaces/update-seller-permissions-request.interface';
 import { GetSellersParams } from '../interfaces/get-sellers-params.interface';
 import { SellerActions } from '../store/seller.actions';
 import {
@@ -36,6 +37,13 @@ export class SellerFacade {
 
   updateSeller(id: string, request: UpdateSellerRequest): void {
     this.store.dispatch(SellerActions.updateSeller({ id, request }));
+  }
+
+  updateSellerPermissions(
+    id: string,
+    request: UpdateSellerPermissionsRequest,
+  ): void {
+    this.store.dispatch(SellerActions.updateSellerPermissions({ id, request }));
   }
 
   deactivateSeller(id: string): void {

@@ -3,6 +3,7 @@ import {
   loadSeller,
   createSeller,
   updateSeller,
+  updateSellerPermissions,
   deactivateSeller,
 } from './seller.effects';
 
@@ -11,5 +12,6 @@ export const sellerStore = {
   loadSeller,
   createSeller,
   updateSeller,
+  updateSellerPermissions,
   deactivateSeller,
 };

@@ -44,4 +44,6 @@ public class UserEntity : IdentityUser
 
         return new UserEntity(userName, tenantId, requiresPasswordChange: true);
     }
+
+    public void MarkPasswordChanged() => RequiresPasswordChange = false;
 }

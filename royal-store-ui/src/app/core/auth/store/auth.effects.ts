@@ -43,7 +43,7 @@ export const login = createEffect(
           catchError((error: HttpErrorResponse) => {
             if (error.error?.code === EMAIL_NOT_VERIFIED_CODE) {
               return of(
-                AuthActions.loginUnverified({ email: request.email }),
+                AuthActions.loginUnverified({ email: request.identifier }),
               );
             }
 

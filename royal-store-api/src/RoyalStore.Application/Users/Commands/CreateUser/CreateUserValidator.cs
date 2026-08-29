@@ -1,10 +1,10 @@
 using FluentValidation;
 
-namespace RoyalStore.Application.Users.Commands.CreateSeller;
+namespace RoyalStore.Application.Users.Commands.CreateUser;
 
-public sealed class CreateSellerValidator : AbstractValidator<CreateSellerCommand>
+public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
-    public CreateSellerValidator()
+    public CreateUserValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty().WithErrorCode("seller.first_name_required").WithMessage("First name is required.")

@@ -1,0 +1,52 @@
+<div class="seller-access">
+  <div class="seller-access__field">
+    <span class="seller-access__label">{{ 'seller.form.role' | translate }}</span>
+    <div class="seller-access__segmented" role="radiogroup">
+      @for (option of roleOptions; track option.value) {
+        <button
+          type="button"
+          role="radio"
+          class="seller-access__segment"
+          [class.seller-access__segment--active]="role() === option.value"
+          [attr.aria-checked]="role() === option.value"
+          (click)="selectRole(option.value)"
+        >
+          {{ option.labelKey | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="seller-access__field">
+    <span class="seller-access__label">
+      {{ 'seller.form.section.permissions' | translate }}
+    </span>
+
+    @for (group of resources(); track group.resource) {
+      <div class="seller-access__group">
+        <span class="seller-access__group-title">{{ group.resource }}</span>
+        <div class="seller-access__permissions">
+          @for (permission of group.permissions; track permission.name) {
+            <label
+              class="seller-access__permission"
+              [class.seller-access__permission--locked]="isImplied(permission.name)"
+            >
+              <input
+                type="checkbox"
+                class="seller-access__checkbox"
+                [checked]="isChecked(permission.name)"
+                [disabled]="isImplied(permission.name)"
+                (change)="togglePermission(permission.name)"
+              />
+              <span>{{ permission.label }}</span>
+            </label>
+          }
+        </div>
+      </div>
+    } @empty {
+      <p class="seller-access__hint">
+        {{ 'seller.form.noPermissions' | translate }}
+      </p>
+    }
+  </div>
+</div>

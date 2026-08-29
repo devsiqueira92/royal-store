@@ -21,6 +21,9 @@ public sealed class IdentityService : IIdentityService
     public Task<UserEntity?> FindByIdAsync(string userId) =>
         _userManager.FindByIdAsync(userId);
 
+    public Task<UserEntity?> FindByNameAsync(string userName) =>
+        _userManager.FindByNameAsync(userName);
+
     public async Task<bool> CheckPasswordAsync(UserEntity user, string password) =>
         await _userManager.CheckPasswordAsync(user, password);
 
@@ -36,6 +39,30 @@ public sealed class IdentityService : IIdentityService
             return Error.Validation("registration.invalid_password", message);
         }
         return user;
+    }
+
+    public async Task<Result> ChangePasswordAsync(UserEntity user, string currentPassword, string newPassword)
+    {
+        var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+        if (!result.Succeeded)
+        {
+            var message = string.Join(" ", result.Errors.Select(e => e.Description));
+            return Result.Failure(Error.Validation("seller.password_change_failed", message));
+        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ClearPasswordChangeFlagAsync(UserEntity user)
+    {
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            var message = string.Join(" ", result.Errors.Select(e => e.Description));
+            return Result.Failure(Error.Unexpected("auth.user_update_failed", message));
+        }
+
+        return Result.Success();
     }
 
     public async Task<Result> AddToRoleAsync(UserEntity user, string role)

@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
+using RoyalStore.Domain.Permissions;
 using RoyalStore.Domain.Security;
 using RoyalStore.Domain.Sales;
 using RoyalStore.Domain.Sellers;
@@ -28,6 +29,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<SaleItem> SaleItems { get; set; } = null!;
     public DbSet<SalePayment> SalePayments { get; set; } = null!;
     public DbSet<Seller> Sellers { get; set; } = null!;
+    public DbSet<UserPermissionGrant> UserPermissionGrants { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
     public DbSet<ConfirmationResendRequest> ConfirmationResendRequests { get; set; } = null!;
@@ -78,6 +80,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<Seller>()
             .HasQueryFilter(s => s.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<UserPermissionGrant>()
+            .HasQueryFilter(g => g.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<CashShift>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);

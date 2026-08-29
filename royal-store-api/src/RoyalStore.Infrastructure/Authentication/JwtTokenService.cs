@@ -18,19 +18,26 @@ public sealed class JwtTokenService : ITokenService
         _options = options.Value;
     }
 
-    public TokenResponse GenerateToken(UserEntity user, string role)
+    public TokenResponse GenerateToken(
+        UserEntity user,
+        string role,
+        bool onboardingCompleted,
+        IReadOnlyCollection<string> permissions)
     {
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Role, role),
-            new Claim("tenantId", user.TenantId.ToString()),
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Role, role),
+            new("tenantId", user.TenantId.ToString()),
+            new("onboardingStatus", onboardingCompleted ? "completed" : "pending"),
         };
+
+        claims.AddRange(permissions.Select(p => new Claim("permission", p)));
 
         var expiresAt = DateTimeOffset.UtcNow.AddMinutes(_options.ExpiryMinutes);
 
