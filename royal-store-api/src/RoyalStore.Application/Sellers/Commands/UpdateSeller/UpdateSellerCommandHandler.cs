@@ -5,107 +5,88 @@ using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Sellers.DTOs;
 using RoyalStore.Domain.Common;
-using RoyalStore.Domain.Sellers;
+using RoyalStore.Domain.Const;
+using RoyalStore.Domain.Permissions;
 
 namespace RoyalStore.Application.Sellers.Commands.UpdateSeller;
 
 public sealed class UpdateSellerCommandHandler
-    : IRequestHandler<UpdateSellerCommand, Result<SellerResponse>>
+    : IRequestHandler<UpdateSellerCommand, Result<SellerPermissionsResponse>>
 {
-    private readonly IIdentityService _identityService;
     private readonly ISellerRepository _sellerRepository;
+    private readonly IIdentityService _identityService;
+    private readonly IPermissionGrantRepository _permissionGrantRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
-    private readonly ICurrentUserService _currentUserService;
 
     public UpdateSellerCommandHandler(
-        IIdentityService identityService,
         ISellerRepository sellerRepository,
+        IIdentityService identityService,
+        IPermissionGrantRepository permissionGrantRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
-        ITenantContext tenantContext,
-        ICurrentUserService currentUserService)
+        ITenantContext tenantContext)
     {
-        _identityService = identityService;
         _sellerRepository = sellerRepository;
+        _identityService = identityService;
+        _permissionGrantRepository = permissionGrantRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
-        _currentUserService = currentUserService;
     }
 
-    public async Task<Result<SellerResponse>> Handle(
+    public async Task<Result<SellerPermissionsResponse>> Handle(
         UpdateSellerCommand command,
         CancellationToken cancellationToken)
     {
-        var userId = _currentUserService.CurrentUserId;
-        if (string.IsNullOrWhiteSpace(userId))
-            return Error.Unauthorized("auth.unauthenticated", "Not authenticated.");
-
-        var user = await _identityService.FindByIdAsync(userId);
-        if (user is null)
-            return Error.Unauthorized("auth.unauthenticated", "Not authenticated.");
-
-        var seller = await _sellerRepository.GetByUserIdAsync(userId, cancellationToken);
+        var seller = await _sellerRepository.GetByIdAsync(command.SellerId, cancellationToken);
         if (seller is null)
             return Error.NotFound("seller.not_found", "Seller not found.");
 
-        if (!seller.IsActive)
-            return Error.Validation("seller.inactive", "Cannot complete onboarding for an inactive seller.");
+        if (string.IsNullOrWhiteSpace(seller.UserId))
+            return Error.NotFound("seller.user_not_found", "The seller has no linked user account.");
 
-        var normalizedEmail = command.Email.Trim().ToLowerInvariant();
+        var user = await _identityService.FindByIdAsync(seller.UserId);
+        if (user is null)
+            return Error.NotFound("seller.user_not_found", "The seller has no linked user account.");
 
-        if (string.IsNullOrWhiteSpace(seller.Cpf))
+        var roles = await _identityService.GetRolesAsync(user);
+        if (roles.Contains(Role.Admin))
+            return Error.Validation("permission.admin_immutable",
+                "An administrator's permissions cannot be changed.");
+
+        if (command.Role is not null &&
+            !string.Equals(command.Role, Role.Seller, StringComparison.OrdinalIgnoreCase))
         {
-            var normalizedCpf = CpfValidator.Normalize(command.Cpf ?? string.Empty);
-            if (await _sellerRepository.ExistsByCpfAsync(normalizedCpf, seller.Id, cancellationToken))
-                return Error.Conflict("seller.cpf_already_exists", $"A seller with CPF '{normalizedCpf}' already exists.");
+            return Error.Validation("seller.role_not_changeable", "This operation does not change roles.");
         }
 
-        if (await _sellerRepository.ExistsByEmailAsync(normalizedEmail, seller.Id, cancellationToken))
-            return Error.Conflict("seller.email_already_exists", $"A seller with email '{normalizedEmail}' already exists.");
-
-        var mustChangePassword = user.RequiresPasswordChange;
-        var willChangePassword = !string.IsNullOrWhiteSpace(command.NewPassword);
-
-        if (mustChangePassword && !willChangePassword)
-            return Error.Validation("seller.password_required", "A new password is required to complete onboarding.");
-
-        return await _unitOfWork.ExecuteInTransactionAsync<SellerResponse>(async ct =>
+        var parsed = new HashSet<Permission>();
+        foreach (var name in command.Permissions)
         {
-            if (willChangePassword)
-            {
-                var passwordResult = await _identityService.ChangePasswordAsync(
-                    user, command.CurrentPassword, command.NewPassword);
-                if (!passwordResult.IsSuccess)
-                    return passwordResult.Error;
-            }
+            if (!PermissionCatalog.TryParse(name, out var permission))
+                return Error.Validation("permission.unknown", $"'{name}' is not a known permission.");
+            parsed.Add(permission);
+        }
 
-            var onboardingResult = seller.CompleteOnboarding(
-                command.FullName, command.Phone, command.Cpf, normalizedEmail);
-            if (!onboardingResult.IsSuccess)
-                return onboardingResult.Error;
+        await _permissionGrantRepository.ReplaceForUserAsync(
+            seller.UserId, _tenantContext.TenantId, parsed, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            if (willChangePassword)
-            {
-                user.MarkPasswordChanged();
-                var clearResult = await _identityService.ClearPasswordChangeFlagAsync(user);
-                if (!clearResult.IsSuccess)
-                    return clearResult.Error;
-            }
+        await _auditService.RecordAsync(
+            "seller.permissions_updated",
+            _tenantContext.TenantId,
+            string.Empty,
+            seller.UserId,
+            cancellationToken);
 
-            await _sellerRepository.UpdateAsync(seller, ct);
-            await _unitOfWork.SaveChangesAsync(ct);
+        var grantNames = parsed.Select(PermissionCatalog.NameOf).OrderBy(x => x, StringComparer.Ordinal).ToArray();
+        var effective = EffectivePermissions.For(Role.Seller, parsed)
+            .Select(PermissionCatalog.NameOf)
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .ToArray();
 
-            await _auditService.RecordAsync(
-                "seller.onboarding_completed",
-                _tenantContext.TenantId,
-                string.Empty,
-                seller.Cpf ?? string.Empty,
-                ct);
-
-            return SellerResponse.From(seller);
-        }, cancellationToken);
+        return new SellerPermissionsResponse(seller.Id, seller.UserId, Role.Seller, grantNames, effective);
     }
 }

@@ -97,6 +97,31 @@ export const updateSeller = createEffect(
   },
 );
 
+export const updateSellerPermissions = createEffect(
+  (actions$ = inject(Actions), sellerService = inject(SellerService)) => {
+    return actions$.pipe(
+      ofType(SellerActions.updateSellerPermissions),
+      switchMap(({ id, request }) =>
+        sellerService.updatePermissions(id, request).pipe(
+          map(permissions =>
+            SellerActions.updateSellerPermissionsSuccess({ permissions }),
+          ),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              SellerActions.updateSellerPermissionsFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const deactivateSeller = createEffect(
   (actions$ = inject(Actions), sellerService = inject(SellerService)) => {
     return actions$.pipe(

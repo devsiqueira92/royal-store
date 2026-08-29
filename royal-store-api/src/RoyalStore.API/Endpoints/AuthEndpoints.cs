@@ -159,7 +159,18 @@ public sealed class AuthEndpoints : IEndpointDefinition
         var tenantId = user.FindFirstValue("tenantId");
         var role = user.FindFirstValue(ClaimTypes.Role);
         var onboardingStatus = user.FindFirstValue("onboardingStatus");
+        var permissions = user.FindAll("permission")
+            .Select(c => c.Value)
+            .OrderBy(x => x, StringComparer.Ordinal)
+            .ToArray();
 
-        return TypedResults.Ok(new { Email = email, TenantId = tenantId, Role = role, OnboardingStatus = onboardingStatus });
+        return TypedResults.Ok(new
+        {
+            Email = email,
+            TenantId = tenantId,
+            Role = role,
+            OnboardingStatus = onboardingStatus,
+            Permissions = permissions,
+        });
     }
 }

@@ -2,6 +2,8 @@ import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { Seller } from '../interfaces/seller.interface';
 import { CreateSellerRequest } from '../interfaces/create-seller-request.interface';
 import { UpdateSellerRequest } from '../interfaces/update-seller-request.interface';
+import { UpdateSellerPermissionsRequest } from '../interfaces/update-seller-permissions-request.interface';
+import { SellerPermissions } from '../interfaces/seller-permissions.interface';
 import { GetSellersParams } from '../interfaces/get-sellers-params.interface';
 
 export const SellerActions = createActionGroup({
@@ -19,6 +21,14 @@ export const SellerActions = createActionGroup({
     'Update Seller': props<{ id: string; request: UpdateSellerRequest }>(),
     'Update Seller Success': props<{ seller: Seller }>(),
     'Update Seller Failure': props<{ error: string }>(),
+    'Update Seller Permissions': props<{
+      id: string;
+      request: UpdateSellerPermissionsRequest;
+    }>(),
+    'Update Seller Permissions Success': props<{
+      permissions: SellerPermissions;
+    }>(),
+    'Update Seller Permissions Failure': props<{ error: string }>(),
     'Deactivate Seller': props<{ id: string }>(),
     'Deactivate Seller Success': props<{ id: string }>(),
     'Deactivate Seller Failure': props<{ error: string }>(),

@@ -28,6 +28,8 @@ import { productFeature } from './features/product/store/product.reducer';
 import { productStore } from './features/product/store/product.store';
 import { categoryFeature } from './features/category/store/category.reducer';
 import { categoryStore } from './features/category/store/category.store';
+import { permissionFeature } from './features/permission/store/permission.reducer';
+import { permissionStore } from './features/permission/store/permission.store';
 import { saleFeature } from './features/sale/store/sale.reducer';
 import { saleStore } from './features/sale/store/sale.store';
 
@@ -57,9 +59,17 @@ export const appConfig: ApplicationConfig = {
       [sellerFeature.name]: sellerFeature.reducer,
       [productFeature.name]: productFeature.reducer,
       [categoryFeature.name]: categoryFeature.reducer,
+      [permissionFeature.name]: permissionFeature.reducer,
       [saleFeature.name]: saleFeature.reducer,
     }),
-    provideEffects(authStore, sellerStore, productStore, categoryStore, saleStore),
+    provideEffects(
+      authStore,
+      sellerStore,
+      productStore,
+      categoryStore,
+      permissionStore,
+      saleStore,
+    ),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,
     DynamicDialogRef,

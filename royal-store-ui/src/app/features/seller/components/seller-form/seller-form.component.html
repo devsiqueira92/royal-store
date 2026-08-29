@@ -13,42 +13,16 @@
       label="seller.form.email"
       placeholder="seller.form.emailPlaceholder"
     ></app-input-field>
-
-    <div class="seller-form__field">
-      <span class="seller-form__label">{{ 'seller.form.role' | translate }}</span>
-      <div class="seller-form__segmented" role="radiogroup">
-        @for (option of roleOptions; track option.value) {
-          <button
-            type="button"
-            role="radio"
-            class="seller-form__segment"
-            [class.seller-form__segment--active]="
-              formGroup.controls.role.value === option.value
-            "
-            [attr.aria-checked]="formGroup.controls.role.value === option.value"
-            (click)="setRole(option.value)"
-          >
-            {{ option.labelKey | translate }}
-          </button>
-        }
-      </div>
-    </div>
   </app-form-layout>
 
   <app-form-layout header="seller.form.section.permissions" [index]="2">
-    <div class="seller-form__permissions">
-      @for (option of permissionOptions; track option.value) {
-        <label class="seller-form__permission">
-          <input
-            type="checkbox"
-            class="seller-form__checkbox"
-            [checked]="hasPermission(option.value)"
-            (change)="togglePermission(option.value)"
-          />
-          <span>{{ option.labelKey | translate }}</span>
-        </label>
-      }
-    </div>
+    <app-seller-access
+      [resources]="permissionResources()"
+      [role]="role()"
+      [permissions]="permissions()"
+      (roleChange)="onRoleChange($event)"
+      (permissionsChange)="onPermissionsChange($event)"
+    ></app-seller-access>
   </app-form-layout>
 
   <div class="seller-form__footer">

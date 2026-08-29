@@ -1,10 +1,12 @@
 using MediatR;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.Sellers.Commands.CompleteOnboarding;
 using RoyalStore.Application.Sellers.Commands.DeactivateSeller;
 using RoyalStore.Application.Sellers.Commands.UpdateSeller;
 using RoyalStore.Application.Sellers.Queries.GetSellerById;
 using RoyalStore.Application.Sellers.Queries.GetSellers;
 using RoyalStore.Domain.Const;
+using RoyalStore.Domain.Permissions;
 
 namespace RoyalStore.API.Endpoints;
 
@@ -17,6 +19,8 @@ public sealed class SellerEndpoints : IEndpointDefinition
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.AdminOrManager);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.AdminOrManager);
         routes.MapPut("onboarding", Onboard).RequireAuthorization(PolicyNames.SellerOnboarding);
+        routes.MapPut("{id:guid}/permissions", UpdatePermissions)
+            .RequireAuthorization(PolicyNames.Permission(Permission.UsersManage));
         routes.MapPatch("{id:guid}/deactivate", Deactivate).RequireAuthorization(PolicyNames.Admin);
     }
 
@@ -37,10 +41,20 @@ public sealed class SellerEndpoints : IEndpointDefinition
 
     private static async Task<IResult> Onboard(
         IMediator mediator,
-        UpdateSellerCommand command,
+        CompleteOnboardingCommand command,
         CancellationToken ct)
     {
         var result = await mediator.Send(command, ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> UpdatePermissions(
+        Guid id,
+        IMediator mediator,
+        UpdateSellerCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command with { SellerId = id }, ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

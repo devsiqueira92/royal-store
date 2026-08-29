@@ -1,12 +1,6 @@
 import { FormControl } from '@angular/forms';
 
-export type SellerRole = 'cashier' | 'manager' | 'stock';
-
-export type SellerPermission =
-  | 'processSales'
-  | 'applyDiscounts'
-  | 'manageProducts'
-  | 'manageSellers';
+export type SellerRole = 'seller' | 'manager' | 'stock';
 
 export interface Seller {
   id: string;
@@ -18,7 +12,7 @@ export interface Seller {
   userId?: string;
   email?: string;
   role?: SellerRole;
-  permissions?: SellerPermission[];
+  permissions?: string[];
 }
 
 export interface SellerFormControls {
@@ -26,5 +20,5 @@ export interface SellerFormControls {
   fullName: FormControl<string | null>;
   email: FormControl<string | null>;
   role: FormControl<SellerRole | null>;
-  permissions: FormControl<SellerPermission[]>;
+  permissions: FormControl<string[]>;
 }

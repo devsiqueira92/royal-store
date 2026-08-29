@@ -4,6 +4,7 @@ using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Const;
+using RoyalStore.Domain.Permissions;
 
 namespace RoyalStore.Application.Tenants.Commands.Login;
 
@@ -12,15 +13,18 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<T
     private readonly IIdentityService _identityService;
     private readonly ITokenService _tokenService;
     private readonly ISellerRepository _sellerRepository;
+    private readonly IPermissionGrantRepository _permissionGrantRepository;
 
     public LoginCommandHandler(
         IIdentityService identityService,
         ITokenService tokenService,
-        ISellerRepository sellerRepository)
+        ISellerRepository sellerRepository,
+        IPermissionGrantRepository permissionGrantRepository)
     {
         _identityService = identityService;
         _tokenService = tokenService;
         _sellerRepository = sellerRepository;
+        _permissionGrantRepository = permissionGrantRepository;
     }
 
     public async Task<Result<TokenResponse>> Handle(LoginCommand command, CancellationToken cancellationToken)
@@ -46,6 +50,11 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<T
         var onboardingCompleted = role != Role.Seller
             || (await _sellerRepository.GetByUserIdAsync(user.Id, cancellationToken))?.OnboardingCompletedAt is not null;
 
-        return _tokenService.GenerateToken(user, role, onboardingCompleted);
+        var grants = await _permissionGrantRepository.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
+        var permissions = EffectivePermissions.For(role, grants)
+            .Select(PermissionCatalog.NameOf)
+            .ToArray();
+
+        return _tokenService.GenerateToken(user, role, onboardingCompleted, permissions);
     }
 }
