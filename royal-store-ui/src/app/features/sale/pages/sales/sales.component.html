@@ -1,0 +1,45 @@
+<section class="pos">
+  <div class="pos__catalog">
+    <header class="pos__header">
+      <div>
+        <h1 class="pos__title">{{ 'sale.pos.title' | translate }}</h1>
+        <p class="pos__subtitle">{{ 'sale.pos.subtitle' | translate }}</p>
+      </div>
+      <div class="pos__header-actions">
+        <app-sales-stats
+          [todaySales]="todaySales"
+          [todayOrders]="todayOrders"
+        ></app-sales-stats>
+      </div>
+    </header>
+
+    <app-category-filter
+      [categories]="categories()"
+      [selectedId]="selectedCategoryId()"
+      [allLabel]="'sale.pos.allCategories' | translate"
+      (selectedIdChange)="onCategoryChange($event)"
+    ></app-category-filter>
+
+    <div class="pos__grid" [class.pos__grid--loading]="isLoading()">
+      @for (product of products(); track product.variantId) {
+        <app-product-card
+          [product]="product"
+          (add)="addProduct($event)"
+        ></app-product-card>
+      } @empty {
+        <p class="pos__empty">{{ 'sale.pos.empty' | translate }}</p>
+      }
+    </div>
+  </div>
+
+  <app-current-sale
+    class="pos__sale"
+    [items]="items()"
+    [sellerName]="sellerName"
+    [saleRef]="saleRef"
+    (quantityChange)="changeQuantity($event.variantId, $event.quantity)"
+    (removeItem)="removeItem($event)"
+    (clear)="clearSale()"
+    (charge)="onCharge()"
+  ></app-current-sale>
+</section>

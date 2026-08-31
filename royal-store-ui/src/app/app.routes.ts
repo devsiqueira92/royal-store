@@ -32,6 +32,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/seller/seller.routes').then(m => m.SELLER_ROUTES),
       },
+      {
+        path: 'sales',
+        loadChildren: () =>
+          import('./features/sale/sale.routes').then(m => m.SALE_ROUTES),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

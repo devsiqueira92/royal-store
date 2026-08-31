@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-filter ::ng-deep .p-selectbutton {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border: none;
+  background: transparent;
+}
+
+.category-filter ::ng-deep .p-togglebutton {
+  border-radius: 999px;
+}
