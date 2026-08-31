@@ -9,6 +9,7 @@ export interface DrawerContent {
 export interface DrawerProps {
   title?: string;
   subtitle?: string;
+  mode?: 'create' | 'edit';
 }
 
 @Injectable({

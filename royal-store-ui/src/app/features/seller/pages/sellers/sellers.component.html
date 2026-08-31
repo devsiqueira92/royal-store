@@ -4,6 +4,11 @@
       <h1 class="sellers-page__title">{{ 'seller.title' | translate }}</h1>
       <p class="sellers-page__subtitle">{{ 'seller.subtitle' | translate }}</p>
     </div>
+    <p-button
+      [label]="'seller.newSeller' | translate"
+      icon="pi pi-plus"
+      (onClick)="createSeller()"
+    />
   </header>
 
   <div class="sellers-page__panel">

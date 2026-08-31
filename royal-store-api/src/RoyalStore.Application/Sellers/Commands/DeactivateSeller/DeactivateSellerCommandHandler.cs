@@ -45,8 +45,8 @@ public sealed class DeactivateSellerCommandHandler : IRequestHandler<DeactivateS
         await _auditService.RecordAsync(
             "seller.deactivated",
             _tenantContext.TenantId,
-            string.Empty,
-            seller.Cpf,
+            deactivateResult.Error.Message,
+            userId,
             cancellationToken);
 
         return Result.Success();
