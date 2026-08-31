@@ -1,0 +1,42 @@
+<div class="summary">
+  <div class="summary__row">
+    <span class="summary__label">{{ 'sale.current.subtotal' | translate }}</span>
+    <span class="summary__value">{{ subtotal() | currency }}</span>
+  </div>
+
+  <div class="summary__row summary__row--discount">
+    <span class="summary__label">{{ 'sale.current.discount' | translate }}</span>
+    <div class="summary__discount-controls">
+      <p-selectbutton
+        [options]="modeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+        [ngModel]="discountMode()"
+        (ngModelChange)="discountModeChange.emit($event)"
+      />
+      <p-inputnumber
+        [ngModel]="discountValue()"
+        (ngModelChange)="onValueChange($event)"
+        [min]="0"
+        [inputStyle]="{ width: '3.25rem' }"
+        [allowEmpty]="false"
+      />
+    </div>
+    <span class="summary__value summary__value--negative">
+      −{{ discountAmount() | currency }}
+    </span>
+  </div>
+
+  <div class="summary__row">
+    <span class="summary__label">
+      {{ 'sale.current.tax' | translate: { rate: taxRate() * 100 } }}
+    </span>
+    <span class="summary__value">{{ tax() | currency }}</span>
+  </div>
+
+  <div class="summary__row summary__row--total">
+    <span class="summary__label">{{ 'sale.current.total' | translate }}</span>
+    <span class="summary__total">{{ total() | currency }}</span>
+  </div>
+</div>

@@ -27,3 +27,26 @@ export const syncSales = createEffect(
     functional: true,
   },
 );
+
+export const loadPosProducts = createEffect(
+  (actions$ = inject(Actions), saleService = inject(SaleService)) => {
+    return actions$.pipe(
+      ofType(SaleActions.loadPosProducts),
+      switchMap(({ categoryId }) =>
+        saleService.getProducts(categoryId).pipe(
+          map(products => SaleActions.loadPosProductsSuccess({ products })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              SaleActions.loadPosProductsFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);

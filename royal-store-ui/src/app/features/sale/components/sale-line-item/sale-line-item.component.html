@@ -1,0 +1,50 @@
+<div class="line-item">
+  <div class="line-item__thumb">
+    @if (item().coverPhotoUrl) {
+      <img [src]="item().coverPhotoUrl" [alt]="item().name" />
+    }
+  </div>
+
+  <div class="line-item__info">
+    <span class="line-item__name">
+      {{ item().name }}
+      @if (item().variantSize) {
+        - {{ item().variantSize | uppercase }}
+      }
+      <span
+        class="line-item__swatch"
+        [style.background]="swatchColor()"
+      ></span>
+    </span>
+    <span class="line-item__meta">
+      {{ item().variantLabel }} · {{ item().unitPrice | currency }}
+    </span>
+
+    <div class="line-item__controls">
+      <p-inputnumber
+        [ngModel]="item().quantity"
+        (ngModelChange)="onQuantityChange($event)"
+        [showButtons]="true"
+        buttonLayout="horizontal"
+        [min]="1"
+        [step]="1"
+        incrementButtonIcon="pi pi-plus"
+        decrementButtonIcon="pi pi-minus"
+        [inputStyle]="{ width: '2.25rem' }"
+        [allowEmpty]="false"
+      />
+      <button
+        type="button"
+        class="line-item__remove"
+        [attr.aria-label]="'sale.current.removeItem' | translate"
+        (click)="remove.emit()"
+      >
+        <i class="pi pi-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <span class="line-item__total">
+    {{ item().unitPrice * item().quantity | currency }}
+  </span>
+</div>

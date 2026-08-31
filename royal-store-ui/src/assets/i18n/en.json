@@ -214,6 +214,38 @@
     }
   },
 
+  "sale": {
+    "pos": {
+      "title": "Point of Sale",
+      "subtitle": "Tap an item to add it to the sale.",
+      "allCategories": "All",
+      "soldOut": "Sold out",
+      "addItem": "Add to sale",
+      "empty": "No products found."
+    },
+    "stats": {
+      "todaySales": "Today · Sales",
+      "orders": "Orders"
+    },
+    "current": {
+      "title": "Current Sale",
+      "clear": "Clear",
+      "soldBy": "Sold by",
+      "empty": "No items yet. Tap a product to start.",
+      "removeItem": "Remove item",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "tax": "Tax ({{rate}}%)",
+      "total": "Total",
+      "charge": "Charge",
+      "payment": {
+        "cash": "Cash",
+        "card": "Card",
+        "split": "Split"
+      }
+    }
+  },
+
   "enum": {
     "sizes": {
       "osfa": "One Size",

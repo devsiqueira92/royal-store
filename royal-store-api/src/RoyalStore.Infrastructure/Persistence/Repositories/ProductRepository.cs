@@ -76,4 +76,21 @@ public sealed class ProductRepository : IProductRepository
             : query.Where(p => p.IsActive);
         return await query.ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyList<Product>> GetForPosAsync(Guid? categoryId, CancellationToken ct = default)
+    {
+        var query = _context.Products
+            .AsNoTracking()
+            .Include(p => p.Category)
+            .Include(p => p.Variants)
+            .Include(p => p.Photos)
+            .Where(p => p.IsActive);
+
+        if (categoryId.HasValue)
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+
+        return await query
+            .OrderBy(p => p.Name)
+            .ToListAsync(ct);
+    }
 }

@@ -1,0 +1,12 @@
+<div class="sales-stats">
+  <div class="sales-stats__card">
+    <span class="sales-stats__label">{{ 'sale.stats.todaySales' | translate }}</span>
+    <span class="sales-stats__value">
+      {{ todaySales() | currency: 'USD' : 'symbol' : '1.0-0' }}
+    </span>
+  </div>
+  <div class="sales-stats__card">
+    <span class="sales-stats__label">{{ 'sale.stats.orders' | translate }}</span>
+    <span class="sales-stats__value">{{ todayOrders() }}</span>
+  </div>
+</div>

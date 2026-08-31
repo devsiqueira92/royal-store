@@ -1,0 +1,70 @@
+<aside class="current-sale">
+  <header class="current-sale__header">
+    <div>
+      <h2 class="current-sale__title">{{ 'sale.current.title' | translate }}</h2>
+      <p class="current-sale__meta">
+        {{ 'sale.current.soldBy' | translate }} {{ sellerName() }}
+        @if (saleRef()) {
+          · {{ saleRef() }}
+        }
+      </p>
+    </div>
+    <button
+      type="button"
+      class="current-sale__clear"
+      [disabled]="items().length === 0"
+      (click)="clear.emit()"
+    >
+      {{ 'sale.current.clear' | translate }}
+    </button>
+  </header>
+
+  <div class="current-sale__items">
+    @for (item of items(); track item.variantId) {
+      <app-sale-line-item
+        [item]="item"
+        (quantityChange)="onQuantityChange(item.variantId, $event)"
+        (remove)="removeItem.emit(item.variantId)"
+      ></app-sale-line-item>
+    } @empty {
+      <p class="current-sale__empty">{{ 'sale.current.empty' | translate }}</p>
+    }
+  </div>
+
+  <footer class="current-sale__footer">
+    <app-sale-summary
+      [subtotal]="subtotal()"
+      [discountValue]="discountValue()"
+      [discountMode]="discountMode()"
+      [discountAmount]="discountAmount()"
+      [taxRate]="taxRate"
+      [tax]="tax()"
+      [total]="total()"
+      (discountValueChange)="discountValue.set($event)"
+      (discountModeChange)="discountMode.set($event)"
+    ></app-sale-summary>
+
+    <p-selectbutton
+      class="current-sale__payment"
+      [options]="paymentOptions"
+      optionValue="value"
+      [allowEmpty]="false"
+      [ngModel]="paymentMethod()"
+      (ngModelChange)="paymentMethod.set($event)"
+    >
+      <ng-template let-option #item>
+        {{ option.label | translate }}
+      </ng-template>
+    </p-selectbutton>
+
+    <p-button
+      class="current-sale__charge"
+      icon="pi pi-check"
+      [label]="
+        ('sale.current.charge' | translate) + ' ' + (total() | currency)
+      "
+      [disabled]="items().length === 0"
+      (onClick)="onCharge()"
+    />
+  </footer>
+</aside>

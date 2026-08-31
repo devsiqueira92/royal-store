@@ -1,0 +1,48 @@
+<article class="product-card" [class.product-card--disabled]="product().soldOut">
+  <div class="product-card__thumb">
+    @if (product().coverImage) {
+      <img [src]="product().coverImage" [alt]="product().productName" />
+    } @else {
+      <span class="product-card__thumb-label">product</span>
+    }
+
+    @if (product().soldOut) {
+      <span class="product-card__sold-out">
+        {{ 'sale.pos.soldOut' | translate }}
+      </span>
+    }
+
+    <p-button
+      class="product-card__add"
+      icon="pi pi-plus"
+      [rounded]="true"
+      size="small"
+      [disabled]="product().soldOut"
+      [attr.aria-label]="'sale.pos.addItem' | translate"
+      (onClick)="onAdd()"
+    />
+  </div>
+
+  <div class="product-card__body">
+    <span class="product-card__name">
+      {{ product().productName }}
+      @if (product().variantSize) {
+        - {{ product().variantSize | uppercase }}
+      }
+      <span
+        class="product-card__swatch"
+        [style.background]="swatchColor()"
+      ></span>
+    </span>
+    <div class="product-card__meta">
+      <span class="product-card__category">
+        <span
+          class="product-card__dot"
+          [style.background]="product().categoryColor || defaultCategoryColor"
+        ></span>
+        {{ product().category }}
+      </span>
+      <span class="product-card__price">{{ product().price | currency }}</span>
+    </div>
+  </div>
+</article>

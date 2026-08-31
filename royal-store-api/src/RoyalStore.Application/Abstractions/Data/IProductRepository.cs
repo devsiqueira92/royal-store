@@ -10,4 +10,5 @@ public interface IProductRepository
     Task<IReadOnlyList<Product>> GetAllAsync(bool? isActive, Guid? categoryId, CancellationToken ct = default);
     Task UpdateAsync(Product product, int? expectedVersion, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetForCatalogAsync(DateTimeOffset? since, CancellationToken ct = default);
+    Task<IReadOnlyList<Product>> GetForPosAsync(Guid? categoryId, CancellationToken ct = default);
 }
