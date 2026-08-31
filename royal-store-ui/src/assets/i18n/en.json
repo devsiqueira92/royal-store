@@ -170,6 +170,7 @@
     "title": "Sellers",
     "subtitle": "People who can sign in and run the register.",
     "empty": "No sellers found.",
+    "newSeller": "New seller",
     "viewDetails": "View details",
     "toggleActive": "Activate or deactivate seller",
     "status": {
@@ -185,13 +186,19 @@
     },
     "form": {
       "edit": "Edit seller",
+      "create": "New seller",
       "subtitle": "Grant register access",
+      "createSubtitle": "Create a register account",
       "section": {
         "details": "Seller details",
         "permissions": "Permissions"
       },
       "fullName": "Full name",
       "fullNamePlaceholder": "e.g. Sofia Reyes",
+      "firstName": "First name",
+      "firstNamePlaceholder": "e.g. Sofia",
+      "lastName": "Last name",
+      "lastNamePlaceholder": "e.g. Reyes",
       "email": "Email",
       "emailPlaceholder": "name@marlowe.co",
       "role": "Role",
@@ -202,7 +209,8 @@
       },
       "noPermissions": "No permissions available.",
       "cancel": "Cancel",
-      "submit": "Save seller"
+      "submit": "Save seller",
+      "createSubmit": "Create user"
     }
   },
 

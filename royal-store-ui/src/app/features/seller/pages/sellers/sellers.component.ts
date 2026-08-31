@@ -36,11 +36,21 @@ export class SellersComponent implements OnInit {
     this.sellerFacade.loadSellers();
   }
 
+  protected createSeller(): void {
+    this.sellerFacade.clearSelectedSeller();
+    this.detailsSidebarService.openDrawer(SellerFormComponent, {
+      title: 'seller.form.create',
+      subtitle: 'seller.form.createSubtitle',
+      mode: 'create',
+    });
+  }
+
   protected editSeller(seller: Seller): void {
     this.sellerFacade.loadSeller(seller.id);
     this.detailsSidebarService.openDrawer(SellerFormComponent, {
       title: 'seller.form.edit',
       subtitle: 'seller.form.subtitle',
+      mode: 'edit',
     });
   }
 

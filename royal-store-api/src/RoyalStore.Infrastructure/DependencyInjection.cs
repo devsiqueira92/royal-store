@@ -58,7 +58,13 @@ public sealed class DependencyInjection : IInstallService
             options.Password.RequireDigit = true;
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequireLowercase = false;
-            options.User.RequireUniqueEmail = true;
+            // Seller accounts are provisioned without an email (they sign in by
+            // username). RequireUniqueEmail = true makes Identity's UserValidator
+            // reject a null/empty email ("Email '' is invalid."). Email uniqueness
+            // for real accounts is enforced per-tenant in the application layer
+            // (RegisterTenant / CompleteOnboarding), which is what a shared-DB
+            // multitenant app needs anyway.
+            options.User.RequireUniqueEmail = false;
         })
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<RoyalStoreContext>()

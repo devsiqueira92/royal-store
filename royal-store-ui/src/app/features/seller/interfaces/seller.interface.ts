@@ -18,6 +18,8 @@ export interface Seller {
 export interface SellerFormControls {
   id: FormControl<string | null>;
   fullName: FormControl<string | null>;
+  firstName: FormControl<string | null>;
+  lastName: FormControl<string | null>;
   email: FormControl<string | null>;
   role: FormControl<SellerRole | null>;
   permissions: FormControl<string[]>;
