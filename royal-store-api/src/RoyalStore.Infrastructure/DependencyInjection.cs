@@ -137,6 +137,7 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<IPermissionGrantRepository, PermissionGrantRepository>();
         services.AddScoped<ICashShiftRepository, CashShiftRepository>();
         services.AddScoped<ISaleRepository, SaleRepository>();
+        services.AddScoped<IIbptTaxRepository, IbptTaxRepository>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
