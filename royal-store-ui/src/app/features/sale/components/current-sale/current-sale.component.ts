@@ -16,6 +16,7 @@ import {
   DiscountMode,
   PaymentMethod,
 } from '../../interfaces/sale-totals.interface';
+import { lineItemTaxRate } from '../../interfaces/sale-tax.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
 
@@ -23,8 +24,6 @@ interface PaymentOption {
   label: string;
   value: PaymentMethod;
 }
-
-const TAX_RATE = 0.08;
 
 @Component({
   selector: 'app-current-sale',
@@ -61,8 +60,6 @@ export class CurrentSaleComponent {
   protected readonly discountMode = signal<DiscountMode>('amount');
   protected readonly paymentMethod = signal<PaymentMethod>('card');
 
-  protected readonly taxRate = TAX_RATE;
-
   protected readonly subtotal = computed(() =>
     this.items().reduce(
       (total, item) => total + item.unitPrice * item.quantity,
@@ -74,19 +71,45 @@ export class CurrentSaleComponent {
     const value = this.discountValue();
     const subtotal = this.subtotal();
     const raw =
-      this.discountMode() === 'percent'
-        ? (subtotal * value) / 100
-        : value;
+      this.discountMode() === 'percent' ? (subtotal * value) / 100 : value;
     return Math.min(Math.max(raw, 0), subtotal);
   });
 
-  protected readonly tax = computed(
-    () => (this.subtotal() - this.discountAmount()) * TAX_RATE,
+  private readonly netSubtotal = computed(
+    () => this.subtotal() - this.discountAmount(),
   );
 
-  protected readonly total = computed(
-    () => this.subtotal() - this.discountAmount() + this.tax(),
-  );
+  protected readonly tax = computed(() => {
+    const subtotal = this.subtotal();
+    if (subtotal <= 0) {
+      return 0;
+    }
+
+    const discount = this.discountAmount();
+
+    const rawTotal = this.items().reduce((total, item) => {
+      const lineSubtotal = item.unitPrice * item.quantity;
+      const lineNet = lineSubtotal - discount * (lineSubtotal / subtotal);
+
+      const federalRate =
+        item.origin === 0 ? item.nationalRate : item.importedFederalRate;
+
+      const itemTotalRate =
+        federalRate! + item.stateRate! + item.municipalRate!;
+
+      const lineTax = (lineNet * itemTotalRate) / 100;
+      return total + Math.round(lineTax * 100) / 100;
+    }, 0);
+
+    return Math.round(rawTotal * 100) / 100;
+  });
+
+  protected readonly taxPercent = computed(() => {
+    const net = this.netSubtotal();
+    return net > 0 ? (this.tax() / net) * 100 : 0;
+  });
+
+  protected readonly total = computed(() => this.netSubtotal() + this.tax());
 
   protected onQuantityChange(variantId: string, quantity: number): void {
     this.quantityChange.emit({ variantId, quantity });

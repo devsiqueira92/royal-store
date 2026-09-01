@@ -101,6 +101,12 @@ export class SalesComponent implements OnInit {
           unitPrice: product.price,
           quantity: 1,
           coverPhotoUrl: product.coverImage,
+          origin: product.origin,
+          nationalRate: product.nationalRate,
+          federalRate: product.federalRate,
+          importedFederalRate: product.importedFederalRate,
+          stateRate: product.stateRate,
+          municipalRate: product.municipalRate,
         },
       ];
     });

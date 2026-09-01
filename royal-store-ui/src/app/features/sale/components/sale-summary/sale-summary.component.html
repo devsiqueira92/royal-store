@@ -30,7 +30,10 @@
 
   <div class="summary__row">
     <span class="summary__label">
-      {{ 'sale.current.tax' | translate: { rate: taxRate() * 100 } }}
+      {{
+        'sale.current.tax'
+          | translate: { rate: (taxPercent() | number: '1.0-2') }
+      }}
     </span>
     <span class="summary__value">{{ tax() | currency }}</span>
   </div>

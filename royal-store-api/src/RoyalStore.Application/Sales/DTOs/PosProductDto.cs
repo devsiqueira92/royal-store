@@ -1,4 +1,5 @@
 using RoyalStore.Domain.Catalog;
+using RoyalStore.Domain.Fiscal;
 
 namespace RoyalStore.Application.Sales.DTOs;
 
@@ -14,9 +15,19 @@ public record PosProductDto(
     string? VariantSize,
     bool IsStockTracked,
     decimal StockQuantity,
-    bool SoldOut)
+    bool SoldOut,
+    int Origin,
+    decimal? NationalRate,
+    decimal? FederalRate,
+    decimal? ImportedFederalRate,
+    decimal? StateRate,
+    decimal? MunicipalRate,
+    DateOnly? EffectiveStart,
+    DateOnly? EffectiveEnd,
+    string? Source,
+    string? Key)
 {
-    public static PosProductDto From(Product product, ProductVariant variant) =>
+    public static PosProductDto From(Product product, ProductVariant variant, IbptTax? ibptTax) =>
         new(
             product.Id,
             variant.Id,
@@ -29,5 +40,15 @@ public record PosProductDto(
             variant.Size,
             variant.IsStockTracked,
             variant.StockQuantity,
-            variant.IsStockTracked && variant.StockQuantity == 0m);
+            variant.IsStockTracked && variant.StockQuantity == 0m,
+            product.Origin,
+            ibptTax?.NationalRate,
+            ibptTax?.FederalRate,
+            ibptTax?.ImportedFederalRate,
+            ibptTax?.StateRate,
+            ibptTax?.MunicipalRate,
+            ibptTax?.EffectiveStart,
+            ibptTax?.EffectiveEnd,
+            ibptTax?.Source,
+            ibptTax?.Key);
 }

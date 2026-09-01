@@ -4,7 +4,7 @@ import {
   input,
   output,
 } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -25,6 +25,7 @@ const MODE_OPTIONS: ModeOption[] = [
   selector: 'app-sale-summary',
   imports: [
     CurrencyPipe,
+    DecimalPipe,
     FormsModule,
     TranslatePipe,
     InputNumberModule,
@@ -39,7 +40,7 @@ export class SaleSummaryComponent {
   discountValue = input<number>(0);
   discountMode = input<DiscountMode>('amount');
   discountAmount = input<number>(0);
-  taxRate = input<number>(0);
+  taxPercent = input<number>(0);
   tax = input<number>(0);
   total = input<number>(0);
 
