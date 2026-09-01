@@ -1,0 +1,26 @@
+<div class="ibpt-autocomplete mb-3">
+  <p-floatlabel variant="on">
+    <p-autocomplete
+      inputId="ibpt-ncm"
+      styleClass="ibpt-autocomplete__field"
+      [ngModel]="model()"
+      (ngModelChange)="model.set($event)"
+      [suggestions]="suggestions()"
+      optionLabel="code"
+      [minLength]="minLength"
+      [delay]="300"
+      [showEmptyMessage]="true"
+      [forceSelection]="false"
+      (completeMethod)="onComplete($event)"
+      (onSelect)="onSelect($event)"
+    >
+      <ng-template let-tax #item>
+        <div class="ibpt-option">
+          <span class="ibpt-option__code">{{ tax.code }}</span>
+          <span class="ibpt-option__desc">{{ tax.description }}</span>
+        </div>
+      </ng-template>
+    </p-autocomplete>
+    <label for="ibpt-ncm">{{ label() | translate }}</label>
+  </p-floatlabel>
+</div>

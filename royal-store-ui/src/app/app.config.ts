@@ -32,6 +32,8 @@ import { permissionFeature } from './features/permission/store/permission.reduce
 import { permissionStore } from './features/permission/store/permission.store';
 import { userFeature } from './features/user/store/user.reducer';
 import { userStore } from './features/user/store/user.store';
+import { ibptTaxFeature } from './features/ibpt-tax/store/ibpt-tax.reducer';
+import { ibptTaxStore } from './features/ibpt-tax/store/ibpt-tax.store';
 import { saleFeature } from './features/sale/store/sale.reducer';
 import { saleStore } from './features/sale/store/sale.store';
 
@@ -63,6 +65,7 @@ export const appConfig: ApplicationConfig = {
       [categoryFeature.name]: categoryFeature.reducer,
       [permissionFeature.name]: permissionFeature.reducer,
       [userFeature.name]: userFeature.reducer,
+      [ibptTaxFeature.name]: ibptTaxFeature.reducer,
       [saleFeature.name]: saleFeature.reducer,
     }),
     provideEffects(
@@ -72,6 +75,7 @@ export const appConfig: ApplicationConfig = {
       categoryStore,
       permissionStore,
       userStore,
+      ibptTaxStore,
       saleStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },

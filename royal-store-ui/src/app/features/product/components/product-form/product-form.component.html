@@ -46,11 +46,11 @@
     ></app-product-tags-field>
 
     <div class="product-form__row product-form__row--2">
-      <app-input-field
-        controlName="ncm"
-        [parentForm]="formGroup"
+      <app-ibpt-tax-autocomplete
+        [code]="formGroup.controls.ncm.value"
         label="product.form.ncm"
-      ></app-input-field>
+        (codeSelected)="formGroup.controls.ncm.setValue($event)"
+      ></app-ibpt-tax-autocomplete>
       <app-input-field
         controlName="cest"
         [parentForm]="formGroup"

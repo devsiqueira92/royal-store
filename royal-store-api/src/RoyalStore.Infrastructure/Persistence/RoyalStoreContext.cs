@@ -4,6 +4,7 @@ using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Fiscal;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Permissions;
 using RoyalStore.Domain.Security;
@@ -34,6 +35,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
     public DbSet<ConfirmationResendRequest> ConfirmationResendRequests { get; set; } = null!;
     public DbSet<EmailChangeRequest> EmailChangeRequests { get; set; } = null!;
+
+    // Global reference data — shared across all tenants, no TenantId, no query filter.
+    public DbSet<IbptTax> IbptTaxes { get; set; } = null!;
 
     public RoyalStoreContext(DbContextOptions<RoyalStoreContext> options, ITenantContext tenantContext)
         : base(options)

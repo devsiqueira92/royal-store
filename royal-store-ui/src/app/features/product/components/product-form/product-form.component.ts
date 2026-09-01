@@ -46,6 +46,7 @@ import { ButtonComponent } from '@app/shared/components/button/button.component'
 import { ProductFacade } from '../../facade/product.facade';
 import { CategoryFacade } from '@app/features/category/facade/category.facade';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
+import { IbptTaxAutocompleteComponent } from '@app/features/ibpt-tax/components/ibpt-tax-autocomplete/ibpt-tax-autocomplete.component';
 
 type VariantSeed = Partial<{
   [K in keyof ProductVariant]: ProductVariant[K] | null;
@@ -75,6 +76,7 @@ const UNIT_OF_MEASURE_OPTIONS: Options[] = [
     ProductTagsFieldComponent,
     FormLayoutComponent,
     ButtonComponent,
+    IbptTaxAutocompleteComponent,
   ],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
