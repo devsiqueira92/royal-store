@@ -36,6 +36,15 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
 
         RuleFor(x => x.Origin).InclusiveBetween(0, 8);
 
+        RuleFor(x => x.Type).IsInEnum();
+
+        When(x => x.Nbs is not null, () => RuleFor(x => x.Nbs).MaximumLength(9));
+        When(x => x.IssCode is not null, () => RuleFor(x => x.IssCode).MaximumLength(20));
+        When(x => x.DefaultCfop is not null, () => RuleFor(x => x.DefaultCfop).MaximumLength(4));
+        When(x => x.IcmsCst is not null, () => RuleFor(x => x.IcmsCst).MaximumLength(4));
+        When(x => x.PisCofinsCst is not null, () => RuleFor(x => x.PisCofinsCst).MaximumLength(4));
+        When(x => x.IvaCst is not null, () => RuleFor(x => x.IvaCst).MaximumLength(4));
+
         RuleForEach(x => x.VariantsToAdd).ChildRules(variant =>
         {
             variant.RuleFor(v => v)
@@ -48,6 +57,25 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
                 variant.RuleFor(v => v.CostPrice!.Value).GreaterThanOrEqualTo(0));
 
             variant.RuleFor(v => v.StockQuantity).GreaterThanOrEqualTo(0);
+
+            variant.When(v => v.PromotionalPrice.HasValue, () =>
+            {
+                variant.RuleFor(v => v.PromotionalPrice!.Value).GreaterThanOrEqualTo(0);
+                variant.RuleFor(v => v)
+                    .Must(v => v.PromotionalPrice!.Value <= v.Price)
+                    .WithMessage("Promotional price must not exceed the regular price.");
+            });
+
+            variant.When(v => v.NetWeight.HasValue, () =>
+                variant.RuleFor(v => v.NetWeight!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.GrossWeight.HasValue, () =>
+                variant.RuleFor(v => v.GrossWeight!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.Width.HasValue, () =>
+                variant.RuleFor(v => v.Width!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.Height.HasValue, () =>
+                variant.RuleFor(v => v.Height!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.Length.HasValue, () =>
+                variant.RuleFor(v => v.Length!.Value).GreaterThanOrEqualTo(0));
 
             variant.When(v => v.Size is not null, () =>
                 variant.RuleFor(v => v.Size).MaximumLength(50));
@@ -76,6 +104,25 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
                 variant.RuleFor(v => v.CostPrice!.Value).GreaterThanOrEqualTo(0));
 
             variant.RuleFor(v => v.StockQuantity).GreaterThanOrEqualTo(0);
+
+            variant.When(v => v.PromotionalPrice.HasValue, () =>
+            {
+                variant.RuleFor(v => v.PromotionalPrice!.Value).GreaterThanOrEqualTo(0);
+                variant.RuleFor(v => v)
+                    .Must(v => v.PromotionalPrice!.Value <= v.Price)
+                    .WithMessage("Promotional price must not exceed the regular price.");
+            });
+
+            variant.When(v => v.NetWeight.HasValue, () =>
+                variant.RuleFor(v => v.NetWeight!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.GrossWeight.HasValue, () =>
+                variant.RuleFor(v => v.GrossWeight!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.Width.HasValue, () =>
+                variant.RuleFor(v => v.Width!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.Height.HasValue, () =>
+                variant.RuleFor(v => v.Height!.Value).GreaterThanOrEqualTo(0));
+            variant.When(v => v.Length.HasValue, () =>
+                variant.RuleFor(v => v.Length!.Value).GreaterThanOrEqualTo(0));
 
             variant.When(v => v.Size is not null, () =>
                 variant.RuleFor(v => v.Size).MaximumLength(50));

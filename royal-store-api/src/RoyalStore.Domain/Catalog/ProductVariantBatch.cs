@@ -9,7 +9,13 @@ public sealed record NewVariantRequest(
     decimal? CostPrice,
     decimal StockQuantity,
     decimal? MinStockQuantity,
-    bool IsStockTracked);
+    bool IsStockTracked,
+    decimal? PromotionalPrice = null,
+    decimal? NetWeight = null,
+    decimal? GrossWeight = null,
+    decimal? Width = null,
+    decimal? Height = null,
+    decimal? Length = null);
 
 public sealed record VariantUpdateRequest(
     Guid VariantId,
@@ -21,4 +27,10 @@ public sealed record VariantUpdateRequest(
     decimal? CostPrice,
     decimal StockQuantity,
     decimal? MinStockQuantity,
-    bool IsStockTracked);
+    bool IsStockTracked,
+    decimal? PromotionalPrice = null,
+    decimal? NetWeight = null,
+    decimal? GrossWeight = null,
+    decimal? Width = null,
+    decimal? Height = null,
+    decimal? Length = null);

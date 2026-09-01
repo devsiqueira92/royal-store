@@ -52,13 +52,15 @@ public sealed class UpdateProductCommandHandler
         var variantsToAdd = command.VariantsToAdd
             .Select(v => new NewVariantRequest(
                 v.Size, v.Color, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked))
+                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked,
+                v.PromotionalPrice, v.NetWeight, v.GrossWeight, v.Width, v.Height, v.Length))
             .ToList();
 
         var variantsToUpdate = command.VariantsToUpdate
             .Select(v => new VariantUpdateRequest(
                 v.VariantId, v.Size, v.Color, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked))
+                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked,
+                v.PromotionalPrice, v.NetWeight, v.GrossWeight, v.Width, v.Height, v.Length))
             .ToList();
 
         var existingVariantIds = product.Variants.Select(v => v.Id).ToHashSet();
@@ -66,6 +68,8 @@ public sealed class UpdateProductCommandHandler
         var updateResult = product.UpdateWithVariants(
             command.CategoryId, command.Name, command.ReferenceCode, command.Description,
             command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin,
+            command.Type, command.Nbs, command.IssCode, command.DefaultCfop,
+            command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
             variantsToAdd, variantsToUpdate);
 
         if (!updateResult.IsSuccess)

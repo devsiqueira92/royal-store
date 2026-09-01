@@ -15,4 +15,10 @@ public record UpdateProductVariantCommand(
     decimal? CostPrice,
     decimal StockQuantity,
     decimal? MinStockQuantity,
-    bool IsStockTracked) : IRequest<Result<ProductVariantResponse>>;
+    bool IsStockTracked,
+    decimal? PromotionalPrice = null,
+    decimal? NetWeight = null,
+    decimal? GrossWeight = null,
+    decimal? Width = null,
+    decimal? Height = null,
+    decimal? Length = null) : IRequest<Result<ProductVariantResponse>>;

@@ -35,7 +35,9 @@ public sealed class AddProductVariantCommandHandler
             _tenantContext.TenantId,
             command.Size, command.Color, command.Sku, command.Barcode,
             command.Price, command.CostPrice,
-            command.StockQuantity, command.MinStockQuantity, command.IsStockTracked);
+            command.StockQuantity, command.MinStockQuantity, command.IsStockTracked,
+            command.PromotionalPrice, command.NetWeight, command.GrossWeight,
+            command.Width, command.Height, command.Length);
 
         if (!variantResult.IsSuccess)
             return variantResult.Error;

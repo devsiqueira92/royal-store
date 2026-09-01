@@ -23,6 +23,9 @@ public sealed class GetPosProductsQueryHandler
         GetPosProductsQuery request,
         CancellationToken cancellationToken)
     {
+        // PosProductDto.From carries the product-level fiscal classification (Type, Origin,
+        // IsSelectiveTax, IVA/ICMS/PIS-COFINS CSTs, CFOP) and the variant promotional price;
+        // no extra loading is needed here since the full Product + ProductVariant graphs are materialised.
         var products = await _productRepository.GetForPosAsync(request.CategoryId, cancellationToken);
 
         var codes = products

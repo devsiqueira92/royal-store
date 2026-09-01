@@ -21,6 +21,25 @@ public sealed class UpdateProductVariantValidator : AbstractValidator<UpdateProd
 
         RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
 
+        When(x => x.PromotionalPrice.HasValue, () =>
+        {
+            RuleFor(x => x.PromotionalPrice!.Value).GreaterThanOrEqualTo(0);
+            RuleFor(x => x)
+                .Must(x => x.PromotionalPrice!.Value <= x.Price)
+                .WithMessage("Promotional price must not exceed the regular price.");
+        });
+
+        When(x => x.NetWeight.HasValue, () =>
+            RuleFor(x => x.NetWeight!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.GrossWeight.HasValue, () =>
+            RuleFor(x => x.GrossWeight!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Width.HasValue, () =>
+            RuleFor(x => x.Width!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Height.HasValue, () =>
+            RuleFor(x => x.Height!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Length.HasValue, () =>
+            RuleFor(x => x.Length!.Value).GreaterThanOrEqualTo(0));
+
         When(x => x.Size is not null, () =>
             RuleFor(x => x.Size).MaximumLength(50));
 

@@ -40,6 +40,13 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
 
         builder.Property(v => v.IsStockTracked).IsRequired();
 
+        builder.Property(v => v.PromotionalPrice).HasPrecision(18, 2);
+        builder.Property(v => v.NetWeight).HasPrecision(9, 3);
+        builder.Property(v => v.GrossWeight).HasPrecision(9, 3);
+        builder.Property(v => v.Width).HasPrecision(9, 2);
+        builder.Property(v => v.Height).HasPrecision(9, 2);
+        builder.Property(v => v.Length).HasPrecision(9, 2);
+
         builder.HasIndex(v => new { v.TenantId, v.Sku })
             .IsUnique()
             .HasFilter("[Sku] IS NOT NULL");

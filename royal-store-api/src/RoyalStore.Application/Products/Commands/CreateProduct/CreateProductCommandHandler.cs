@@ -46,7 +46,9 @@ public sealed class CreateProductCommandHandler
 
         var productResult = Product.Create(
             tenantId, command.CategoryId, command.Name, command.ReferenceCode, command.Description,
-            command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin);
+            command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin,
+            command.Type, command.Nbs, command.IssCode, command.DefaultCfop,
+            command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax);
 
         if (!productResult.IsSuccess)
             return productResult.Error;
@@ -56,7 +58,8 @@ public sealed class CreateProductCommandHandler
         foreach (var v in command.Variants ?? [])
         {
             var variantResult = product.AddVariant(tenantId, v.Size, v.Color, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked);
+                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked,
+                v.PromotionalPrice, v.NetWeight, v.GrossWeight, v.Width, v.Height, v.Length);
             if (!variantResult.IsSuccess)
                 return variantResult.Error;
         }

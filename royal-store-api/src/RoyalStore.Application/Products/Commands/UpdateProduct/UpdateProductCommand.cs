@@ -1,5 +1,6 @@
 using MediatR;
 using RoyalStore.Application.Products.DTOs;
+using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Products.Commands.UpdateProduct;
@@ -13,7 +14,13 @@ public sealed record VariantInput(
     decimal? CostPrice,
     decimal StockQuantity,
     decimal? MinStockQuantity,
-    bool IsStockTracked);
+    bool IsStockTracked,
+    decimal? PromotionalPrice = null,
+    decimal? NetWeight = null,
+    decimal? GrossWeight = null,
+    decimal? Width = null,
+    decimal? Height = null,
+    decimal? Length = null);
 
 public sealed record VariantUpdateInput(
     Guid VariantId,
@@ -25,7 +32,13 @@ public sealed record VariantUpdateInput(
     decimal? CostPrice,
     decimal StockQuantity,
     decimal? MinStockQuantity,
-    bool IsStockTracked);
+    bool IsStockTracked,
+    decimal? PromotionalPrice = null,
+    decimal? NetWeight = null,
+    decimal? GrossWeight = null,
+    decimal? Width = null,
+    decimal? Height = null,
+    decimal? Length = null);
 
 public record UpdateProductCommand(
     Guid Id,
@@ -39,7 +52,15 @@ public record UpdateProductCommand(
     string? Cest,
     int Origin,
     IReadOnlyList<VariantInput> VariantsToAdd,
-    IReadOnlyList<VariantUpdateInput> VariantsToUpdate)
+    IReadOnlyList<VariantUpdateInput> VariantsToUpdate,
+    ItemType Type = ItemType.Product,
+    string? Nbs = null,
+    string? IssCode = null,
+    string? DefaultCfop = null,
+    string? IcmsCst = null,
+    string? PisCofinsCst = null,
+    string? IvaCst = null,
+    bool IsSelectiveTax = false)
     : IRequest<Result<ProductResponse>>
 {
     public IReadOnlyList<VariantInput> VariantsToAdd { get; init; } = VariantsToAdd ?? [];

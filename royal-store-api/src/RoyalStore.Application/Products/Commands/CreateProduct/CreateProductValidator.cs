@@ -34,6 +34,15 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
 
         RuleFor(x => x.Origin).InclusiveBetween(0, 8);
 
+        RuleFor(x => x.Type).IsInEnum();
+
+        When(x => x.Nbs is not null, () => RuleFor(x => x.Nbs).MaximumLength(9));
+        When(x => x.IssCode is not null, () => RuleFor(x => x.IssCode).MaximumLength(20));
+        When(x => x.DefaultCfop is not null, () => RuleFor(x => x.DefaultCfop).MaximumLength(4));
+        When(x => x.IcmsCst is not null, () => RuleFor(x => x.IcmsCst).MaximumLength(4));
+        When(x => x.PisCofinsCst is not null, () => RuleFor(x => x.PisCofinsCst).MaximumLength(4));
+        When(x => x.IvaCst is not null, () => RuleFor(x => x.IvaCst).MaximumLength(4));
+
         When(x => x.Variants is not null, () =>
             RuleForEach(x => x.Variants).ChildRules(v =>
             {
@@ -47,6 +56,25 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                     v.RuleFor(x => x.CostPrice!.Value).GreaterThanOrEqualTo(0));
 
                 v.RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
+
+                v.When(x => x.PromotionalPrice.HasValue, () =>
+                {
+                    v.RuleFor(x => x.PromotionalPrice!.Value).GreaterThanOrEqualTo(0);
+                    v.RuleFor(x => x)
+                        .Must(x => x.PromotionalPrice!.Value <= x.Price)
+                        .WithMessage("Promotional price must not exceed the regular price.");
+                });
+
+                v.When(x => x.NetWeight.HasValue, () =>
+                    v.RuleFor(x => x.NetWeight!.Value).GreaterThanOrEqualTo(0));
+                v.When(x => x.GrossWeight.HasValue, () =>
+                    v.RuleFor(x => x.GrossWeight!.Value).GreaterThanOrEqualTo(0));
+                v.When(x => x.Width.HasValue, () =>
+                    v.RuleFor(x => x.Width!.Value).GreaterThanOrEqualTo(0));
+                v.When(x => x.Height.HasValue, () =>
+                    v.RuleFor(x => x.Height!.Value).GreaterThanOrEqualTo(0));
+                v.When(x => x.Length.HasValue, () =>
+                    v.RuleFor(x => x.Length!.Value).GreaterThanOrEqualTo(0));
 
                 v.When(x => x.Size is not null, () =>
                     v.RuleFor(x => x.Size).MaximumLength(50));

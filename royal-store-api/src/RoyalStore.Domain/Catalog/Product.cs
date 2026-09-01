@@ -15,7 +15,15 @@ public sealed class Product : Entity, IAuditableEntity
     public string UnitOfMeasure { get; private set; } = "UN";
     public string? Ncm { get; private set; }
     public string? Cest { get; private set; }
-    public int Origin { get; private set; }
+    public ProductOrigin Origin { get; private set; }
+    public ItemType Type { get; private set; }
+    public string? Nbs { get; private set; }
+    public string? IssCode { get; private set; }
+    public string? DefaultCfop { get; private set; }
+    public string? IcmsCst { get; private set; }
+    public string? PisCofinsCst { get; private set; }
+    public string? IvaCst { get; private set; }
+    public bool IsSelectiveTax { get; private set; }
     public int Version { get; private set; }
 
     public ICollection<ProductVariant> Variants { get; private set; } = [];
@@ -30,7 +38,9 @@ public sealed class Product : Entity, IAuditableEntity
     private Product() : base(Guid.NewGuid()) { }
 
     private Product(Guid id, Guid tenantId, Guid categoryId, string name, string referenceCode, string? description,
-        string unitOfMeasure, string? ncm, string? cest, int origin)
+        string unitOfMeasure, string? ncm, string? cest, int origin,
+        ItemType type, string? nbs, string? issCode, string? defaultCfop,
+        string? icmsCst, string? pisCofinsCst, string? ivaCst, bool isSelectiveTax)
         : base(id)
     {
         TenantId = tenantId;
@@ -42,12 +52,36 @@ public sealed class Product : Entity, IAuditableEntity
         UnitOfMeasure = unitOfMeasure;
         Ncm = ncm;
         Cest = cest;
-        Origin = origin;
+        Origin = (ProductOrigin)origin;
+        Type = type;
+        Nbs = Normalize(nbs);
+        IssCode = Normalize(issCode);
+        DefaultCfop = Normalize(defaultCfop);
+        IcmsCst = Normalize(icmsCst);
+        PisCofinsCst = Normalize(pisCofinsCst);
+        IvaCst = Normalize(ivaCst);
+        IsSelectiveTax = isSelectiveTax;
+    }
+
+    private static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static bool HasNegativeMeasure(params decimal?[] values)
+    {
+        foreach (var value in values)
+        {
+            if (value is < 0)
+                return true;
+        }
+
+        return false;
     }
 
     public static Result<Product> Create(
         Guid tenantId, Guid categoryId, string name, string referenceCode, string? description,
-        string unitOfMeasure, string? ncm, string? cest, int origin)
+        string unitOfMeasure, string? ncm, string? cest, int origin,
+        ItemType type, string? nbs, string? issCode, string? defaultCfop,
+        string? icmsCst, string? pisCofinsCst, string? ivaCst, bool isSelectiveTax)
     {
         if (tenantId == Guid.Empty)
             return Error.Validation("product.tenant_required", "Tenant identifier is required.");
@@ -81,12 +115,15 @@ public sealed class Product : Entity, IAuditableEntity
             unitOfMeasure = "UN";
 
         return new Product(Guid.NewGuid(), tenantId, categoryId, name, referenceCode, description,
-            unitOfMeasure, ncm, cest, origin);
+            unitOfMeasure, ncm, cest, origin,
+            type, nbs, issCode, defaultCfop, icmsCst, pisCofinsCst, ivaCst, isSelectiveTax);
     }
 
     public Result Update(
         Guid categoryId, string name, string referenceCode, string? description,
-        string unitOfMeasure, string? ncm, string? cest, int origin)
+        string unitOfMeasure, string? ncm, string? cest, int origin,
+        ItemType type, string? nbs, string? issCode, string? defaultCfop,
+        string? icmsCst, string? pisCofinsCst, string? ivaCst, bool isSelectiveTax)
     {
         if (!IsActive)
             return Result.Failure(Error.Validation("product.inactive", "Inactive products cannot be updated."));
@@ -120,7 +157,15 @@ public sealed class Product : Entity, IAuditableEntity
         UnitOfMeasure = string.IsNullOrWhiteSpace(unitOfMeasure) ? "UN" : unitOfMeasure;
         Ncm = ncm;
         Cest = cest;
-        Origin = origin;
+        Origin = (ProductOrigin)origin;
+        Type = type;
+        Nbs = Normalize(nbs);
+        IssCode = Normalize(issCode);
+        DefaultCfop = Normalize(defaultCfop);
+        IcmsCst = Normalize(icmsCst);
+        PisCofinsCst = Normalize(pisCofinsCst);
+        IvaCst = Normalize(ivaCst);
+        IsSelectiveTax = isSelectiveTax;
         Version++;
 
         return Result.Success();
@@ -129,10 +174,13 @@ public sealed class Product : Entity, IAuditableEntity
     public Result UpdateWithVariants(
         Guid categoryId, string name, string referenceCode, string? description,
         string unitOfMeasure, string? ncm, string? cest, int origin,
+        ItemType type, string? nbs, string? issCode, string? defaultCfop,
+        string? icmsCst, string? pisCofinsCst, string? ivaCst, bool isSelectiveTax,
         IReadOnlyList<NewVariantRequest> variantsToAdd,
         IReadOnlyList<VariantUpdateRequest> variantsToUpdate)
     {
-        var fieldsResult = Update(categoryId, name, referenceCode, description, unitOfMeasure, ncm, cest, origin);
+        var fieldsResult = Update(categoryId, name, referenceCode, description, unitOfMeasure, ncm, cest, origin,
+            type, nbs, issCode, defaultCfop, icmsCst, pisCofinsCst, ivaCst, isSelectiveTax);
         if (!fieldsResult.IsSuccess)
             return fieldsResult;
 
@@ -146,7 +194,9 @@ public sealed class Product : Entity, IAuditableEntity
         {
             var updateResult = UpdateVariant(
                 update.VariantId, update.Size, update.Color, update.Sku, update.Barcode,
-                update.Price, update.CostPrice, update.StockQuantity, update.MinStockQuantity, update.IsStockTracked);
+                update.Price, update.CostPrice, update.StockQuantity, update.MinStockQuantity, update.IsStockTracked,
+                update.PromotionalPrice, update.NetWeight, update.GrossWeight,
+                update.Width, update.Height, update.Length);
             if (!updateResult.IsSuccess)
                 return Result.Failure(AttributeError(updateResult.Error, $"Variant '{update.VariantId}'"));
         }
@@ -155,7 +205,9 @@ public sealed class Product : Entity, IAuditableEntity
         {
             var addResult = AddVariant(
                 TenantId, add.Size, add.Color, add.Sku, add.Barcode,
-                add.Price, add.CostPrice, add.StockQuantity, add.MinStockQuantity, add.IsStockTracked);
+                add.Price, add.CostPrice, add.StockQuantity, add.MinStockQuantity, add.IsStockTracked,
+                add.PromotionalPrice, add.NetWeight, add.GrossWeight,
+                add.Width, add.Height, add.Length);
             if (!addResult.IsSuccess)
                 return Result.Failure(AttributeError(addResult.Error, $"New variant (Size='{add.Size}', Color='{add.Color}')"));
         }
@@ -189,7 +241,9 @@ public sealed class Product : Entity, IAuditableEntity
 
     public Result<ProductVariant> AddVariant(Guid tenantId, string? size, string? color,
         string? sku, string? barcode, decimal price, decimal? costPrice,
-        decimal stockQuantity, decimal? minStockQuantity, bool isStockTracked)
+        decimal stockQuantity, decimal? minStockQuantity, bool isStockTracked,
+        decimal? promotionalPrice, decimal? netWeight, decimal? grossWeight,
+        decimal? width, decimal? height, decimal? length)
     {
         size = string.IsNullOrWhiteSpace(size) ? null : size.Trim();
         color = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
@@ -206,11 +260,21 @@ public sealed class Product : Entity, IAuditableEntity
         if (stockQuantity < 0)
             return Error.Validation("variant.stock_negative", "Stock quantity must be zero or greater.");
 
+        if (promotionalPrice is < 0)
+            return Error.Validation("variant.promotional_price_negative", "Promotional price must be zero or greater.");
+
+        if (promotionalPrice.HasValue && promotionalPrice.Value > price)
+            return Error.Validation("variant.promotional_price_above_price", "Promotional price must not exceed the regular price.");
+
+        if (HasNegativeMeasure(netWeight, grossWeight, width, height, length))
+            return Error.Validation("variant.measure_negative", "Weight and dimension values must be zero or greater.");
+
         if (HasDuplicateVariant(Guid.Empty, size, color))
             return Error.Conflict("variant.duplicate", "A variant with the same size and color already exists for this product.");
 
         var variant = new ProductVariant(Id, tenantId, size, color, sku, barcode,
-            price, costPrice, stockQuantity, minStockQuantity, isStockTracked);
+            price, costPrice, stockQuantity, minStockQuantity, isStockTracked,
+            promotionalPrice, netWeight, grossWeight, width, height, length);
         Variants.Add(variant);
         Version++;
         return variant;
@@ -232,7 +296,9 @@ public sealed class Product : Entity, IAuditableEntity
 
     public Result UpdateVariant(Guid variantId, string? size, string? color,
         string? sku, string? barcode, decimal price, decimal? costPrice,
-        decimal stockQuantity, decimal? minStockQuantity, bool isStockTracked)
+        decimal stockQuantity, decimal? minStockQuantity, bool isStockTracked,
+        decimal? promotionalPrice, decimal? netWeight, decimal? grossWeight,
+        decimal? width, decimal? height, decimal? length)
     {
         var variant = Variants.FirstOrDefault(v => v.Id == variantId);
         if (variant is null)
@@ -247,7 +313,8 @@ public sealed class Product : Entity, IAuditableEntity
         if (HasDuplicateVariant(variantId, size, color))
             return Result.Failure(Error.Conflict("variant.duplicate", "A variant with the same size and color already exists for this product."));
 
-        var updateResult = variant.Update(size, color, sku, barcode, price, costPrice, stockQuantity, minStockQuantity, isStockTracked);
+        var updateResult = variant.Update(size, color, sku, barcode, price, costPrice, stockQuantity, minStockQuantity, isStockTracked,
+            promotionalPrice, netWeight, grossWeight, width, height, length);
         if (updateResult.IsSuccess)
             Version++;
 

@@ -40,7 +40,25 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Cest)
             .HasMaxLength(7);
 
-        builder.Property(p => p.Origin).IsRequired();
+        builder.Property(p => p.Origin)
+            .HasConversion<int>()
+            .IsRequired();
+
+        builder.Property(p => p.Type)
+            .HasConversion<int>()
+            .IsRequired()
+            .HasDefaultValue(ItemType.Product);
+
+        builder.Property(p => p.Nbs).HasMaxLength(9);
+        builder.Property(p => p.IssCode).HasMaxLength(20);
+        builder.Property(p => p.DefaultCfop).HasMaxLength(4);
+        builder.Property(p => p.IcmsCst).HasMaxLength(4);
+        builder.Property(p => p.PisCofinsCst).HasMaxLength(4);
+        builder.Property(p => p.IvaCst).HasMaxLength(4);
+
+        builder.Property(p => p.IsSelectiveTax)
+            .IsRequired()
+            .HasDefaultValue(false);
 
         builder.Property(p => p.Version)
             .IsRequired()
