@@ -32,10 +32,10 @@ import { permissionFeature } from './features/permission/store/permission.reduce
 import { permissionStore } from './features/permission/store/permission.store';
 import { userFeature } from './features/user/store/user.reducer';
 import { userStore } from './features/user/store/user.store';
-import { ibptTaxFeature } from './features/ibpt-tax/store/ibpt-tax.reducer';
-import { ibptTaxStore } from './features/ibpt-tax/store/ibpt-tax.store';
 import { saleFeature } from './features/sale/store/sale.reducer';
 import { saleStore } from './features/sale/store/sale.store';
+import { ibptTaxFeature } from './core/ibpt-tax/store/ibpt-tax.reducer';
+import { ibptTaxStore } from './core/ibpt-tax/store/ibpt-tax.store';
 
 registerLocaleData(localeEn);
 

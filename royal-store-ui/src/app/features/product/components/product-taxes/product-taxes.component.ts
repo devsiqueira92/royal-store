@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IbptTaxAutocompleteComponent } from '@app/features/ibpt-tax/components/ibpt-tax-autocomplete/ibpt-tax-autocomplete.component';
+import { IbptTaxAutocompleteComponent } from '@app/shared/components/form-fields/ibpt-tax-autocomplete/ibpt-tax-autocomplete.component';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';

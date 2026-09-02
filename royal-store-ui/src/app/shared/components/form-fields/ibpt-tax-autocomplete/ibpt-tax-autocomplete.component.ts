@@ -16,8 +16,8 @@ import {
   AutoCompleteSelectEvent,
 } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { IbptTaxFacade } from '../../facade/ibpt-tax.facade';
-import { IbptTax } from '../../interfaces/ibpt-tax.interface';
+import { IbptTaxFacade } from '../../../../core/ibpt-tax/facade/ibpt-tax.facade';
+import { IbptTax } from '../../../../core/ibpt-tax/interfaces/ibpt-tax.interface';
 
 const MIN_QUERY_LENGTH = 3;
 

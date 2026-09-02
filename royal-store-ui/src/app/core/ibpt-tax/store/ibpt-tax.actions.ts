@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { IbptTax } from '../interfaces/ibpt-tax.interface';
+import { IbptTax } from '../../../core/ibpt-tax/interfaces/ibpt-tax.interface';
 
 export const IbptTaxActions = createActionGroup({
   source: 'IbptTax',

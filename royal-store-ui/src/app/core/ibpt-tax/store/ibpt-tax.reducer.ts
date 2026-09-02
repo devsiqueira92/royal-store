@@ -1,5 +1,5 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { IbptTax } from '../interfaces/ibpt-tax.interface';
+import { IbptTax } from '../../../core/ibpt-tax/interfaces/ibpt-tax.interface';
 import { IbptTaxActions } from './ibpt-tax.actions';
 
 export interface IbptTaxState {
