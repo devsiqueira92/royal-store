@@ -5,21 +5,20 @@ import {
   inject,
   input,
   output,
-  signal,
 } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ProductVariantFormControls } from '../../interfaces/product.interface';
-import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
-import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
-import { ColorSelectFieldComponent } from '@app/shared/components/form-fields/color-select-field/color-select-field.component';
-import { ColorPaletteService } from '@app/shared/services/color-palette.service';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith, switchMap } from 'rxjs';
+import { ProductVariantFormControls } from '../../interfaces/product.interface';
+import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
+import { ColorSelectFieldComponent } from '@app/shared/components/form-fields/color-select-field/color-select-field.component';
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
+import { ColorPaletteService } from '@app/shared/services/color-palette.service';
 import { Sizes } from '../../enums/size.enum';
 import { enumToOptions } from '@app/shared/utils/enum-to-options.util';
+import { BarcodeInputFieldComponent } from '@app/shared/components/form-fields/barcode-input-field/barcode-input-field.component';
 
 type VariantStockStatus = 'inStock' | 'lowStock' | 'outOfStock' | 'untracked';
 
@@ -30,9 +29,9 @@ type VariantStockStatus = 'inStock' | 'lowStock' | 'outOfStock' | 'untracked';
     TranslatePipe,
     DecimalPipe,
     InputFieldComponent,
-    ToggleFieldComponent,
     SelectFieldComponent,
     ColorSelectFieldComponent,
+    BarcodeInputFieldComponent,
   ],
   templateUrl: './product-variant-form.component.html',
   styleUrl: './product-variant-form.component.scss',
@@ -41,18 +40,19 @@ type VariantStockStatus = 'inStock' | 'lowStock' | 'outOfStock' | 'untracked';
 export class ProductVariantFormComponent {
   private readonly translateService = inject(TranslateService);
   private readonly colorPalette = inject(ColorPaletteService);
+
   formGroup = input.required<FormGroup<ProductVariantFormControls>>();
   index = input.required<number>();
   removable = input(true);
+  itemType = input<number>(0);
 
   duplicate = output<void>();
   remove = output<void>();
 
   protected readonly sizes = enumToOptions(Sizes, 'enum.sizes');
 
-  // price/costPrice/minStockQuantity start disabled (driven by the product
-  // form's base fields), so raw value is used — FormGroup.value/valueChanges
-  // omit disabled controls, which would otherwise blank out the margin calc.
+  protected readonly isService = computed(() => this.itemType() === 1);
+
   protected formValues = toSignal(
     toObservable(this.formGroup).pipe(
       switchMap(form =>
@@ -63,24 +63,6 @@ export class ProductVariantFormComponent {
       ),
     ),
   );
-
-  protected readonly pricingLocked = signal(true);
-
-  protected togglePricingLock(): void {
-    const { price, costPrice, minStockQuantity } = this.formGroup().controls;
-
-    if (this.pricingLocked()) {
-      price.enable();
-      costPrice.enable();
-      minStockQuantity.enable();
-    } else {
-      price.disable();
-      costPrice.disable();
-      minStockQuantity.disable();
-    }
-
-    this.pricingLocked.update(locked => !locked);
-  }
 
   protected variantLabel = computed(() => {
     const values = this.formValues();
@@ -101,11 +83,7 @@ export class ProductVariantFormComponent {
     const values = this.formValues();
     if (!values) return 'untracked';
 
-    const { isStockTracked, stockQuantity, minStockQuantity } = values;
-
-    if (!isStockTracked) {
-      return 'untracked';
-    }
+    const { stockQuantity, minStockQuantity } = values;
 
     const quantity = Number(stockQuantity) ?? 0;
 

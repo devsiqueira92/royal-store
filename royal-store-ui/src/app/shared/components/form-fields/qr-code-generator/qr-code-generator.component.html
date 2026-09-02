@@ -1,0 +1,8 @@
+<div class="product-variant-form__qr">
+  @if (qrDataUrl(); as qr) {
+    <img [src]="qr" alt="QR" />
+  } @else {
+    <span class="product-variant-form__qr-empty"></span>
+  }
+  <span class="product-variant-form__qr-caption">QR</span>
+</div>

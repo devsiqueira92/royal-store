@@ -1,16 +1,28 @@
-<section class="product-form__section">
-  <div class="product-form__section-heading">
-    <div class="heading-content">
-      <span class="product-form__section-index">{{ index() }}</span>
-      <h3>
-        {{ header() | translate }}
-        @if (headerDetails()) {
-          <span class="product-form__section-count">{{ headerDetails() }}</span>
-        }
-      </h3>
-    </div>
+<p-panel
+  class="form-panel"
+  [toggleable]="toggleable()"
+  [collapsed]="collapsedPanel()"
+>
+  <ng-template #icons>
+    <ng-content select="[icon-actions]"></ng-content>
+  </ng-template>
 
-    <ng-content select="[header-actions]"></ng-content>
-  </div>
+  <ng-template #headericons let-collapsed>
+    <i class="pi pi-angle-left" [class]="collapsed ? 'open' : 'closed'"></i>
+  </ng-template>
+  <ng-template #header>
+    <div class="panel-header">
+      <i class="pi" [class]="icon()"></i>
+      <div class="panel-title">
+        <h3>
+          {{ title() | translate }}
+        </h3>
+        <span class="hint">
+          {{ headerDetails() | translate }}
+        </span>
+      </div>
+    </div>
+  </ng-template>
+
   <ng-content></ng-content>
-</section>
+</p-panel>

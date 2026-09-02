@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  output,
+} from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormGroup,
@@ -8,6 +13,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -18,6 +24,7 @@ import { MessageModule } from 'primeng/message';
     MessageModule,
     FloatLabelModule,
     TranslatePipe,
+    FormErrorComponent,
   ],
   templateUrl: './input-field.component.html',
   styleUrl: './input-field.component.scss',

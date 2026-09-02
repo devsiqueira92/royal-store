@@ -10,8 +10,8 @@ export const searchIbptTaxes = createEffect(
     return actions$.pipe(
       ofType(IbptTaxActions.searchIbptTaxes),
       // switchMap: a new keystroke aborts the in-flight request.
-      switchMap(({ q }) =>
-        ibptTaxService.search(q).pipe(
+      switchMap(({ q, taxType }) =>
+        ibptTaxService.search(q, taxType).pipe(
           map(results => IbptTaxActions.searchIbptTaxesSuccess({ results })),
           catchError((error: HttpErrorResponse) =>
             of(

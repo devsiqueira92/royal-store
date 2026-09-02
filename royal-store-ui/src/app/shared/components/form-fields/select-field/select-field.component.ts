@@ -7,8 +7,8 @@ import {
 import { Options } from '@app/shared/interceptors/options.interface';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { MessageModule } from 'primeng/message';
 import { SelectModule } from 'primeng/select';
+import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,9 +16,9 @@ import { SelectModule } from 'primeng/select';
   imports: [
     ReactiveFormsModule,
     SelectModule,
-    MessageModule,
     FloatLabelModule,
     TranslatePipe,
+    FormErrorComponent,
   ],
   templateUrl: './select-field.component.html',
   styleUrl: './select-field.component.scss',

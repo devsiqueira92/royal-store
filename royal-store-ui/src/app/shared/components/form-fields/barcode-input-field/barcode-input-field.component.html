@@ -1,0 +1,17 @@
+<div class="product-variant-form__barcode" [formGroup]="parentForm()">
+  <div class="product-variant-form__barcode-main">
+    <div class="product-variant-form__barcode-input">
+      <app-input-field
+        [parentForm]="parentForm()"
+        [controlName]="controlName()"
+        label="EAN / GTIN-13"
+        [placeholder]="'product.form.barcodePlaceholder'"
+      ></app-input-field>
+
+      <i
+        class="pi pi-bolt product-variant-form__generate"
+        (click)="generateBarcode()"
+      ></i>
+    </div>
+  </div>
+</div>

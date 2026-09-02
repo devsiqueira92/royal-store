@@ -1,3 +1,4 @@
+import { createSelector } from '@ngrx/store';
 import { productFeature } from './product.reducer';
 
 export const {
@@ -6,3 +7,8 @@ export const {
   selectIsLoading,
   selectError,
 } = productFeature;
+
+export const productVariants = createSelector(
+  selectSelectedProduct,
+  state => state?.variants,
+);

@@ -1,0 +1,51 @@
+<app-form-layout
+  title="product.form.logistics"
+  headerDetails="product.form.section.detailsHint"
+  icon="pi-cog"
+>
+  <div class="form__row form__row--2">
+    <app-input-field
+      controlName="netWeight"
+      [parentForm]="formGroup()"
+      label="product.form.netWeight"
+      type="number"
+      [min]="0"
+      [step]="0.001"
+    ></app-input-field>
+    <app-input-field
+      controlName="grossWeight"
+      [parentForm]="formGroup()"
+      label="product.form.grossWeight"
+      type="number"
+      [min]="0"
+      [step]="0.001"
+    ></app-input-field>
+  </div>
+
+  <div class="form__row form__row--3">
+    <app-input-field
+      controlName="width"
+      [parentForm]="formGroup()"
+      label="product.form.width"
+      type="number"
+      [min]="0"
+      [step]="0.1"
+    ></app-input-field>
+    <app-input-field
+      controlName="height"
+      [parentForm]="formGroup()"
+      label="product.form.height"
+      type="number"
+      [min]="0"
+      [step]="0.1"
+    ></app-input-field>
+    <app-input-field
+      controlName="length"
+      [parentForm]="formGroup()"
+      label="product.form.length"
+      type="number"
+      [min]="0"
+      [step]="0.1"
+    ></app-input-field>
+  </div>
+</app-form-layout>

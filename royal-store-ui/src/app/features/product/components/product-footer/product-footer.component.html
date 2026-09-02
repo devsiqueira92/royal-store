@@ -1,0 +1,39 @@
+<div class="product-form__footer">
+  <div class="product-form__summary">
+    <span>
+      {{
+        'product.form.summary.variants'
+          | translate: { count: getSummary().variantsCount }
+      }}
+      @if (itemType() !== 1) {
+        ·
+        {{
+          'product.form.summary.units'
+            | translate: { count: getSummary().totalUnits }
+        }}
+      }
+    </span>
+    @if (getSummary().minPrice != null) {
+      <span class="product-form__summary-range">
+        {{ 'product.form.summary.priceRange' | translate }}
+        {{ getSummary().minPrice | currency }}
+        @if (getSummary().minPrice !== getSummary().maxPrice) {
+          – {{ getSummary().maxPrice | currency }}
+        }
+      </span>
+    }
+  </div>
+  <div class="product-form__footer-actions">
+    <app-button
+      label="product.form.cancel"
+      severity="secondary"
+      (click)="onClose()"
+    ></app-button>
+
+    <app-button
+      label="product.form.submit"
+      [disabled]="formGroup().invalid"
+      (click)="onSubmit($event)"
+    ></app-button>
+  </div>
+</div>

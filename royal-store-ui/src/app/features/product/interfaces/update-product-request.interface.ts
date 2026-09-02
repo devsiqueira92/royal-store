@@ -5,6 +5,7 @@ export interface UpdateProductVariantRequest extends CreateProductVariantRequest
 }
 
 export interface UpdateProductRequest {
+  itemType: number;
   categoryId: string;
   name: string;
   referenceCode: string;
@@ -16,4 +17,15 @@ export interface UpdateProductRequest {
   version: number;
   variantsToAdd: CreateProductVariantRequest[];
   variantsToUpdate: UpdateProductVariantRequest[];
+
+  // Fiscal
+  taxProfileTemplate?: string;
+  nbs?: string;
+  issCode?: string;
+  overrideTaxProfile?: boolean;
+  defaultCfop?: string;
+  icmsCst?: string;
+  pisCofinsCst?: string;
+  ivaCst?: string;
+  isSelectiveTax?: boolean;
 }

@@ -9,6 +9,7 @@ import {
   selectSelectedProduct,
   selectIsLoading,
   selectError,
+  productVariants,
 } from '../store/product.selectors';
 
 @Injectable({
@@ -19,6 +20,7 @@ export class ProductFacade {
 
   products$ = this.store.select(selectProducts);
   selectedProduct$ = this.store.select(selectSelectedProduct);
+  productVariants$ = this.store.select(productVariants);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
 
@@ -34,12 +36,8 @@ export class ProductFacade {
     this.store.dispatch(ProductActions.createProduct({ request }));
   }
 
-  saveProductEdit(
-    id: string,
-    request: UpdateProductRequest,
-    toRemove: string[],
-  ): void {
-    this.store.dispatch(ProductActions.saveProductEdit({ id, request, toRemove }));
+  saveProductEdit(id: string, request: UpdateProductRequest): void {
+    this.store.dispatch(ProductActions.saveProductEdit({ id, request }));
   }
 
   disableProduct(id: string): void {

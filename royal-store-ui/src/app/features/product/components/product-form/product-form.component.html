@@ -1,63 +1,5 @@
 <form class="product-form" [formGroup]="formGroup">
-  <app-form-layout header="product.form.section.details" [index]="1">
-    <app-image-upload-field
-      (filesChange)="onPhotoFilesChange($event)"
-    ></app-image-upload-field>
-
-    <app-input-field
-      controlName="name"
-      [parentForm]="formGroup"
-      label="product.form.name"
-      placeholder="product.form.namePlaceholder"
-    ></app-input-field>
-
-    <app-input-field
-      controlName="referenceCode"
-      [parentForm]="formGroup"
-      label="product.form.referenceCode"
-      placeholder="product.form.referenceCodePlaceholder"
-      (blurred)="onReferenceCodeBlur()"
-    ></app-input-field>
-
-    <app-textarea-field
-      controlName="description"
-      [parentForm]="formGroup"
-      label="product.form.description"
-      placeholder="product.form.descriptionPlaceholder"
-    ></app-textarea-field>
-
-    <app-select-field
-      [parentForm]="formGroup"
-      controlName="categoryId"
-      label="product.form.category"
-      [options]="categoryOptions()"
-    ></app-select-field>
-
-    <app-select-field
-      [parentForm]="formGroup"
-      controlName="unitOfMeasure"
-      label="product.form.unitOfMeasure"
-      [options]="unitOfMeasureOptions"
-    ></app-select-field>
-
-    <app-product-tags-field
-      [categories]="categories()"
-      (tagsChange)="onTagsChange($event)"
-    ></app-product-tags-field>
-
-    <div class="product-form__row product-form__row--2">
-      <app-ibpt-tax-autocomplete
-        [code]="formGroup.controls.ncm.value"
-        label="product.form.ncm"
-        (codeSelected)="formGroup.controls.ncm.setValue($event)"
-      ></app-ibpt-tax-autocomplete>
-      <app-input-field
-        controlName="cest"
-        [parentForm]="formGroup"
-        label="product.form.cest"
-      ></app-input-field>
-    </div>
-
+  @if (selectedProduct() !== null) {
     <div class="product-form__active">
       <app-toggle-field
         [parentForm]="formGroup"
@@ -66,106 +8,37 @@
         subtitleKey="product.form.activeHint"
       ></app-toggle-field>
     </div>
+  }
+  <app-item-type-selector
+    [value]="$any(itemType())"
+    (valueChange)="onItemTypeChange($event)"
+    [disabled]="selectedProduct() !== null"
+  ></app-item-type-selector>
+  @if (!loading()) {
+    <app-product-detail
+      [formGroup]="formGroup"
+      [variants]="variants"
+    ></app-product-detail>
 
-    <p class="product-form__section-subtitle">
-      {{ 'product.form.variantDefaultsHint' | translate }}
-    </p>
-    <div class="product-form__row product-form__row--3">
-      <app-input-field
-        controlName="price"
-        [parentForm]="formGroup"
-        label="product.form.price"
-        type="number"
-        [min]="0"
-        [step]="0.01"
-      ></app-input-field>
-      <app-input-field
-        controlName="costPrice"
-        [parentForm]="formGroup"
-        label="product.form.cost"
-        type="number"
-        [min]="0"
-        [step]="0.01"
-      ></app-input-field>
+    <app-product-taxes
+      [parentForm]="formGroup"
+      [itemType]="itemType()"
+      [templates]="taxTemplates()"
+      [helperText]="taxHelperText()"
+    ></app-product-taxes>
 
-      <app-input-field
-        controlName="minStockQuantity"
-        [parentForm]="formGroup"
-        label="product.form.minStock"
-        type="number"
-        [min]="0"
-        [step]="1"
-      ></app-input-field>
-    </div>
-  </app-form-layout>
+    <app-product-variants
+      [formGroup]="formGroup"
+      [variants]="variants"
+      [itemType]="itemType()"
+    ></app-product-variants>
 
-  <app-form-layout
-    header="product.form.section.variants"
-    [index]="2"
-    [headerDetails]="variants.length"
-  >
-    <ng-container header-actions>
-      <app-button
-        label="product.form.addVariant"
-        icon="pi pi-plus"
-        severity="secondary"
-        (click)="addVariant()"
-      ></app-button>
-    </ng-container>
-    <p class="product-form__section-subtitle">
-      {{ 'product.form.variantsHint' | translate }}
-    </p>
-    @for (
-      variantGroup of variants.controls;
-      track variantGroup;
-      let i = $index
-    ) {
-      <app-product-variant-form
-        class="product-form__variant"
-        [formGroup]="variantGroup"
-        [index]="i"
-        [removable]="variants.length > 1"
-        (duplicate)="duplicateVariant(i)"
-        (remove)="removeVariant(i)"
-      ></app-product-variant-form>
-    }
-  </app-form-layout>
+    <app-product-logistics [formGroup]="formGroup"></app-product-logistics>
+  }
 
-  <div class="product-form__footer">
-    <div class="product-form__summary">
-      <span>
-        {{
-          'product.form.summary.variants'
-            | translate: { count: getSummary().variantsCount }
-        }}
-        ·
-        {{
-          'product.form.summary.units'
-            | translate: { count: getSummary().totalUnits }
-        }}
-      </span>
-      @if (getSummary().minPrice != null) {
-        <span class="product-form__summary-range">
-          {{ 'product.form.summary.priceRange' | translate }}
-          {{ getSummary().minPrice | currency }}
-          @if (getSummary().minPrice !== getSummary().maxPrice) {
-            – {{ getSummary().maxPrice | currency }}
-          }
-        </span>
-      }
-    </div>
-    <div class="product-form__footer-actions">
-      <app-button
-        label="product.form.cancel"
-        severity="secondary"
-        (click)="onClose()"
-      ></app-button>
-
-      <app-button
-        label="product.form.submit"
-        [disabled]="formGroup.invalid"
-        (click)="onSubmit($event)"
-      ></app-button>
-    </div>
-  </div>
+  <app-product-footer
+    [formGroup]="formGroup"
+    [variants]="variants"
+    [itemType]="itemType()"
+  ></app-product-footer>
 </form>

@@ -1,0 +1,35 @@
+<app-form-layout
+  title="product.form.section.variants"
+  icon="pi-th-large"
+  [headerDetails]="
+    (itemType() === 1
+      ? 'product.form.variantsHintService'
+      : 'product.form.variantsHint'
+    ) | translate
+  "
+>
+  @for (
+    variantGroup of variants().controls;
+    track variantGroup;
+    let i = $index
+  ) {
+    <app-product-variant-form
+      class="product-form__variant"
+      [formGroup]="variantGroup"
+      [index]="i"
+      [itemType]="itemType()"
+      [removable]="variants().length > 1"
+      (duplicate)="duplicateVariant(i)"
+      (remove)="removeVariant(i)"
+    ></app-product-variant-form>
+  }
+
+  <button
+    type="button"
+    class="product-form__add-another"
+    (click)="addVariant()"
+  >
+    <i class="pi pi-plus"></i>
+    {{ 'product.form.addAnotherVariant' | translate }}
+  </button>
+</app-form-layout>

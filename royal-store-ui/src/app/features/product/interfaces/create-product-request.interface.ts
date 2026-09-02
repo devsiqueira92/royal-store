@@ -5,12 +5,18 @@ export interface CreateProductVariantRequest {
   barcode?: string;
   price: number;
   costPrice?: number;
+  promoPrice?: number;
   stockQuantity: number;
   minStockQuantity?: number;
-  isStockTracked: boolean;
+  netWeight?: number;
+  grossWeight?: number;
+  width?: number;
+  height?: number;
+  length?: number;
 }
 
 export interface CreateProductRequest {
+  itemType: number;
   categoryId: string;
   name: string;
   referenceCode: string;
@@ -21,4 +27,15 @@ export interface CreateProductRequest {
   origin: number;
   variants?: CreateProductVariantRequest[];
   tagIds?: string[];
+
+  // Fiscal
+  taxProfileTemplate?: string;
+  nbs?: string;
+  issCode?: string;
+  overrideTaxProfile?: boolean;
+  defaultCfop?: string;
+  icmsCst?: string;
+  pisCofinsCst?: string;
+  ivaCst?: string;
+  isSelectiveTax?: boolean;
 }

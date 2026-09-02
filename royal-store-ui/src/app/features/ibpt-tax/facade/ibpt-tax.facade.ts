@@ -17,8 +17,11 @@ export class IbptTaxFacade {
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
 
-  search(q: string): void {
-    this.store.dispatch(IbptTaxActions.searchIbptTaxes({ q }));
+  /**
+   * @param type 0 = NCM (products), 1 = NBS (services)
+   */
+  search(q: string, type: number): void {
+    this.store.dispatch(IbptTaxActions.searchIbptTaxes({ q, taxType: type }));
   }
 
   clear(): void {

@@ -1,6 +1,7 @@
-<form [formGroup]="parentForm" class="mb-3 form-field">
+<form [formGroup]="parentForm" class="mb-4 form-field">
   <p-floatlabel variant="on">
     <input
+      [attr.id]="controlName"
       class="w-100"
       pInputText
       [type]="type"
@@ -14,7 +15,7 @@
       autocomplete="off"
       (blur)="blurred.emit()"
     />
-    <label [for]="label"
+    <label [for]="controlName"
       >{{ label | translate }}
 
       @if (parentForm.controls[controlName].hasValidator(Validators.required)) {
@@ -23,23 +24,8 @@
     </label>
   </p-floatlabel>
 
-  <p-message
-    severity="error"
-    size="small"
-    variant="simple"
-    [style.position]="'absolute'"
-  >
-    @if (
-      parentForm.controls[controlName].touched &&
-      parentForm.controls[controlName].errors
-    ) {
-      <span class="error-message">
-        {{
-          'formValidation.' +
-            objectKeys(parentForm.controls[controlName].errors || {})[0]
-            | translate
-        }}
-      </span>
-    }
-  </p-message>
+  <app-form-error
+    [parentForm]="parentForm"
+    [controlName]="controlName"
+  ></app-form-error>
 </form>

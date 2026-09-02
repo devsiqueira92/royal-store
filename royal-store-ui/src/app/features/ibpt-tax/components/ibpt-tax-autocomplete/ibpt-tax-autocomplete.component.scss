@@ -1,37 +1,37 @@
 :host {
-  display: block;
-}
+  p-autocomplete {
+    width: 100%;
+  }
+  .ibpt-autocomplete ::ng-deep .p-autocomplete-input {
+    width: 100%;
+    border: 1px solid
+      light-dark(var(--p-surface-200), var(--p-surface-700) #3f3f46);
+    border-radius: 0.5rem;
+    background: light-dark(var(--p-surface-0), var(--p-surface-800));
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
 
-.ibpt-autocomplete {
-  display: block;
-}
+  .ibpt-option {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
 
-.ibpt-autocomplete ::ng-deep .p-autocomplete,
-.ibpt-autocomplete ::ng-deep .ibpt-autocomplete__field {
-  width: 100%;
-}
+  .ibpt-option__code {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
 
-.ibpt-autocomplete ::ng-deep .p-autocomplete-input {
-  width: 100%;
-}
-
-.ibpt-option {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.ibpt-option__code {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: light-dark(var(--p-surface-900), var(--p-surface-0));
-}
-
-.ibpt-option__desc {
-  font-size: 0.75rem;
-  color: light-dark(var(--p-surface-400), var(--p-surface-500));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 22rem;
+  .ibpt-option__desc {
+    font-size: 0.75rem;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 22rem;
+  }
 }

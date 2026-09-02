@@ -1,0 +1,91 @@
+<app-form-layout
+  title="product.form.section.details"
+  headerDetails="product.form.section.detailsHint"
+  icon="pi-tag"
+  [collapsedPanel]="false"
+  [formGroup]="formGroup()"
+>
+  <app-input-field
+    controlName="name"
+    [parentForm]="formGroup()"
+    label="product.form.name"
+    placeholder="product.form.namePlaceholder"
+  ></app-input-field>
+
+  <app-textarea-field
+    controlName="description"
+    [parentForm]="formGroup()"
+    label="product.form.description"
+    placeholder="product.form.descriptionPlaceholder"
+  ></app-textarea-field>
+
+  <div class="form__row form__row--2">
+    <app-input-number-field
+      controlName="price"
+      [parentForm]="formGroup()"
+      label="product.form.price"
+      type="number"
+      [min]="0"
+      [step]="0.01"
+    ></app-input-number-field>
+
+    <app-input-number-field
+      controlName="costPrice"
+      [parentForm]="formGroup()"
+      label="product.form.cost"
+      type="number"
+      [min]="0"
+      [step]="0.01"
+    ></app-input-number-field>
+  </div>
+
+  <div class="form__row form__row--3">
+    <app-select-field
+      [parentForm]="formGroup()"
+      controlName="categoryId"
+      label="product.form.category"
+      [options]="categoryOptions()"
+    ></app-select-field>
+
+    <app-select-field
+      [parentForm]="formGroup()"
+      controlName="unitOfMeasure"
+      label="product.form.unitOfMeasure"
+      [options]="unitOfMeasureOptions"
+    ></app-select-field>
+
+    <app-input-field
+      controlName="sku"
+      [parentForm]="formGroup()"
+      label="product.form.sku"
+      placeholder="product.form.skuPlaceholder"
+      (blurred)="onReferenceCodeBlur()"
+    ></app-input-field>
+  </div>
+
+  <!-- <app-product-tags-field
+      [categories]="categories()"
+      (tagsChange)="onTagsChange($event)"
+    ></app-product-tags-field> -->
+
+  <app-image-upload-field
+    (filesChange)="onPhotoFilesChange($event)"
+  ></app-image-upload-field>
+
+  <span class="product-form-label">
+    {{ 'product.form.stock' | translate }}
+  </span>
+  <div class="product-form-track mb-3">
+    <app-toggle-field
+      [parentForm]="formGroup()"
+      controlName="isStockTracked"
+      titleKey="product.form.trackStock"
+      subtitleKey="product.form.trackStockHint"
+    ></app-toggle-field>
+    <!-- @if (margin(); as margin) {
+        <span class="product-variant-form__margin">
+          {{ 'product.form.margin' | translate: { percent: margin } }}
+        </span>
+      } -->
+  </div>
+</app-form-layout>

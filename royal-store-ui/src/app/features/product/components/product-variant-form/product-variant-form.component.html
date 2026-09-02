@@ -10,33 +10,27 @@
     <span class="product-variant-form__label">
       {{ variantLabel() || ('product.form.variantFallback' | translate) }}
     </span>
-    <span
-      class="product-variant-form__badge product-variant-form__badge--{{
-        variantStatus()
-      }}"
-    >
-      {{
-        variantStatusLabelKey()
-          | translate: { count: formValues()?.stockQuantity }
-      }}
-    </span>
-    <div class="product-variant-form__actions">
-      <button
-        type="button"
-        class="product-variant-form__actions-toggle"
-        [class.product-variant-form__actions-toggle--active]="
-          !pricingLocked()
-        "
-        [attr.aria-label]="
-          (pricingLocked()
-            ? 'product.form.unlockPricing'
-            : 'product.form.lockPricing'
-          ) | translate
-        "
-        (click)="togglePricingLock()"
+
+    @if (isService()) {
+      <span
+        class="product-variant-form__badge product-variant-form__badge--untracked"
       >
-        <i class="pi" [class.pi-lock]="pricingLocked()" [class.pi-lock-open]="!pricingLocked()"></i>
-      </button>
+        {{ 'product.form.itemType.service' | translate }}
+      </span>
+    } @else {
+      <span
+        class="product-variant-form__badge product-variant-form__badge--{{
+          variantStatus()
+        }}"
+      >
+        {{
+          variantStatusLabelKey()
+            | translate: { count: formValues()?.stockQuantity }
+        }}
+      </span>
+    }
+
+    <div class="product-variant-form__actions">
       <button
         type="button"
         [attr.aria-label]="'product.form.duplicateVariant' | translate"
@@ -55,83 +49,68 @@
     </div>
   </div>
 
-  <div class="product-variant-form__row product-variant-form__row--2">
-    <app-select-field
-      controlName="size"
-      [parentForm]="formGroup()"
-      label="product.form.size"
-      [options]="sizes"
-    ></app-select-field>
+  <div
+    class="form__row"
+    [class.form__row--3]="!isService()"
+    [class.form__row--1]="isService()"
+  >
+    @if (!isService()) {
+      <app-select-field
+        controlName="size"
+        [parentForm]="formGroup()"
+        label="product.form.size"
+        [options]="sizes"
+      ></app-select-field>
 
-    <app-color-select-field
-      controlName="color"
-      [parentForm]="formGroup()"
-      label="product.form.color"
-    ></app-color-select-field>
-  </div>
+      <app-color-select-field
+        controlName="color"
+        [parentForm]="formGroup()"
+        label="product.form.color"
+      ></app-color-select-field>
+    }
 
-  <div class="product-variant-form__row product-variant-form__row--2">
     <app-input-field
       controlName="sku"
       [parentForm]="formGroup()"
       label="product.form.sku"
     ></app-input-field>
-    <app-input-field
-      controlName="barcode"
-      [parentForm]="formGroup()"
-      label="product.form.barcode"
-    ></app-input-field>
   </div>
 
-  <div class="product-variant-form__row product-variant-form__row--2">
-    <app-input-field
-      controlName="price"
-      [parentForm]="formGroup()"
-      label="product.form.price"
-      type="number"
-      [min]="0"
-      [step]="0.01"
-    ></app-input-field>
-    <app-input-field
-      controlName="costPrice"
-      [parentForm]="formGroup()"
-      label="product.form.cost"
-      type="number"
-      [min]="0"
-      [step]="0.01"
-    ></app-input-field>
-  </div>
-
-  <div class="product-variant-form__row product-variant-form__row--2">
-    <app-input-field
-      controlName="stockQuantity"
-      [parentForm]="formGroup()"
-      label="product.form.stockQty"
-      type="number"
-      [min]="0"
-      [step]="1"
-    ></app-input-field>
-    <app-input-field
-      controlName="minStockQuantity"
-      [parentForm]="formGroup()"
-      label="product.form.minStock"
-      type="number"
-      [min]="0"
-      [step]="1"
-    ></app-input-field>
-  </div>
-
-  <div class="product-variant-form__track">
-    <app-toggle-field
-      [parentForm]="formGroup()"
-      controlName="isStockTracked"
-      titleKey="product.form.trackStock"
-      subtitleKey="product.form.trackStockHint"
-    ></app-toggle-field>
+  @if (isService()) {
+    <p class="product-variant-form__service-note">
+      {{ 'product.form.serviceNote' | translate }}
+    </p>
     @if (margin(); as margin) {
-      <span class="product-variant-form__margin">
-        {{ 'product.form.margin' | translate: { percent: margin } }}
-      </span>
+      <div class="product-variant-form__track">
+        <span></span>
+        <span class="product-variant-form__margin">
+          {{ 'product.form.margin' | translate: { percent: margin } }}
+        </span>
+      </div>
     }
-  </div>
+  } @else {
+    <div class="form__row form__row--2">
+      <app-input-field
+        controlName="stockQuantity"
+        [parentForm]="formGroup()"
+        label="product.form.stockQty"
+        type="number"
+        [min]="0"
+        [step]="1"
+      ></app-input-field>
+      <app-input-field
+        controlName="minStockQuantity"
+        [parentForm]="formGroup()"
+        label="product.form.minStock"
+        type="number"
+        [min]="0"
+        [step]="1"
+      ></app-input-field>
+    </div>
+  }
+
+  <app-barcode-input-field
+    controlName="barcode"
+    [parentForm]="formGroup()"
+  ></app-barcode-input-field>
 </div>

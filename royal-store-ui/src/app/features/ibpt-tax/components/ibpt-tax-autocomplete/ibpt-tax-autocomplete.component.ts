@@ -31,9 +31,11 @@ const MIN_QUERY_LENGTH = 3;
 export class IbptTaxAutocompleteComponent {
   private readonly facade = inject(IbptTaxFacade);
 
-  /** Current NCM code held by the parent form. */
+  /** Current code held by the parent form. */
   code = input<string | null>(null);
   label = input<string>('product.form.ncm');
+  /** 0 = NCM (products) → &type=0 ; 1 = NBS (services) → &type=1 */
+  type = input<number>(0);
 
   /** Emits the selected IBPT tax `code`. */
   codeSelected = output<string>();
@@ -47,7 +49,7 @@ export class IbptTaxAutocompleteComponent {
   protected readonly model = signal<IbptTax | string | null>(null);
 
   constructor() {
-    // Keep the visible value in sync with the parent's NCM code.
+    // Keep the visible value in sync with the parent's code.
     effect(() => {
       const code = this.code();
       const current = this.model();
@@ -70,7 +72,7 @@ export class IbptTaxAutocompleteComponent {
 
     // Each call replaces the previous search; the effect uses switchMap to
     // cancel the in-flight request.
-    this.facade.search(query);
+    this.facade.search(query, this.type());
   }
 
   protected onSelect(event: AutoCompleteSelectEvent): void {

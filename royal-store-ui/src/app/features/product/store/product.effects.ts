@@ -78,8 +78,8 @@ export const saveProductEdit = createEffect(
   (actions$ = inject(Actions), productService = inject(ProductService)) => {
     return actions$.pipe(
       ofType(ProductActions.saveProductEdit),
-      concatMap(({ id: productId, request, toRemove }) => {
-        const updateProduct$ = productService.update(productId, request).pipe(
+      switchMap(({ id: productId, request }) => {
+        return productService.update(productId, request).pipe(
           map(product => ProductActions.updateProductSuccess({ product })),
           catchError((error: HttpErrorResponse) =>
             of(
@@ -89,32 +89,6 @@ export const saveProductEdit = createEffect(
             ),
           ),
         );
-
-        // Removal isn't part of the batch update contract — it must go
-        // through the standalone DELETE endpoint, one variant at a time,
-        // after the batch (whose `version` was captured before any removal)
-        // has been applied.
-        const removes$ = from(toRemove).pipe(
-          concatMap(variantId =>
-            productService.removeVariant(productId, variantId).pipe(
-              map(() =>
-                ProductActions.removeProductVariantSuccess({
-                  productId,
-                  variantId,
-                }),
-              ),
-              catchError((error: HttpErrorResponse) =>
-                of(
-                  ProductActions.removeProductVariantFailure({
-                    error: error.error?.message ?? 'error.unknowError',
-                  }),
-                ),
-              ),
-            ),
-          ),
-        );
-
-        return concat(updateProduct$, removes$);
       }),
     );
   },

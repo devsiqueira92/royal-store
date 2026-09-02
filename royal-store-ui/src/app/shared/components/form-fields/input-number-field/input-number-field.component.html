@@ -1,0 +1,37 @@
+<form [formGroup]="parentForm()" class="mb-4 form-field">
+  <p-inputgroup>
+    <p-inputgroup-addon>R$ </p-inputgroup-addon>
+    <p-floatlabel variant="on">
+      <input
+        class="w-100"
+        pInputText
+        type="number"
+        [attr.min]="min()"
+        [attr.step]="step()"
+        [formControlName]="controlName()"
+        [invalid]="
+          parentForm().controls[controlName()].touched &&
+          parentForm().controls[controlName()].errors
+        "
+        autocomplete="off"
+        (blur)="blurred.emit()"
+        (input)="formatCurrency($event)"
+      />
+
+      <label [for]="id()"
+        >{{ label() | translate }}
+
+        @if (
+          parentForm().controls[controlName()].hasValidator(Validators.required)
+        ) {
+          <i class="pi pi-asterisk required-icon"></i>
+        }
+      </label>
+    </p-floatlabel>
+  </p-inputgroup>
+
+  <app-form-error
+    [parentForm]="parentForm()"
+    [controlName]="controlName()"
+  ></app-form-error>
+</form>

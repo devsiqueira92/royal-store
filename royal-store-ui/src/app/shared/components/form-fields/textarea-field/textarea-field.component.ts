@@ -6,8 +6,8 @@ import {
 } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { MessageModule } from 'primeng/message';
 import { TextareaModule } from 'primeng/textarea';
+import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,9 +15,9 @@ import { TextareaModule } from 'primeng/textarea';
   imports: [
     ReactiveFormsModule,
     TextareaModule,
-    MessageModule,
     FloatLabelModule,
     TranslatePipe,
+    FormErrorComponent,
   ],
   templateUrl: './textarea-field.component.html',
   styleUrl: './textarea-field.component.scss',

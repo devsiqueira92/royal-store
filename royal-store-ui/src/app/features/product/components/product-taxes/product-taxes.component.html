@@ -1,0 +1,134 @@
+<app-form-layout
+  title="product.form.section.taxes"
+  headerDetails="product.form.tax.intro"
+  icon="pi-percentage"
+>
+  <div class="taxes">
+    <app-select-field
+      [parentForm]="parentForm()"
+      controlName="taxProfileTemplate"
+      label="product.form.tax.profileTemplate"
+      [options]="templateOptions()"
+    ></app-select-field>
+
+    @if (helperText(); as helper) {
+      <div class="taxes__helper">
+        <i class="pi pi-info-circle"></i>
+        <span>{{ helper }}</span>
+      </div>
+    }
+
+    <div class="taxes__row taxes__row--2">
+      @if (isService()) {
+        <app-ibpt-tax-autocomplete
+          [code]="parentForm().controls.nbs.value"
+          label="product.form.tax.nbs"
+          [type]="1"
+          (codeSelected)="parentForm().controls.nbs.setValue($event)"
+        ></app-ibpt-tax-autocomplete>
+        <app-input-field
+          [parentForm]="parentForm()"
+          controlName="issCode"
+          label="product.form.tax.issCode"
+        ></app-input-field>
+      } @else {
+        <app-ibpt-tax-autocomplete
+          [code]="parentForm().controls.ncm.value"
+          label="product.form.ncm"
+          [type]="0"
+          (codeSelected)="parentForm().controls.ncm.setValue($event)"
+        ></app-ibpt-tax-autocomplete>
+        <app-select-field
+          [parentForm]="parentForm()"
+          controlName="origin"
+          label="product.form.tax.origin"
+          [options]="originOptions"
+        ></app-select-field>
+      }
+    </div>
+
+    <p-panel
+      styleClass="taxes__advanced"
+      [toggleable]="true"
+      [collapsed]="true"
+    >
+      <ng-template #header>
+        <div class="taxes__advanced-header">
+          <div>
+            <span class="taxes__advanced-title">
+              {{ 'product.form.tax.advanced' | translate }}
+            </span>
+            <span class="taxes__advanced-hint">
+              {{ 'product.form.tax.advancedHint' | translate }}
+            </span>
+          </div>
+          <span class="taxes__badge">
+            {{ 'product.form.tax.fromProfile' | translate }}
+          </span>
+        </div>
+      </ng-template>
+
+      <label class="taxes__override">
+        <p-checkbox
+          [binary]="true"
+          [formControl]="parentForm().controls.overrideTaxProfile"
+          inputId="overrideTaxProfile"
+        />
+        <span class="taxes__override-text">
+          <span class="taxes__override-title">
+            {{ 'product.form.tax.override' | translate }}
+          </span>
+          <span class="taxes__override-hint">
+            {{ 'product.form.tax.overrideHint' | translate }}
+          </span>
+        </span>
+      </label>
+
+      <div class="taxes__row taxes__row--2">
+        @if (!isService()) {
+          <app-input-field
+            [parentForm]="parentForm()"
+            controlName="cest"
+            label="product.form.tax.cest"
+          ></app-input-field>
+        }
+        <app-input-field
+          [parentForm]="parentForm()"
+          controlName="defaultCfop"
+          label="product.form.tax.defaultCfop"
+        ></app-input-field>
+        <app-input-field
+          [parentForm]="parentForm()"
+          controlName="icmsCst"
+          label="product.form.tax.icmsCst"
+        ></app-input-field>
+        <app-input-field
+          [parentForm]="parentForm()"
+          controlName="pisCofinsCst"
+          label="product.form.tax.pisCofinsCst"
+        ></app-input-field>
+        <app-input-field
+          [parentForm]="parentForm()"
+          controlName="ivaCst"
+          label="product.form.tax.ivaCst"
+        ></app-input-field>
+      </div>
+
+      <label class="taxes__override taxes__override--selective">
+        <p-checkbox
+          [binary]="true"
+          [formControl]="parentForm().controls.isSelectiveTax"
+          inputId="isSelectiveTax"
+        />
+        <span class="taxes__override-text">
+          <span class="taxes__override-title">
+            {{ 'product.form.tax.selective' | translate }}
+          </span>
+          <span class="taxes__override-hint">
+            {{ 'product.form.tax.selectiveHint' | translate }}
+          </span>
+        </span>
+      </label>
+    </p-panel>
+  </div>
+</app-form-layout>

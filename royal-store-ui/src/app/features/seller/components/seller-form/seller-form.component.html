@@ -1,5 +1,5 @@
-<form class="seller-form" [formGroup]="formGroup" >
-  <app-form-layout header="seller.form.section.details" [index]="1">
+<form class="seller-form" [formGroup]="formGroup">
+  <app-form-layout title="seller.form.section.details" [index]="1">
     @if (isCreateMode()) {
       <app-input-field
         controlName="firstName"
@@ -32,7 +32,7 @@
   </app-form-layout>
 
   @if (!isCreateMode()) {
-    <app-form-layout header="seller.form.section.permissions" [index]="2">
+    <app-form-layout title="seller.form.section.permissions" [index]="2">
       <app-seller-access
         [resources]="permissionResources()"
         [role]="role()"
@@ -51,7 +51,9 @@
     ></app-button>
 
     <app-button
-      [label]="isCreateMode() ? 'seller.form.createSubmit' : 'seller.form.submit'"
+      [label]="
+        isCreateMode() ? 'seller.form.createSubmit' : 'seller.form.submit'
+      "
       [disabled]="formGroup.invalid"
       (onClick)="onSubmit()"
     ></app-button>

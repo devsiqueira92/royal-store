@@ -28,7 +28,6 @@ export const ProductActions = createActionGroup({
     'Save Product Edit': props<{
       id: string;
       request: UpdateProductRequest;
-      toRemove: string[];
     }>(),
     'Remove Product Variant Success': props<{
       productId: string;

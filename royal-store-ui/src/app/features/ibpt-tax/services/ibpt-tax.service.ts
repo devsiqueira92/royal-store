@@ -11,8 +11,11 @@ export class IbptTaxService {
   private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/ibpt-taxes`;
 
-  search(q: string): Observable<IbptTax[]> {
-    const params = new HttpParams().set('q', q);
+  /**
+   * @param type 0 = NCM (products), 1 = NBS (services)
+   */
+  search(q: string, type: number): Observable<IbptTax[]> {
+    const params = new HttpParams().set('q', q).set('type', type);
     return this.http.get<IbptTax[]>(this.apiUrl, { params });
   }
 }

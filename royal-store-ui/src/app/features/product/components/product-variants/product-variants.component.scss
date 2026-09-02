@@ -1,0 +1,22 @@
+:host {
+  .product-form__add-another {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border: 1px dashed light-dark(var(--p-surface-300), var(--p-surface-600));
+    border-radius: 0.625rem;
+    background: transparent;
+    color: light-dark(var(--p-primary-600), var(--p-primary-400));
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: light-dark(var(--p-primary-50), var(--p-primary-950));
+    }
+  }
+}
