@@ -6,9 +6,9 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
 import {
-  Product,
   ProductFormControls,
   ProductVariant,
   ProductVariantFormControls,
@@ -17,7 +17,8 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ProductVariantFormComponent } from '../product-variant-form/product-variant-form.component';
 import { ProductFacade } from '../../facade/product.facade';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map, take, tap } from 'rxjs';
+import { startWith } from 'rxjs';
+import { toggleControl } from '@app/shared/utils/toggle-control.utils';
 
 type VariantSeed = Partial<{
   [K in keyof ProductVariant]: ProductVariant[K] | null;
@@ -49,11 +50,34 @@ export class ProductVariantsComponent {
         this.populateForm(this.selectedVariants()!);
       }
     });
+
+    // A non-tracked product also drops the required-ness of sku/barcode/
+    // stock fields (FR-015/016) — re-apply visibility whenever it flips.
+    // `formGroup` is a required input, only safe to read once bound —
+    // subscribe lazily the first time the effect runs.
+    // let subscribed = false;
+    // effect(() => {
+    //   const stockTrackControl = this.formGroup().controls.stockTrack;
+    //   if (subscribed) {
+    //     return;
+    //   }
+    //   subscribed = true;
+    //   stockTrackControl.valueChanges
+    //     .pipe(startWith(stockTrackControl.value), takeUntilDestroyed())
+    //     .subscribe(() => this.refreshAllVariants());
+    // });
+  }
+
+  ngOnInit(): void {
+    const stockTrackControl = this.formGroup().controls.stockTrack;
+    stockTrackControl.valueChanges
+      .pipe(startWith(stockTrackControl.value))
+      .subscribe(() => this.refreshAllVariants());
   }
 
   protected addVariant(): void {
     const group = this.buildVariantGroup();
-    this.applyItemTypeToVariant(group, this.itemType() === 1);
+    this.applyVariantVisibility(group);
     this.variants().push(group);
     this.setComputedSku(group, this.variants.length - 1);
   }
@@ -61,7 +85,7 @@ export class ProductVariantsComponent {
   protected duplicateVariant(index: number): void {
     const source = this.variants().at(index).getRawValue();
     const group = this.buildVariantGroup({ ...source, id: null });
-    this.applyItemTypeToVariant(group, this.itemType() === 1);
+    this.applyVariantVisibility(group);
     const insertIndex = index + 1;
     this.variants().insert(insertIndex, group);
     this.setComputedSku(group, insertIndex);
@@ -78,23 +102,53 @@ export class ProductVariantsComponent {
   private populateForm(variants: ProductVariant[]): void {
     for (const variant of variants) {
       const group = this.buildVariantGroup(variant);
+      this.applyVariantVisibility(group);
       this.variants().push(group);
     }
   }
 
-  private applyItemTypeToVariant(
-    group: FormGroup<ProductVariantFormControls>,
-    isService: boolean,
-  ): void {
-    const serviceHidden: (keyof ProductVariantFormControls)[] = [
-      'size',
-      'color',
-      'stockQuantity',
-      'minStockQuantity',
-    ];
-    for (const name of serviceHidden) {
-      this.toggleControl(group.controls[name], !isService);
+  private refreshAllVariants(): void {
+    for (const group of this.variants().controls) {
+      this.applyVariantVisibility(group);
     }
+  }
+
+  /**
+   * Toggles a variant's fields based on the owning item's kind and stock
+   * tracking: `optionName` is required-and-visible only for a Service;
+   * `size`/`color`/`sku`/`barcode`/`stockQuantity`/`minStockQuantity` are
+   * Product-only, and among those the stock fields are further gated by
+   * `stockTrack` (required when tracked, optional otherwise) — see
+   * data-model.md FR-010/FR-011/FR-015/FR-016.
+   */
+  private applyVariantVisibility(
+    group: FormGroup<ProductVariantFormControls>,
+  ): void {
+    const isService = this.itemType() === 1;
+    const stockTrack = !!this.formGroup().controls.stockTrack.value;
+
+    toggleControl(group.controls.optionName, isService);
+    toggleControl(group.controls.size, !isService);
+    toggleControl(group.controls.color, !isService);
+    toggleControl(group.controls.sku, !isService);
+    toggleControl(group.controls.barcode, !isService);
+    this.setRequired(group.controls.optionName, isService);
+
+    const trackStockFields = !isService && stockTrack;
+    toggleControl(group.controls.stockQuantity, !isService);
+    toggleControl(group.controls.minStockQuantity, !isService);
+    this.setRequired(group.controls.sku, trackStockFields);
+    this.setRequired(group.controls.barcode, trackStockFields);
+    this.setRequired(group.controls.stockQuantity, trackStockFields);
+  }
+
+  private setRequired(control: AbstractControl, required: boolean): void {
+    control.setValidators(
+      required
+        ? [Validators.required, Validators.maxLength(50)]
+        : [Validators.maxLength(50)],
+    );
+    control.updateValueAndValidity({ emitEvent: false });
   }
 
   private setComputedSku(
@@ -109,14 +163,6 @@ export class ProductVariantsComponent {
     return `${referenceCode.trim()}-${index + 1}`;
   }
 
-  private toggleControl(control: AbstractControl, enabled: boolean): void {
-    if (enabled) {
-      control.enable({ emitEvent: false });
-    } else {
-      control.disable({ emitEvent: false });
-    }
-  }
-
   private buildVariantGroup(
     source?: VariantSeed,
   ): FormGroup<ProductVariantFormControls> {
@@ -124,20 +170,19 @@ export class ProductVariantsComponent {
       id: new FormControl(source?.id ?? null),
       size: new FormControl(source?.size ?? null, [Validators.maxLength(50)]),
       color: new FormControl(source?.color ?? null, [Validators.maxLength(50)]),
+      optionName: new FormControl(source?.optionName ?? null, [
+        Validators.maxLength(50),
+      ]),
       sku: new FormControl(source?.sku ?? null, [Validators.maxLength(50)]),
       barcode: new FormControl(source?.barcode ?? null, [
         Validators.maxLength(14),
       ]),
-      price: new FormControl(source?.price ?? 0, [
-        Validators.required,
-        Validators.min(0),
-      ]),
+      price: new FormControl(source?.price ?? null, [Validators.min(0)]),
       costPrice: new FormControl(source?.costPrice ?? null, [
         Validators.min(0),
       ]),
 
-      stockQuantity: new FormControl(source?.stockQuantity ?? 0, [
-        Validators.required,
+      stockQuantity: new FormControl(source?.stockQuantity ?? null, [
         Validators.min(0),
       ]),
       minStockQuantity: new FormControl(source?.minStockQuantity ?? null, [

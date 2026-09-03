@@ -21,7 +21,7 @@
 
   <div class="form__row form__row--2">
     <app-input-number-field
-      controlName="price"
+      controlName="basePrice"
       [parentForm]="formGroup()"
       label="product.form.price"
       type="number"
@@ -30,7 +30,7 @@
     ></app-input-number-field>
 
     <app-input-number-field
-      controlName="costPrice"
+      controlName="baseCostPrice"
       [parentForm]="formGroup()"
       label="product.form.cost"
       type="number"
@@ -63,11 +63,6 @@
     ></app-input-field>
   </div>
 
-  <!-- <app-product-tags-field
-      [categories]="categories()"
-      (tagsChange)="onTagsChange($event)"
-    ></app-product-tags-field> -->
-
   <app-image-upload-field
     (filesChange)="onPhotoFilesChange($event)"
   ></app-image-upload-field>
@@ -78,7 +73,7 @@
   <div class="product-form-track mb-3">
     <app-toggle-field
       [parentForm]="formGroup()"
-      controlName="isStockTracked"
+      controlName="stockTrack"
       titleKey="product.form.trackStock"
       subtitleKey="product.form.trackStockHint"
     ></app-toggle-field>

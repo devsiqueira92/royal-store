@@ -8,7 +8,7 @@ import { Options } from '@app/shared/interceptors/options.interface';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
 import { PanelModule } from 'primeng/panel';
-import { TaxProfileTemplate } from '../../data/tax-profile-templates';
+import { TaxProfileTemplate } from '@app/features/tax-profile-template/interfaces/tax-profile-template.interface';
 import { ProductFormControls } from '../../interfaces/product.interface';
 
 const ORIGIN_OPTIONS: Options[] = [
@@ -51,8 +51,8 @@ export class ProductTaxesComponent {
 
   protected readonly templateOptions = computed<Options[]>(() =>
     this.templates().map(template => ({
-      code: template.code,
-      description: template.label,
+      code: template.id,
+      description: template.name,
     })),
   );
 }

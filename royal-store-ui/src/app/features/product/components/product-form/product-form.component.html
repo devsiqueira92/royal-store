@@ -9,12 +9,13 @@
       ></app-toggle-field>
     </div>
   }
-  <app-item-type-selector
-    [value]="$any(itemType())"
-    (valueChange)="onItemTypeChange($event)"
-    [disabled]="selectedProduct() !== null"
-  ></app-item-type-selector>
+
   @if (!loading()) {
+    <app-item-type-selector
+      (valueChange)="onItemTypeChange($event)"
+      [disabled]="selectedProduct() !== null"
+    ></app-item-type-selector>
+
     <app-product-detail
       [formGroup]="formGroup"
       [variants]="variants"

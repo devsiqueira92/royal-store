@@ -49,12 +49,23 @@
     </div>
   </div>
 
-  <div
-    class="form__row"
-    [class.form__row--3]="!isService()"
-    [class.form__row--1]="isService()"
-  >
-    @if (!isService()) {
+  @if (isService()) {
+    <app-input-field
+      controlName="optionName"
+      [parentForm]="formGroup()"
+      label="product.form.optionName"
+      placeholder="product.form.optionNamePlaceholder"
+    ></app-input-field>
+    @if (margin(); as margin) {
+      <div class="product-variant-form__track">
+        <span></span>
+        <span class="product-variant-form__margin">
+          {{ 'product.form.margin' | translate: { percent: margin } }}
+        </span>
+      </div>
+    }
+  } @else {
+    <div class="form__row form__row--3">
       <app-select-field
         controlName="size"
         [parentForm]="formGroup()"
@@ -67,28 +78,14 @@
         [parentForm]="formGroup()"
         label="product.form.color"
       ></app-color-select-field>
-    }
 
-    <app-input-field
-      controlName="sku"
-      [parentForm]="formGroup()"
-      label="product.form.sku"
-    ></app-input-field>
-  </div>
+      <app-input-field
+        controlName="sku"
+        [parentForm]="formGroup()"
+        label="product.form.sku"
+      ></app-input-field>
+    </div>
 
-  @if (isService()) {
-    <p class="product-variant-form__service-note">
-      {{ 'product.form.serviceNote' | translate }}
-    </p>
-    @if (margin(); as margin) {
-      <div class="product-variant-form__track">
-        <span></span>
-        <span class="product-variant-form__margin">
-          {{ 'product.form.margin' | translate: { percent: margin } }}
-        </span>
-      </div>
-    }
-  } @else {
     <div class="form__row form__row--2">
       <app-input-field
         controlName="stockQuantity"
@@ -107,10 +104,10 @@
         [step]="1"
       ></app-input-field>
     </div>
-  }
 
-  <app-barcode-input-field
-    controlName="barcode"
-    [parentForm]="formGroup()"
-  ></app-barcode-input-field>
+    <app-barcode-input-field
+      controlName="barcode"
+      [parentForm]="formGroup()"
+    ></app-barcode-input-field>
+  }
 </div>

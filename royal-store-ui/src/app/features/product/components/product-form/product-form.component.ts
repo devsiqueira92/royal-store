@@ -24,10 +24,8 @@ import {
 import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
 import { ProductFacade } from '../../facade/product.facade';
 import { ItemTypeSelectorComponent } from '../item-type-selector/item-type-selector.component';
-import {
-  findTaxProfileTemplate,
-  taxProfileTemplatesFor,
-} from '../../data/tax-profile-templates';
+import { TaxProfileTemplateFacade } from '@app/features/tax-profile-template/facade/tax-profile-template.facade';
+import { TaxProfileTemplate } from '@app/features/tax-profile-template/interfaces/tax-profile-template.interface';
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
 import { ProductTaxesComponent } from '../product-taxes/product-taxes.component';
 import { ProductFooterComponent } from '../product-footer/product-footer.component';
@@ -35,9 +33,9 @@ import { ProductVariantsComponent } from '../product-variants/product-variants.c
 import { toggleControl } from '@app/shared/utils/toggle-control.utils';
 import { ProductLogisticsComponent } from '../product-logistics/product-logistics.component';
 
-// Advanced fiscal controls driven by the tax profile template.
+// Advanced fiscal controls driven by the tax profile template's override matrix.
+// `cest` is intentionally excluded — it's a free Product field, not template-driven.
 const FISCAL_CONTROLS = [
-  'cest',
   'defaultCfop',
   'icmsCst',
   'pisCofinsCst',
@@ -63,6 +61,7 @@ const FISCAL_CONTROLS = [
 })
 export class ProductFormComponent {
   private readonly productFacade = inject(ProductFacade);
+  private readonly taxProfileTemplateFacade = inject(TaxProfileTemplateFacade);
 
   protected readonly selectedProduct = toSignal(
     this.productFacade.selectedProduct$,
@@ -82,11 +81,11 @@ export class ProductFormComponent {
     { initialValue: this.formGroup.controls.itemType.value },
   );
 
-  private readonly selectedTemplateCode = toSignal(
-    this.formGroup.controls.taxProfileTemplate.valueChanges.pipe(
-      startWith(this.formGroup.controls.taxProfileTemplate.value),
+  private readonly selectedTemplateId = toSignal(
+    this.formGroup.controls.taxProfileTemplateId.valueChanges.pipe(
+      startWith(this.formGroup.controls.taxProfileTemplateId.value),
     ),
-    { initialValue: this.formGroup.controls.taxProfileTemplate.value },
+    { initialValue: this.formGroup.controls.taxProfileTemplateId.value },
   );
 
   protected readonly overrideEnabled = toSignal(
@@ -96,13 +95,23 @@ export class ProductFormComponent {
     { initialValue: this.formGroup.controls.overrideTaxProfile.value },
   );
 
+  private readonly allTemplates = toSignal(
+    this.taxProfileTemplateFacade.templates$,
+    { initialValue: [] as TaxProfileTemplate[] },
+  );
+
   protected readonly taxTemplates = computed(() =>
-    taxProfileTemplatesFor(this.itemType()),
+    this.allTemplates().filter(
+      template =>
+        template.targetItemType === this.itemType() &&
+        (template.isActive || template.id === this.selectedTemplateId()),
+    ),
   );
 
   protected readonly taxHelperText = computed<string | null>(
     () =>
-      findTaxProfileTemplate(this.selectedTemplateCode())?.helperText ?? null,
+      this.taxTemplates().find(t => t.id === this.selectedTemplateId())
+        ?.description ?? null,
   );
 
   protected get variants(): FormArray<FormGroup<ProductVariantFormControls>> {
@@ -117,9 +126,9 @@ export class ProductFormComponent {
       .subscribe(type => this.applyItemType(type as ItemType));
 
     // Selecting a tax profile template refreshes the advanced fiscal fields.
-    this.formGroup.controls.taxProfileTemplate.valueChanges
+    this.formGroup.controls.taxProfileTemplateId.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe(code => this.applyTaxTemplate(code));
+      .subscribe(id => this.applyTaxTemplate(id));
 
     // Advanced fiscal fields are read-only unless "override" is checked.
     this.formGroup.controls.overrideTaxProfile.valueChanges
@@ -140,11 +149,11 @@ export class ProductFormComponent {
     toggleControl(c.nbs, isService);
     toggleControl(c.issCode, isService);
 
-    // Default to the first template for the selected type.
-    const [first] = taxProfileTemplatesFor(type);
-    c.taxProfileTemplate.setValue(first?.code ?? null);
+    // Reset the template pick — templates are scoped to a single item type.
+    c.taxProfileTemplateId.setValue(null);
 
-    // Services carry no size/color/stock/logistics data.
+    // Services carry no size/color/logistics data; stock fields are governed
+    // by `stockTrack`, applied separately in ProductVariantsComponent.
     for (const group of this.variants.controls) {
       this.applyItemTypeToVariant(group, isService);
     }
@@ -157,27 +166,25 @@ export class ProductFormComponent {
     const serviceHidden: (keyof ProductVariantFormControls)[] = [
       'size',
       'color',
-      'stockQuantity',
-      'minStockQuantity',
     ];
     for (const name of serviceHidden) {
       toggleControl(group.controls[name], !isService);
     }
+    toggleControl(group.controls.optionName, isService);
   }
 
-  private applyTaxTemplate(code: string | null): void {
-    const template = findTaxProfileTemplate(code);
+  private applyTaxTemplate(id: string | null): void {
+    const template = this.taxTemplates().find(t => t.id === id);
     if (!template) {
       return;
     }
 
     this.formGroup.patchValue({
-      cest: template.fiscal.cest || null,
-      defaultCfop: template.fiscal.defaultCfop || null,
-      icmsCst: template.fiscal.icmsCst || null,
-      pisCofinsCst: template.fiscal.pisCofinsCst || null,
-      ivaCst: template.fiscal.ivaCst || null,
-      isSelectiveTax: template.fiscal.isSelectiveTax,
+      defaultCfop: template.defaultCfop || null,
+      icmsCst: template.icmsCst || null,
+      pisCofinsCst: template.pisCofinsCst || null,
+      ivaCst: template.ivaCst || null,
+      isSelectiveTax: template.isSelectiveTax,
     });
   }
 
@@ -201,20 +208,20 @@ export class ProductFormComponent {
         Validators.maxLength(50),
       ]),
       description: new FormControl(null, [Validators.maxLength(500)]),
-      price: new FormControl(0, [Validators.required, Validators.min(0)]),
-      costPrice: new FormControl(null, [Validators.min(0)]),
+      basePrice: new FormControl(0, [Validators.required, Validators.min(0)]),
+      baseCostPrice: new FormControl(null, [Validators.min(0)]),
       unitOfMeasure: new FormControl('UN', [Validators.maxLength(6)]),
       isActive: new FormControl(true),
 
-      isStockTracked: new FormControl(true),
-      taxProfileTemplate: new FormControl(null, [Validators.required]),
+      stockTrack: new FormControl(true),
+      taxProfileTemplateId: new FormControl(null, [Validators.required]),
       ncm: new FormControl(null, [Validators.maxLength(10)]),
       origin: new FormControl('0'),
       nbs: new FormControl({ value: null, disabled: true }),
       issCode: new FormControl({ value: null, disabled: true }),
 
       overrideTaxProfile: new FormControl(false, { nonNullable: true }),
-      cest: new FormControl({ value: null, disabled: true }),
+      cest: new FormControl(null),
       defaultCfop: new FormControl({ value: null, disabled: true }),
       icmsCst: new FormControl({ value: null, disabled: true }),
       pisCofinsCst: new FormControl({ value: null, disabled: true }),

@@ -6,7 +6,7 @@
   <div class="taxes">
     <app-select-field
       [parentForm]="parentForm()"
-      controlName="taxProfileTemplate"
+      controlName="taxProfileTemplateId"
       label="product.form.tax.profileTemplate"
       [options]="templateOptions()"
     ></app-select-field>
@@ -46,6 +46,14 @@
         ></app-select-field>
       }
     </div>
+
+    @if (!isService()) {
+      <app-input-field
+        [parentForm]="parentForm()"
+        controlName="cest"
+        label="product.form.tax.cest"
+      ></app-input-field>
+    }
 
     <p-panel
       styleClass="taxes__advanced"
@@ -88,20 +96,15 @@
         @if (!isService()) {
           <app-input-field
             [parentForm]="parentForm()"
-            controlName="cest"
-            label="product.form.tax.cest"
+            controlName="defaultCfop"
+            label="product.form.tax.defaultCfop"
+          ></app-input-field>
+          <app-input-field
+            [parentForm]="parentForm()"
+            controlName="icmsCst"
+            label="product.form.tax.icmsCst"
           ></app-input-field>
         }
-        <app-input-field
-          [parentForm]="parentForm()"
-          controlName="defaultCfop"
-          label="product.form.tax.defaultCfop"
-        ></app-input-field>
-        <app-input-field
-          [parentForm]="parentForm()"
-          controlName="icmsCst"
-          label="product.form.tax.icmsCst"
-        ></app-input-field>
         <app-input-field
           [parentForm]="parentForm()"
           controlName="pisCofinsCst"

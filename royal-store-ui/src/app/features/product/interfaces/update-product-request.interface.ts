@@ -1,28 +1,30 @@
 import { CreateProductVariantRequest } from './create-product-request.interface';
+import { ProductMeasure } from './product.interface';
 
 export interface UpdateProductVariantRequest extends CreateProductVariantRequest {
   variantId: string;
 }
 
 export interface UpdateProductRequest {
-  itemType: number;
   categoryId: string;
   name: string;
-  referenceCode: string;
+  sku: string;
+  stockTrack: boolean;
+  basePrice: number;
+  baseCostPrice: number;
   description?: string;
   unitOfMeasure: string;
   ncm?: string;
   cest?: string;
   origin: number;
+  measure?: ProductMeasure;
   version: number;
   variantsToAdd: CreateProductVariantRequest[];
   variantsToUpdate: UpdateProductVariantRequest[];
 
   // Fiscal
-  taxProfileTemplate?: string;
-  nbs?: string;
-  issCode?: string;
-  overrideTaxProfile?: boolean;
+  taxProfileTemplateId: string;
+  overrideTaxProfile: boolean;
   defaultCfop?: string;
   icmsCst?: string;
   pisCofinsCst?: string;

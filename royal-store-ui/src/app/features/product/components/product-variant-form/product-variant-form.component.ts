@@ -66,7 +66,13 @@ export class ProductVariantFormComponent {
 
   protected variantLabel = computed(() => {
     const values = this.formValues();
-    if (!values || !values.size) return '';
+    if (!values) return '';
+
+    if (this.isService()) {
+      return values.optionName ?? '';
+    }
+
+    if (!values.size) return '';
 
     const sizes = this.translateService.instant(`enum.sizes.${values.size}`);
     const colorLabel = this.colorPalette.getLabel(values.color);

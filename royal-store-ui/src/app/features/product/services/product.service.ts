@@ -22,6 +22,10 @@ export class ProductService {
     return this.http.put<Product>(`${this.apiUrl}/${id}`, request);
   }
 
+  // NOTE: getAll/getById/disable are kind-agnostic — they also serve Services
+  // (see contracts/services-api.md), so ServiceService reuses this client
+  // for reads and doesn't duplicate them.
+
   disable(id: string): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/${id}/disable`, {});
   }

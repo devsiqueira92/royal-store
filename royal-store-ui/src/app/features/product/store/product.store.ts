@@ -5,6 +5,7 @@ import {
   saveProductEdit,
   disableProduct,
 } from './product.effects';
+import { createService, saveServiceEdit } from './service.effects';
 
 export const productStore = {
   loadProducts,
@@ -12,4 +13,6 @@ export const productStore = {
   createProduct,
   saveProductEdit,
   disableProduct,
+  createService,
+  saveServiceEdit,
 };

@@ -7,16 +7,25 @@ import {
 } from '../../interfaces/product.interface';
 import { ButtonComponent } from '@app/shared/components/button/button.component';
 import {
-  UpdateProductRequest,
-  UpdateProductVariantRequest,
-} from '../../interfaces/update-product-request.interface';
-import { ProductFacade } from '../../facade/product.facade';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
-import {
   CreateProductRequest,
   CreateProductVariantRequest,
 } from '../../interfaces/create-product-request.interface';
+import {
+  UpdateProductRequest,
+  UpdateProductVariantRequest,
+} from '../../interfaces/update-product-request.interface';
+import {
+  CreateServiceRequest,
+  CreateServiceVariantRequest,
+} from '../../interfaces/create-service-request.interface';
+import {
+  UpdateServiceRequest,
+  UpdateServiceVariantRequest,
+} from '../../interfaces/update-service-request.interface';
+import { ProductFacade } from '../../facade/product.facade';
+import { ServiceFacade } from '../../facade/service.facade';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { CurrencyPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -32,6 +41,7 @@ export class ProductFooterComponent {
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
 
   private readonly productFacade = inject(ProductFacade);
+  private readonly serviceFacade = inject(ServiceFacade);
   private readonly detailsSidebarService = inject(DetailsSidebarService);
 
   protected readonly selectedProduct = toSignal(
@@ -47,10 +57,12 @@ export class ProductFooterComponent {
   } {
     const rows = this.variants().controls.map(group => group.getRawValue());
     const totalUnits = rows.reduce(
-      (total, row) => total + (Number(row.stockQuantity) ?? 0),
+      (total, row) => total + (Number(row.stockQuantity) || 0),
       0,
     );
-    const prices = rows.map(row => row.price ?? 0);
+    const prices = rows
+      .map(row => row.price)
+      .filter((price): price is number => price != null);
 
     return {
       variantsCount: rows.length,
@@ -73,22 +85,42 @@ export class ProductFooterComponent {
       return;
     }
 
+    const isService = this.itemType() === 1;
+    const product = this.selectedProduct();
+
+    if (isService) {
+      this.submitService(product);
+    } else {
+      this.submitProduct(product);
+    }
+
+    this.productFacade.clearSelectedProduct();
+    this.detailsSidebarService.closeDrawer();
+  }
+
+  private submitProduct(product: Product | null): void {
     const raw = this.formGroup().getRawValue();
-    const isService = raw.itemType === 1;
 
     const baseRequest = {
-      itemType: raw.itemType,
       categoryId: raw.categoryId ?? '',
       name: (raw.name ?? '').trim(),
-      referenceCode: (raw.sku ?? '').trim(),
+      sku: (raw.sku ?? '').trim(),
+      stockTrack: !!raw.stockTrack,
+      basePrice: raw.basePrice ?? 0,
+      baseCostPrice: raw.baseCostPrice ?? 0,
       description: raw.description?.trim() || undefined,
       unitOfMeasure: raw.unitOfMeasure?.trim() || 'UN',
-      ncm: isService ? undefined : raw.ncm?.trim() || undefined,
-      cest: isService ? undefined : raw.cest?.trim() || undefined,
-      origin: isService ? 0 : Number(raw.origin ?? 0),
-      taxProfileTemplate: raw.taxProfileTemplate ?? undefined,
-      nbs: isService ? raw.nbs?.trim() || undefined : undefined,
-      issCode: isService ? raw.issCode?.trim() || undefined : undefined,
+      ncm: raw.ncm?.trim() || undefined,
+      cest: raw.cest?.trim() || undefined,
+      origin: Number(raw.origin ?? 0),
+      measure: {
+        netWeight: raw.netWeight ?? undefined,
+        grossWeight: raw.grossWeight ?? undefined,
+        width: raw.width ?? undefined,
+        height: raw.height ?? undefined,
+        length: raw.length ?? undefined,
+      },
+      taxProfileTemplateId: raw.taxProfileTemplateId ?? '',
       overrideTaxProfile: raw.overrideTaxProfile,
       defaultCfop: raw.defaultCfop?.trim() || undefined,
       icmsCst: raw.icmsCst?.trim() || undefined,
@@ -97,11 +129,9 @@ export class ProductFooterComponent {
       isSelectiveTax: raw.isSelectiveTax,
     };
 
-    const product = this.selectedProduct();
-
     if (product) {
       const { variantsToAdd, variantsToUpdate } =
-        this.buildVariantChanges(product);
+        this.buildProductVariantChanges(product);
 
       const request: UpdateProductRequest = {
         ...baseRequest,
@@ -112,21 +142,56 @@ export class ProductFooterComponent {
       this.productFacade.saveProductEdit(product.id, request);
     } else {
       const variants = this.variants().controls.map(group =>
-        this.toVariantRequest(group),
+        this.toProductVariantRequest(group),
       );
 
-      const request: CreateProductRequest = {
-        ...baseRequest,
-        variants,
-      };
+      const request: CreateProductRequest = { ...baseRequest, variants };
       this.productFacade.createProduct(request);
     }
-
-    this.productFacade.clearSelectedProduct();
-    this.detailsSidebarService.closeDrawer();
   }
 
-  private buildVariantChanges(product: Product): {
+  private submitService(product: Product | null): void {
+    const raw = this.formGroup().getRawValue();
+
+    const baseRequest = {
+      categoryId: raw.categoryId ?? '',
+      name: (raw.name ?? '').trim(),
+      sku: (raw.sku ?? '').trim(),
+      basePrice: raw.basePrice ?? 0,
+      baseCostPrice: raw.baseCostPrice ?? 0,
+      description: raw.description?.trim() || undefined,
+      unitOfMeasure: raw.unitOfMeasure?.trim() || 'UN',
+      nbs: raw.nbs?.trim() || '',
+      issCode: raw.issCode?.trim() || '',
+      taxProfileTemplateId: raw.taxProfileTemplateId ?? '',
+      overrideTaxProfile: raw.overrideTaxProfile,
+      pisCofinsCst: raw.pisCofinsCst?.trim() || undefined,
+      ivaCst: raw.ivaCst?.trim() || undefined,
+      isSelectiveTax: raw.isSelectiveTax,
+    };
+
+    if (product) {
+      const { variantsToAdd, variantsToUpdate } =
+        this.buildServiceVariantChanges(product);
+
+      const request: UpdateServiceRequest = {
+        ...baseRequest,
+        version: product.version,
+        variantsToAdd,
+        variantsToUpdate,
+      };
+      this.serviceFacade.saveServiceEdit(product.id, request);
+    } else {
+      const variants = this.variants().controls.map(group =>
+        this.toServiceVariantRequest(group),
+      );
+
+      const request: CreateServiceRequest = { ...baseRequest, variants };
+      this.serviceFacade.createService(request);
+    }
+  }
+
+  private buildProductVariantChanges(product: Product): {
     variantsToAdd: CreateProductVariantRequest[];
     variantsToUpdate: UpdateProductVariantRequest[];
   } {
@@ -138,7 +203,7 @@ export class ProductFooterComponent {
     for (const group of this.variants().controls) {
       const variantId = group.getRawValue().id;
       const original = variantId ? originalById.get(variantId) : undefined;
-      const request = this.toVariantRequest(group);
+      const request = this.toProductVariantRequest(group);
 
       if (original) {
         variantsToUpdate.push({ variantId: original.id, ...request });
@@ -150,7 +215,31 @@ export class ProductFooterComponent {
     return { variantsToAdd, variantsToUpdate };
   }
 
-  private toVariantRequest(
+  private buildServiceVariantChanges(product: Product): {
+    variantsToAdd: CreateServiceVariantRequest[];
+    variantsToUpdate: UpdateServiceVariantRequest[];
+  } {
+    const originalById = new Map(product.variants.map(v => [v.id, v]));
+
+    const variantsToUpdate: UpdateServiceVariantRequest[] = [];
+    const variantsToAdd: CreateServiceVariantRequest[] = [];
+
+    for (const group of this.variants().controls) {
+      const variantId = group.getRawValue().id;
+      const original = variantId ? originalById.get(variantId) : undefined;
+      const request = this.toServiceVariantRequest(group);
+
+      if (original) {
+        variantsToUpdate.push({ variantId: original.id, ...request });
+      } else {
+        variantsToAdd.push(request);
+      }
+    }
+
+    return { variantsToAdd, variantsToUpdate };
+  }
+
+  private toProductVariantRequest(
     group: FormGroup<ProductVariantFormControls>,
   ): CreateProductVariantRequest {
     const variant = group.getRawValue();
@@ -160,10 +249,22 @@ export class ProductFooterComponent {
       color: variant.color?.trim() || undefined,
       sku: variant.sku?.trim() || undefined,
       barcode: variant.barcode?.trim() || undefined,
-      price: variant.price ?? 0,
+      price: variant.price ?? undefined,
       costPrice: variant.costPrice ?? undefined,
-      stockQuantity: variant.stockQuantity ?? 0,
+      stockQuantity: variant.stockQuantity ?? undefined,
       minStockQuantity: variant.minStockQuantity ?? undefined,
+    };
+  }
+
+  private toServiceVariantRequest(
+    group: FormGroup<ProductVariantFormControls>,
+  ): CreateServiceVariantRequest {
+    const variant = group.getRawValue();
+
+    return {
+      optionName: (variant.optionName ?? '').trim(),
+      price: variant.price ?? undefined,
+      costPrice: variant.costPrice ?? undefined,
     };
   }
 }
