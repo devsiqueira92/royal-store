@@ -23,8 +23,8 @@ public sealed class ProductRepository : IProductRepository
         await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Variants)
-            .Include(p => p.Tags).ThenInclude(t => t.Category)
             .Include(p => p.Photos)
+            .Include(p => p.TaxProfileTemplate)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync(
@@ -33,8 +33,8 @@ public sealed class ProductRepository : IProductRepository
         var query = _context.Products
             .Include(p => p.Category)
             .Include(p => p.Variants)
-            .Include(p => p.Tags).ThenInclude(t => t.Category)
             .Include(p => p.Photos)
+            .Include(p => p.TaxProfileTemplate)
             .AsQueryable();
 
         if (isActive.HasValue)

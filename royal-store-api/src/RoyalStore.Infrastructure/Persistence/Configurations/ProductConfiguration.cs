@@ -20,7 +20,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasMaxLength(120)
             .IsRequired();
 
-        builder.Property(p => p.ReferenceCode)
+        builder.Property(p => p.Sku)
             .HasMaxLength(50)
             .IsRequired();
 
@@ -34,6 +34,23 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasDefaultValue("UN");
 
+        builder.Property(p => p.Type)
+            .HasConversion<int>()
+            .IsRequired()
+            .HasDefaultValue(ItemType.Product);
+
+        builder.Property(p => p.StockTrack)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(p => p.BasePrice)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
+        builder.Property(p => p.BaseCostPrice)
+            .HasPrecision(18, 2)
+            .IsRequired();
+
         builder.Property(p => p.Ncm)
             .HasMaxLength(8);
 
@@ -44,11 +61,6 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasConversion<int>()
             .IsRequired();
 
-        builder.Property(p => p.Type)
-            .HasConversion<int>()
-            .IsRequired()
-            .HasDefaultValue(ItemType.Product);
-
         builder.Property(p => p.Nbs).HasMaxLength(9);
         builder.Property(p => p.IssCode).HasMaxLength(20);
         builder.Property(p => p.DefaultCfop).HasMaxLength(4);
@@ -56,9 +68,23 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.PisCofinsCst).HasMaxLength(4);
         builder.Property(p => p.IvaCst).HasMaxLength(4);
 
-        builder.Property(p => p.IsSelectiveTax)
+        builder.Property(p => p.IsSelectiveTax);
+
+        builder.Property(p => p.TaxProfileTemplateId).IsRequired();
+
+        builder.Property(p => p.OverrideTaxProfile)
             .IsRequired()
             .HasDefaultValue(false);
+
+        builder.OwnsOne(p => p.Measure, measure =>
+        {
+            measure.Property(m => m.NetWeight).HasColumnName("NetWeight").HasPrecision(9, 3);
+            measure.Property(m => m.GrossWeight).HasColumnName("GrossWeight").HasPrecision(9, 3);
+            measure.Property(m => m.Width).HasColumnName("Width").HasPrecision(9, 2);
+            measure.Property(m => m.Height).HasColumnName("Height").HasPrecision(9, 2);
+            measure.Property(m => m.Length).HasColumnName("Length").HasPrecision(9, 2);
+        });
+        builder.Navigation(p => p.Measure).IsRequired();
 
         builder.Property(p => p.Version)
             .IsRequired()
@@ -74,14 +100,14 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(p => p.TaxProfileTemplate)
+            .WithMany(t => t.Products)
+            .HasForeignKey(p => p.TaxProfileTemplateId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(p => p.Variants)
             .WithOne()
             .HasForeignKey(v => v.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(p => p.Tags)
-            .WithOne()
-            .HasForeignKey(t => t.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(p => p.Photos)
@@ -90,5 +116,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(p => new { p.TenantId, p.CategoryId });
+
+        builder.HasIndex(p => new { p.TenantId, p.Sku }).IsUnique();
     }
 }

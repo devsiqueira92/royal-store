@@ -27,4 +27,6 @@ public enum Permission
     RolesManage,
 
     SystemManagerOverride,
+
+    CatalogManageTaxProfiles,
 }

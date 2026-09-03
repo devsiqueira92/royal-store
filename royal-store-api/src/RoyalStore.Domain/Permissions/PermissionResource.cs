@@ -10,4 +10,5 @@ public enum PermissionResource
     Users,
     Roles,
     System,
+    Catalog,
 }

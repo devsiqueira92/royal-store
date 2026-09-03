@@ -33,6 +33,8 @@ public static class PermissionCatalog
         new(Permission.RolesManage, "roles.manage", PermissionResource.Roles, "Manage roles"),
 
         new(Permission.SystemManagerOverride, "system.managerOverride", PermissionResource.System, "Manager override"),
+
+        new(Permission.CatalogManageTaxProfiles, "catalog.manageTaxProfiles", PermissionResource.Catalog, "Manage tax profile templates"),
     ];
 
     private static readonly Dictionary<Permission, PermissionEntry> ByPermission =
