@@ -35,13 +35,6 @@ import { ProductLogisticsComponent } from '../product-logistics/product-logistic
 
 // Advanced fiscal controls driven by the tax profile template's override matrix.
 // `cest` is intentionally excluded — it's a free Product field, not template-driven.
-const FISCAL_CONTROLS = [
-  'defaultCfop',
-  'icmsCst',
-  'pisCofinsCst',
-  'ivaCst',
-  'isSelectiveTax',
-] as const;
 
 @Component({
   imports: [
@@ -186,6 +179,14 @@ export class ProductFormComponent {
   }
 
   private applyFiscalOverride(override: boolean): void {
+    const FISCAL_CONTROLS = [
+      'defaultCfop',
+      'icmsCst',
+      'pisCofinsCst',
+      'ivaCst',
+      'isSelectiveTax',
+    ] as const;
+
     for (const name of FISCAL_CONTROLS) {
       toggleControl(this.formGroup.controls[name], override);
     }
