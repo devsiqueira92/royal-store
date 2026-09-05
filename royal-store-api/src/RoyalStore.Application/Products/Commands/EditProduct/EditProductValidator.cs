@@ -56,16 +56,16 @@ public sealed class EditProductValidator : AbstractValidator<EditProductCommand>
                 .WithMessage("The selective-tax flag is required when overriding the tax profile.");
         });
 
-        When(x => x.NetWeight.HasValue, () =>
-            RuleFor(x => x.NetWeight!.Value).GreaterThanOrEqualTo(0));
-        When(x => x.GrossWeight.HasValue, () =>
-            RuleFor(x => x.GrossWeight!.Value).GreaterThanOrEqualTo(0));
-        When(x => x.Width.HasValue, () =>
-            RuleFor(x => x.Width!.Value).GreaterThanOrEqualTo(0));
-        When(x => x.Height.HasValue, () =>
-            RuleFor(x => x.Height!.Value).GreaterThanOrEqualTo(0));
-        When(x => x.Length.HasValue, () =>
-            RuleFor(x => x.Length!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Measure.NetWeight.HasValue, () =>
+            RuleFor(x => x.Measure.NetWeight!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Measure.GrossWeight.HasValue, () =>
+            RuleFor(x => x.Measure.GrossWeight!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Measure.Width.HasValue, () =>
+            RuleFor(x => x.Measure.Width!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Measure.Height.HasValue, () =>
+            RuleFor(x => x.Measure.Height!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Measure.Length.HasValue, () =>
+            RuleFor(x => x.Measure.Length!.Value).GreaterThanOrEqualTo(0));
 
         RuleForEach(x => x.VariantsToAdd).Custom((v, context) =>
         {
@@ -107,7 +107,7 @@ public sealed class EditProductValidator : AbstractValidator<EditProductCommand>
         {
             if (price.Value < 0)
                 context.AddFailure("Variant price must be zero or greater.");
-            else if (price.Value <= ownerBasePrice)
+            else if (price.Value < ownerBasePrice)
                 context.AddFailure("Variant price must be greater than the product's base price.");
         }
 
@@ -115,7 +115,7 @@ public sealed class EditProductValidator : AbstractValidator<EditProductCommand>
         {
             if (costPrice.Value < 0)
                 context.AddFailure("Variant cost price must be zero or greater.");
-            else if (costPrice.Value <= ownerBaseCostPrice)
+            else if (costPrice.Value < ownerBaseCostPrice)
                 context.AddFailure("Variant cost price must be greater than the product's base cost price.");
         }
 

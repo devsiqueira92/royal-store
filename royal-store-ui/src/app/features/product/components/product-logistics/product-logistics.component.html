@@ -4,48 +4,53 @@
   icon="pi-cog"
 >
   <div class="form__row form__row--2">
-    <app-input-field
+    <app-input-number-field
       controlName="netWeight"
       [parentForm]="formGroup()"
       label="product.form.netWeight"
+      prefix="Kg"
       type="number"
       [min]="0"
       [step]="0.001"
-    ></app-input-field>
-    <app-input-field
+    ></app-input-number-field>
+    <app-input-number-field
       controlName="grossWeight"
       [parentForm]="formGroup()"
       label="product.form.grossWeight"
+      prefix="Kg"
       type="number"
       [min]="0"
       [step]="0.001"
-    ></app-input-field>
+    ></app-input-number-field>
   </div>
 
   <div class="form__row form__row--3">
-    <app-input-field
+    <app-input-number-field
       controlName="width"
       [parentForm]="formGroup()"
       label="product.form.width"
+      prefix="Kg"
       type="number"
       [min]="0"
       [step]="0.1"
-    ></app-input-field>
-    <app-input-field
+    ></app-input-number-field>
+    <app-input-number-field
       controlName="height"
       [parentForm]="formGroup()"
       label="product.form.height"
+      prefix="Kg"
       type="number"
       [min]="0"
       [step]="0.1"
-    ></app-input-field>
-    <app-input-field
+    ></app-input-number-field>
+    <app-input-number-field
       controlName="length"
       [parentForm]="formGroup()"
       label="product.form.length"
+      prefix="Kg"
       type="number"
       [min]="0"
       [step]="0.1"
-    ></app-input-field>
+    ></app-input-number-field>
   </div>
 </app-form-layout>

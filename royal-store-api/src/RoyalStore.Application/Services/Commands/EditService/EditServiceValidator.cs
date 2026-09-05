@@ -74,7 +74,7 @@ public sealed class EditServiceValidator : AbstractValidator<EditServiceCommand>
         {
             if (price.Value < 0)
                 context.AddFailure("Variant price must be zero or greater.");
-            else if (price.Value <= ownerBasePrice)
+            else if (price.Value < ownerBasePrice)
                 context.AddFailure("Variant price must be greater than the service's base price.");
         }
 
@@ -82,7 +82,7 @@ public sealed class EditServiceValidator : AbstractValidator<EditServiceCommand>
         {
             if (costPrice.Value < 0)
                 context.AddFailure("Variant cost price must be zero or greater.");
-            else if (costPrice.Value <= ownerBaseCostPrice)
+            else if (costPrice.Value < ownerBaseCostPrice)
                 context.AddFailure("Variant cost price must be greater than the service's base cost price.");
         }
     }

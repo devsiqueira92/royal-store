@@ -1,18 +1,40 @@
-@if (titleKey) {
-  <div>
-    <span class="toggle-field__title">{{ titleKey | translate }}</span>
-    @if (subtitleKey) {
-      <span class="toggle-field__subtitle">{{ subtitleKey | translate }}</span>
-    }
-  </div>
-}
-<button
+<form
+  [formGroup]="parentForm"
+  [class.disabled]="parentForm.controls[controlName].disabled"
+>
+  @if (titleKey) {
+    <div>
+      <span class="toggle-field__title">{{ titleKey | translate }}</span>
+      @if (subtitleKey) {
+        <span class="toggle-field__subtitle">{{
+          subtitleKey | translate
+        }}</span>
+      }
+    </div>
+  }
+
+  <p-togglebutton
+    [name]="controlName"
+    [formControlName]="controlName"
+    [invalid]="
+      parentForm.controls[controlName].touched &&
+      parentForm.controls[controlName].errors
+    "
+    onLabel="Enabled"
+    offLabel="Disabled"
+    class="min-w-40"
+  />
+</form>
+
+<!-- <button
   type="button"
   role="switch"
   class="toggle-field__switch"
+  [class.disabled]="disabled()"
   [class.toggle-field__switch--on]="parentForm.controls[controlName].value"
   [attr.aria-checked]="parentForm.controls[controlName].value"
+  [disabled]="disabled()"
   (click)="toggle()"
 >
   <span class="toggle-field__thumb"></span>
-</button>
+</button> -->

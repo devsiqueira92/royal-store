@@ -68,7 +68,7 @@ public sealed class ProductVariant : Entity
             if (price.Value < 0)
                 return Result.Failure(Error.Validation("variant.price_negative", "Price must be zero or greater."));
 
-            if (price.Value <= ownerBasePrice)
+            if (price.Value < ownerBasePrice)
                 return Result.Failure(Error.Validation("variant.price_not_above_base", "Price must be greater than the product's base price."));
         }
 
@@ -77,7 +77,7 @@ public sealed class ProductVariant : Entity
             if (costPrice.Value < 0)
                 return Result.Failure(Error.Validation("variant.cost_price_negative", "Cost price must be zero or greater."));
 
-            if (costPrice.Value <= ownerBaseCostPrice)
+            if (costPrice.Value < ownerBaseCostPrice)
                 return Result.Failure(Error.Validation("variant.cost_price_not_above_base", "Cost price must be greater than the product's base cost price."));
         }
 

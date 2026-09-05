@@ -89,7 +89,7 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                 {
                     if (v.Price.Value < 0)
                         context.AddFailure("Variant price must be zero or greater.");
-                    else if (v.Price.Value <= command.BasePrice)
+                    else if (v.Price.Value < command.BasePrice)
                         context.AddFailure("Variant price must be greater than the product's base price.");
                 }
 
@@ -97,7 +97,7 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                 {
                     if (v.CostPrice.Value < 0)
                         context.AddFailure("Variant cost price must be zero or greater.");
-                    else if (v.CostPrice.Value <= command.BaseCostPrice)
+                    else if (v.CostPrice.Value < command.BaseCostPrice)
                         context.AddFailure("Variant cost price must be greater than the product's base cost price.");
                 }
 

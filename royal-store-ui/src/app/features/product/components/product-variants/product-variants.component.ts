@@ -6,7 +6,6 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
 import {
   ProductFormControls,
@@ -45,27 +44,13 @@ export class ProductVariantsComponent {
   constructor() {
     effect(() => {
       if (this.selectedVariants() === undefined) {
+        this.variants().clear();
         this.addVariant();
       } else {
+        console.log(this.itemType);
         this.populateForm(this.selectedVariants()!);
       }
     });
-
-    // A non-tracked product also drops the required-ness of sku/barcode/
-    // stock fields (FR-015/016) — re-apply visibility whenever it flips.
-    // `formGroup` is a required input, only safe to read once bound —
-    // subscribe lazily the first time the effect runs.
-    // let subscribed = false;
-    // effect(() => {
-    //   const stockTrackControl = this.formGroup().controls.stockTrack;
-    //   if (subscribed) {
-    //     return;
-    //   }
-    //   subscribed = true;
-    //   stockTrackControl.valueChanges
-    //     .pipe(startWith(stockTrackControl.value), takeUntilDestroyed())
-    //     .subscribe(() => this.refreshAllVariants());
-    // });
   }
 
   ngOnInit(): void {

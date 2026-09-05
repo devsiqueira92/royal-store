@@ -27,6 +27,13 @@ public sealed record VariantUpdateInput(
     decimal? StockQuantity,
     decimal? MinStockQuantity);
 
+public sealed record MeasureInput(
+    decimal? NetWeight = null,
+    decimal? GrossWeight = null,
+    decimal? Width = null,
+    decimal? Height = null,
+    decimal? Length = null);
+
 public record EditProductCommand(
     Guid Id,
     int Version,
@@ -45,11 +52,7 @@ public record EditProductCommand(
     bool OverrideTaxProfile,
     IReadOnlyList<VariantInput> VariantsToAdd,
     IReadOnlyList<VariantUpdateInput> VariantsToUpdate,
-    decimal? NetWeight = null,
-    decimal? GrossWeight = null,
-    decimal? Width = null,
-    decimal? Height = null,
-    decimal? Length = null,
+    MeasureInput Measure,
     string? DefaultCfop = null,
     string? IcmsCst = null,
     string? PisCofinsCst = null,

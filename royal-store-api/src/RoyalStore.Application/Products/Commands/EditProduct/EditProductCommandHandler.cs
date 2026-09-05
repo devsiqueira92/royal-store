@@ -75,7 +75,7 @@ public sealed class EditProductCommandHandler
             command.CategoryId, command.Name, command.Sku, command.StockTrack,
             command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Ncm, command.Cest, command.Origin,
-            command.NetWeight, command.GrossWeight, command.Width, command.Height, command.Length,
+            command.Measure.NetWeight, command.Measure.GrossWeight, command.Measure.Width, command.Measure.Height, command.Measure.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
             variantsToAdd, variantsToUpdate);

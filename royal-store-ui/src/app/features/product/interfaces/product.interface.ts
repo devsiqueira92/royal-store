@@ -87,7 +87,7 @@ export interface ProductVariantFormControls {
 
 export interface ProductFormControls {
   id: FormControl<string | null>;
-  itemType: FormControl<number>;
+  type: FormControl<number>;
   categoryId: FormControl<string | null>;
   name: FormControl<string | null>;
   sku: FormControl<string | null>;

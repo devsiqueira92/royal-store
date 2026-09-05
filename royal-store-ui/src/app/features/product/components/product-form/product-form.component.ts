@@ -75,10 +75,10 @@ export class ProductFormComponent {
   protected readonly formGroup = this.buildFormGroup();
 
   protected readonly itemType = toSignal(
-    this.formGroup.controls.itemType.valueChanges.pipe(
-      startWith(this.formGroup.controls.itemType.value),
+    this.formGroup.controls.type.valueChanges.pipe(
+      startWith(this.formGroup.controls.type.value),
     ),
-    { initialValue: this.formGroup.controls.itemType.value },
+    { initialValue: this.formGroup.controls.type.value },
   );
 
   private readonly selectedTemplateId = toSignal(
@@ -119,25 +119,24 @@ export class ProductFormComponent {
   }
 
   constructor() {
-    effect(() => this.formGroup.patchValue({ ...this.selectedProduct() }));
-
-    this.formGroup.controls.itemType.valueChanges
+    effect(() => {
+      this.formGroup.patchValue({ ...this.selectedProduct() });
+    });
+    this.formGroup.controls.type.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(type => this.applyItemType(type as ItemType));
 
-    // Selecting a tax profile template refreshes the advanced fiscal fields.
     this.formGroup.controls.taxProfileTemplateId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(id => this.applyTaxTemplate(id));
 
-    // Advanced fiscal fields are read-only unless "override" is checked.
     this.formGroup.controls.overrideTaxProfile.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(override => this.applyFiscalOverride(!!override));
   }
 
   protected onItemTypeChange(type: ItemType): void {
-    this.formGroup.controls.itemType.setValue(type);
+    this.formGroup.controls.type.setValue(type);
   }
 
   private applyItemType(type: ItemType): void {
@@ -148,12 +147,10 @@ export class ProductFormComponent {
     toggleControl(c.origin, !isService);
     toggleControl(c.nbs, isService);
     toggleControl(c.issCode, isService);
+    toggleControl(c.stockTrack, !isService);
 
-    // Reset the template pick — templates are scoped to a single item type.
     c.taxProfileTemplateId.setValue(null);
-
-    // Services carry no size/color/logistics data; stock fields are governed
-    // by `stockTrack`, applied separately in ProductVariantsComponent.
+    c.stockTrack.setValue(!isService);
     for (const group of this.variants.controls) {
       this.applyItemTypeToVariant(group, isService);
     }
@@ -197,7 +194,7 @@ export class ProductFormComponent {
   private buildFormGroup(): FormGroup<ProductFormControls> {
     return new FormGroup<ProductFormControls>({
       id: new FormControl(null),
-      itemType: new FormControl(0, { nonNullable: true }),
+      type: new FormControl(0, { nonNullable: true }),
       categoryId: new FormControl(null, [Validators.required]),
       name: new FormControl(null, [
         Validators.required,

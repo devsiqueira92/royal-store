@@ -1,11 +1,12 @@
 <form [formGroup]="parentForm()" class="mb-4 form-field">
   <p-inputgroup>
-    <p-inputgroup-addon>R$ </p-inputgroup-addon>
+    <p-inputgroup-addon>{{ prefix() }} </p-inputgroup-addon>
     <p-floatlabel variant="on">
       <input
         class="w-100"
         pInputText
-        type="number"
+        type="text"
+        inputmode="numeric"
         [attr.min]="min()"
         [attr.step]="step()"
         [formControlName]="controlName()"

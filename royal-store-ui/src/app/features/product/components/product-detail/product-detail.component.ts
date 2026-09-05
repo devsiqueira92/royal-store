@@ -6,22 +6,15 @@ import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
 import { ImageUploadFieldComponent } from '@app/shared/components/form-fields/image-upload-field/image-upload-field.component';
 import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
-import {
-  FormArray,
-  FormGroup,
-  ReactiveFormsModule,
-  UntypedFormGroup,
-} from '@angular/forms';
+import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Options } from '@app/shared/interceptors/options.interface';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { CategoryFacade } from '@app/features/category/facade/category.facade';
-import { map } from 'rxjs/internal/operators/map';
 import {
-  ProductCategoryOption,
+  ItemType,
   ProductFormControls,
   ProductVariantFormControls,
 } from '../../interfaces/product.interface';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CategorySelectFieldComponent } from '@app/shared/components/form-fields/category-select-field/category-select-field.component';
 
 const UNIT_OF_MEASURE_OPTIONS: Options[] = [
   { code: 'UN', description: 'UN — Unit' },
@@ -43,6 +36,7 @@ const UNIT_OF_MEASURE_OPTIONS: Options[] = [
     ToggleFieldComponent,
     ReactiveFormsModule,
     TranslatePipe,
+    CategorySelectFieldComponent,
   ],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
@@ -50,8 +44,7 @@ const UNIT_OF_MEASURE_OPTIONS: Options[] = [
 export class ProductDetailComponent {
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
-
-  private readonly categoryFacade = inject(CategoryFacade);
+  itemType = input.required<number>();
 
   private readonly skuLockedGroups = new Set<
     FormGroup<ProductVariantFormControls>
@@ -59,30 +52,6 @@ export class ProductDetailComponent {
 
   protected readonly unitOfMeasureOptions = UNIT_OF_MEASURE_OPTIONS;
   protected readonly photoFiles = signal<File[]>([]);
-
-  protected readonly categories = toSignal(
-    this.categoryFacade.categories$.pipe(
-      map(categories =>
-        categories.map((category): ProductCategoryOption => ({
-          id: category.id,
-          name: category.name,
-          color: category.color,
-        })),
-      ),
-    ),
-    { initialValue: [] as ProductCategoryOption[] },
-  );
-
-  constructor() {
-    this.categoryFacade.loadCategories();
-  }
-
-  protected readonly categoryOptions = computed<Options[]>(() =>
-    this.categories().map(category => ({
-      code: category.id,
-      description: category.name,
-    })),
-  );
 
   protected onPhotoFilesChange(files: File[]): void {
     this.photoFiles.set(files);
@@ -98,7 +67,23 @@ export class ProductDetailComponent {
     });
   }
 
+  protected onBasePriceBlur(): void {
+    const basePrice = this.formGroup().controls.basePrice.value;
+    this.variants().controls.forEach(group => {
+      group.controls.price.setValue(basePrice);
+    });
+  }
+
+  protected onBaseCostPriceBlur(): void {
+    const baseCostPrice = this.formGroup().controls.baseCostPrice.value;
+    this.variants().controls.forEach(group => {
+      group.controls.costPrice.setValue(baseCostPrice);
+    });
+  }
+
   private computeSku(referenceCode: string, index: number): string {
     return `${referenceCode.trim()}-${index + 1}`;
   }
 }
+
+/* Verificar stock tracked e criação de variants */
