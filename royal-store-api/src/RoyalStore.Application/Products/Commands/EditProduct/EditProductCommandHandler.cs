@@ -6,21 +6,23 @@ using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 
-namespace RoyalStore.Application.Products.Commands.UpdateProduct;
+namespace RoyalStore.Application.Products.Commands.EditProduct;
 
-public sealed class UpdateProductCommandHandler
-    : IRequestHandler<UpdateProductCommand, Result<ProductResponse>>
+public sealed class EditProductCommandHandler
+    : IRequestHandler<EditProductCommand, Result<ProductResponse>>
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
     private readonly ICurrentUserService _currentUserService;
 
-    public UpdateProductCommandHandler(
+    public EditProductCommandHandler(
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
+        ITaxProfileTemplateRepository taxProfileTemplateRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -28,6 +30,7 @@ public sealed class UpdateProductCommandHandler
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -35,11 +38,14 @@ public sealed class UpdateProductCommandHandler
     }
 
     public async Task<Result<ProductResponse>> Handle(
-        UpdateProductCommand command,
+        EditProductCommand command,
         CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetByIdAsync(command.Id, cancellationToken);
         if (product is null)
+            return Error.NotFound("product.not_found", "Product not found.");
+
+        if (product.Type != ItemType.Product)
             return Error.NotFound("product.not_found", "Product not found.");
 
         if (command.Version != product.Version)
@@ -49,27 +55,29 @@ public sealed class UpdateProductCommandHandler
         if (category is null || !category.IsActive)
             return Error.Validation("product.category_invalid", "Category not found or inactive.");
 
+        var taxProfileTemplate = await _taxProfileTemplateRepository.GetByIdAsync(command.TaxProfileTemplateId, cancellationToken);
+        if (taxProfileTemplate is null || !taxProfileTemplate.IsActive)
+            return Error.NotFound("product.tax_profile_template_not_found", "Tax profile template not found or inactive.");
+
         var variantsToAdd = command.VariantsToAdd
             .Select(v => new NewVariantRequest(
-                v.Size, v.Color, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked,
-                v.PromotionalPrice, v.NetWeight, v.GrossWeight, v.Width, v.Height, v.Length))
+                v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
             .ToList();
 
         var variantsToUpdate = command.VariantsToUpdate
             .Select(v => new VariantUpdateRequest(
-                v.VariantId, v.Size, v.Color, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked,
-                v.PromotionalPrice, v.NetWeight, v.GrossWeight, v.Width, v.Height, v.Length))
+                v.VariantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
             .ToList();
 
         var existingVariantIds = product.Variants.Select(v => v.Id).ToHashSet();
 
-        var updateResult = product.UpdateWithVariants(
-            command.CategoryId, command.Name, command.ReferenceCode, command.Description,
-            command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin,
-            command.Type, command.Nbs, command.IssCode, command.DefaultCfop,
-            command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
+        var updateResult = product.UpdateProductWithVariants(
+            command.CategoryId, command.Name, command.Sku, command.StockTrack,
+            command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
+            command.Ncm, command.Cest, command.Origin,
+            command.Measure.NetWeight, command.Measure.GrossWeight, command.Measure.Width, command.Measure.Height, command.Measure.Length,
+            taxProfileTemplate, command.OverrideTaxProfile,
+            command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
             variantsToAdd, variantsToUpdate);
 
         if (!updateResult.IsSuccess)
@@ -77,12 +85,6 @@ public sealed class UpdateProductCommandHandler
 
         await _productRepository.UpdateAsync(product, command.Version, cancellationToken);
 
-        // UpdateWithVariants appends brand-new ProductVariant entities to the already-tracked
-        // Product.Variants collection. EF's change tracker can't tell those apart from existing
-        // rows on its own — their Id is a client-generated Guid set before insertion — so left to
-        // automatic detection it marks them Modified instead of Added, producing a spurious
-        // 0-rows-affected concurrency failure. Explicitly track each newly-created variant as
-        // Added, same as the standalone add-variant endpoint does.
         var newVariants = product.Variants.Where(v => !existingVariantIds.Contains(v.Id));
         foreach (var variant in newVariants)
             await _productRepository.AddVariantAsync(variant, cancellationToken);

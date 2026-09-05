@@ -4,12 +4,10 @@
   icon="pi-percentage"
 >
   <div class="taxes">
-    <app-select-field
+    <app-tax-template-select-field
       [parentForm]="parentForm()"
-      controlName="taxProfileTemplate"
-      label="product.form.tax.profileTemplate"
-      [options]="templateOptions()"
-    ></app-select-field>
+      controlName="taxProfileTemplateId"
+    ></app-tax-template-select-field>
 
     @if (helperText(); as helper) {
       <div class="taxes__helper">
@@ -23,7 +21,7 @@
         <app-ibpt-tax-autocomplete
           [code]="parentForm().controls.nbs.value"
           label="product.form.tax.nbs"
-          [type]="1"
+          [type]="itemType()"
           (codeSelected)="parentForm().controls.nbs.setValue($event)"
         ></app-ibpt-tax-autocomplete>
         <app-input-field
@@ -35,7 +33,7 @@
         <app-ibpt-tax-autocomplete
           [code]="parentForm().controls.ncm.value"
           label="product.form.ncm"
-          [type]="0"
+          [type]="itemType()"
           (codeSelected)="parentForm().controls.ncm.setValue($event)"
         ></app-ibpt-tax-autocomplete>
         <app-select-field
@@ -46,6 +44,14 @@
         ></app-select-field>
       }
     </div>
+
+    @if (!isService()) {
+      <app-input-field
+        [parentForm]="parentForm()"
+        controlName="cest"
+        label="product.form.tax.cest"
+      ></app-input-field>
+    }
 
     <p-panel
       styleClass="taxes__advanced"
@@ -88,20 +94,15 @@
         @if (!isService()) {
           <app-input-field
             [parentForm]="parentForm()"
-            controlName="cest"
-            label="product.form.tax.cest"
+            controlName="defaultCfop"
+            label="product.form.tax.defaultCfop"
+          ></app-input-field>
+          <app-input-field
+            [parentForm]="parentForm()"
+            controlName="icmsCst"
+            label="product.form.tax.icmsCst"
           ></app-input-field>
         }
-        <app-input-field
-          [parentForm]="parentForm()"
-          controlName="defaultCfop"
-          label="product.form.tax.defaultCfop"
-        ></app-input-field>
-        <app-input-field
-          [parentForm]="parentForm()"
-          controlName="icmsCst"
-          label="product.form.tax.icmsCst"
-        ></app-input-field>
         <app-input-field
           [parentForm]="parentForm()"
           controlName="pisCofinsCst"

@@ -29,11 +29,8 @@ public sealed class UpdateProductVariantCommandHandler
 
         var updateResult = product.UpdateVariant(
             command.VariantId,
-            command.Size, command.Color, command.Sku, command.Barcode,
-            command.Price, command.CostPrice,
-            command.StockQuantity, command.MinStockQuantity, command.IsStockTracked,
-            command.PromotionalPrice, command.NetWeight, command.GrossWeight,
-            command.Width, command.Height, command.Length);
+            command.Size, command.Color, command.OptionName, command.Sku, command.Barcode,
+            command.Price, command.CostPrice, command.StockQuantity, command.MinStockQuantity);
 
         if (!updateResult.IsSuccess)
             return updateResult.Error;

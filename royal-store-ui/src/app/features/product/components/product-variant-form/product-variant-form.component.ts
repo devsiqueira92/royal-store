@@ -44,14 +44,16 @@ export class ProductVariantFormComponent {
   formGroup = input.required<FormGroup<ProductVariantFormControls>>();
   index = input.required<number>();
   removable = input(true);
-  itemType = input<number>(0);
+  itemType = input<number>();
 
   duplicate = output<void>();
   remove = output<void>();
 
   protected readonly sizes = enumToOptions(Sizes, 'enum.sizes');
 
-  protected readonly isService = computed(() => this.itemType() === 1);
+  protected readonly isService = computed(() => {
+    return this.itemType() === 1;
+  });
 
   protected formValues = toSignal(
     toObservable(this.formGroup).pipe(
@@ -66,7 +68,13 @@ export class ProductVariantFormComponent {
 
   protected variantLabel = computed(() => {
     const values = this.formValues();
-    if (!values || !values.size) return '';
+    if (!values) return '';
+
+    if (this.isService()) {
+      return values.optionName ?? '';
+    }
+
+    if (!values.size) return '';
 
     const sizes = this.translateService.instant(`enum.sizes.${values.size}`);
     const colorLabel = this.colorPalette.getLabel(values.color);

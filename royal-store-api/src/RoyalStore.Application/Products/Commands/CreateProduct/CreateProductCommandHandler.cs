@@ -13,6 +13,7 @@ public sealed class CreateProductCommandHandler
 {
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -21,6 +22,7 @@ public sealed class CreateProductCommandHandler
     public CreateProductCommandHandler(
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
+        ITaxProfileTemplateRepository taxProfileTemplateRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -28,6 +30,7 @@ public sealed class CreateProductCommandHandler
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
+        _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -44,11 +47,17 @@ public sealed class CreateProductCommandHandler
         if (category is null || !category.IsActive)
             return Error.Validation("product.category_invalid", "Category not found or inactive.");
 
-        var productResult = Product.Create(
-            tenantId, command.CategoryId, command.Name, command.ReferenceCode, command.Description,
-            command.UnitOfMeasure, command.Ncm, command.Cest, command.Origin,
-            command.Type, command.Nbs, command.IssCode, command.DefaultCfop,
-            command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax);
+        var taxProfileTemplate = await _taxProfileTemplateRepository.GetByIdAsync(command.TaxProfileTemplateId, cancellationToken);
+        if (taxProfileTemplate is null || !taxProfileTemplate.IsActive)
+            return Error.NotFound("product.tax_profile_template_not_found", "Tax profile template not found or inactive.");
+
+        var productResult = Product.CreateProduct(
+            tenantId, command.CategoryId, command.Name, command.Sku, command.StockTrack,
+            command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
+            command.Ncm, command.Cest, command.Origin,
+            command.NetWeight, command.GrossWeight, command.Width, command.Height, command.Length,
+            taxProfileTemplate, command.OverrideTaxProfile,
+            command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax);
 
         if (!productResult.IsSuccess)
             return productResult.Error;
@@ -57,23 +66,10 @@ public sealed class CreateProductCommandHandler
 
         foreach (var v in command.Variants ?? [])
         {
-            var variantResult = product.AddVariant(tenantId, v.Size, v.Color, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity, v.IsStockTracked,
-                v.PromotionalPrice, v.NetWeight, v.GrossWeight, v.Width, v.Height, v.Length);
+            var variantResult = product.AddVariant(tenantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode,
+                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity);
             if (!variantResult.IsSuccess)
                 return variantResult.Error;
-        }
-
-        if (command.TagIds is { Count: > 0 })
-        {
-            foreach (var tagId in command.TagIds)
-            {
-                var tagCategory = await _categoryRepository.GetByIdAsync(tagId, cancellationToken);
-                if (tagCategory is null)
-                    return Error.Validation("product.tag_invalid", $"Tag category '{tagId}' not found.");
-            }
-
-            product.AssignTags(command.TagIds);
         }
 
         await _productRepository.AddAsync(product, cancellationToken);

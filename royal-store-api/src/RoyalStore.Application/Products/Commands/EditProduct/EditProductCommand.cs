@@ -1,66 +1,63 @@
 using MediatR;
 using RoyalStore.Application.Products.DTOs;
-using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 
-namespace RoyalStore.Application.Products.Commands.UpdateProduct;
+namespace RoyalStore.Application.Products.Commands.EditProduct;
 
 public sealed record VariantInput(
     string? Size,
     string? Color,
+    string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal Price,
+    decimal? Price,
     decimal? CostPrice,
-    decimal StockQuantity,
-    decimal? MinStockQuantity,
-    bool IsStockTracked,
-    decimal? PromotionalPrice = null,
-    decimal? NetWeight = null,
-    decimal? GrossWeight = null,
-    decimal? Width = null,
-    decimal? Height = null,
-    decimal? Length = null);
+    decimal? StockQuantity,
+    decimal? MinStockQuantity);
 
 public sealed record VariantUpdateInput(
     Guid VariantId,
     string? Size,
     string? Color,
+    string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal Price,
+    decimal? Price,
     decimal? CostPrice,
-    decimal StockQuantity,
-    decimal? MinStockQuantity,
-    bool IsStockTracked,
-    decimal? PromotionalPrice = null,
+    decimal? StockQuantity,
+    decimal? MinStockQuantity);
+
+public sealed record MeasureInput(
     decimal? NetWeight = null,
     decimal? GrossWeight = null,
     decimal? Width = null,
     decimal? Height = null,
     decimal? Length = null);
 
-public record UpdateProductCommand(
+public record EditProductCommand(
     Guid Id,
     int Version,
     Guid CategoryId,
     string Name,
-    string ReferenceCode,
+    string Sku,
+    bool StockTrack,
+    decimal BasePrice,
+    decimal BaseCostPrice,
     string? Description,
     string UnitOfMeasure,
     string? Ncm,
     string? Cest,
     int Origin,
+    Guid TaxProfileTemplateId,
+    bool OverrideTaxProfile,
     IReadOnlyList<VariantInput> VariantsToAdd,
     IReadOnlyList<VariantUpdateInput> VariantsToUpdate,
-    ItemType Type = ItemType.Product,
-    string? Nbs = null,
-    string? IssCode = null,
+    MeasureInput Measure,
     string? DefaultCfop = null,
     string? IcmsCst = null,
     string? PisCofinsCst = null,
     string? IvaCst = null,
-    bool IsSelectiveTax = false)
+    bool? IsSelectiveTax = null)
     : IRequest<Result<ProductResponse>>
 {
     public IReadOnlyList<VariantInput> VariantsToAdd { get; init; } = VariantsToAdd ?? [];

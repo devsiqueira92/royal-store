@@ -1,6 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { Product } from '../interfaces/product.interface';
 import { ProductActions } from './product.actions';
+import { ServiceActions } from './service.actions';
 
 export interface ProductState {
   products: Product[];
@@ -78,6 +79,38 @@ export const productFeature = createFeature({
       isLoading: false,
     })),
     on(ProductActions.updateProductFailure, (state, { error }): ProductState => ({
+      ...state,
+      isLoading: false,
+      error,
+    })),
+    on(ServiceActions.createService, (state): ProductState => ({
+      ...state,
+      isLoading: true,
+      error: null,
+    })),
+    on(ServiceActions.createServiceSuccess, (state, { product }): ProductState => ({
+      ...state,
+      products: [...state.products, product],
+      isLoading: false,
+    })),
+    on(ServiceActions.createServiceFailure, (state, { error }): ProductState => ({
+      ...state,
+      isLoading: false,
+      error,
+    })),
+    on(ServiceActions.saveServiceEdit, (state): ProductState => ({
+      ...state,
+      isLoading: true,
+      error: null,
+    })),
+    on(ServiceActions.updateServiceSuccess, (state, { product }): ProductState => ({
+      ...state,
+      products: state.products.map(p => (p.id === product.id ? product : p)),
+      selectedProduct:
+        state.selectedProduct?.id === product.id ? product : state.selectedProduct,
+      isLoading: false,
+    })),
+    on(ServiceActions.updateServiceFailure, (state, { error }): ProductState => ({
       ...state,
       isLoading: false,
       error,

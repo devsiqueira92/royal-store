@@ -12,9 +12,12 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
             .NotEmpty()
             .MaximumLength(120);
 
-        RuleFor(x => x.ReferenceCode)
+        RuleFor(x => x.Sku)
             .NotEmpty()
             .MaximumLength(50);
+
+        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.BaseCostPrice).GreaterThanOrEqualTo(0);
 
         When(x => x.Description is not null, () =>
             RuleFor(x => x.Description).MaximumLength(500));
@@ -22,10 +25,11 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
         RuleFor(x => x.UnitOfMeasure)
             .MaximumLength(6);
 
-        When(x => x.Ncm is not null, () =>
-            RuleFor(x => x.Ncm)
-                .MaximumLength(8)
-                .Matches(@"^\d+$").WithMessage("NCM must contain digits only."));
+        RuleFor(x => x.Ncm)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("NCM is required.")
+            .MaximumLength(8)
+            .Matches(@"^\d+$").WithMessage("NCM must contain digits only.");
 
         When(x => x.Cest is not null, () =>
             RuleFor(x => x.Cest)
@@ -34,59 +38,84 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
 
         RuleFor(x => x.Origin).InclusiveBetween(0, 8);
 
-        RuleFor(x => x.Type).IsInEnum();
+        RuleFor(x => x.TaxProfileTemplateId).NotEmpty();
 
-        When(x => x.Nbs is not null, () => RuleFor(x => x.Nbs).MaximumLength(9));
-        When(x => x.IssCode is not null, () => RuleFor(x => x.IssCode).MaximumLength(20));
-        When(x => x.DefaultCfop is not null, () => RuleFor(x => x.DefaultCfop).MaximumLength(4));
-        When(x => x.IcmsCst is not null, () => RuleFor(x => x.IcmsCst).MaximumLength(4));
-        When(x => x.PisCofinsCst is not null, () => RuleFor(x => x.PisCofinsCst).MaximumLength(4));
-        When(x => x.IvaCst is not null, () => RuleFor(x => x.IvaCst).MaximumLength(4));
+        When(x => x.OverrideTaxProfile, () =>
+        {
+            RuleFor(x => x.DefaultCfop).NotEmpty().MaximumLength(4)
+                .WithMessage("Default CFOP is required when overriding the tax profile.");
+            RuleFor(x => x.IcmsCst).NotEmpty().MaximumLength(4)
+                .WithMessage("ICMS CST is required when overriding the tax profile.");
+            RuleFor(x => x.PisCofinsCst).NotEmpty().MaximumLength(4)
+                .WithMessage("PIS/COFINS CST is required when overriding the tax profile.");
+            RuleFor(x => x.IvaCst).NotEmpty().MaximumLength(4)
+                .WithMessage("IVA CST is required when overriding the tax profile.");
+            RuleFor(x => x.IsSelectiveTax).NotNull()
+                .WithMessage("The selective-tax flag is required when overriding the tax profile.");
+        });
+
+        When(x => x.NetWeight.HasValue, () =>
+            RuleFor(x => x.NetWeight!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.GrossWeight.HasValue, () =>
+            RuleFor(x => x.GrossWeight!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Width.HasValue, () =>
+            RuleFor(x => x.Width!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Height.HasValue, () =>
+            RuleFor(x => x.Height!.Value).GreaterThanOrEqualTo(0));
+        When(x => x.Length.HasValue, () =>
+            RuleFor(x => x.Length!.Value).GreaterThanOrEqualTo(0));
 
         When(x => x.Variants is not null, () =>
-            RuleForEach(x => x.Variants).ChildRules(v =>
+            RuleForEach(x => x.Variants).Custom((v, context) =>
             {
-                v.RuleFor(x => x)
-                    .Must(x => !string.IsNullOrWhiteSpace(x.Size) || !string.IsNullOrWhiteSpace(x.Color))
-                    .WithMessage("Each variant must have at least one of Size or Color.");
+                var command = (CreateProductCommand)context.InstanceToValidate;
 
-                v.RuleFor(x => x.Price).GreaterThanOrEqualTo(0);
+                if (string.IsNullOrWhiteSpace(v.Size) && string.IsNullOrWhiteSpace(v.Color))
+                    context.AddFailure("Each variant must have at least one of Size or Color.");
 
-                v.When(x => x.CostPrice.HasValue, () =>
-                    v.RuleFor(x => x.CostPrice!.Value).GreaterThanOrEqualTo(0));
-
-                v.RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
-
-                v.When(x => x.PromotionalPrice.HasValue, () =>
+                if (command.StockTrack)
                 {
-                    v.RuleFor(x => x.PromotionalPrice!.Value).GreaterThanOrEqualTo(0);
-                    v.RuleFor(x => x)
-                        .Must(x => x.PromotionalPrice!.Value <= x.Price)
-                        .WithMessage("Promotional price must not exceed the regular price.");
-                });
+                    if (string.IsNullOrWhiteSpace(v.Sku))
+                        context.AddFailure("SKU is required when stock is tracked.");
+                    if (string.IsNullOrWhiteSpace(v.Barcode))
+                        context.AddFailure("Barcode is required when stock is tracked.");
+                    if (!v.StockQuantity.HasValue)
+                        context.AddFailure("Stock quantity is required when stock is tracked.");
+                    if (!v.MinStockQuantity.HasValue)
+                        context.AddFailure("Minimum stock quantity is required when stock is tracked.");
+                }
 
-                v.When(x => x.NetWeight.HasValue, () =>
-                    v.RuleFor(x => x.NetWeight!.Value).GreaterThanOrEqualTo(0));
-                v.When(x => x.GrossWeight.HasValue, () =>
-                    v.RuleFor(x => x.GrossWeight!.Value).GreaterThanOrEqualTo(0));
-                v.When(x => x.Width.HasValue, () =>
-                    v.RuleFor(x => x.Width!.Value).GreaterThanOrEqualTo(0));
-                v.When(x => x.Height.HasValue, () =>
-                    v.RuleFor(x => x.Height!.Value).GreaterThanOrEqualTo(0));
-                v.When(x => x.Length.HasValue, () =>
-                    v.RuleFor(x => x.Length!.Value).GreaterThanOrEqualTo(0));
+                if (v.Price.HasValue)
+                {
+                    if (v.Price.Value < 0)
+                        context.AddFailure("Variant price must be zero or greater.");
+                    else if (v.Price.Value < command.BasePrice)
+                        context.AddFailure("Variant price must be greater than the product's base price.");
+                }
 
-                v.When(x => x.Size is not null, () =>
-                    v.RuleFor(x => x.Size).MaximumLength(50));
+                if (v.CostPrice.HasValue)
+                {
+                    if (v.CostPrice.Value < 0)
+                        context.AddFailure("Variant cost price must be zero or greater.");
+                    else if (v.CostPrice.Value < command.BaseCostPrice)
+                        context.AddFailure("Variant cost price must be greater than the product's base cost price.");
+                }
 
-                v.When(x => x.Color is not null, () =>
-                    v.RuleFor(x => x.Color).MaximumLength(50));
+                if (v.StockQuantity is < 0)
+                    context.AddFailure("Stock quantity must be zero or greater.");
+                if (v.MinStockQuantity is < 0)
+                    context.AddFailure("Minimum stock quantity must be zero or greater.");
 
-                v.When(x => x.Sku is not null, () =>
-                    v.RuleFor(x => x.Sku).MaximumLength(50));
-
-                v.When(x => x.Barcode is not null, () =>
-                    v.RuleFor(x => x.Barcode).MaximumLength(14));
+                if (v.Size?.Length > 50)
+                    context.AddFailure("Size must not exceed 50 characters.");
+                if (v.Color?.Length > 50)
+                    context.AddFailure("Color must not exceed 50 characters.");
+                if (v.OptionName?.Length > 50)
+                    context.AddFailure("Option name must not exceed 50 characters.");
+                if (v.Sku?.Length > 50)
+                    context.AddFailure("SKU must not exceed 50 characters.");
+                if (v.Barcode?.Length > 14)
+                    context.AddFailure("Barcode must not exceed 14 characters.");
             }));
     }
 }

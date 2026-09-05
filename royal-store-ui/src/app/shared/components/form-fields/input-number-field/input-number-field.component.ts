@@ -43,6 +43,7 @@ export class InputNumberFieldComponent {
   mode = input<string>('currency');
   min = input<number>();
   step = input<number>();
+  prefix = input<string>('R$');
 
   blurred = output<void>();
 
@@ -52,9 +53,13 @@ export class InputNumberFieldComponent {
   formatCurrency(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement) return;
+
     const numericString = inputElement.value.replace(/\D/g, '');
     const cents = parseInt(numericString || '0', 10);
     const floatValue = cents / 100;
-    this.parentForm().controls[this.controlName()].setValue(floatValue);
+    this.parentForm().controls[this.controlName()].setValue(floatValue, {
+      emitEvent: false,
+    });
+    inputElement.value = floatValue.toFixed(2);
   }
 }

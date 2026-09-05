@@ -1,13 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  inject,
   input,
   output,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ItemType } from '../../interfaces/product.interface';
+import { TaxProfileTemplateFacade } from '@app/features/tax-profile-template/facade/tax-profile-template.facade';
+import { ProductFacade } from '../../facade/product.facade';
+import { take, tap } from 'rxjs';
 
 interface ItemTypeOption {
   value: ItemType;
@@ -30,22 +34,54 @@ const OPTIONS: ItemTypeOption[] = [
 
 @Component({
   selector: 'app-item-type-selector',
-  imports: [FormsModule, TranslatePipe, RadioButtonModule],
+  imports: [ReactiveFormsModule, TranslatePipe, RadioButtonModule],
   templateUrl: './item-type-selector.component.html',
   styleUrl: './item-type-selector.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ItemTypeSelectorComponent {
-  value = input<ItemType>(0);
-  disabled = input<boolean>(false);
+  private readonly taxProfileTemplateFacade = inject(TaxProfileTemplateFacade);
+  private readonly productFacade = inject(ProductFacade);
+  private readonly selectedProduct$ = this.productFacade.selectedProduct$;
 
+  protected readonly formGroup = new FormGroup({
+    itemType: new FormControl(0, { nonNullable: true }),
+  });
+
+  protected get value(): number {
+    return this.formGroup.controls.itemType.value;
+  }
+  disabled = input<boolean>(false);
   valueChange = output<ItemType>();
 
   protected readonly options = OPTIONS;
 
+  constructor() {
+    this.selectedProduct$
+      .pipe(
+        take(1),
+        tap(product => {
+          const itemType = product?.type || 0;
+          product !== null
+            ? this.getTaxTemplate(itemType as ItemType)
+            : this.getTaxTemplate(0);
+
+          this.formGroup.patchValue({ itemType: itemType || 0 });
+          this.valueChange.emit(itemType as ItemType);
+        }),
+      )
+      .subscribe();
+  }
+
   protected select(value: ItemType): void {
-    if (!this.disabled() && value !== this.value()) {
+    if (!this.disabled()) {
+      this.getTaxTemplate(value);
+      this.formGroup.patchValue({ itemType: value });
       this.valueChange.emit(value);
     }
+  }
+
+  private getTaxTemplate(value: ItemType) {
+    this.taxProfileTemplateFacade.loadTemplates(value);
   }
 }

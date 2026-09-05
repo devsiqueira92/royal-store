@@ -9,98 +9,100 @@ public sealed class ProductVariant : Entity
     public Guid TenantId { get; private set; }
     public string? Size { get; private set; }
     public string? Color { get; private set; }
+    public string? OptionName { get; private set; }
     public string? Sku { get; private set; }
     public string? Barcode { get; private set; }
-    public decimal Price { get; private set; }
+    public decimal? Price { get; private set; }
     public decimal? CostPrice { get; private set; }
-    public decimal StockQuantity { get; private set; }
+    public decimal? StockQuantity { get; private set; }
     public decimal? MinStockQuantity { get; private set; }
-    public bool IsStockTracked { get; private set; }
-    public decimal? PromotionalPrice { get; private set; }
-    public decimal? NetWeight { get; private set; }
-    public decimal? GrossWeight { get; private set; }
-    public decimal? Width { get; private set; }
-    public decimal? Height { get; private set; }
-    public decimal? Length { get; private set; }
 
     private ProductVariant() : base(Guid.NewGuid()) { }
 
-    internal ProductVariant(Guid productId, Guid tenantId, string? size, string? color,
-        string? sku, string? barcode, decimal price, decimal? costPrice,
-        decimal stockQuantity, decimal? minStockQuantity, bool isStockTracked,
-        decimal? promotionalPrice, decimal? netWeight, decimal? grossWeight,
-        decimal? width, decimal? height, decimal? length)
+    internal ProductVariant(Guid productId, Guid tenantId, string? size, string? color, string? optionName,
+        string? sku, string? barcode, decimal? price, decimal? costPrice,
+        decimal? stockQuantity, decimal? minStockQuantity)
         : base(Guid.NewGuid())
     {
         ProductId = productId;
         TenantId = tenantId;
         Size = size?.Trim();
         Color = color?.Trim();
+        OptionName = optionName?.Trim();
         Sku = sku?.Trim();
         Barcode = barcode?.Trim();
         Price = price;
         CostPrice = costPrice;
         StockQuantity = stockQuantity;
         MinStockQuantity = minStockQuantity;
-        IsStockTracked = isStockTracked;
-        PromotionalPrice = promotionalPrice;
-        NetWeight = netWeight;
-        GrossWeight = grossWeight;
-        Width = width;
-        Height = height;
-        Length = length;
     }
 
-    public Result Update(string? size, string? color, string? sku, string? barcode,
-        decimal price, decimal? costPrice, decimal stockQuantity, decimal? minStockQuantity, bool isStockTracked,
-        decimal? promotionalPrice, decimal? netWeight, decimal? grossWeight,
-        decimal? width, decimal? height, decimal? length)
+    internal static Result Validate(
+        bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice,
+        string? sku, string? barcode, decimal? price, decimal? costPrice,
+        decimal? stockQuantity, decimal? minStockQuantity)
     {
-        if (price < 0)
-            return Result.Failure(Error.Validation("variant.price_negative", "Price must be zero or greater."));
+        if (ownerStockTrack)
+        {
+            if (string.IsNullOrWhiteSpace(sku))
+                return Result.Failure(Error.Validation("variant.sku_required", "SKU is required when stock is tracked."));
 
-        if (costPrice.HasValue && costPrice.Value < 0)
-            return Result.Failure(Error.Validation("variant.cost_price_negative", "Cost price must be zero or greater."));
+            if (string.IsNullOrWhiteSpace(barcode))
+                return Result.Failure(Error.Validation("variant.barcode_required", "Barcode is required when stock is tracked."));
 
-        if (stockQuantity < 0)
+            if (!stockQuantity.HasValue)
+                return Result.Failure(Error.Validation("variant.stock_quantity_required", "Stock quantity is required when stock is tracked."));
+
+            if (!minStockQuantity.HasValue)
+                return Result.Failure(Error.Validation("variant.min_stock_quantity_required", "Minimum stock quantity is required when stock is tracked."));
+        }
+
+        if (stockQuantity is < 0)
             return Result.Failure(Error.Validation("variant.stock_negative", "Stock quantity must be zero or greater."));
 
-        if (promotionalPrice is < 0)
-            return Result.Failure(Error.Validation("variant.promotional_price_negative", "Promotional price must be zero or greater."));
+        if (minStockQuantity is < 0)
+            return Result.Failure(Error.Validation("variant.min_stock_negative", "Minimum stock quantity must be zero or greater."));
 
-        if (promotionalPrice.HasValue && promotionalPrice.Value > price)
-            return Result.Failure(Error.Validation("variant.promotional_price_above_price", "Promotional price must not exceed the regular price."));
+        if (price.HasValue)
+        {
+            if (price.Value < 0)
+                return Result.Failure(Error.Validation("variant.price_negative", "Price must be zero or greater."));
 
-        if (HasNegativeMeasure(netWeight, grossWeight, width, height, length))
-            return Result.Failure(Error.Validation("variant.measure_negative", "Weight and dimension values must be zero or greater."));
+            if (price.Value < ownerBasePrice)
+                return Result.Failure(Error.Validation("variant.price_not_above_base", "Price must be greater than the product's base price."));
+        }
 
-        Size = size?.Trim();
-        Color = color?.Trim();
-        Sku = sku?.Trim();
-        Barcode = barcode?.Trim();
-        Price = price;
-        CostPrice = costPrice;
-        StockQuantity = stockQuantity;
-        MinStockQuantity = minStockQuantity;
-        IsStockTracked = isStockTracked;
-        PromotionalPrice = promotionalPrice;
-        NetWeight = netWeight;
-        GrossWeight = grossWeight;
-        Width = width;
-        Height = height;
-        Length = length;
+        if (costPrice.HasValue)
+        {
+            if (costPrice.Value < 0)
+                return Result.Failure(Error.Validation("variant.cost_price_negative", "Cost price must be zero or greater."));
+
+            if (costPrice.Value < ownerBaseCostPrice)
+                return Result.Failure(Error.Validation("variant.cost_price_not_above_base", "Cost price must be greater than the product's base cost price."));
+        }
 
         return Result.Success();
     }
 
-    private static bool HasNegativeMeasure(params decimal?[] values)
+    public Result Update(string? size, string? color, string? optionName, string? sku, string? barcode,
+        decimal? price, decimal? costPrice, decimal? stockQuantity, decimal? minStockQuantity,
+        bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice)
     {
-        foreach (var value in values)
-        {
-            if (value is < 0)
-                return true;
-        }
+        var validation = Validate(ownerStockTrack, ownerBasePrice, ownerBaseCostPrice,
+            sku, barcode, price, costPrice, stockQuantity, minStockQuantity);
+        if (!validation.IsSuccess)
+            return validation;
 
-        return false;
+        Size = size?.Trim();
+        Color = color?.Trim();
+        OptionName = optionName?.Trim();
+        Sku = sku?.Trim();
+        Barcode = barcode?.Trim();
+        Price = price;
+        CostPrice = costPrice;
+        StockQuantity = stockQuantity;
+        MinStockQuantity = minStockQuantity;
+
+        return Result.Success();
     }
 }

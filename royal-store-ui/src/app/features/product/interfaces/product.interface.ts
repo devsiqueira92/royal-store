@@ -9,31 +9,40 @@ export interface ProductCategoryOption {
 /** 0 = Physical product, 1 = Service */
 export type ItemType = 0 | 1;
 
+export interface ProductMeasure {
+  netWeight?: number | null;
+  grossWeight?: number | null;
+  width?: number | null;
+  height?: number | null;
+  length?: number | null;
+}
+
 export interface Product {
   id: string;
   tenantId: string;
-  itemType?: number;
+  type?: number;
   categoryId: string;
   categoryName: string;
-  price: number;
-  costPrice?: number;
+  basePrice: number;
+  baseCostPrice?: number;
   categoryColor?: string;
   name: string;
   sku: string;
   description?: string;
   unitOfMeasure: string;
+  stockTrack: boolean;
   ncm?: string;
   cest?: string;
   origin: string;
+  measure: ProductMeasure;
   version: number;
   isActive: boolean;
   coverPhotoUrl?: string;
   photos: ProductPhoto[];
   variants: ProductVariant[];
-  // tags: ProductTag[];
 
   // Fiscal
-  taxProfileTemplate?: string;
+  taxProfileTemplateId?: string;
   nbs?: string;
   issCode?: string;
   overrideTaxProfile?: boolean;
@@ -54,30 +63,20 @@ export interface ProductVariant {
   id: string;
   size?: string;
   color?: string;
+  optionName?: string;
   sku?: string;
   barcode?: string;
-  price: number;
-  costPrice?: number;
-  stockQuantity: number;
-  minStockQuantity?: number;
-  isStockTracked: boolean;
-  netWeight?: number;
-  grossWeight?: number;
-  width?: number;
-  height?: number;
-  length?: number;
+  price?: number | null;
+  costPrice?: number | null;
+  stockQuantity?: number | null;
+  minStockQuantity?: number | null;
 }
-
-// export interface ProductTag {
-//   categoryId: string;
-//   categoryName: string;
-//   categoryColor?: string;
-// }
 
 export interface ProductVariantFormControls {
   id: FormControl<string | null>;
   size: FormControl<string | null>;
   color: FormControl<string | null>;
+  optionName: FormControl<string | null>;
   sku: FormControl<string | null>;
   barcode: FormControl<string | null>;
   price: FormControl<number | null>;
@@ -88,18 +87,18 @@ export interface ProductVariantFormControls {
 
 export interface ProductFormControls {
   id: FormControl<string | null>;
-  itemType: FormControl<number>;
+  type: FormControl<number>;
   categoryId: FormControl<string | null>;
   name: FormControl<string | null>;
   sku: FormControl<string | null>;
   description: FormControl<string | null>;
-  price: FormControl<number | null>;
-  costPrice: FormControl<number | null>;
+  basePrice: FormControl<number | null>;
+  baseCostPrice: FormControl<number | null>;
   unitOfMeasure: FormControl<string | null>;
   isActive: FormControl<boolean | null>;
-  isStockTracked: FormControl<boolean | null>;
+  stockTrack: FormControl<boolean | null>;
   // Taxes
-  taxProfileTemplate: FormControl<string | null>;
+  taxProfileTemplateId: FormControl<string | null>;
   ncm: FormControl<string | null>;
   origin: FormControl<string | null>;
   nbs: FormControl<string | null>;

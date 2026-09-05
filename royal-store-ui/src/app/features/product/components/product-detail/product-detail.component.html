@@ -21,31 +21,32 @@
 
   <div class="form__row form__row--2">
     <app-input-number-field
-      controlName="price"
+      controlName="basePrice"
       [parentForm]="formGroup()"
       label="product.form.price"
       type="number"
       [min]="0"
       [step]="0.01"
+      (blurred)="onBasePriceBlur()"
     ></app-input-number-field>
 
     <app-input-number-field
-      controlName="costPrice"
+      controlName="baseCostPrice"
       [parentForm]="formGroup()"
       label="product.form.cost"
       type="number"
       [min]="0"
       [step]="0.01"
+      (blurred)="onBaseCostPriceBlur()"
     ></app-input-number-field>
   </div>
 
   <div class="form__row form__row--3">
-    <app-select-field
+    <app-category-select-field
       [parentForm]="formGroup()"
       controlName="categoryId"
       label="product.form.category"
-      [options]="categoryOptions()"
-    ></app-select-field>
+    ></app-category-select-field>
 
     <app-select-field
       [parentForm]="formGroup()"
@@ -63,11 +64,6 @@
     ></app-input-field>
   </div>
 
-  <!-- <app-product-tags-field
-      [categories]="categories()"
-      (tagsChange)="onTagsChange($event)"
-    ></app-product-tags-field> -->
-
   <app-image-upload-field
     (filesChange)="onPhotoFilesChange($event)"
   ></app-image-upload-field>
@@ -78,9 +74,10 @@
   <div class="product-form-track mb-3">
     <app-toggle-field
       [parentForm]="formGroup()"
-      controlName="isStockTracked"
+      controlName="stockTrack"
       titleKey="product.form.trackStock"
       subtitleKey="product.form.trackStockHint"
+      [disabled]="itemType() === 1"
     ></app-toggle-field>
     <!-- @if (margin(); as margin) {
         <span class="product-variant-form__margin">

@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  output,
+} from '@angular/core';
 import {
   ReactiveFormsModule,
   UntypedFormGroup,
@@ -7,7 +12,7 @@ import {
 import { Options } from '@app/shared/interceptors/options.interface';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { SelectModule } from 'primeng/select';
+import { SelectChangeEvent, SelectModule } from 'primeng/select';
 import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
@@ -34,6 +39,8 @@ export class SelectFieldComponent {
   @Input() disabled: boolean = false;
   @Input() showClear: boolean = false;
   @Input() filter: boolean = false;
+
+  onSelect = output<SelectChangeEvent>();
 
   objectKeys = Object.keys;
   Validators = Validators;

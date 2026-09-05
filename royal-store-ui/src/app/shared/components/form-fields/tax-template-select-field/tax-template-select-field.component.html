@@ -1,0 +1,8 @@
+<app-select-field
+  controlName="taxProfileTemplateId"
+  label="product.form.tax.profileTemplate"
+  [parentForm]="parentForm()"
+  controlName="taxProfileTemplateId"
+  [options]="(templates$ | async) ?? []"
+  (onSelect)="applyTemplate($event)"
+></app-select-field>

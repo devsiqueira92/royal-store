@@ -162,14 +162,15 @@ export class ProductsComponent implements OnInit {
 
   protected getInventoryValue(product: Product): number {
     return product.variants.reduce(
-      (total, variant) => total + variant.price * variant.stockQuantity,
+      (total, variant) =>
+        total + (variant.price ?? product.basePrice) * (variant.stockQuantity ?? 0),
       0,
     );
   }
 
   protected getTotalStock(product: Product): number {
     return product.variants.reduce(
-      (total, variant) => total + variant.stockQuantity,
+      (total, variant) => total + (variant.stockQuantity ?? 0),
       0,
     );
   }
@@ -181,7 +182,9 @@ export class ProductsComponent implements OnInit {
       return null;
     }
 
-    const prices = product.variants.map(variant => variant.price);
+    const prices = product.variants.map(
+      variant => variant.price ?? product.basePrice,
+    );
     return { min: Math.min(...prices), max: Math.max(...prices) };
   }
 
@@ -196,7 +199,7 @@ export class ProductsComponent implements OnInit {
   }
 
   protected getVariantStatus(variant: ProductVariant): StockStatus {
-    if (!variant.isStockTracked) {
+    if (variant.stockQuantity == null) {
       return 'inStock';
     }
 
@@ -215,7 +218,7 @@ export class ProductsComponent implements OnInit {
   }
 
   protected getStockStatus(product: Product): StockStatus {
-    if (product.variants.length === 0) {
+    if (!product.stockTrack || product.variants.length === 0) {
       return 'inStock';
     }
 

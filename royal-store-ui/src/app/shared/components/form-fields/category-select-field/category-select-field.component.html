@@ -1,0 +1,65 @@
+<form [formGroup]="parentForm()" class="mb-3 form-field">
+  <p-floatlabel variant="on">
+    <p-select
+      [id]="controlName()"
+      [formControlName]="controlName()"
+      [invalid]="
+        parentForm().controls[controlName()].touched &&
+        parentForm().controls[controlName()].errors
+      "
+      [options]="categories()"
+      optionLabel="description"
+      optionValue="id"
+      [loading]="isLoading$ | async"
+      [showClear]="showClear()"
+      [filter]="filter()"
+      (onChange)="onSelect.emit($event)"
+    >
+      <ng-template #selectedItem let-selectedOption>
+        <div class="d-flex align-items-center">
+          <span
+            class="color-indicator"
+            [ngStyle]="{ 'background-color': selectedOption.color }"
+          >
+          </span>
+          <span>{{ selectedOption.name }}</span>
+        </div>
+      </ng-template>
+      <ng-template let-category #item>
+        <div class="d-flex align-items-center">
+          <span
+            class="color-indicator"
+            [ngStyle]="{ 'background-color': category.color }"
+          >
+          </span>
+          <span>{{ category.name }}</span>
+        </div>
+      </ng-template>
+      <ng-template #footer>
+        <div class="new-category px-1 py-2">
+          <app-button
+            severity="secondary"
+            size="small"
+            icon="pi pi-plus"
+            label="add new"
+          >
+          </app-button>
+        </div>
+      </ng-template>
+    </p-select>
+    <label [for]="controlName()"
+      >{{ label() | translate }}
+
+      @if (
+        parentForm().controls[controlName()].hasValidator(Validators.required)
+      ) {
+        <i class="pi pi-asterisk required-icon"></i>
+      }
+    </label>
+  </p-floatlabel>
+
+  <app-form-error
+    [parentForm]="parentForm()"
+    [controlName]="controlName()"
+  ></app-form-error>
+</form>
