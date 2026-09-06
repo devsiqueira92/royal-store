@@ -1,0 +1,43 @@
+<form [formGroup]="parentForm" class="mb-3 form-field">
+  <p-inputgroup>
+    <p-floatlabel variant="on">
+      <p-select
+        [id]="controlName"
+        [formControlName]="controlName"
+        [invalid]="
+          parentForm.controls[controlName].touched &&
+          parentForm.controls[controlName].errors
+        "
+        [placeholder]="placeholder | translate"
+        [options]="originOptions()"
+        optionLabel="description"
+        optionValue="code"
+        [loading]="loading$ | async"
+        (onChange)="selectOption($event)"
+      />
+      <label [for]="controlName"
+        >{{ label | translate }}
+
+        @if (
+          parentForm.controls[controlName].hasValidator(Validators.required)
+        ) {
+          <i class="pi pi-asterisk required-icon"></i>
+        }
+      </label>
+    </p-floatlabel>
+
+    @if (useHint) {
+      <p-inputgroup-addon>
+        <i
+          [pTooltip]="hint"
+          class="pi pi-info-circle mx-2"
+          tooltipPosition="top"
+        ></i>
+      </p-inputgroup-addon>
+    }
+  </p-inputgroup>
+  <app-form-error
+    [parentForm]="parentForm"
+    [controlName]="controlName"
+  ></app-form-error>
+</form>

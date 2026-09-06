@@ -109,10 +109,10 @@ export class ProductFooterComponent {
       basePrice: raw.basePrice ?? 0,
       baseCostPrice: raw.baseCostPrice ?? 0,
       description: raw.description?.trim() || undefined,
-      unitOfMeasure: raw.unitOfMeasure?.trim() || 'UN',
+      unitOfMeasure: raw.unitOfMeasure!,
       ncm: raw.ncm?.trim() || undefined,
       cest: raw.cest?.trim() || undefined,
-      origin: Number(raw.origin ?? 0),
+      origin: raw.origin ?? '0',
       measure: {
         netWeight: raw.netWeight ?? undefined,
         grossWeight: raw.grossWeight ?? undefined,

@@ -19,7 +19,7 @@ public sealed class Product : Entity, IAuditableEntity
     public decimal BaseCostPrice { get; private set; }
     public string? Ncm { get; private set; }
     public string? Cest { get; private set; }
-    public ProductOrigin Origin { get; private set; }
+    public string Origin { get; private set; }
     public string? Nbs { get; private set; }
     public string? IssCode { get; private set; }
     public string? DefaultCfop { get; private set; }
@@ -45,7 +45,7 @@ public sealed class Product : Entity, IAuditableEntity
 
     private Product(Guid id, Guid tenantId, Guid categoryId, string name, string sku, ItemType type,
         bool stockTrack, decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
-        string? ncm, string? cest, ProductOrigin origin, string? nbs, string? issCode,
+        string? ncm, string? cest, string origin, string? nbs, string? issCode,
         Guid taxProfileTemplateId, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
         ProductMeasure measure)
@@ -153,7 +153,7 @@ public sealed class Product : Entity, IAuditableEntity
     public static Result<Product> CreateProduct(
         Guid tenantId, Guid categoryId, string name, string sku, bool stockTrack,
         decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
-        string? ncm, string? cest, int origin,
+        string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax)
@@ -164,10 +164,7 @@ public sealed class Product : Entity, IAuditableEntity
 
         if (string.IsNullOrWhiteSpace(ncm))
             return Error.Validation("product.ncm_required", "NCM is required.");
-
-        if (origin is < 0 or > 8)
-            return Error.Validation("product.origin_invalid", "Origin must be between 0 and 8.");
-
+        
         var measureResult = ProductMeasure.Create(netWeight, grossWeight, width, height, length);
         if (!measureResult.IsSuccess)
             return measureResult.Error;
@@ -183,7 +180,7 @@ public sealed class Product : Entity, IAuditableEntity
         var (tid, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
 
         return new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Product,
-            stockTrack, bp, bcp, description, unitOfMeasure, Normalize(ncm), Normalize(cest), (ProductOrigin)origin,
+            stockTrack, bp, bcp, description, unitOfMeasure, Normalize(ncm), Normalize(cest), origin,
             null, null, taxProfileTemplate.Id, overrideTaxProfile,
             overrideTaxProfile ? Normalize(defaultCfop) : null,
             overrideTaxProfile ? Normalize(icmsCst) : null,
@@ -201,7 +198,7 @@ public sealed class Product : Entity, IAuditableEntity
         decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
         string nbs, string issCode,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
-        string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax)
+        string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax, string origin)
     {
         var common = ValidateCommonFields(tenantId, categoryId, name, sku, basePrice, baseCostPrice);
         if (!common.IsSuccess)
@@ -224,7 +221,7 @@ public sealed class Product : Entity, IAuditableEntity
         var (tid, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
 
         return new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Service,
-            stockTrack: false, bp, bcp, description, unitOfMeasure, ncm: null, cest: null, origin: ProductOrigin.Nacional,
+            stockTrack: false, bp, bcp, description, unitOfMeasure, ncm: null, cest: null, origin: origin,
             Normalize(nbs), Normalize(issCode), taxProfileTemplate.Id, overrideTaxProfile,
             defaultCfop: null, icmsCst: null,
             overrideTaxProfile ? Normalize(pisCofinsCst) : null,
@@ -239,7 +236,7 @@ public sealed class Product : Entity, IAuditableEntity
     public Result UpdateProductFields(
         Guid categoryId, string name, string sku, bool stockTrack,
         decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
-        string? ncm, string? cest, int origin,
+        string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax)
@@ -257,8 +254,6 @@ public sealed class Product : Entity, IAuditableEntity
         if (string.IsNullOrWhiteSpace(ncm))
             return Result.Failure(Error.Validation("product.ncm_required", "NCM is required."));
 
-        if (origin is < 0 or > 8)
-            return Result.Failure(Error.Validation("product.origin_invalid", "Origin must be between 0 and 8."));
 
         var measureResult = ProductMeasure.Create(netWeight, grossWeight, width, height, length);
         if (!measureResult.IsSuccess)
@@ -281,7 +276,7 @@ public sealed class Product : Entity, IAuditableEntity
         UnitOfMeasure = string.IsNullOrWhiteSpace(unitOfMeasure) ? "UN" : unitOfMeasure;
         Ncm = Normalize(ncm);
         Cest = Normalize(cest);
-        Origin = (ProductOrigin)origin;
+        Origin = origin;
         Measure = measureResult.Value;
         TaxProfileTemplateId = taxProfileTemplate.Id;
         TaxProfileTemplate = taxProfileTemplate;
@@ -349,7 +344,7 @@ public sealed class Product : Entity, IAuditableEntity
     public Result UpdateProductWithVariants(
         Guid categoryId, string name, string sku, bool stockTrack,
         decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
-        string? ncm, string? cest, int origin,
+        string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,

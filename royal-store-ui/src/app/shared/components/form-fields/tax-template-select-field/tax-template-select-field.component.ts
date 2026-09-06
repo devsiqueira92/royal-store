@@ -7,12 +7,12 @@ import {
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ProductFormControls } from '@app/features/product/interfaces/product.interface';
-import { TaxProfileTemplateFacade } from '@app/features/tax-profile-template/facade/tax-profile-template.facade';
 import { combineLatest, filter, map, tap } from 'rxjs';
 import { SelectFieldComponent } from '../select-field/select-field.component';
 import { AsyncPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductFacade } from '@app/features/product/facade/product.facade';
+import { TaxProfileTemplateFacade } from '@app/core/tax-profile-template/facade/tax-profile-template.facade';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,

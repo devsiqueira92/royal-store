@@ -13,6 +13,7 @@ public record CreateServiceCommand(
     string? Description,
     string UnitOfMeasure,
     string Nbs,
+    string Origin,
     string IssCode,
     Guid TaxProfileTemplateId,
     bool OverrideTaxProfile,

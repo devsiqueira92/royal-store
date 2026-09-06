@@ -31,7 +31,7 @@ public sealed class ProductEndpoints : IEndpointDefinition
 
         routes.MapPost("{id:guid}/variants", AddVariant);
         routes.MapPut("{id:guid}/variants/{variantId:guid}", UpdateVariant);
-        routes.MapDelete("{id:guid}/variants/{variantId:guid}", RemoveVariant);
+        routes.MapDelete("variants/{variantId:guid}", RemoveVariant);
 
         routes.MapPost("{id:guid}/photos", AddPhoto);
         routes.MapDelete("{id:guid}/photos/{photoId:guid}", RemovePhoto);
@@ -101,12 +101,11 @@ public sealed class ProductEndpoints : IEndpointDefinition
     }
 
     private static async Task<IResult> RemoveVariant(
-        Guid id,
         Guid variantId,
         IMediator mediator,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new RemoveProductVariantCommand(id, variantId), ct);
+        var result = await mediator.Send(new RemoveProductVariantCommand(variantId), ct);
         return result.ToHttpResult(() => TypedResults.NoContent());
     }
 

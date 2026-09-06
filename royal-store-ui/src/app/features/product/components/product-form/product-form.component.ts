@@ -24,14 +24,14 @@ import {
 import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
 import { ProductFacade } from '../../facade/product.facade';
 import { ItemTypeSelectorComponent } from '../item-type-selector/item-type-selector.component';
-import { TaxProfileTemplateFacade } from '@app/features/tax-profile-template/facade/tax-profile-template.facade';
-import { TaxProfileTemplate } from '@app/features/tax-profile-template/interfaces/tax-profile-template.interface';
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
 import { ProductTaxesComponent } from '../product-taxes/product-taxes.component';
 import { ProductFooterComponent } from '../product-footer/product-footer.component';
 import { ProductVariantsComponent } from '../product-variants/product-variants.component';
 import { toggleControl } from '@app/shared/utils/toggle-control.utils';
 import { ProductLogisticsComponent } from '../product-logistics/product-logistics.component';
+import { TaxProfileTemplateFacade } from '@app/core/tax-profile-template/facade/tax-profile-template.facade';
+import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/tax-profile-template.interface';
 
 // Advanced fiscal controls driven by the tax profile template's override matrix.
 // `cest` is intentionally excluded — it's a free Product field, not template-driven.
@@ -206,15 +206,18 @@ export class ProductFormComponent {
         Validators.maxLength(50),
       ]),
       description: new FormControl(null, [Validators.maxLength(500)]),
-      basePrice: new FormControl(0, [Validators.required, Validators.min(0)]),
-      baseCostPrice: new FormControl(null, [Validators.min(0)]),
-      unitOfMeasure: new FormControl('UN', [Validators.maxLength(6)]),
+      basePrice: new FormControl(0, [
+        Validators.required,
+        Validators.min(0.01),
+      ]),
+      baseCostPrice: new FormControl(0, [Validators.min(0.01)]),
+      unitOfMeasure: new FormControl(null),
       isActive: new FormControl(true),
 
       stockTrack: new FormControl(true),
       taxProfileTemplateId: new FormControl(null, [Validators.required]),
       ncm: new FormControl(null, [Validators.maxLength(10)]),
-      origin: new FormControl('0'),
+      origin: new FormControl('0', [Validators.required]),
       nbs: new FormControl({ value: null, disabled: true }),
       issCode: new FormControl({ value: null, disabled: true }),
 

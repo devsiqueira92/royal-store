@@ -36,8 +36,12 @@ import { saleFeature } from './features/sale/store/sale.reducer';
 import { saleStore } from './features/sale/store/sale.store';
 import { ibptTaxFeature } from './core/ibpt-tax/store/ibpt-tax.reducer';
 import { ibptTaxStore } from './core/ibpt-tax/store/ibpt-tax.store';
-import { taxProfileTemplateFeature } from './features/tax-profile-template/store/tax-profile-template.reducer';
-import { taxProfileTemplateStore } from './features/tax-profile-template/store/tax-profile-template.store';
+import { taxProfileTemplateFeature } from './core/tax-profile-template/store/tax-profile-template.reducer';
+import { taxProfileTemplateStore } from './core/tax-profile-template/store/tax-profile-template.store';
+import { unitMeasureOptionFeature } from './core/unit-measure-option/store/unit-measure-option.reducer';
+import { unitMeasureOptionStore } from './core/unit-measure-option/store/unit-measure-option.store';
+import { originOptionFeature } from './core/origin-option/store/origin-option.reducer';
+import { originOptionStore } from './core/origin-option/store/origin-option.store';
 
 registerLocaleData(localeEn);
 
@@ -70,6 +74,8 @@ export const appConfig: ApplicationConfig = {
       [ibptTaxFeature.name]: ibptTaxFeature.reducer,
       [saleFeature.name]: saleFeature.reducer,
       [taxProfileTemplateFeature.name]: taxProfileTemplateFeature.reducer,
+      [unitMeasureOptionFeature.name]: unitMeasureOptionFeature.reducer,
+      [originOptionFeature.name]: originOptionFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -81,6 +87,8 @@ export const appConfig: ApplicationConfig = {
       ibptTaxStore,
       saleStore,
       taxProfileTemplateStore,
+      unitMeasureOptionStore,
+      originOptionStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,

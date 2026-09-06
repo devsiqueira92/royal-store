@@ -29,6 +29,10 @@ export const ProductActions = createActionGroup({
       id: string;
       request: UpdateProductRequest;
     }>(),
+    'Remove Product Variant': props<{
+      productId: string;
+      variantId: string;
+    }>(),
     'Remove Product Variant Success': props<{
       productId: string;
       variantId: string;

@@ -38,18 +38,48 @@ export class ProductVariantsComponent {
 
   protected readonly selectedVariants = toSignal(
     this.productFacade.productVariants$,
-    { initialValue: [] as ProductVariant[] },
+    { initialValue: [] },
   );
 
+  protected readonly selectedProduct = toSignal(
+    this.productFacade.selectedProduct$,
+    { initialValue: null },
+  );
+
+  // Rebuild the FormArray only when a different product is loaded — not on
+  // every mutation of its variants (edit patch, removeProductVariantSuccess,
+  // disableProductSuccess). Otherwise the effect re-runs and populateForm
+  // appends the surviving rows on top of the existing ones, growing the
+  // FormArray on every store emission until the tab freezes.
+  private populatedForProductId: string | null | undefined = undefined;
+
   constructor() {
+    //  effect(() => {
+    //    if (this.selectedVariants() === undefined) {
+    //      this.variants().clear();
+    //      this.addVariant();
+    //    } else {
+    //      this.populateForm(this.selectedVariants()!);
+    //    }
+    //  });
+
     effect(() => {
-      if (this.selectedVariants() === undefined) {
-        this.variants().clear();
-        this.addVariant();
-      } else {
-        console.log(this.itemType);
-        this.populateForm(this.selectedVariants()!);
+      const variants = this.selectedVariants();
+      const productId = this.selectedProduct()?.id ?? null;
+
+      if (productId === this.populatedForProductId) {
+        return;
       }
+      this.populatedForProductId = productId;
+
+      this.variants().clear();
+
+      if (!variants || variants.length === 0) {
+        this.addVariant();
+        return;
+      }
+
+      this.populateForm(variants);
     });
   }
 
@@ -64,7 +94,7 @@ export class ProductVariantsComponent {
     const group = this.buildVariantGroup();
     this.applyVariantVisibility(group);
     this.variants().push(group);
-    this.setComputedSku(group, this.variants.length - 1);
+    this.setComputedSku(group, this.variants().length - 1);
   }
 
   protected duplicateVariant(index: number): void {
@@ -76,9 +106,20 @@ export class ProductVariantsComponent {
     this.setComputedSku(group, insertIndex);
   }
 
-  protected removeVariant(index: number): void {
+  protected removeVariant(
+    index: number,
+    variantGroup: FormGroup<ProductVariantFormControls>,
+  ): void {
     if (this.variants().length <= 1) {
       return;
+    }
+
+    const productId = this.selectedProduct()?.id;
+    const variantId = variantGroup.controls.id.value;
+
+    // Persisted variant: delete it on the backend. Unsaved row: just drop it.
+    if (productId && variantId) {
+      this.productFacade.removeProductVariant(productId, variantId);
     }
 
     this.variants().removeAt(index);

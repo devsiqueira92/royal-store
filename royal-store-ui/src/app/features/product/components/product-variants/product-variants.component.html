@@ -20,7 +20,7 @@
       [itemType]="itemType()"
       [removable]="variants().length > 1"
       (duplicate)="duplicateVariant(i)"
-      (remove)="removeVariant(i)"
+      (remove)="removeVariant(i, variantGroup)"
     ></app-product-variant-form>
   }
 

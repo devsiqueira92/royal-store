@@ -122,6 +122,9 @@ public sealed class DependencyInjection : IInstallService
             options.AddPolicy(PolicyNames.Admin, policy =>
                 policy.RequireRole(Role.Admin));
 
+            options.AddPolicy(PolicyNames.SuperAdmin, policy =>
+                policy.RequireRole(Role.SuperAdmin));
+
             foreach (var entry in PermissionCatalog.All)
             {
                 options.AddPolicy(
@@ -140,12 +143,15 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<ICashShiftRepository, CashShiftRepository>();
         services.AddScoped<ISaleRepository, SaleRepository>();
         services.AddScoped<IIbptTaxRepository, IbptTaxRepository>();
+        services.AddScoped<IOriginOptionRepository, OriginOptionRepository>();
+        services.AddScoped<IUnitMeasureOptionRepository, UnitMeasureOptionRepository>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IEmailService, ConsoleEmailService>();
         services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
+        services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<ISecurityAuditService, SecurityAuditService>();
         services.AddScoped<IConfirmationResendRequestRepository, ConfirmationResendRequestRepository>();
         services.AddScoped<IEmailChangeRequestRepository, EmailChangeRequestRepository>();

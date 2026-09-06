@@ -23,7 +23,7 @@ export interface CreateProductRequest {
   unitOfMeasure: string;
   ncm?: string;
   cest?: string;
-  origin: number;
+  origin: string;
   measure?: ProductMeasure;
   variants: CreateProductVariantRequest[];
 

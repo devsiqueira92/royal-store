@@ -47,8 +47,7 @@ export class ProductService {
   }
 
   removeVariant(productId: string, variantId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiUrl}/${productId}/variants/${variantId}`,
-    );
+    debugger;
+    return this.http.delete<void>(`${this.apiUrl}/variants/${variantId}`);
   }
 }

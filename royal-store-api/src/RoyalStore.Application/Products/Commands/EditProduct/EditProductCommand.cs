@@ -47,7 +47,7 @@ public record EditProductCommand(
     string UnitOfMeasure,
     string? Ncm,
     string? Cest,
-    int Origin,
+    string Origin,
     Guid TaxProfileTemplateId,
     bool OverrideTaxProfile,
     IReadOnlyList<VariantInput> VariantsToAdd,

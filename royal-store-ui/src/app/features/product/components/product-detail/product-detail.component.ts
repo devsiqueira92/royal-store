@@ -15,14 +15,9 @@ import {
 } from '../../interfaces/product.interface';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CategorySelectFieldComponent } from '@app/shared/components/form-fields/category-select-field/category-select-field.component';
-
-const UNIT_OF_MEASURE_OPTIONS: Options[] = [
-  { code: 'UN', description: 'UN — Unit' },
-  { code: 'PC', description: 'PC — Piece' },
-  { code: 'PAR', description: 'PAR — Pair' },
-  { code: 'CX', description: 'CX — Box' },
-  { code: 'KG', description: 'KG — Kilogram' },
-];
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { UnitMeasureOptionFacade } from '@app/core/unit-measure-option/facade/unit-measure-option.facade';
 
 @Component({
   selector: 'app-product-detail',
@@ -42,6 +37,8 @@ const UNIT_OF_MEASURE_OPTIONS: Options[] = [
   styleUrl: './product-detail.component.scss',
 })
 export class ProductDetailComponent {
+  private readonly unitMeasureOptionFacade = inject(UnitMeasureOptionFacade);
+
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
   itemType = input.required<number>();
@@ -50,8 +47,26 @@ export class ProductDetailComponent {
     FormGroup<ProductVariantFormControls>
   >();
 
-  protected readonly unitOfMeasureOptions = UNIT_OF_MEASURE_OPTIONS;
+  protected readonly unitOfMeasureOptions = toSignal(
+    this.unitMeasureOptionFacade.unitMeasureOptions$.pipe(
+      map(options =>
+        options.map((option): Options => ({
+          code: option.id,
+          description: option.name,
+        })),
+      ),
+    ),
+    { initialValue: [] as Options[] },
+  );
+  protected readonly isUnitOfMeasureOptionsLoading = toSignal(
+    this.unitMeasureOptionFacade.isLoading$,
+    { initialValue: false },
+  );
   protected readonly photoFiles = signal<File[]>([]);
+
+  constructor() {
+    this.unitMeasureOptionFacade.loadUnitMeasureOptions();
+  }
 
   protected onPhotoFilesChange(files: File[]): void {
     this.photoFiles.set(files);

@@ -38,14 +38,19 @@
       >
         <i class="pi pi-copy"></i>
       </button>
-      <button
+
+      <app-delete-button
+        [disabled]="!removable()"
+        (onDelete)="remove.emit()"
+      ></app-delete-button>
+      <!-- <button
         type="button"
         [attr.aria-label]="'product.form.removeVariant' | translate"
-        [disabled]="!removable()"
+       
         (click)="remove.emit()"
       >
         <i class="pi pi-trash"></i>
-      </button>
+      </button> -->
     </div>
   </div>
 

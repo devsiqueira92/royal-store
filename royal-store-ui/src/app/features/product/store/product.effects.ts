@@ -97,6 +97,34 @@ export const saveProductEdit = createEffect(
   },
 );
 
+export const removeProductVariant = createEffect(
+  (actions$ = inject(Actions), productService = inject(ProductService)) => {
+    return actions$.pipe(
+      ofType(ProductActions.removeProductVariant),
+      concatMap(({ productId, variantId }) =>
+        productService.removeVariant(productId, variantId).pipe(
+          map(() =>
+            ProductActions.removeProductVariantSuccess({
+              productId,
+              variantId,
+            }),
+          ),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              ProductActions.removeProductVariantFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const disableProduct = createEffect(
   (actions$ = inject(Actions), productService = inject(ProductService)) => {
     return actions$.pipe(

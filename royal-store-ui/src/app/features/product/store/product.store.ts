@@ -4,6 +4,7 @@ import {
   createProduct,
   saveProductEdit,
   disableProduct,
+  removeProductVariant,
 } from './product.effects';
 import { createService, saveServiceEdit } from './service.effects';
 
@@ -13,6 +14,7 @@ export const productStore = {
   createProduct,
   saveProductEdit,
   disableProduct,
+  removeProductVariant,
   createService,
   saveServiceEdit,
 };

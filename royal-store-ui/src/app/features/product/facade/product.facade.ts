@@ -44,6 +44,12 @@ export class ProductFacade {
     this.store.dispatch(ProductActions.disableProduct({ id }));
   }
 
+  removeProductVariant(productId: string, variantId: string): void {
+    this.store.dispatch(
+      ProductActions.removeProductVariant({ productId, variantId }),
+    );
+  }
+
   clearSelectedProduct(): void {
     this.store.dispatch(ProductActions.clearSelectedProduct());
   }

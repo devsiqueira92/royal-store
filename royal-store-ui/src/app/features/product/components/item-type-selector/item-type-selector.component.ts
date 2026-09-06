@@ -9,9 +9,9 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { ItemType } from '../../interfaces/product.interface';
-import { TaxProfileTemplateFacade } from '@app/features/tax-profile-template/facade/tax-profile-template.facade';
 import { ProductFacade } from '../../facade/product.facade';
 import { take, tap } from 'rxjs';
+import { TaxProfileTemplateFacade } from '@app/core/tax-profile-template/facade/tax-profile-template.facade';
 
 interface ItemTypeOption {
   value: ItemType;
