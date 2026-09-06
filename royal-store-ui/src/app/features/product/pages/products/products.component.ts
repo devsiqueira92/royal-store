@@ -163,7 +163,8 @@ export class ProductsComponent implements OnInit {
   protected getInventoryValue(product: Product): number {
     return product.variants.reduce(
       (total, variant) =>
-        total + (variant.price ?? product.basePrice) * (variant.stockQuantity ?? 0),
+        total +
+        (variant.price ?? product.basePrice) * (variant.stockQuantity ?? 0),
       0,
     );
   }

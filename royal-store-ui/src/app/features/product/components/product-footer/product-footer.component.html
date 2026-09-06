@@ -3,22 +3,22 @@
     <span>
       {{
         'product.form.summary.variants'
-          | translate: { count: getSummary().variantsCount }
+          | translate: { count: summary().variantsCount }
       }}
       @if (itemType() !== 1) {
         ·
         {{
           'product.form.summary.units'
-            | translate: { count: getSummary().totalUnits }
+            | translate: { count: summary().totalUnits }
         }}
       }
     </span>
-    @if (getSummary().minPrice != null) {
+    @if (summary().minPrice != null) {
       <span class="product-form__summary-range">
         {{ 'product.form.summary.priceRange' | translate }}
-        {{ getSummary().minPrice | currency }}
-        @if (getSummary().minPrice !== getSummary().maxPrice) {
-          – {{ getSummary().maxPrice | currency }}
+        {{ summary().minPrice | currency }}
+        @if (summary().minPrice !== summary().maxPrice) {
+          – {{ summary().maxPrice | currency }}
         }
       </span>
     }

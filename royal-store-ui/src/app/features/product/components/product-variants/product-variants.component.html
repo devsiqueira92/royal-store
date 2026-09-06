@@ -9,7 +9,7 @@
   "
 >
   @for (
-    variantGroup of variants().controls;
+    variantGroup of variantGroups();
     track variantGroup;
     let i = $index
   ) {
@@ -18,7 +18,7 @@
       [formGroup]="variantGroup"
       [index]="i"
       [itemType]="itemType()"
-      [removable]="variants().length > 1"
+      [removable]="variantGroups().length > 1"
       (duplicate)="duplicateVariant(i)"
       (remove)="removeVariant(i, variantGroup)"
     ></app-product-variant-form>

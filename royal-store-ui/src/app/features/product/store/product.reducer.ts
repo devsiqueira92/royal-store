@@ -154,20 +154,26 @@ export const productFeature = createFeature({
     ),
     on(
       ProductActions.removeProductVariantSuccess,
-      (state, { productId, variantId }): ProductState => {
-        const removeVariant = (product: Product) =>
-          product.id === productId
-            ? {
-                ...product,
-                variants: product.variants.filter(v => v.id !== variantId),
-              }
-            : product;
+      (state, { variantId }): ProductState => {
+        const products = state.products.map(p => ({
+          ...p,
+          variants: p.variants.filter(v => v.id !== variantId),
+        }));
+
+        const variants = state.selectedProduct?.variants.filter(
+          p => p.id !== variantId,
+        );
+
+        const newSelectedProduct: Product | null = {
+          ...state.selectedProduct!,
+          variants: variants!,
+        };
 
         return {
           ...state,
-          products: state.products.map(removeVariant),
-          selectedProduct:
-            state.selectedProduct && removeVariant(state.selectedProduct),
+          products: products,
+          selectedProduct: newSelectedProduct,
+          error: null,
         };
       },
     ),

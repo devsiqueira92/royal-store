@@ -1,4 +1,4 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -38,7 +38,7 @@ export class ProductVariantsComponent {
 
   protected readonly selectedVariants = toSignal(
     this.productFacade.productVariants$,
-    { initialValue: [] },
+    { initialValue: [] as ProductVariant[] },
   );
 
   protected readonly selectedProduct = toSignal(
@@ -46,40 +46,31 @@ export class ProductVariantsComponent {
     { initialValue: null },
   );
 
-  // Rebuild the FormArray only when a different product is loaded — not on
-  // every mutation of its variants (edit patch, removeProductVariantSuccess,
-  // disableProductSuccess). Otherwise the effect re-runs and populateForm
-  // appends the surviving rows on top of the existing ones, growing the
-  // FormArray on every store emission until the tab freezes.
+  // The app runs zoneless: mutating the FormArray (push/insert/removeAt) is
+  // invisible to change detection, so the template renders from this signal
+  // instead of `variants().controls`. Every mutation goes through
+  // `syncVariantGroups`, which is what actually repaints the list.
+  protected readonly variantGroups = signal<
+    FormGroup<ProductVariantFormControls>[]
+  >([]);
+
+  // Rebuild the FormArray only when a different product is loaded. Later
+  // emissions for the same product (a variant deleted on the backend) are
+  // reconciled instead, so rows the user is still filling in survive.
   private populatedForProductId: string | null | undefined = undefined;
 
   constructor() {
-    //  effect(() => {
-    //    if (this.selectedVariants() === undefined) {
-    //      this.variants().clear();
-    //      this.addVariant();
-    //    } else {
-    //      this.populateForm(this.selectedVariants()!);
-    //    }
-    //  });
-
     effect(() => {
-      const variants = this.selectedVariants();
+      const variants = this.selectedVariants() ?? [];
       const productId = this.selectedProduct()?.id ?? null;
 
-      if (productId === this.populatedForProductId) {
-        return;
-      }
-      this.populatedForProductId = productId;
-
-      this.variants().clear();
-
-      if (!variants || variants.length === 0) {
-        this.addVariant();
+      if (productId !== this.populatedForProductId) {
+        this.populatedForProductId = productId;
+        this.rebuildForm(variants);
         return;
       }
 
-      this.populateForm(variants);
+      this.dropRemovedVariants(variants);
     });
   }
 
@@ -95,6 +86,7 @@ export class ProductVariantsComponent {
     this.applyVariantVisibility(group);
     this.variants().push(group);
     this.setComputedSku(group, this.variants().length - 1);
+    this.syncVariantGroups();
   }
 
   protected duplicateVariant(index: number): void {
@@ -104,6 +96,7 @@ export class ProductVariantsComponent {
     const insertIndex = index + 1;
     this.variants().insert(insertIndex, group);
     this.setComputedSku(group, insertIndex);
+    this.syncVariantGroups();
   }
 
   protected removeVariant(
@@ -114,15 +107,60 @@ export class ProductVariantsComponent {
       return;
     }
 
-    const productId = this.selectedProduct()?.id;
     const variantId = variantGroup.controls.id.value;
 
-    // Persisted variant: delete it on the backend. Unsaved row: just drop it.
-    if (productId && variantId) {
-      this.productFacade.removeProductVariant(productId, variantId);
+    // Persisted variant: DELETE /api/products/variants/{variantId} is the
+    // source of truth, so the row leaves the form once the store drops it.
+    // Unsaved row: nothing to delete, remove it right away.
+    if (variantId) {
+      this.productFacade.removeProductVariant(variantId);
+      return;
     }
 
     this.variants().removeAt(index);
+    this.syncVariantGroups();
+  }
+
+  private rebuildForm(variants: ProductVariant[]): void {
+    this.variants().clear();
+
+    if (variants.length === 0) {
+      this.addVariant();
+      return;
+    }
+
+    this.populateForm(variants);
+    this.syncVariantGroups();
+  }
+
+  /** Drops the rows whose variant no longer exists in the store. */
+  private dropRemovedVariants(variants: ProductVariant[]): void {
+    const persistedIds = new Set(variants.map(variant => variant.id));
+    const controls = this.variants().controls;
+    let removed = false;
+
+    for (let index = controls.length - 1; index >= 0; index--) {
+      const id = controls[index].controls.id.value;
+      if (id && !persistedIds.has(id)) {
+        this.variants().removeAt(index);
+        removed = true;
+      }
+    }
+
+    if (!removed) {
+      return;
+    }
+
+    if (this.variants().length === 0) {
+      this.addVariant();
+      return;
+    }
+
+    this.syncVariantGroups();
+  }
+
+  private syncVariantGroups(): void {
+    this.variantGroups.set([...this.variants().controls]);
   }
 
   private populateForm(variants: ProductVariant[]): void {

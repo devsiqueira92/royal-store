@@ -111,9 +111,22 @@ export class ProductFormComponent {
     return this.formGroup.controls.variants;
   }
 
+  // Patch once per loaded item: re-patching on every store emission would
+  // replay the type/tax cascades (and reset the tax template) each time a
+  // variant is deleted.
+  private patchedProductId: string | null | undefined = undefined;
+
   constructor() {
     effect(() => {
-      this.formGroup.patchValue({ ...this.selectedProduct() });
+      const product = this.selectedProduct();
+      const productId = product?.id ?? null;
+
+      if (productId === this.patchedProductId) {
+        return;
+      }
+      this.patchedProductId = productId;
+
+      this.formGroup.patchValue({ ...product });
     });
     this.formGroup.controls.type.valueChanges
       .pipe(takeUntilDestroyed())

@@ -101,14 +101,9 @@ export const removeProductVariant = createEffect(
   (actions$ = inject(Actions), productService = inject(ProductService)) => {
     return actions$.pipe(
       ofType(ProductActions.removeProductVariant),
-      concatMap(({ productId, variantId }) =>
-        productService.removeVariant(productId, variantId).pipe(
-          map(() =>
-            ProductActions.removeProductVariantSuccess({
-              productId,
-              variantId,
-            }),
-          ),
+      concatMap(({ variantId }) =>
+        productService.removeVariant(variantId).pipe(
+          map(() => ProductActions.removeProductVariantSuccess({ variantId })),
           catchError((error: HttpErrorResponse) =>
             of(
               ProductActions.removeProductVariantFailure({

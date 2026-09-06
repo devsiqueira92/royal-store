@@ -22,21 +22,15 @@ export const ProductActions = createActionGroup({
     'Disable Product Success': props<{ id: string }>(),
     'Disable Product Failure': props<{ error: string }>(),
     // Sends product fields plus variant adds/updates in a single batched
-    // call (backend `PUT /api/products/{id}`), then removes variants one at
-    // a time — removal is not part of the batch contract and must go
-    // through the standalone DELETE endpoint.
+    // call (backend `PUT /api/products/{id}`). Removal is not part of the
+    // batch contract: it is applied immediately through the standalone
+    // `DELETE /api/products/variants/{variantId}` endpoint.
     'Save Product Edit': props<{
       id: string;
       request: UpdateProductRequest;
     }>(),
-    'Remove Product Variant': props<{
-      productId: string;
-      variantId: string;
-    }>(),
-    'Remove Product Variant Success': props<{
-      productId: string;
-      variantId: string;
-    }>(),
+    'Remove Product Variant': props<{ variantId: string }>(),
+    'Remove Product Variant Success': props<{ variantId: string }>(),
     'Remove Product Variant Failure': props<{ error: string }>(),
     'Clear Selected Product': emptyProps(),
   },
