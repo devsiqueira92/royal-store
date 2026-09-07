@@ -1,0 +1,59 @@
+:host {
+  display: block;
+}
+
+.checkout-summary__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.checkout-summary__total strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: light-dark(var(--p-primary-700), var(--p-primary-300));
+}
+
+.checkout-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.1875rem;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-600), var(--p-surface-300));
+}
+
+.checkout-summary__row--nested {
+  padding-left: 0.75rem;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.checkout-summary__value--negative {
+  font-weight: 700;
+  color: light-dark(var(--p-orange-600), var(--p-orange-400));
+}
+
+.checkout-summary__breakdown ::ng-deep .p-accordionheader {
+  padding: 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.checkout-summary__breakdown ::ng-deep .p-accordioncontent-content {
+  padding: 0 0 0.5rem;
+  border: none;
+  background: transparent;
+}
+
+.checkout-summary__breakdown ::ng-deep .p-accordionpanel {
+  border: none;
+  background: transparent;
+}

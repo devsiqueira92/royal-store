@@ -14,9 +14,8 @@ import { DiscountMode } from '../../interfaces/sale-totals.interface';
 import { lineItemTaxRate } from '../../interfaces/sale-tax.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
-import { PaymentPanelComponent } from '../payment-panel/payment-panel.component';
-import { PaymentState } from '../../interfaces/payment.interface';
-import { SaleDetails } from '../../interfaces/pos-product.interface';
+import { CheckoutDialogComponent } from '../checkout-dialog/checkout-dialog.component';
+import { CheckoutResult } from '../../interfaces/checkout.interface';
 
 @Component({
   selector: 'app-current-sale',
@@ -26,7 +25,7 @@ import { SaleDetails } from '../../interfaces/pos-product.interface';
     ButtonModule,
     SaleLineItemComponent,
     SaleSummaryComponent,
-    PaymentPanelComponent,
+    CheckoutDialogComponent,
   ],
   templateUrl: './current-sale.component.html',
   styleUrl: './current-sale.component.scss',
@@ -40,11 +39,11 @@ export class CurrentSaleComponent {
   quantityChange = output<{ variantId: string; quantity: number }>();
   removeItem = output<string>();
   clear = output<void>();
-  charge = output<SaleDetails>();
+  charge = output<CheckoutResult>();
 
   protected readonly discountValue = signal(0);
   protected readonly discountMode = signal<DiscountMode>('amount');
-  protected readonly payment = signal<PaymentState | null>(null);
+  protected readonly checkoutOpen = signal(false);
 
   protected readonly subtotal = computed(() =>
     this.items().reduce(
@@ -97,31 +96,12 @@ export class CurrentSaleComponent {
 
   protected readonly total = computed(() => this.netSubtotal() + this.tax());
 
-  protected readonly chargeDisabled = computed(
-    () => this.items().length === 0 || !this.payment()?.valid,
-  );
-
   protected onQuantityChange(variantId: string, quantity: number): void {
     this.quantityChange.emit({ variantId, quantity });
   }
 
-  protected onCharge(): void {
-    const payment = this.payment();
-    if (!payment?.valid) {
-      return;
-    }
-
-    const { method, card, splits } = payment.details;
-
-    this.charge.emit({
-      total: this.total(),
-      discount: this.discountAmount(),
-      discountMode: this.discountMode() === 'percent' ? '%' : 'R$',
-      paymentMethod: method,
-      cardFlag: card?.flag,
-      cardPaymentType: card?.type,
-      installments: card?.installments,
-      splitPayments: splits,
-    });
+  protected onConfirmed(result: CheckoutResult): void {
+    this.checkoutOpen.set(false);
+    this.charge.emit(result);
   }
 }

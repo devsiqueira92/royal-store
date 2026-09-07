@@ -1,0 +1,84 @@
+<p-dialog
+  styleClass="checkout-dialog"
+  [visible]="open()"
+  [modal]="true"
+  [draggable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: '32rem', maxWidth: '95vw' }"
+  (visibleChange)="$event || close()"
+>
+  <ng-template #header>
+    <div class="checkout-dialog__title">
+      <span>{{ 'sale.checkout.eyebrow' | translate }}</span>
+      <h2>{{ steps[step() - 1].title | translate }}</h2>
+    </div>
+  </ng-template>
+
+  <app-checkout-steps [steps]="steps" [current]="step()" />
+
+  <!-- Panels stay mounted so stepping back and forth never drops what was typed. -->
+  <div class="checkout-dialog__body">
+    <app-customer-step
+      [class.checkout-dialog__panel--hidden]="step() !== 1"
+      [customers]="filteredCustomers()"
+      [search]="search"
+      [selectedId]="customerId()"
+      (customerSelected)="selectCustomer($event)"
+    />
+
+    <app-payment-step
+      [class.checkout-dialog__panel--hidden]="step() !== 2"
+      [customer]="selectedCustomer()"
+      [loyaltyRate]="totals().loyaltyRate"
+      [useCashback]="useCashback()"
+      [total]="totals().total"
+      (cashbackToggled)="toggleCashback($event)"
+      (paymentChange)="payment.set($event)"
+    />
+
+    <app-fulfillment-step
+      [class.checkout-dialog__panel--hidden]="step() !== 3"
+      [mode]="form.controls.fulfillment.controls.mode"
+      [branches]="branches()"
+      [selectedBranchId]="branchId()"
+      [isPickup]="mode() === 'pickup'"
+      (branchSelected)="selectBranch($event)"
+    />
+  </div>
+
+  <ng-template #footer>
+    <div class="checkout-dialog__footer">
+      <app-checkout-summary [totals]="totals()" />
+
+      <div class="checkout-dialog__actions">
+        <p-button
+          severity="secondary"
+          [outlined]="true"
+          [label]="
+            (step() === 1 ? 'sale.checkout.cancel' : 'sale.checkout.back')
+              | translate
+          "
+          (onClick)="step() === 1 ? close() : back()"
+        />
+
+        @if (step() === steps.length) {
+          <p-button
+            icon="pi pi-check"
+            iconPos="right"
+            [label]="'sale.checkout.confirm' | translate"
+            [disabled]="!canAdvance()"
+            (onClick)="confirm()"
+          />
+        } @else {
+          <p-button
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            [label]="'sale.checkout.next' | translate"
+            [disabled]="!canAdvance()"
+            (onClick)="next()"
+          />
+        }
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

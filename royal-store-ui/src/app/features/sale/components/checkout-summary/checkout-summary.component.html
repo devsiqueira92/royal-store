@@ -1,0 +1,56 @@
+<div class="checkout-summary">
+  <div class="checkout-summary__total">
+    <span>{{ 'sale.checkout.summary.total' | translate }}</span>
+    <strong>{{ totals().total | currency }}</strong>
+  </div>
+
+  <p-accordion class="checkout-summary__breakdown">
+    <p-accordion-panel value="breakdown">
+      <p-accordion-header>
+        {{ 'sale.checkout.summary.breakdown' | translate }}
+      </p-accordion-header>
+      <p-accordion-content>
+        <div class="checkout-summary__row">
+          <span>{{ 'sale.checkout.summary.discountTotal' | translate }}</span>
+          <span class="checkout-summary__value--negative">
+            −{{ totals().discountTotal | currency }}
+          </span>
+        </div>
+
+        @if (totals().saleDiscount > 0) {
+          <div class="checkout-summary__row checkout-summary__row--nested">
+            <span>{{ 'sale.checkout.summary.saleDiscount' | translate }}</span>
+            <span>−{{ totals().saleDiscount | currency }}</span>
+          </div>
+        }
+
+        @if (totals().loyaltyDiscount > 0) {
+          <div class="checkout-summary__row checkout-summary__row--nested">
+            <span>
+              {{ 'sale.checkout.summary.loyaltyDiscount' | translate }}
+              ({{ totals().loyaltyRate | percent }})
+            </span>
+            <span>−{{ totals().loyaltyDiscount | currency }}</span>
+          </div>
+        }
+
+        @if (totals().cashbackApplied > 0) {
+          <div class="checkout-summary__row checkout-summary__row--nested">
+            <span>{{ 'sale.checkout.summary.cashback' | translate }}</span>
+            <span>−{{ totals().cashbackApplied | currency }}</span>
+          </div>
+        }
+
+        <div class="checkout-summary__row">
+          <span>{{ 'sale.checkout.summary.tax' | translate }}</span>
+          <span>{{ totals().tax | currency }}</span>
+        </div>
+
+        <div class="checkout-summary__row">
+          <span>{{ 'sale.checkout.summary.subtotal' | translate }}</span>
+          <span>{{ totals().subtotal | currency }}</span>
+        </div>
+      </p-accordion-content>
+    </p-accordion-panel>
+  </p-accordion>
+</div>

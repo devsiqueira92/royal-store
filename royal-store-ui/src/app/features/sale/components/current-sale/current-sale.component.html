@@ -46,17 +46,22 @@
       (discountModeChange)="discountMode.set($event)"
     ></app-sale-summary>
 
-    <app-payment-panel
-      [total]="total()"
-      (paymentChange)="payment.set($event)"
-    />
-
     <p-button
       class="current-sale__charge"
       icon="pi pi-check"
       [label]="('sale.current.charge' | translate) + ' ' + (total() | currency)"
-      [disabled]="chargeDisabled()"
-      (onClick)="onCharge()"
+      [disabled]="items().length === 0"
+      (onClick)="checkoutOpen.set(true)"
     />
   </footer>
+
+  @if (checkoutOpen()) {
+    <app-checkout-dialog
+      [subtotal]="subtotal()"
+      [saleDiscount]="discountAmount()"
+      [tax]="tax()"
+      (closed)="checkoutOpen.set(false)"
+      (confirmed)="onConfirmed($event)"
+    />
+  }
 </aside>

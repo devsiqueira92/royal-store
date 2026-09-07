@@ -1,0 +1,21 @@
+<ol class="steps">
+  @for (step of steps(); track step.index) {
+    @if (!$first) {
+      <li class="steps__link" aria-hidden="true"></li>
+    }
+    <li
+      class="steps__item"
+      [class.steps__item--done]="step.index < current()"
+      [class.steps__item--active]="step.index === current()"
+    >
+      <span class="steps__badge">
+        @if (step.index < current()) {
+          <i class="pi pi-check"></i>
+        } @else {
+          {{ step.index }}
+        }
+      </span>
+      <span class="steps__label">{{ step.label | translate }}</span>
+    </li>
+  }
+</ol>
