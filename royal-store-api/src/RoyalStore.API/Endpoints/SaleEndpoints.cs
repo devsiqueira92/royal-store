@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using RoyalStore.API.Extensions;
-using RoyalStore.Application.Sales.Commands.SyncSales;
+using RoyalStore.Application.Sales.Commands.RegisterSale;
 using RoyalStore.Application.Sales.Queries.GetPosProducts;
 using RoyalStore.Domain.Const;
 
@@ -12,12 +12,12 @@ public sealed class SaleEndpoints : IEndpointDefinition
     public void RegisterEndpoints(WebApplication app)
     {
         var routes = app.MapGroup("api/sales").WithTags("Sales");
-        routes.MapPost("sync", Sync).RequireAuthorization(PolicyNames.Seller);
+        routes.MapPost("", RegisterSale).RequireAuthorization(PolicyNames.Seller);
         routes.MapGet("products", GetProducts).RequireAuthorization(PolicyNames.Admin);
     }
 
-    private static async Task<IResult> Sync(
-        SyncSalesCommand command,
+    private static async Task<IResult> RegisterSale(
+        RegisterSaleCommand command,
         IMediator mediator,
         CancellationToken ct)
     {

@@ -84,6 +84,7 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Category)
             .Include(p => p.Variants)
             .Include(p => p.Photos)
+            .Include(p => p.TaxProfileTemplate)
             .Where(p => p.IsActive);
 
         if (categoryId.HasValue)
@@ -91,6 +92,20 @@ public sealed class ProductRepository : IProductRepository
 
         return await query
             .OrderBy(p => p.Name)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Product>> GetForCheckoutAsync(
+        IReadOnlyCollection<Guid> variantIds, CancellationToken ct = default)
+    {
+        if (variantIds.Count == 0)
+            return [];
+
+        return await _context.Products
+            .AsNoTracking()
+            .Include(p => p.Variants.Where(v => variantIds.Contains(v.Id)))
+            .Include(p => p.TaxProfileTemplate)
+            .Where(p => p.IsActive && p.Variants.Any(v => variantIds.Contains(v.Id)))
             .ToListAsync(ct);
     }
 }

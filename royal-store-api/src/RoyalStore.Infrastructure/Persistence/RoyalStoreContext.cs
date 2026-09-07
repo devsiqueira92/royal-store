@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Domain.Catalog;
+using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Fiscal;
 using RoyalStore.Domain.Identity;
@@ -30,6 +31,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<SaleItem> SaleItems { get; set; } = null!;
     public DbSet<SalePayment> SalePayments { get; set; } = null!;
     public DbSet<Seller> Sellers { get; set; } = null!;
+    public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<UserPermissionGrant> UserPermissionGrants { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
@@ -101,6 +103,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<SalePayment>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Customer>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<CashMovement>()

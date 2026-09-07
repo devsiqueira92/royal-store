@@ -18,12 +18,32 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         builder.Property(e => e.UserId).HasMaxLength(450);
 
+        builder.Property(e => e.Subtotal)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
         builder.Property(e => e.TotalAmount)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
         builder.Property(e => e.DiscountAmount)
             .HasColumnType("decimal(18,2)")
+            .IsRequired();
+
+        builder.Property(e => e.DiscountMode)
+            .HasConversion<int>()
+            .HasDefaultValue(DiscountMode.Amount)
+            .IsRequired();
+
+        builder.Property(e => e.AdditionalFees)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(e => e.Change)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
             .IsRequired();
 
         builder.Property(e => e.SoldAt).IsRequired();
@@ -57,6 +77,10 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .WithOne()
             .HasForeignKey(p => p.SaleId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // The collections are exposed read-only, so EF must write through the backing fields.
+        builder.Navigation(e => e.Items).UsePropertyAccessMode(PropertyAccessMode.Field);
+        builder.Navigation(e => e.Payments).UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.CashShiftId);

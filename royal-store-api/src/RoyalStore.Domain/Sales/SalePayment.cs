@@ -9,19 +9,23 @@ public sealed class SalePayment : Entity
     public Guid SaleId { get; private set; }
     public PaymentMethod Method { get; private set; }
     public decimal Amount { get; private set; }
+    public PaymentCardDetails Card { get; private set; } = PaymentCardDetails.Empty;
 
     private SalePayment() : base(Guid.NewGuid()) { }
 
-    private SalePayment(Guid id, Guid tenantId, Guid saleId, PaymentMethod method, decimal amount)
+    private SalePayment(Guid id, Guid tenantId, Guid saleId, PaymentMethod method,
+        decimal amount, PaymentCardDetails card)
         : base(id)
     {
         TenantId = tenantId;
         SaleId = saleId;
         Method = method;
         Amount = amount;
+        Card = card;
     }
 
-    public static Result<SalePayment> Create(Guid id, Guid tenantId, Guid saleId, PaymentMethod method, decimal amount)
+    public static Result<SalePayment> Create(Guid id, Guid tenantId, Guid saleId,
+        PaymentMethod method, decimal amount, PaymentCardDetails? card = null)
     {
         if (id == Guid.Empty)
             return Error.Validation("salepayment.id_required", "Sale payment ID is required.");
@@ -38,6 +42,44 @@ public sealed class SalePayment : Entity
         if (amount <= 0)
             return Error.Validation("salepayment.amount_invalid", "Payment amount must be greater than zero.");
 
-        return new SalePayment(id, tenantId, saleId, method, amount);
+        card ??= PaymentCardDetails.Empty;
+
+        var cardResult = ValidateCard(card, method);
+        if (cardResult.IsFailure)
+            return cardResult.Error;
+
+        return new SalePayment(id, tenantId, saleId, method, amount, card);
+    }
+
+    private static Result ValidateCard(PaymentCardDetails card, PaymentMethod method)
+    {
+        if (card.Installments is not null)
+        {
+            if (card.Installments < 1)
+                return Result.Failure(Error.Validation("salepayment.installments_invalid",
+                    "Installment count must be at least one."));
+
+            if (method != PaymentMethod.CreditCard)
+                return Result.Failure(Error.Validation("salepayment.installments_not_applicable",
+                    "Installments apply to credit-card payments only."));
+        }
+
+        if (card.Type is { Length: > 20 })
+            return Result.Failure(Error.Validation("salepayment.type_too_long",
+                "Payment type must not exceed 20 characters."));
+
+        if (card.Brand is { Length: > 30 })
+            return Result.Failure(Error.Validation("salepayment.brand_too_long",
+                "Card brand must not exceed 30 characters."));
+
+        if (card.AuthCode is { Length: > 50 })
+            return Result.Failure(Error.Validation("salepayment.auth_code_too_long",
+                "Authorization code must not exceed 50 characters."));
+
+        if (card.Nsu is { Length: > 50 })
+            return Result.Failure(Error.Validation("salepayment.nsu_too_long",
+                "NSU must not exceed 50 characters."));
+
+        return Result.Success();
     }
 }
