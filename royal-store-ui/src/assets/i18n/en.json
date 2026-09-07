@@ -73,7 +73,8 @@
       "categoryName": "Category",
       "price": "Price",
       "stockQuantity": "Stock",
-      "status": "Status"
+      "status": "Status",
+      "isActive": "Active"
     },
     "form": {
       "title": "New product",

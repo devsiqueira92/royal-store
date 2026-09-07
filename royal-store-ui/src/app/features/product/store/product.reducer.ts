@@ -1,39 +1,46 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
+import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 import { Product } from '../interfaces/product.interface';
 import { ProductActions } from './product.actions';
 import { ServiceActions } from './service.actions';
-
-export interface ProductState {
-  products: Product[];
+export interface ProductState extends EntityState<Product> {
   selectedProduct: Product | null;
   isLoading: boolean;
   error: string | null;
 }
 
-export const initialProductState: ProductState = {
-  products: [],
-  selectedProduct: null,
-  isLoading: false,
-  error: null,
-};
+export const productAdapter: EntityAdapter<Product> =
+  createEntityAdapter<Product>({});
+
+export const initialProductState: ProductState = productAdapter.getInitialState(
+  {
+    selectedProduct: null,
+    isLoading: false,
+    error: null,
+  },
+);
 
 export const productFeature = createFeature({
   name: 'product',
   reducer: createReducer(
     initialProductState,
+
     on(ProductActions.loadProducts, (state): ProductState => ({
       ...state,
       isLoading: true,
       error: null,
     })),
+
     on(
       ProductActions.loadProductsSuccess,
-      (state, { products }): ProductState => ({
-        ...state,
-        products,
-        isLoading: false,
-      }),
+      (state, { products }): ProductState => {
+        return productAdapter.setAll(products, {
+          ...state,
+          isLoading: false,
+        });
+      },
     ),
+
     on(
       ProductActions.loadProductsFailure,
       (state, { error }): ProductState => ({
@@ -42,6 +49,7 @@ export const productFeature = createFeature({
         error,
       }),
     ),
+
     on(ProductActions.loadProduct, (state): ProductState => ({
       ...state,
       isLoading: true,
@@ -63,71 +71,29 @@ export const productFeature = createFeature({
       error,
     })),
 
-    on(ProductActions.createProduct, (state): ProductState => ({
-      ...state,
-      isLoading: true,
-      error: null,
-    })),
+    on(
+      ProductActions.createProduct,
+      ServiceActions.createService,
+      (state): ProductState => ({
+        ...state,
+        isLoading: true,
+        error: null,
+      }),
+    ),
 
     on(
       ProductActions.createProductSuccess,
-      (state, { product }): ProductState => ({
-        ...state,
-        products: [...state.products, product],
-        isLoading: false,
-      }),
+      ServiceActions.createServiceSuccess,
+      (state, { product }): ProductState => {
+        return productAdapter.addOne(product, {
+          ...state,
+          isLoading: false,
+        });
+      },
     ),
 
     on(
       ProductActions.createProductFailure,
-      (state, { error }): ProductState => ({
-        ...state,
-        isLoading: false,
-        error,
-      }),
-    ),
-
-    on(ProductActions.saveProductEdit, (state): ProductState => ({
-      ...state,
-      isLoading: true,
-      error: null,
-    })),
-
-    on(
-      ProductActions.updateProductSuccess,
-      (state, { product }): ProductState => ({
-        ...state,
-        products: state.products.map(p => (p.id === product.id ? product : p)),
-        selectedProduct:
-          state.selectedProduct?.id === product.id
-            ? product
-            : state.selectedProduct,
-        isLoading: false,
-      }),
-    ),
-    on(
-      ProductActions.updateProductFailure,
-      (state, { error }): ProductState => ({
-        ...state,
-        isLoading: false,
-        error,
-      }),
-    ),
-    on(ServiceActions.createService, (state): ProductState => ({
-      ...state,
-      isLoading: true,
-      error: null,
-    })),
-
-    on(
-      ServiceActions.createServiceSuccess,
-      (state, { product }): ProductState => ({
-        ...state,
-        products: [...state.products, product],
-        isLoading: false,
-      }),
-    ),
-    on(
       ServiceActions.createServiceFailure,
       (state, { error }): ProductState => ({
         ...state,
@@ -135,25 +101,39 @@ export const productFeature = createFeature({
         error,
       }),
     ),
-    on(ServiceActions.saveServiceEdit, (state): ProductState => ({
-      ...state,
-      isLoading: true,
-      error: null,
-    })),
 
     on(
-      ServiceActions.updateServiceSuccess,
-      (state, { product }): ProductState => ({
+      ProductActions.saveProductEdit,
+      ServiceActions.saveServiceEdit,
+      (state): ProductState => ({
         ...state,
-        products: state.products.map(p => (p.id === product.id ? product : p)),
-        selectedProduct:
-          state.selectedProduct?.id === product.id
-            ? product
-            : state.selectedProduct,
-        isLoading: false,
+        isLoading: true,
+        error: null,
       }),
     ),
+
     on(
+      ProductActions.updateProductSuccess,
+      ServiceActions.updateServiceSuccess,
+      (state, { product }): ProductState => {
+        const updatedState = productAdapter.updateOne(
+          { id: product.id, changes: product },
+          state,
+        );
+
+        return {
+          ...updatedState,
+          selectedProduct:
+            state.selectedProduct?.id === product.id
+              ? product
+              : state.selectedProduct,
+          isLoading: false,
+        };
+      },
+    ),
+
+    on(
+      ProductActions.updateProductFailure,
       ServiceActions.updateServiceFailure,
       (state, { error }): ProductState => ({
         ...state,
@@ -161,31 +141,38 @@ export const productFeature = createFeature({
         error,
       }),
     ),
+
     on(
       ProductActions.removeProductVariantSuccess,
       (state, { variantId }): ProductState => {
-        const products = state.products.map(p => ({
-          ...p,
-          variants: p.variants.filter(v => v.id !== variantId),
-        }));
-
-        const variants = state.selectedProduct?.variants.filter(
-          p => p.id !== variantId,
+        const updatedState = productAdapter.map(
+          p => ({
+            ...p,
+            variants: p.variants
+              ? p.variants.filter(v => v.id !== variantId)
+              : [],
+          }),
+          state,
         );
 
-        const newSelectedProduct: Product | null = {
-          ...state.selectedProduct!,
-          variants: variants!,
-        };
+        let newSelectedProduct: Product | null = null;
+        if (state.selectedProduct) {
+          newSelectedProduct = {
+            ...state.selectedProduct,
+            variants: state.selectedProduct.variants
+              ? state.selectedProduct.variants.filter(v => v.id !== variantId)
+              : [],
+          };
+        }
 
         return {
-          ...state,
-          products: products,
+          ...updatedState,
           selectedProduct: newSelectedProduct,
           error: null,
         };
       },
     ),
+
     on(
       ProductActions.removeProductVariantFailure,
       (state, { error }): ProductState => ({
@@ -194,41 +181,43 @@ export const productFeature = createFeature({
       }),
     ),
 
-    on(ProductActions.disableProduct, (state, { id }) => ({
-      ...state,
-      isLoading: false,
-      error: null,
-    })),
+    on(ProductActions.disableProductSuccess, (state, { id }) => {
+      const updatedState = productAdapter.updateOne(
+        { id, changes: { isActive: false } },
+        state,
+      );
+      return {
+        ...updatedState,
+        selectedProduct: state.selectedProduct
+          ? { ...state.selectedProduct, isActive: false }
+          : null,
+        isLoading: false,
+      };
+    }),
 
-    on(ProductActions.disableProductSuccess, (state, { id }) => ({
-      ...state,
-      selectedProduct: { ...state.selectedProduct!, isActive: false },
-      isLoading: false,
-    })),
+    on(ProductActions.enableProductSuccess, (state, { id }) => {
+      const updatedState = productAdapter.updateOne(
+        { id, changes: { isActive: true } },
+        state,
+      );
+      return {
+        ...updatedState,
+        selectedProduct: state.selectedProduct
+          ? { ...state.selectedProduct, isActive: true }
+          : null,
+        isLoading: false,
+      };
+    }),
 
-    on(ProductActions.disableProductFailure, (state, { id, error }) => ({
-      ...state,
-      isLoading: false,
-      error: error,
-    })),
-
-    on(ProductActions.enableProduct, (state, { id }) => ({
-      ...state,
-      isLoading: false,
-      error: null,
-    })),
-
-    on(ProductActions.enableProductSuccess, (state, { id }) => ({
-      ...state,
-      selectedProduct: { ...state.selectedProduct!, isActive: true },
-      isLoading: false,
-    })),
-
-    on(ProductActions.enableProductFailure, (state, { id, error }) => ({
-      ...state,
-      isLoading: false,
-      error: error,
-    })),
+    on(
+      ProductActions.disableProductFailure,
+      ProductActions.enableProductFailure,
+      (state, { error }) => ({
+        ...state,
+        isLoading: false,
+        error,
+      }),
+    ),
 
     on(ProductActions.clearSelectedProduct, (state): ProductState => ({
       ...state,

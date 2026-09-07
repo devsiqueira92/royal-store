@@ -107,6 +107,7 @@
           <th>{{ 'product.columns.price' | translate }}</th>
           <th>{{ 'product.columns.stockQuantity' | translate }}</th>
           <th>{{ 'product.columns.status' | translate }}</th>
+          <th>{{ 'product.columns.isActive' | translate }}</th>
           <th class="products-page__action-col"></th>
         </tr>
       </ng-template>
@@ -157,6 +158,14 @@
             <p-tag
               [value]="getStatusLabelKey(product) | translate"
               [severity]="getStatusSeverity(product)"
+            />
+          </td>
+
+          <td>
+            <p-toggleswitch
+              [(ngModel)]="product.isActive"
+              inputId="isActive"
+              (onChange)="updateStatus(product)"
             />
           </td>
           <td>

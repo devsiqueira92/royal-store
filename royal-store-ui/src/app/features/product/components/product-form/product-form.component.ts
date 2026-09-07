@@ -55,7 +55,6 @@ import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/ta
 export class ProductFormComponent {
   private readonly productFacade = inject(ProductFacade);
   private readonly taxProfileTemplateFacade = inject(TaxProfileTemplateFacade);
-
   protected readonly selectedProduct = toSignal(
     this.productFacade.selectedProduct$,
     { initialValue: null as Product | null },
