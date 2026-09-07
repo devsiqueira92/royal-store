@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   inject,
   OnInit,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { SaleFacade } from '../../facade/sale.facade';
@@ -17,6 +18,9 @@ import { SalesStatsComponent } from '../../components/sales-stats/sales-stats.co
 import { CategoryFilterComponent } from '../../components/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { CurrentSaleComponent } from '../../components/current-sale/current-sale.component';
+import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, filter, tap } from 'rxjs';
 
 // Mocked until auth/session and reporting are wired.
 const MOCK_SELLER_NAME = 'Maya Chen';
@@ -32,6 +36,8 @@ const MOCK_TODAY_ORDERS = 41;
     CategoryFilterComponent,
     ProductCardComponent,
     CurrentSaleComponent,
+    InputFieldComponent,
+    ReactiveFormsModule,
   ],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss',
@@ -40,11 +46,16 @@ const MOCK_TODAY_ORDERS = 41;
 export class SalesComponent implements OnInit {
   private readonly saleFacade = inject(SaleFacade);
   private readonly categoryFacade = inject(CategoryFacade);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly sellerName = MOCK_SELLER_NAME;
   protected readonly saleRef = MOCK_SALE_REF;
   protected readonly todaySales = MOCK_TODAY_SALES;
   protected readonly todayOrders = MOCK_TODAY_ORDERS;
+
+  protected readonly formGroup = new FormGroup({
+    barcode: new FormControl<string | null>(null),
+  });
 
   protected readonly products = toSignal(this.saleFacade.posProducts$, {
     initialValue: [] as PosProduct[],
@@ -62,11 +73,27 @@ export class SalesComponent implements OnInit {
   ngOnInit(): void {
     this.categoryFacade.loadCategories();
     this.saleFacade.loadPosProducts();
+
+    this.formGroup
+      .get('barcode')
+      ?.valueChanges.pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter(code => !!code?.trim() && code.trim().length > 4),
+        debounceTime(300),
+        distinctUntilChanged(),
+        tap(code => {
+          const foundProduct = this.findProduct(code?.trim() ?? '');
+          if (foundProduct) {
+            this.addProduct(foundProduct);
+            this.formGroup.get('barcode')?.reset();
+          }
+        }),
+      )
+      .subscribe();
   }
 
   protected onCategoryChange(categoryId: string | null): void {
     this.selectedCategoryId.set(categoryId);
-    // The category filter goes through the backend (facade → ngrx → service).
     this.saleFacade.loadPosProducts(categoryId ?? undefined);
   }
 
@@ -76,9 +103,7 @@ export class SalesComponent implements OnInit {
     }
 
     this.items.update(items => {
-      const existing = items.find(
-        item => item.variantId === product.variantId,
-      );
+      const existing = items.find(item => item.variantId === product.variantId);
       if (existing) {
         return items.map(item =>
           item.variantId === product.variantId
@@ -126,12 +151,27 @@ export class SalesComponent implements OnInit {
     );
   }
 
+  private findProduct(code: string) {
+    if (!code) return;
+    return this.products().find(p => p.barcode === code);
+  }
+
   protected clearSale(): void {
     this.items.set([]);
   }
 
-  protected onCharge(): void {
+  protected onCharge(sale: { total: number; discount: number }): void {
     // No charge endpoint yet — completing the sale just resets the cart.
-    this.items.set([]);
+
+    const payload = {
+      items: this.items(),
+
+      sale: {
+        ...sale,
+      },
+    };
+
+    console.log('Sale completed:', payload);
+    // this.items.set([]);
   }
 }

@@ -5,6 +5,7 @@ export interface PosProduct {
   category: string;
   categoryColor?: string;
   variantColor?: string;
+  barcode?: string;
   price: number;
   coverImage?: string;
   variantSize?: string;
@@ -23,4 +24,13 @@ export interface PosProduct {
   effectiveEnd?: string | null;
   source?: string | null;
   key?: string | null;
+}
+
+export interface SaleDetails {
+  total: number;
+  discount: number;
+  discountMode: string;
+  paymentMethod: string;
+  cardFlag?: string;
+  cardPaymentType?: string;
 }

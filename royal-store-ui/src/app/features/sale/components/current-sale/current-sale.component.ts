@@ -19,6 +19,7 @@ import {
 import { lineItemTaxRate } from '../../interfaces/sale-tax.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
+import { SaleDetails } from '../../interfaces/pos-product.interface';
 
 interface PaymentOption {
   label: string;
@@ -48,7 +49,7 @@ export class CurrentSaleComponent {
   quantityChange = output<{ variantId: string; quantity: number }>();
   removeItem = output<string>();
   clear = output<void>();
-  charge = output<number>();
+  charge = output<SaleDetails>();
 
   protected readonly paymentOptions: PaymentOption[] = [
     { label: 'sale.current.payment.cash', value: 'cash' },
@@ -116,6 +117,16 @@ export class CurrentSaleComponent {
   }
 
   protected onCharge(): void {
-    this.charge.emit(this.total());
+    const discountMode = this.discountMode() === 'percent' ? '%' : 'R$';
+    const cardFlag = '';
+    const cardPaymentType = 'credit';
+    this.charge.emit({
+      total: this.total(),
+      discount: this.discountAmount(),
+      paymentMethod: this.paymentMethod(),
+      discountMode,
+      cardFlag,
+      cardPaymentType,
+    });
   }
 }

@@ -5,11 +5,10 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CategoryFormControls } from '../../interfaces/category.interface';
 import { DataMode } from '@app/shared/enum/data-mode.enum';
 import { CategoryRequest } from '../../interfaces/category-request.interface';
-import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CategoryFormComponent, TranslatePipe],
+  imports: [CategoryFormComponent],
   templateUrl: './create-category.component.html',
   styleUrl: './create-category.component.scss',
 })

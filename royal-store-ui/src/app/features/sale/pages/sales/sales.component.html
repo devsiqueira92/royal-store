@@ -20,6 +20,14 @@
       (selectedIdChange)="onCategoryChange($event)"
     ></app-category-filter>
 
+    <form [formGroup]="formGroup">
+      <app-input-field
+        [parentForm]="formGroup"
+        controlName="barcode"
+        label="scan"
+      ></app-input-field>
+    </form>
+
     <div class="pos__grid" [class.pos__grid--loading]="isLoading()">
       @for (product of products(); track product.variantId) {
         <app-product-card
@@ -40,6 +48,6 @@
     (quantityChange)="changeQuantity($event.variantId, $event.quantity)"
     (removeItem)="removeItem($event)"
     (clear)="clearSale()"
-    (charge)="onCharge()"
+    (charge)="onCharge($event)"
   ></app-current-sale>
 </section>
