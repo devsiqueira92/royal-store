@@ -22,6 +22,11 @@ public sealed class CashShiftRepository : ICashShiftRepository
             .Include(s => s.Movements)
             .FirstOrDefaultAsync(s => s.UserId == userId && s.ClosedAt == null, ct);
 
+    public async Task<CashShift?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        await _context.CashShifts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+
     public Task UpdateAsync(CashShift cashShift, CancellationToken ct = default)
     {
         _context.CashShifts.Update(cashShift);

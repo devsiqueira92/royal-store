@@ -575,6 +575,29 @@ public sealed class Product : Entity, IAuditableEntity
         return Result.Success();
     }
 
+    /// <summary>
+    /// Returns the fiscal classification actually in force for this product. When
+    /// <see cref="OverrideTaxProfile"/> is false the product's own CFOP/CST columns are stored as
+    /// null and the values come from the tax profile template; the flag selects the whole source,
+    /// it does not merge field by field.
+    /// </summary>
+    public Result<ProductFiscalProfile> ResolveFiscalProfile()
+    {
+        if (OverrideTaxProfile)
+            return new ProductFiscalProfile(DefaultCfop, IcmsCst, PisCofinsCst, IvaCst, IsSelectiveTax ?? false);
+
+        if (TaxProfileTemplate is null)
+            return Error.Unexpected("product.tax_profile_not_loaded",
+                $"The tax profile template for product '{Name}' was not loaded.");
+
+        return new ProductFiscalProfile(
+            TaxProfileTemplate.DefaultCfop,
+            TaxProfileTemplate.IcmsCst,
+            TaxProfileTemplate.PisCofinsCst,
+            TaxProfileTemplate.IvaCst,
+            TaxProfileTemplate.IsSelectiveTax);
+    }
+
     private bool HasDuplicateVariant(Guid excludeVariantId, string? size, string? color, string? optionName) =>
         Type == ItemType.Service
             ? Variants.Any(v =>

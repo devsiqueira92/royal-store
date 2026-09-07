@@ -7,35 +7,25 @@ import {
   signal,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
-import {
-  DiscountMode,
-  PaymentMethod,
-} from '../../interfaces/sale-totals.interface';
+import { DiscountMode } from '../../interfaces/sale-totals.interface';
 import { lineItemTaxRate } from '../../interfaces/sale-tax.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
-import { SaleDetails } from '../../interfaces/pos-product.interface';
-
-interface PaymentOption {
-  label: string;
-  value: PaymentMethod;
-}
+import { CheckoutDialogComponent } from '../checkout-dialog/checkout-dialog.component';
+import { CheckoutResult } from '../../interfaces/checkout.interface';
 
 @Component({
   selector: 'app-current-sale',
   imports: [
     CurrencyPipe,
-    FormsModule,
     TranslatePipe,
     ButtonModule,
-    SelectButtonModule,
     SaleLineItemComponent,
     SaleSummaryComponent,
+    CheckoutDialogComponent,
   ],
   templateUrl: './current-sale.component.html',
   styleUrl: './current-sale.component.scss',
@@ -49,17 +39,11 @@ export class CurrentSaleComponent {
   quantityChange = output<{ variantId: string; quantity: number }>();
   removeItem = output<string>();
   clear = output<void>();
-  charge = output<SaleDetails>();
-
-  protected readonly paymentOptions: PaymentOption[] = [
-    { label: 'sale.current.payment.cash', value: 'cash' },
-    { label: 'sale.current.payment.card', value: 'card' },
-    { label: 'sale.current.payment.split', value: 'split' },
-  ];
+  charge = output<CheckoutResult>();
 
   protected readonly discountValue = signal(0);
   protected readonly discountMode = signal<DiscountMode>('amount');
-  protected readonly paymentMethod = signal<PaymentMethod>('card');
+  protected readonly checkoutOpen = signal(false);
 
   protected readonly subtotal = computed(() =>
     this.items().reduce(
@@ -116,17 +100,8 @@ export class CurrentSaleComponent {
     this.quantityChange.emit({ variantId, quantity });
   }
 
-  protected onCharge(): void {
-    const discountMode = this.discountMode() === 'percent' ? '%' : 'R$';
-    const cardFlag = '';
-    const cardPaymentType = 'credit';
-    this.charge.emit({
-      total: this.total(),
-      discount: this.discountAmount(),
-      paymentMethod: this.paymentMethod(),
-      discountMode,
-      cardFlag,
-      cardPaymentType,
-    });
+  protected onConfirmed(result: CheckoutResult): void {
+    this.checkoutOpen.set(false);
+    this.charge.emit(result);
   }
 }

@@ -250,7 +250,6 @@
       "createSubmit": "Create user"
     }
   },
-
   "sale": {
     "pos": {
       "title": "Point of Sale",
@@ -278,11 +277,72 @@
       "payment": {
         "cash": "Cash",
         "card": "Card",
-        "split": "Split"
+        "split": "Split",
+        "debit": "Debit",
+        "credit": "Credit",
+        "pix": "Pix",
+        "brand": "Brand",
+        "brandPlaceholder": "Select brand",
+        "type": "Type",
+        "terms": "Terms",
+        "singleCharge": "Single charge",
+        "addPayment": "+ Add payment",
+        "removePayment": "Remove payment",
+        "remaining": "Remaining",
+        "overpaid": "Overpaid"
+      }
+    },
+    "checkout": {
+      "eyebrow": "Complete order",
+      "back": "← Back",
+      "cancel": "Cancel",
+      "next": "Continue",
+      "confirm": "Confirm order",
+      "steps": {
+        "customer": "Customer",
+        "payment": "Payment",
+        "fulfillment": "Fulfillment"
+      },
+      "customer": {
+        "title": "Select customer",
+        "anonymous": "No customer / Walk-in",
+        "anonymousHint": "Order without a customer record",
+        "searchPlaceholder": "Search by name, phone or document...",
+        "notFound": "No customer matches this search.",
+        "tier": {
+          "standard": "Standard",
+          "silver": "Silver",
+          "gold": "Gold",
+          "vip": "VIP"
+        }
+      },
+      "payment": {
+        "title": "Payment method",
+        "method": "Payment method",
+        "loyaltyTitle": "Loyalty discount",
+        "loyaltyHint": "{{rate}} applied automatically for this customer",
+        "cashback": "Cashback available",
+        "cashbackHint": "Toggle to use it on this order"
+      },
+      "fulfillment": {
+        "title": "Delivery or pickup",
+        "delivery": "Delivery",
+        "pickup": "Pick up in store",
+        "selectBranch": "Select the store",
+        "deliveryHint": "The order will be shipped to the customer address on file."
+      },
+      "summary": {
+        "total": "Total",
+        "breakdown": "Breakdown",
+        "discountTotal": "Total discount",
+        "saleDiscount": "Sale discount",
+        "loyaltyDiscount": "Loyalty",
+        "cashback": "Cashback",
+        "tax": "Taxes (approx.)",
+        "subtotal": "Subtotal"
       }
     }
   },
-
   "enum": {
     "sizes": {
       "osfa": "One Size",

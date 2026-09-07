@@ -34,8 +34,14 @@ public record PosProductDto(
     string? Source,
     string? Key)
 {
-    public static PosProductDto From(Product product, ProductVariant variant, IbptTax? ibptTax) =>
-        new(
+    public static PosProductDto From(Product product, ProductVariant variant, IbptTax? ibptTax)
+    {
+        // The fiscal classification in force follows the product's OverrideTaxProfile flag: when it
+        // is false the product's own CST/CFOP columns are null and the values live on its tax
+        // profile template. Resolving it here keeps the catalog and a stored sale line in agreement.
+        var fiscal = product.ResolveFiscalProfile();
+
+        return new PosProductDto(
             product.Id,
             variant.Id,
             product.Name,
@@ -43,7 +49,7 @@ public record PosProductDto(
             product.Category.Color,
             variant.Color,
             variant.Barcode,
-            variant.Price ?? product.BasePrice,
+            variant.EffectivePrice(product),
             product.Photos.FirstOrDefault(p => p.IsCover)?.Url,
             variant.Size,
             product.StockTrack,
@@ -51,11 +57,11 @@ public record PosProductDto(
             product.StockTrack && (variant.StockQuantity ?? 0m) == 0m,
             product.Origin,
             (int)product.Type,
-            product.IsSelectiveTax ?? false,
-            product.IvaCst,
-            product.IcmsCst,
-            product.PisCofinsCst,
-            product.DefaultCfop,
+            fiscal.IsSuccess && fiscal.Value.IsSelectiveTax,
+            fiscal.IsSuccess ? fiscal.Value.IvaCst : null,
+            fiscal.IsSuccess ? fiscal.Value.IcmsCst : null,
+            fiscal.IsSuccess ? fiscal.Value.PisCofinsCst : null,
+            fiscal.IsSuccess ? fiscal.Value.Cfop : null,
             ibptTax?.NationalRate,
             ibptTax?.FederalRate,
             ibptTax?.ImportedFederalRate,
@@ -65,4 +71,5 @@ public record PosProductDto(
             ibptTax?.EffectiveEnd,
             ibptTax?.Source,
             ibptTax?.Key);
+    }
 }

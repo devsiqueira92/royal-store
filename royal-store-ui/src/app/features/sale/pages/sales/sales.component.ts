@@ -14,6 +14,7 @@ import { CategoryFacade } from '@app/features/category/facade/category.facade';
 import { Category } from '@app/features/category/interfaces/category.interface';
 import { PosProduct } from '../../interfaces/pos-product.interface';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
+import { CheckoutResult } from '../../interfaces/checkout.interface';
 import { SalesStatsComponent } from '../../components/sales-stats/sales-stats.component';
 import { CategoryFilterComponent } from '../../components/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -160,15 +161,17 @@ export class SalesComponent implements OnInit {
     this.items.set([]);
   }
 
-  protected onCharge(sale: { total: number; discount: number }): void {
+  protected onCharge(checkout: CheckoutResult): void {
     // No charge endpoint yet — completing the sale just resets the cart.
+    const items = this.items().map(item => ({
+      variantId: item.variantId,
+      quantity: item.quantity,
+      productId: item.productId,
+    }));
 
     const payload = {
-      items: this.items(),
-
-      sale: {
-        ...sale,
-      },
+      items,
+      checkout,
     };
 
     console.log('Sale completed:', payload);

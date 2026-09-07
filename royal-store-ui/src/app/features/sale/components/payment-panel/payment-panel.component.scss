@@ -1,0 +1,22 @@
+:host {
+  display: block;
+}
+
+.payment-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payment-panel__methods {
+  display: flex;
+}
+
+::ng-deep .payment-panel__methods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  p-togglebutton {
+    flex: 1;
+  }
+}

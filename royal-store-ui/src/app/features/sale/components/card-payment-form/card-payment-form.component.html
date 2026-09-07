@@ -1,0 +1,56 @@
+<div class="card-payment" [formGroup]="form()">
+  <div class="card-payment__row">
+    <span class="card-payment__label">
+      {{ 'sale.current.payment.brand' | translate }}
+    </span>
+    <p-select
+      class="card-payment__control"
+      formControlName="flag"
+      [options]="flagOptions"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'sale.current.payment.brandPlaceholder' | translate"
+      [invalid]="flagInvalid()"
+      appendTo="body"
+    />
+  </div>
+
+  <div class="card-payment__row">
+    <span class="card-payment__label">
+      {{ 'sale.current.payment.type' | translate }}
+    </span>
+    <p-selectbutton
+      class="card-payment__control"
+      formControlName="type"
+      [options]="typeOptions"
+      optionValue="value"
+      [allowEmpty]="false"
+    >
+      <ng-template let-option #item>
+        {{ option.label | translate }}
+      </ng-template>
+    </p-selectbutton>
+  </div>
+
+  @if (isCredit()) {
+    <div class="card-payment__row">
+      <span class="card-payment__label">
+        {{ 'sale.current.payment.terms' | translate }}
+      </span>
+      <p-select
+        class="card-payment__control"
+        formControlName="installments"
+        [options]="installmentOptions"
+        optionValue="value"
+        appendTo="body"
+      >
+        <ng-template #selectedItem let-option>
+          {{ option.label | translate }}
+        </ng-template>
+        <ng-template let-option #item>
+          {{ option.label | translate }}
+        </ng-template>
+      </p-select>
+    </div>
+  }
+</div>

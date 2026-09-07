@@ -1,0 +1,47 @@
+<div class="payment-step">
+  @if (customer(); as selected) {
+    @if (loyaltyRate() > 0) {
+      <div class="payment-step__banner">
+        <i class="pi pi-star-fill"></i>
+        <div>
+          <strong>
+            {{ 'sale.checkout.payment.loyaltyTitle' | translate }} —
+            {{ tierLabel[selected.tier] | translate }}
+          </strong>
+          <span>
+            {{
+              'sale.checkout.payment.loyaltyHint'
+                | translate: { rate: (loyaltyRate() | percent) }
+            }}
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (selected.cashbackBalance > 0) {
+      <div class="payment-step__cashback">
+        <div>
+          <strong>{{ 'sale.checkout.payment.cashback' | translate }}</strong>
+          <span class="payment-step__cashback-value">
+            {{ selected.cashbackBalance | currency }}
+          </span>
+          <span>{{ 'sale.checkout.payment.cashbackHint' | translate }}</span>
+        </div>
+        <app-switch
+          [checked]="useCashback()"
+          [ariaLabel]="'sale.checkout.payment.cashback' | translate"
+          (changed)="cashbackToggled.emit($event)"
+        />
+      </div>
+    }
+  }
+
+  <span class="payment-step__section">
+    {{ 'sale.checkout.payment.method' | translate }}
+  </span>
+
+  <app-payment-panel
+    [total]="total()"
+    (paymentChange)="paymentChange.emit($event)"
+  />
+</div>

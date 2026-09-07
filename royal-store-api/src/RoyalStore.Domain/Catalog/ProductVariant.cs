@@ -105,4 +105,25 @@ public sealed class ProductVariant : Entity
 
         return Result.Success();
     }
+
+    /// <summary>
+    /// Human-readable composition of the variant's distinguishing attributes, used on receipts and
+    /// snapshotted onto a sale line. Falls back to the product name when the variant has none.
+    /// </summary>
+    public string BuildLabel(Product owner)
+    {
+        var parts = new[] { Size, Color, OptionName }
+            .Where(part => !string.IsNullOrWhiteSpace(part))
+            .Select(part => part!.Trim());
+
+        var label = string.Join(" / ", parts);
+
+        if (string.IsNullOrWhiteSpace(label))
+            label = owner.Name;
+
+        return label.Length > 200 ? label[..200] : label;
+    }
+
+    /// <summary>The price in force: the variant's own when set, otherwise the product's base price.</summary>
+    public decimal EffectivePrice(Product owner) => Price ?? owner.BasePrice;
 }

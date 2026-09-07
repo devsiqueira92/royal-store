@@ -1,3 +1,5 @@
+import { SplitPaymentEntry } from './payment.interface';
+
 export interface PosProduct {
   productId: string;
   variantId: string;
@@ -31,6 +33,8 @@ export interface SaleDetails {
   discount: number;
   discountMode: string;
   paymentMethod: string;
-  cardFlag?: string;
+  cardFlag?: string | null;
   cardPaymentType?: string;
+  installments?: number;
+  splitPayments?: SplitPaymentEntry[];
 }

@@ -1,0 +1,27 @@
+<div class="payment-panel" [formGroup]="form">
+  <p-selectbutton
+    class="payment-panel__methods"
+    formControlName="method"
+    [options]="methodOptions"
+    optionValue="value"
+    [allowEmpty]="false"
+  >
+    <ng-template let-option #item>
+      {{ option.label | translate }}
+    </ng-template>
+  </p-selectbutton>
+
+  @switch (method()) {
+    @case ('card') {
+      <app-card-payment-form [form]="form.controls.card" />
+    }
+    @case ('split') {
+      <app-split-payment-form
+        [form]="form.controls.splits"
+        [remaining]="remaining()"
+        (addPayment)="addSplit()"
+        (removePayment)="removeSplit($event)"
+      />
+    }
+  }
+</div>

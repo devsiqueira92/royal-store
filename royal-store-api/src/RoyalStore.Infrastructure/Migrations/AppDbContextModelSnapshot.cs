@@ -608,6 +608,60 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("UnitMeasureOptions", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Customers.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Document")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("TermsAccepted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Document")
+                        .IsUnique();
+
+                    b.ToTable("Customers", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Fiscal.IbptTax", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1041,8 +1095,18 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("AdditionalFees")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<Guid>("CashShiftId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Change")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("datetimeoffset");
@@ -1054,6 +1118,11 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DiscountMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<string>("ExternalInvoiceId")
                         .HasColumnType("nvarchar(max)");
@@ -1071,6 +1140,11 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<DateTime>("SoldAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Subtotal")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("datetime2");
@@ -1110,14 +1184,10 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Cest")
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
-
-                    b.Property<string>("Ncm")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                    b.Property<decimal>("DiscountItem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("ProductCode")
                         .HasMaxLength(100)
@@ -1146,6 +1216,9 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("VariantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
@@ -1153,6 +1226,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasIndex("SaleId");
 
                     b.HasIndex("TenantId");
+
+                    b.HasIndex("VariantId");
 
                     b.ToTable("SaleItems", (string)null);
                 });
@@ -1446,7 +1521,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                             b1.HasKey("ProductId");
 
-                            b1.ToTable("Products", (string)null);
+                            b1.ToTable("Products");
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");
@@ -1536,6 +1611,164 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasForeignKey("SaleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("RoyalStore.Domain.Catalog.ProductVariant", null)
+                        .WithMany()
+                        .HasForeignKey("VariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.OwnsOne("RoyalStore.Domain.Sales.SaleItemCatalogSnapshot", "Catalog", b1 =>
+                        {
+                            b1.Property<Guid>("SaleItemId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("OptionName")
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("OptionName");
+
+                            b1.Property<string>("Sku")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("Sku");
+
+                            b1.Property<string>("UnitMeasure")
+                                .IsRequired()
+                                .HasMaxLength(36)
+                                .HasColumnType("nvarchar(36)")
+                                .HasColumnName("UnitMeasure");
+
+                            b1.Property<string>("VariantColor")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("VariantColor");
+
+                            b1.Property<string>("VariantLabel")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("nvarchar(200)")
+                                .HasColumnName("VariantLabel");
+
+                            b1.Property<string>("VariantSize")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("VariantSize");
+
+                            b1.HasKey("SaleItemId");
+
+                            b1.ToTable("SaleItems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleItemId");
+                        });
+
+                    b.OwnsOne("RoyalStore.Domain.Sales.SaleItemFiscalSnapshot", "Fiscal", b1 =>
+                        {
+                            b1.Property<Guid>("SaleItemId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Cest")
+                                .HasMaxLength(7)
+                                .HasColumnType("nvarchar(7)")
+                                .HasColumnName("Cest");
+
+                            b1.Property<string>("Cfop")
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("Cfop");
+
+                            b1.Property<string>("IcmsCst")
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("IcmsCst");
+
+                            b1.Property<bool>("IsSelectiveTax")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("bit")
+                                .HasDefaultValue(false)
+                                .HasColumnName("IsSelectiveTax");
+
+                            b1.Property<string>("IssCode")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("IssCode");
+
+                            b1.Property<string>("IvaCst")
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("IvaCst");
+
+                            b1.Property<string>("Nbs")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("Nbs");
+
+                            b1.Property<string>("Ncm")
+                                .HasMaxLength(8)
+                                .HasColumnType("nvarchar(8)")
+                                .HasColumnName("Ncm");
+
+                            b1.Property<string>("Origin")
+                                .IsRequired()
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("Origin");
+
+                            b1.Property<string>("PisCofinsCst")
+                                .HasMaxLength(10)
+                                .HasColumnType("nvarchar(10)")
+                                .HasColumnName("PisCofinsCst");
+
+                            b1.HasKey("SaleItemId");
+
+                            b1.ToTable("SaleItems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleItemId");
+                        });
+
+                    b.OwnsOne("RoyalStore.Domain.Sales.SaleItemTaxRates", "TaxRates", b1 =>
+                        {
+                            b1.Property<Guid>("SaleItemId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<decimal?>("FederalRate")
+                                .HasColumnType("decimal(7,4)")
+                                .HasColumnName("FederalRate");
+
+                            b1.Property<decimal?>("ImportedFederalRate")
+                                .HasColumnType("decimal(7,4)")
+                                .HasColumnName("ImportedFederalRate");
+
+                            b1.Property<decimal?>("MunicipalRate")
+                                .HasColumnType("decimal(7,4)")
+                                .HasColumnName("MunicipalRate");
+
+                            b1.Property<decimal?>("NationalRate")
+                                .HasColumnType("decimal(7,4)")
+                                .HasColumnName("NationalRate");
+
+                            b1.Property<decimal?>("StateRate")
+                                .HasColumnType("decimal(7,4)")
+                                .HasColumnName("StateRate");
+
+                            b1.HasKey("SaleItemId");
+
+                            b1.ToTable("SaleItems");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleItemId");
+                        });
+
+                    b.Navigation("Catalog")
+                        .IsRequired();
+
+                    b.Navigation("Fiscal")
+                        .IsRequired();
+
+                    b.Navigation("TaxRates")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.SalePayment", b =>
@@ -1544,6 +1777,46 @@ namespace RoyalStore.Infrastructure.Migrations
                         .WithMany("Payments")
                         .HasForeignKey("SaleId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("RoyalStore.Domain.Sales.PaymentCardDetails", "Card", b1 =>
+                        {
+                            b1.Property<Guid>("SalePaymentId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("AuthCode")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("AuthCode");
+
+                            b1.Property<string>("Brand")
+                                .HasMaxLength(30)
+                                .HasColumnType("nvarchar(30)")
+                                .HasColumnName("CardBrand");
+
+                            b1.Property<int?>("Installments")
+                                .HasColumnType("int")
+                                .HasColumnName("Installments");
+
+                            b1.Property<string>("Nsu")
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("Nsu");
+
+                            b1.Property<string>("Type")
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("PaymentType");
+
+                            b1.HasKey("SalePaymentId");
+
+                            b1.ToTable("SalePayments");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SalePaymentId");
+                        });
+
+                    b.Navigation("Card")
                         .IsRequired();
                 });
 

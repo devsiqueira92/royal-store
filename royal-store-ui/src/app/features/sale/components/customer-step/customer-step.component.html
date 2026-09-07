@@ -1,0 +1,65 @@
+<div class="customer-step">
+  <button
+    type="button"
+    class="customer-step__row"
+    [class.customer-step__row--selected]="selectedId() === null"
+    (click)="customerSelected.emit(null)"
+  >
+    <span class="customer-step__avatar"><i class="pi pi-user"></i></span>
+    <span class="customer-step__info">
+      <span class="customer-step__name">
+        {{ 'sale.checkout.customer.anonymous' | translate }}
+      </span>
+      <span class="customer-step__meta">
+        {{ 'sale.checkout.customer.anonymousHint' | translate }}
+      </span>
+    </span>
+    @if (selectedId() === null) {
+      <i class="pi pi-check customer-step__check"></i>
+    }
+  </button>
+
+  <p-iconfield class="customer-step__search">
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      type="search"
+      [formControl]="search()"
+      [placeholder]="'sale.checkout.customer.searchPlaceholder' | translate"
+    />
+  </p-iconfield>
+
+  @for (customer of customers(); track customer.id) {
+    <button
+      type="button"
+      class="customer-step__row"
+      [class.customer-step__row--selected]="selectedId() === customer.id"
+      (click)="customerSelected.emit(customer.id)"
+    >
+      <span class="customer-step__avatar">
+        {{ customer.name.charAt(0) }}
+      </span>
+      <span class="customer-step__info">
+        <span class="customer-step__name">
+          {{ customer.name }}
+          <span class="customer-step__tag" [attr.data-tier]="customer.tier">
+            {{ tierLabel[customer.tier] | translate }}
+          </span>
+        </span>
+        <span class="customer-step__meta">{{ customer.phone }}</span>
+      </span>
+      @if (tierRate[customer.tier] > 0) {
+        <span class="customer-step__discount">
+          +{{ tierRate[customer.tier] | percent }}
+        </span>
+      }
+      @if (selectedId() === customer.id) {
+        <i class="pi pi-check customer-step__check"></i>
+      }
+    </button>
+  } @empty {
+    <p class="customer-step__empty">
+      {{ 'sale.checkout.customer.notFound' | translate }}
+    </p>
+  }
+</div>

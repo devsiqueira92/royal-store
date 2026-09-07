@@ -1,0 +1,48 @@
+.checkout-dialog__title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.checkout-dialog__title span {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.checkout-dialog__title h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.checkout-dialog__body {
+  margin-top: 1rem;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.checkout-dialog__panel--hidden {
+  display: none;
+}
+
+.checkout-dialog__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  padding-top: 0.75rem;
+  border-top: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}
+
+.checkout-dialog__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0.5rem;
+}
+
+.checkout-dialog__actions ::ng-deep .p-button {
+  width: 100%;
+}

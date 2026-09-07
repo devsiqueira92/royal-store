@@ -1,0 +1,44 @@
+<div class="fulfillment-step">
+  <p-selectbutton
+    class="fulfillment-step__mode"
+    [formControl]="mode()"
+    [options]="modeOptions"
+    optionValue="value"
+    [allowEmpty]="false"
+  >
+    <ng-template let-option #item>
+      {{ option.label | translate }}
+    </ng-template>
+  </p-selectbutton>
+
+  @if (isPickup()) {
+    <span class="fulfillment-step__section">
+      {{ 'sale.checkout.fulfillment.selectBranch' | translate }}
+    </span>
+
+    @for (branch of branches(); track branch.id) {
+      <button
+        type="button"
+        class="fulfillment-step__branch"
+        [class.fulfillment-step__branch--selected]="
+          selectedBranchId() === branch.id
+        "
+        (click)="branchSelected.emit(branch.id)"
+      >
+        <i class="pi pi-shop"></i>
+        <span class="fulfillment-step__info">
+          <strong>{{ branch.name }}</strong>
+          <span>{{ branch.address }}</span>
+          <span>{{ branch.openingHours }}</span>
+        </span>
+        @if (selectedBranchId() === branch.id) {
+          <i class="pi pi-check fulfillment-step__check"></i>
+        }
+      </button>
+    }
+  } @else {
+    <p class="fulfillment-step__hint">
+      {{ 'sale.checkout.fulfillment.deliveryHint' | translate }}
+    </p>
+  }
+</div>
