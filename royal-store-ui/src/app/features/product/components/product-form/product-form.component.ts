@@ -128,6 +128,17 @@ export class ProductFormComponent {
 
       this.formGroup.patchValue({ ...product });
     });
+
+    // The store owns the active flag: this mirrors it back into the control
+    // so a rejected enable/disable rolls the toggle back.
+    effect(() => {
+      const isActive = this.selectedProduct()?.isActive ?? true;
+      const control = this.formGroup.controls.isActive;
+
+      if (control.value !== isActive) {
+        control.setValue(isActive, { emitEvent: false });
+      }
+    });
     this.formGroup.controls.type.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(type => this.applyItemType(type as ItemType));
@@ -139,6 +150,31 @@ export class ProductFormComponent {
     this.formGroup.controls.overrideTaxProfile.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(override => this.applyFiscalOverride(!!override));
+
+    this.formGroup.controls.isActive.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(isActive => this.applyActiveState(!!isActive));
+  }
+
+  /**
+   * Persists the isActive toggle right away through
+   * `PATCH /api/products/{id}/enable|disable` — it is not part of the
+   * batched save. Only reached for an already persisted item, and skipped
+   * when the control merely echoes what the store already holds (the patch
+   * that fills the form on load).
+   */
+  private applyActiveState(isActive: boolean): void {
+    const product = this.selectedProduct();
+
+    if (!product || product.isActive === isActive) {
+      return;
+    }
+
+    if (isActive) {
+      this.productFacade.enableProduct(product.id);
+    } else {
+      this.productFacade.disableProduct(product.id);
+    }
   }
 
   protected onItemTypeChange(type: ItemType): void {

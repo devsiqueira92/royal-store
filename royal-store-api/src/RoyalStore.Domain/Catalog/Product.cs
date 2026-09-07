@@ -431,6 +431,17 @@ public sealed class Product : Entity, IAuditableEntity
         return Result.Success();
     }
 
+
+    public Result Enable()
+    {
+        if (IsActive)
+            return Result.Failure(Error.Conflict("product.already_enabled", "Product is already enabled."));
+
+        IsActive = true;
+        Version++;
+        return Result.Success();
+    }
+
     public Result<ProductVariant> AddVariant(Guid tenantId, string? size, string? color, string? optionName,
         string? sku, string? barcode, decimal? price, decimal? costPrice,
         decimal? stockQuantity, decimal? minStockQuantity)

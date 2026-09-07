@@ -44,6 +44,10 @@ export class ProductFacade {
     this.store.dispatch(ProductActions.disableProduct({ id }));
   }
 
+  enableProduct(id: string): void {
+    this.store.dispatch(ProductActions.enableProduct({ id }));
+  }
+
   removeProductVariant(variantId: string): void {
     this.store.dispatch(ProductActions.removeProductVariant({ variantId }));
   }

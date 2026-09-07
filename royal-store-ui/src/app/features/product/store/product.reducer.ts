@@ -47,6 +47,7 @@ export const productFeature = createFeature({
       isLoading: true,
       error: null,
     })),
+
     on(
       ProductActions.loadProductSuccess,
       (state, { product }): ProductState => ({
@@ -55,16 +56,19 @@ export const productFeature = createFeature({
         isLoading: false,
       }),
     ),
+
     on(ProductActions.loadProductFailure, (state, { error }): ProductState => ({
       ...state,
       isLoading: false,
       error,
     })),
+
     on(ProductActions.createProduct, (state): ProductState => ({
       ...state,
       isLoading: true,
       error: null,
     })),
+
     on(
       ProductActions.createProductSuccess,
       (state, { product }): ProductState => ({
@@ -73,6 +77,7 @@ export const productFeature = createFeature({
         isLoading: false,
       }),
     ),
+
     on(
       ProductActions.createProductFailure,
       (state, { error }): ProductState => ({
@@ -81,11 +86,13 @@ export const productFeature = createFeature({
         error,
       }),
     ),
+
     on(ProductActions.saveProductEdit, (state): ProductState => ({
       ...state,
       isLoading: true,
       error: null,
     })),
+
     on(
       ProductActions.updateProductSuccess,
       (state, { product }): ProductState => ({
@@ -111,6 +118,7 @@ export const productFeature = createFeature({
       isLoading: true,
       error: null,
     })),
+
     on(
       ServiceActions.createServiceSuccess,
       (state, { product }): ProductState => ({
@@ -132,6 +140,7 @@ export const productFeature = createFeature({
       isLoading: true,
       error: null,
     })),
+
     on(
       ServiceActions.updateServiceSuccess,
       (state, { product }): ProductState => ({
@@ -185,30 +194,42 @@ export const productFeature = createFeature({
       }),
     ),
 
-    on(ProductActions.disableProduct, (state): ProductState => ({
+    on(ProductActions.disableProduct, (state, { id }) => ({
       ...state,
-      isLoading: true,
+      isLoading: false,
       error: null,
     })),
-    on(ProductActions.disableProductSuccess, (state, { id }): ProductState => ({
+
+    on(ProductActions.disableProductSuccess, (state, { id }) => ({
       ...state,
-      products: state.products.map(p =>
-        p.id === id ? { ...p, isActive: false } : p,
-      ),
-      selectedProduct:
-        state.selectedProduct?.id === id
-          ? { ...state.selectedProduct, isActive: false }
-          : state.selectedProduct,
+      selectedProduct: { ...state.selectedProduct!, isActive: false },
       isLoading: false,
     })),
-    on(
-      ProductActions.disableProductFailure,
-      (state, { error }): ProductState => ({
-        ...state,
-        isLoading: false,
-        error,
-      }),
-    ),
+
+    on(ProductActions.disableProductFailure, (state, { id, error }) => ({
+      ...state,
+      isLoading: false,
+      error: error,
+    })),
+
+    on(ProductActions.enableProduct, (state, { id }) => ({
+      ...state,
+      isLoading: false,
+      error: null,
+    })),
+
+    on(ProductActions.enableProductSuccess, (state, { id }) => ({
+      ...state,
+      selectedProduct: { ...state.selectedProduct!, isActive: true },
+      isLoading: false,
+    })),
+
+    on(ProductActions.enableProductFailure, (state, { id, error }) => ({
+      ...state,
+      isLoading: false,
+      error: error,
+    })),
+
     on(ProductActions.clearSelectedProduct, (state): ProductState => ({
       ...state,
       selectedProduct: null,
