@@ -162,10 +162,10 @@
           </td>
 
           <td>
-            <p-toggleswitch
-              [(ngModel)]="product.isActive"
+            <app-switch
+              [checked]="product.isActive"
               inputId="isActive"
-              (onChange)="updateStatus(product)"
+              (changed)="updateStatus(product)"
             />
           </td>
           <td>

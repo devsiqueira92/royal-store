@@ -21,8 +21,8 @@ import { ProductFacade } from '../../facade/product.facade';
 import { Product, ProductVariant } from '../../interfaces/product.interface';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { ProductFormComponent } from '../../components/product-form/product-form.component';
-import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { SwitchComponent } from '@app/shared/components/switch/switch.component';
 
 type StockStatus = 'inStock' | 'lowStock' | 'outOfStock';
 
@@ -52,8 +52,7 @@ const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
     FormsModule,
     TranslatePipe,
     CurrencyPipe,
-    ToggleFieldComponent,
-    ToggleSwitch,
+    SwitchComponent,
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
