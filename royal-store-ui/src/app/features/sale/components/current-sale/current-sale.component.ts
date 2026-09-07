@@ -7,35 +7,26 @@ import {
   signal,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
-import {
-  DiscountMode,
-  PaymentMethod,
-} from '../../interfaces/sale-totals.interface';
+import { DiscountMode } from '../../interfaces/sale-totals.interface';
 import { lineItemTaxRate } from '../../interfaces/sale-tax.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
+import { PaymentPanelComponent } from '../payment-panel/payment-panel.component';
+import { PaymentState } from '../../interfaces/payment.interface';
 import { SaleDetails } from '../../interfaces/pos-product.interface';
-
-interface PaymentOption {
-  label: string;
-  value: PaymentMethod;
-}
 
 @Component({
   selector: 'app-current-sale',
   imports: [
     CurrencyPipe,
-    FormsModule,
     TranslatePipe,
     ButtonModule,
-    SelectButtonModule,
     SaleLineItemComponent,
     SaleSummaryComponent,
+    PaymentPanelComponent,
   ],
   templateUrl: './current-sale.component.html',
   styleUrl: './current-sale.component.scss',
@@ -51,15 +42,9 @@ export class CurrentSaleComponent {
   clear = output<void>();
   charge = output<SaleDetails>();
 
-  protected readonly paymentOptions: PaymentOption[] = [
-    { label: 'sale.current.payment.cash', value: 'cash' },
-    { label: 'sale.current.payment.card', value: 'card' },
-    { label: 'sale.current.payment.split', value: 'split' },
-  ];
-
   protected readonly discountValue = signal(0);
   protected readonly discountMode = signal<DiscountMode>('amount');
-  protected readonly paymentMethod = signal<PaymentMethod>('card');
+  protected readonly payment = signal<PaymentState | null>(null);
 
   protected readonly subtotal = computed(() =>
     this.items().reduce(
@@ -112,21 +97,31 @@ export class CurrentSaleComponent {
 
   protected readonly total = computed(() => this.netSubtotal() + this.tax());
 
+  protected readonly chargeDisabled = computed(
+    () => this.items().length === 0 || !this.payment()?.valid,
+  );
+
   protected onQuantityChange(variantId: string, quantity: number): void {
     this.quantityChange.emit({ variantId, quantity });
   }
 
   protected onCharge(): void {
-    const discountMode = this.discountMode() === 'percent' ? '%' : 'R$';
-    const cardFlag = '';
-    const cardPaymentType = 'credit';
+    const payment = this.payment();
+    if (!payment?.valid) {
+      return;
+    }
+
+    const { method, card, splits } = payment.details;
+
     this.charge.emit({
       total: this.total(),
       discount: this.discountAmount(),
-      paymentMethod: this.paymentMethod(),
-      discountMode,
-      cardFlag,
-      cardPaymentType,
+      discountMode: this.discountMode() === 'percent' ? '%' : 'R$',
+      paymentMethod: method,
+      cardFlag: card?.flag,
+      cardPaymentType: card?.type,
+      installments: card?.installments,
+      splitPayments: splits,
     });
   }
 }

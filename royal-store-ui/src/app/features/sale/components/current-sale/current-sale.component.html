@@ -1,7 +1,9 @@
 <aside class="current-sale">
   <header class="current-sale__header">
     <div>
-      <h2 class="current-sale__title">{{ 'sale.current.title' | translate }}</h2>
+      <h2 class="current-sale__title">
+        {{ 'sale.current.title' | translate }}
+      </h2>
       <p class="current-sale__meta">
         {{ 'sale.current.soldBy' | translate }} {{ sellerName() }}
         @if (saleRef()) {
@@ -44,26 +46,16 @@
       (discountModeChange)="discountMode.set($event)"
     ></app-sale-summary>
 
-    <p-selectbutton
-      class="current-sale__payment"
-      [options]="paymentOptions"
-      optionValue="value"
-      [allowEmpty]="false"
-      [ngModel]="paymentMethod()"
-      (ngModelChange)="paymentMethod.set($event)"
-    >
-      <ng-template let-option #item>
-        {{ option.label | translate }}
-      </ng-template>
-    </p-selectbutton>
+    <app-payment-panel
+      [total]="total()"
+      (paymentChange)="payment.set($event)"
+    />
 
     <p-button
       class="current-sale__charge"
       icon="pi pi-check"
-      [label]="
-        ('sale.current.charge' | translate) + ' ' + (total() | currency)
-      "
-      [disabled]="items().length === 0"
+      [label]="('sale.current.charge' | translate) + ' ' + (total() | currency)"
+      [disabled]="chargeDisabled()"
       (onClick)="onCharge()"
     />
   </footer>

@@ -68,16 +68,6 @@
   background: light-dark(var(--p-surface-0), var(--p-surface-900));
 }
 
-.current-sale__payment {
-  display: flex;
-}
-
-.current-sale__payment ::ng-deep .p-selectbutton {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  width: 100%;
-}
-
 .current-sale__charge ::ng-deep .p-button {
   width: 100%;
   padding-block: 0.875rem;
