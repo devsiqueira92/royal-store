@@ -21,6 +21,8 @@ import { ProductFacade } from '../../facade/product.facade';
 import { Product, ProductVariant } from '../../interfaces/product.interface';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { ProductFormComponent } from '../../components/product-form/product-form.component';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { SwitchComponent } from '@app/shared/components/switch/switch.component';
 
 type StockStatus = 'inStock' | 'lowStock' | 'outOfStock';
 
@@ -50,6 +52,7 @@ const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
     FormsModule,
     TranslatePipe,
     CurrencyPipe,
+    SwitchComponent,
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
@@ -160,10 +163,19 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  protected updateStatus(product: Product) {
+    if (product.isActive) {
+      this.productFacade.disableProduct(product.id);
+    } else {
+      this.productFacade.enableProduct(product.id);
+    }
+  }
+
   protected getInventoryValue(product: Product): number {
     return product.variants.reduce(
       (total, variant) =>
-        total + (variant.price ?? product.basePrice) * (variant.stockQuantity ?? 0),
+        total +
+        (variant.price ?? product.basePrice) * (variant.stockQuantity ?? 0),
       0,
     );
   }

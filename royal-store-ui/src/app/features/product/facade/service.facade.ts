@@ -4,7 +4,7 @@ import { CreateServiceRequest } from '../interfaces/create-service-request.inter
 import { UpdateServiceRequest } from '../interfaces/update-service-request.interface';
 import { ServiceActions } from '../store/service.actions';
 import {
-  selectProducts,
+  selectAllProducts,
   selectSelectedProduct,
   selectIsLoading,
   selectError,
@@ -22,7 +22,7 @@ import {
 export class ServiceFacade {
   private store = inject(Store);
 
-  products$ = this.store.select(selectProducts);
+  products$ = this.store.select(selectAllProducts);
   selectedProduct$ = this.store.select(selectSelectedProduct);
   productVariants$ = this.store.select(productVariants);
   isLoading$ = this.store.select(selectIsLoading);

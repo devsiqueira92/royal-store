@@ -7,14 +7,14 @@ namespace RoyalStore.Application.Products.Commands.RemoveProductVariant;
 public sealed class RemoveProductVariantCommandHandler
     : IRequestHandler<RemoveProductVariantCommand, Result>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IProductVariantRepository _productVariantRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public RemoveProductVariantCommandHandler(
-        IProductRepository productRepository,
+        IProductVariantRepository productVariantRepository,
         IUnitOfWork unitOfWork)
     {
-        _productRepository = productRepository;
+        _productVariantRepository = productVariantRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -22,15 +22,12 @@ public sealed class RemoveProductVariantCommandHandler
         RemoveProductVariantCommand command,
         CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(command.ProductId, cancellationToken);
+        var product = await _productVariantRepository.GetById(command.VariantId, cancellationToken);
         if (product is null)
             return Result.Failure(Error.NotFound("product.not_found", "Product not found."));
 
-        var removeResult = product.RemoveVariant(command.VariantId);
-        if (!removeResult.IsSuccess)
-            return removeResult;
 
-        await _productRepository.UpdateAsync(product, null, cancellationToken);
+        await _productVariantRepository.RemoveAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

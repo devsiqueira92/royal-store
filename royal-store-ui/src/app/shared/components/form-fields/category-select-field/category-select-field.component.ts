@@ -10,7 +10,7 @@ import {
   UntypedFormGroup,
   Validators,
 } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SelectChangeEvent, SelectModule } from 'primeng/select';
 import { FormErrorComponent } from '../form-error/form-error.component';
@@ -22,6 +22,8 @@ import { ProductCategoryOption } from '@app/features/product/interfaces/product.
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../button/button.component';
 import { DividerModule } from 'primeng/divider';
+import { DialogManagerService } from '@app/shared/services/dialog.service';
+import { CreateCategoryComponent } from '@app/features/category/components/create-category/create-category.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +43,8 @@ import { DividerModule } from 'primeng/divider';
 })
 export class CategorySelectFieldComponent {
   private readonly categoryFacade = inject(CategoryFacade);
+  private readonly dialogService = inject(DialogManagerService);
+  private readonly translateService = inject(TranslateService);
   protected readonly isLoading$ = this.categoryFacade.isLoading$;
   protected readonly categories = toSignal(
     this.categoryFacade.categories$.pipe(
@@ -69,5 +73,11 @@ export class CategorySelectFieldComponent {
 
   constructor() {
     this.categoryFacade.loadCategories();
+  }
+
+  openCategoryModal() {
+    this.dialogService.open(CreateCategoryComponent, {
+      header: this.translateService.instant('category.form.title'),
+    });
   }
 }

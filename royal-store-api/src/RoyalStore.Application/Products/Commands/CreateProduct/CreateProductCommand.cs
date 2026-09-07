@@ -15,7 +15,7 @@ public record CreateProductCommand(
     string UnitOfMeasure,
     string? Ncm,
     string? Cest,
-    int Origin,
+    string Origin,
     Guid TaxProfileTemplateId,
     bool OverrideTaxProfile,
     List<CreateVariantRequest>? Variants,

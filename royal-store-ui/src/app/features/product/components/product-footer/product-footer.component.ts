@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { FormArray, FormGroup } from '@angular/forms';
 import {
   Product,
@@ -24,7 +24,8 @@ import {
 } from '../../interfaces/update-service-request.interface';
 import { ProductFacade } from '../../facade/product.facade';
 import { ServiceFacade } from '../../facade/service.facade';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith, switchMap } from 'rxjs';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { CurrencyPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -49,13 +50,22 @@ export class ProductFooterComponent {
     { initialValue: null as Product | null },
   );
 
-  protected getSummary(): {
-    variantsCount: number;
-    totalUnits: number;
-    minPrice: number | null;
-    maxPrice: number | null;
-  } {
-    const rows = this.variants().controls.map(group => group.getRawValue());
+  // Zoneless: FormArray mutations don't trigger change detection on their
+  // own, so the summary is recomputed from the array's value stream.
+  private readonly variantRows = toSignal(
+    toObservable(this.variants).pipe(
+      switchMap(variants =>
+        variants.valueChanges.pipe(
+          startWith(null),
+          map(() => variants.controls.map(group => group.getRawValue())),
+        ),
+      ),
+    ),
+    { initialValue: [] },
+  );
+
+  protected readonly summary = computed(() => {
+    const rows = this.variantRows();
     const totalUnits = rows.reduce(
       (total, row) => total + (Number(row.stockQuantity) || 0),
       0,
@@ -70,7 +80,7 @@ export class ProductFooterComponent {
       minPrice: prices.length ? Math.min(...prices) : null,
       maxPrice: prices.length ? Math.max(...prices) : null,
     };
-  }
+  });
 
   protected onClose(): void {
     this.productFacade.clearSelectedProduct();
@@ -109,10 +119,10 @@ export class ProductFooterComponent {
       basePrice: raw.basePrice ?? 0,
       baseCostPrice: raw.baseCostPrice ?? 0,
       description: raw.description?.trim() || undefined,
-      unitOfMeasure: raw.unitOfMeasure?.trim() || 'UN',
+      unitOfMeasure: raw.unitOfMeasure!,
       ncm: raw.ncm?.trim() || undefined,
       cest: raw.cest?.trim() || undefined,
-      origin: Number(raw.origin ?? 0),
+      origin: raw.origin ?? '0',
       measure: {
         netWeight: raw.netWeight ?? undefined,
         grossWeight: raw.grossWeight ?? undefined,

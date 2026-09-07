@@ -69,7 +69,8 @@
   gap: 0.25rem;
   margin-left: auto;
 
-  button {
+  button,
+  app-delete-button {
     display: flex;
     align-items: center;
     justify-content: center;

@@ -14,11 +14,7 @@ import { InputNumberFieldComponent } from '@app/shared/components/form-fields/in
 
 @Component({
   selector: 'app-product-logistics',
-  imports: [
-    FormLayoutComponent,
-    InputFieldComponent,
-    InputNumberFieldComponent,
-  ],
+  imports: [FormLayoutComponent, InputNumberFieldComponent],
   templateUrl: './product-logistics.component.html',
   styleUrl: './product-logistics.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

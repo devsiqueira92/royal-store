@@ -5,7 +5,7 @@ import { UpdateProductRequest } from '../interfaces/update-product-request.inter
 import { GetProductsParams } from '../interfaces/get-products-params.interface';
 import { ProductActions } from '../store/product.actions';
 import {
-  selectProducts,
+  selectAllProducts,
   selectSelectedProduct,
   selectIsLoading,
   selectError,
@@ -18,7 +18,7 @@ import {
 export class ProductFacade {
   private store = inject(Store);
 
-  products$ = this.store.select(selectProducts);
+  products$ = this.store.select(selectAllProducts);
   selectedProduct$ = this.store.select(selectSelectedProduct);
   productVariants$ = this.store.select(productVariants);
   isLoading$ = this.store.select(selectIsLoading);
@@ -42,6 +42,14 @@ export class ProductFacade {
 
   disableProduct(id: string): void {
     this.store.dispatch(ProductActions.disableProduct({ id }));
+  }
+
+  enableProduct(id: string): void {
+    this.store.dispatch(ProductActions.enableProduct({ id }));
+  }
+
+  removeProductVariant(variantId: string): void {
+    this.store.dispatch(ProductActions.removeProductVariant({ variantId }));
   }
 
   clearSelectedProduct(): void {

@@ -30,6 +30,10 @@ export class ProductService {
     return this.http.patch<void>(`${this.apiUrl}/${id}/disable`, {});
   }
 
+  enable(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/enable`, {});
+  }
+
   getAll(params?: GetProductsParams): Observable<Product[]> {
     let httpParams = new HttpParams();
     if (params?.isActive !== undefined) {
@@ -46,9 +50,7 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
-  removeVariant(productId: string, variantId: string): Observable<void> {
-    return this.http.delete<void>(
-      `${this.apiUrl}/${productId}/variants/${variantId}`,
-    );
+  removeVariant(variantId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/variants/${variantId}`);
   }
 }

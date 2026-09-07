@@ -38,6 +38,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
     // Global reference data — shared across all tenants, no TenantId, no query filter.
     public DbSet<IbptTax> IbptTaxes { get; set; } = null!;
+    public DbSet<OriginOption> OriginOptions { get; set; } = null!;
+
+    public DbSet<UnitMeasureOption> UnitMeasureOptions { get; set; } = null!;
 
     public RoyalStoreContext(DbContextOptions<RoyalStoreContext> options, ITenantContext tenantContext)
         : base(options)
@@ -102,5 +105,10 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<CashMovement>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<UnitMeasureOption>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        // OriginOption is deliberately global — no query filter, same as IbptTax.
     }
 }

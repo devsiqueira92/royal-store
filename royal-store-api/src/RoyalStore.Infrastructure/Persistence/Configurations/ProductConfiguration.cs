@@ -30,9 +30,7 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsActive).IsRequired();
 
         builder.Property(p => p.UnitOfMeasure)
-            .HasMaxLength(6)
-            .IsRequired()
-            .HasDefaultValue("UN");
+            .HasMaxLength(36);
 
         builder.Property(p => p.Type)
             .HasConversion<int>()

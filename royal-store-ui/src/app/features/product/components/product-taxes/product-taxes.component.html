@@ -36,12 +36,18 @@
           [type]="itemType()"
           (codeSelected)="parentForm().controls.ncm.setValue($event)"
         ></app-ibpt-tax-autocomplete>
-        <app-select-field
+        <!-- <app-select-field
           [parentForm]="parentForm()"
           controlName="origin"
           label="product.form.tax.origin"
-          [options]="originOptions"
-        ></app-select-field>
+          [options]="originOptions()"
+        ></app-select-field> -->
+
+        <app-origin-select-field
+          [parentForm]="parentForm()"
+          controlName="origin"
+          label="product.form.tax.origin"
+        ></app-origin-select-field>
       }
     </div>
 

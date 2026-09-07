@@ -52,7 +52,8 @@
       [parentForm]="formGroup()"
       controlName="unitOfMeasure"
       label="product.form.unitOfMeasure"
-      [options]="unitOfMeasureOptions"
+      [options]="unitOfMeasureOptions()"
+      [loading]="isUnitOfMeasureOptionsLoading()"
     ></app-select-field>
 
     <app-input-field

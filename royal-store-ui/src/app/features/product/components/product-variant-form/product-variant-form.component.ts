@@ -19,6 +19,7 @@ import { ColorPaletteService } from '@app/shared/services/color-palette.service'
 import { Sizes } from '../../enums/size.enum';
 import { enumToOptions } from '@app/shared/utils/enum-to-options.util';
 import { BarcodeInputFieldComponent } from '@app/shared/components/form-fields/barcode-input-field/barcode-input-field.component';
+import { DeleteButtonComponent } from '../delete-button/delete-button.component';
 
 type VariantStockStatus = 'inStock' | 'lowStock' | 'outOfStock' | 'untracked';
 
@@ -32,6 +33,7 @@ type VariantStockStatus = 'inStock' | 'lowStock' | 'outOfStock' | 'untracked';
     SelectFieldComponent,
     ColorSelectFieldComponent,
     BarcodeInputFieldComponent,
+    DeleteButtonComponent,
   ],
   templateUrl: './product-variant-form.component.html',
   styleUrl: './product-variant-form.component.scss',

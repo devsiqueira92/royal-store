@@ -5,6 +5,7 @@ using RoyalStore.Application.Products.Commands.AddProductVariant;
 using RoyalStore.Application.Products.Commands.CreateProduct;
 using RoyalStore.Application.Products.Commands.DisableProduct;
 using RoyalStore.Application.Products.Commands.EditProduct;
+using RoyalStore.Application.Products.Commands.EnableProduct;
 using RoyalStore.Application.Products.Commands.RemoveProductPhoto;
 using RoyalStore.Application.Products.Commands.RemoveProductVariant;
 using RoyalStore.Application.Products.Commands.SetProductCoverPhoto;
@@ -26,12 +27,13 @@ public sealed class ProductEndpoints : IEndpointDefinition
         routes.MapPost("", Create);
         routes.MapPut("{id:guid}", Update);
         routes.MapPatch("{id:guid}/disable", Disable);
+        routes.MapPatch("{id:guid}/enable", Enable);
         routes.MapGet("", GetAll);
         routes.MapGet("{id:guid}", GetById);
 
         routes.MapPost("{id:guid}/variants", AddVariant);
         routes.MapPut("{id:guid}/variants/{variantId:guid}", UpdateVariant);
-        routes.MapDelete("{id:guid}/variants/{variantId:guid}", RemoveVariant);
+        routes.MapDelete("variants/{variantId:guid}", RemoveVariant);
 
         routes.MapPost("{id:guid}/photos", AddPhoto);
         routes.MapDelete("{id:guid}/photos/{photoId:guid}", RemovePhoto);
@@ -60,6 +62,12 @@ public sealed class ProductEndpoints : IEndpointDefinition
     private static async Task<IResult> Disable(Guid id, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new DisableProductCommand(id), ct);
+        return result.ToHttpResult(() => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> Enable(Guid id, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new EnableProductCommand(id), ct);
         return result.ToHttpResult(() => TypedResults.NoContent());
     }
 
@@ -101,12 +109,11 @@ public sealed class ProductEndpoints : IEndpointDefinition
     }
 
     private static async Task<IResult> RemoveVariant(
-        Guid id,
         Guid variantId,
         IMediator mediator,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new RemoveProductVariantCommand(id, variantId), ct);
+        var result = await mediator.Send(new RemoveProductVariantCommand(variantId), ct);
         return result.ToHttpResult(() => TypedResults.NoContent());
     }
 

@@ -12,7 +12,7 @@ public record CatalogProductDto(
     string UnitOfMeasure,
     string? Ncm,
     string? Cest,
-    int Origin,
+    string Origin,
     bool IsActive,
     DateTimeOffset UpdatedAt)
 {
@@ -20,6 +20,6 @@ public record CatalogProductDto(
     {
         var first = p.Variants.FirstOrDefault();
         return new(p.Id, p.CategoryId, p.Name, first?.Sku, first?.Barcode,
-            first?.Price ?? 0m, p.UnitOfMeasure, p.Ncm, p.Cest, (int)p.Origin, p.IsActive, p.UpdatedAt);
+            first?.Price ?? 0m, p.UnitOfMeasure, p.Ncm, p.Cest, p.Origin, p.IsActive, p.UpdatedAt);
     }
 }

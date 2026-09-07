@@ -22,9 +22,6 @@ public sealed class CreateServiceValidator : AbstractValidator<CreateServiceComm
         When(x => x.Description is not null, () =>
             RuleFor(x => x.Description).MaximumLength(500));
 
-        RuleFor(x => x.UnitOfMeasure)
-            .MaximumLength(6);
-
         RuleFor(x => x.Nbs)
             .NotEmpty().WithMessage("NBS is required.")
             .MaximumLength(9);

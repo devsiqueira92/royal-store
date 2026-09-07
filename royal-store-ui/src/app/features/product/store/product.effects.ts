@@ -97,16 +97,64 @@ export const saveProductEdit = createEffect(
   },
 );
 
+export const removeProductVariant = createEffect(
+  (actions$ = inject(Actions), productService = inject(ProductService)) => {
+    return actions$.pipe(
+      ofType(ProductActions.removeProductVariant),
+      concatMap(({ variantId }) =>
+        productService.removeVariant(variantId).pipe(
+          map(() => ProductActions.removeProductVariantSuccess({ variantId })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              ProductActions.removeProductVariantFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const enableProduct = createEffect(
+  (actions$ = inject(Actions), productService = inject(ProductService)) => {
+    return actions$.pipe(
+      ofType(ProductActions.enableProduct),
+      concatMap(({ id }) =>
+        productService.enable(id).pipe(
+          map(() => ProductActions.enableProductSuccess({ id })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              ProductActions.enableProductFailure({
+                id,
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const disableProduct = createEffect(
   (actions$ = inject(Actions), productService = inject(ProductService)) => {
     return actions$.pipe(
       ofType(ProductActions.disableProduct),
-      switchMap(({ id }) =>
+      concatMap(({ id }) =>
         productService.disable(id).pipe(
           map(() => ProductActions.disableProductSuccess({ id })),
           catchError((error: HttpErrorResponse) =>
             of(
               ProductActions.disableProductFailure({
+                id,
                 error: error.error?.message ?? 'error.unknowError',
               }),
             ),

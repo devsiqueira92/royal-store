@@ -22,9 +22,6 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
         When(x => x.Description is not null, () =>
             RuleFor(x => x.Description).MaximumLength(500));
 
-        RuleFor(x => x.UnitOfMeasure)
-            .MaximumLength(6);
-
         RuleFor(x => x.Ncm)
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("NCM is required.")
@@ -36,7 +33,7 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                 .MaximumLength(7)
                 .Matches(@"^\d+$").WithMessage("CEST must contain digits only."));
 
-        RuleFor(x => x.Origin).InclusiveBetween(0, 8);
+        RuleFor(x => x.Origin).NotEmpty().MaximumLength(2);
 
         RuleFor(x => x.TaxProfileTemplateId).NotEmpty();
 

@@ -8,6 +8,7 @@ public static class PolicyNames
     public const string Seller = "Seller";
     public const string Admin = "Admin";
     public const string SellerOnboarding = "SellerOnboarding";
+    public const string SuperAdmin = "SuperAdmin";
 
     /// <summary>Name of the authorization policy that requires a single catalogue permission.</summary>
     public const string PermissionPrefix = "perm:";

@@ -35,7 +35,10 @@
       [itemType]="itemType()"
     ></app-product-variants>
 
-    <app-product-logistics [formGroup]="formGroup"></app-product-logistics>
+    <!-- 0 === product -->
+    @if (itemType() === 0) {
+      <app-product-logistics [formGroup]="formGroup"></app-product-logistics>
+    }
   }
 
   <app-product-footer

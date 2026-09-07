@@ -56,7 +56,7 @@ public sealed class CreateServiceCommandHandler
             command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Nbs, command.IssCode,
             taxProfileTemplate, command.OverrideTaxProfile,
-            command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax);
+            command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax, command.Origin);
 
         if (!serviceResult.IsSuccess)
             return serviceResult.Error;

@@ -19,7 +19,7 @@ public static class DatabaseSeeder
         {
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-            string[] systemRoles = { Role.Admin, Role.Seller, Role.Manager };
+            string[] systemRoles = { Role.Admin, Role.Seller, Role.Manager, Role.SuperAdmin };
 
             foreach (var roleName in systemRoles)
             {
