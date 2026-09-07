@@ -10,6 +10,7 @@ using RoyalStore.Application.Abstractions.Authentication;
 using RoyalStore.Application.Abstractions.Catalog;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Email;
+using RoyalStore.Application.Abstractions.Loyalty;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Options;
@@ -22,6 +23,7 @@ using RoyalStore.Infrastructure.Email;
 using RoyalStore.Infrastructure.Identity;
 using RoyalStore.Infrastructure.Persistence;
 using RoyalStore.Infrastructure.Persistence.Interceptors;
+using RoyalStore.Infrastructure.Persistence.Loyalty;
 using RoyalStore.Infrastructure.Persistence.Repositories;
 using RoyalStore.Infrastructure.Security;
 using RoyalStore.Infrastructure.Services;
@@ -125,6 +127,12 @@ public sealed class DependencyInjection : IInstallService
             options.AddPolicy(PolicyNames.SuperAdmin, policy =>
                 policy.RequireRole(Role.SuperAdmin));
 
+            options.AddPolicy(PolicyNames.StaffRead, policy =>
+                policy.RequireAssertion(ctx =>
+                    ctx.User.IsInRole(Role.Admin) ||
+                    ctx.User.IsInRole(Role.Manager) ||
+                    (ctx.User.IsInRole(Role.Seller) && ctx.User.HasClaim("onboardingStatus", "completed"))));
+
             foreach (var entry in PermissionCatalog.All)
             {
                 options.AddPolicy(
@@ -145,6 +153,10 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<IIbptTaxRepository, IbptTaxRepository>();
         services.AddScoped<IOriginOptionRepository, OriginOptionRepository>();
         services.AddScoped<IUnitMeasureOptionRepository, UnitMeasureOptionRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
+        services.AddScoped<ILoyaltyTierRepository, LoyaltyTierRepository>();
+        services.AddScoped<ILoyaltyTierUsageChecker, LoyaltyTierUsageChecker>();
+        services.AddScoped<ICashbackLedger, CashbackLedger>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();

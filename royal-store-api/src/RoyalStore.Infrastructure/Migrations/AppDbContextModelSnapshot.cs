@@ -627,6 +627,14 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid>("LoyaltyTierId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -653,6 +661,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LoyaltyTierId");
 
                     b.HasIndex("TenantId");
 
@@ -947,6 +957,165 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Loyalty.CashbackEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("GrantedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("RemainingAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "CustomerId", "State", "ExpiresAt");
+
+                    b.ToTable("CashbackEntries", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Loyalty.CashbackRedemption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CashbackEntryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CashbackEntryId");
+
+                    b.HasIndex("TenantId", "CashbackEntryId");
+
+                    b.HasIndex("TenantId", "SaleId");
+
+                    b.ToTable("CashbackRedemptions", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Loyalty.Clawback", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SaleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "SaleId")
+                        .IsUnique();
+
+                    b.ToTable("Clawbacks", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Loyalty.LoyaltyTier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("CashbackPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("CashbackValidityDays")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("LoyaltyTiers", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Permissions.UserPermissionGrant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1103,6 +1272,16 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<Guid>("CashShiftId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("CashbackApplied")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<decimal>("CashbackEarned")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<decimal>("Change")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
@@ -1115,6 +1294,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("DiscountAmount")
                         .HasColumnType("decimal(18,2)");
@@ -1170,6 +1352,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CashShiftId");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("TenantId");
 
@@ -1553,6 +1737,24 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Customers.Customer", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Loyalty.LoyaltyTier", null)
+                        .WithMany()
+                        .HasForeignKey("LoyaltyTierId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Loyalty.CashbackRedemption", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Loyalty.CashbackEntry", null)
+                        .WithMany()
+                        .HasForeignKey("CashbackEntryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Permissions.UserPermissionGrant", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Identity.UserEntity", null)
@@ -1591,6 +1793,11 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasForeignKey("CashShiftId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("RoyalStore.Domain.Customers.Customer", null)
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("RoyalStore.Domain.Identity.UserEntity", null)
                         .WithMany()

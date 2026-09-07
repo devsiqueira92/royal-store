@@ -2,10 +2,12 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Fiscal;
+using RoyalStore.Application.Abstractions.Loyalty;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Sales.DTOs;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Fiscal;
 using RoyalStore.Domain.Sales;
 
@@ -18,6 +20,8 @@ public sealed class RegisterSaleCommandHandler
     private readonly ICashShiftRepository _cashShiftRepository;
     private readonly IProductRepository _productRepository;
     private readonly IIbptTaxRepository _ibptTaxRepository;
+    private readonly ICustomerRepository _customerRepository;
+    private readonly ICashbackLedger _cashbackLedger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantContext _tenantContext;
     private readonly ICurrentUserService _currentUserService;
@@ -28,6 +32,8 @@ public sealed class RegisterSaleCommandHandler
         ICashShiftRepository cashShiftRepository,
         IProductRepository productRepository,
         IIbptTaxRepository ibptTaxRepository,
+        ICustomerRepository customerRepository,
+        ICashbackLedger cashbackLedger,
         IUnitOfWork unitOfWork,
         ITenantContext tenantContext,
         ICurrentUserService currentUserService,
@@ -37,6 +43,8 @@ public sealed class RegisterSaleCommandHandler
         _cashShiftRepository = cashShiftRepository;
         _productRepository = productRepository;
         _ibptTaxRepository = ibptTaxRepository;
+        _customerRepository = customerRepository;
+        _cashbackLedger = cashbackLedger;
         _unitOfWork = unitOfWork;
         _tenantContext = tenantContext;
         _currentUserService = currentUserService;
@@ -79,9 +87,33 @@ public sealed class RegisterSaleCommandHandler
 
         var soldAt = command.Metadata.SoldAt ?? DateTime.UtcNow;
 
-        var saleResult = Sale.Create(saleId, tenantId, shift.Id, userId,
+        // The document the terminal already sends is the only signal used to identify a customer for
+        // loyalty purposes — a checkout never creates one (that stays a manager action, FR-005). No
+        // match, or no document at all, makes this an unidentified sale (FR-017): loyalty is simply
+        // skipped, checkout is otherwise unaffected (research.md Decision 1).
+        Customer? customer = null;
+        if (!string.IsNullOrWhiteSpace(command.Customer?.Document))
+        {
+            var normalizedDocument = DocumentValidator.Normalize(command.Customer.Document);
+            customer = await _customerRepository.GetByDocumentAsync(tenantId, normalizedDocument, cancellationToken);
+        }
+
+        // Redeemed before Sale.Create because CashbackApplied feeds both the sale record and the
+        // earning-base calculation below (FR-016a: cashback redeemed on a sale never earns cashback).
+        var cashbackApplied = 0m;
+        if (customer is not null && totals.CashbackRequested > 0)
+        {
+            var redeemResult = await _cashbackLedger.RedeemAsync(
+                tenantId, customer.Id, totals.CashbackRequested, saleId, cancellationToken);
+            if (redeemResult.IsFailure)
+                return redeemResult.Error;
+
+            cashbackApplied = redeemResult.Value;
+        }
+
+        var saleResult = Sale.Create(saleId, tenantId, shift.Id, userId, customer?.Id,
             totals.Subtotal, totals.Discount, discountMode.Value, totals.AdditionalFees,
-            totals.Total, totals.Change, soldAt, DateTime.UtcNow);
+            totals.Total, totals.Change, cashbackApplied, soldAt, DateTime.UtcNow);
 
         if (saleResult.IsFailure)
             return saleResult.Error;
@@ -96,10 +128,35 @@ public sealed class RegisterSaleCommandHandler
         if (paymentsResult.IsFailure)
             return paymentsResult.Error;
 
+        // Earned after items/payments validate cleanly, so a sale that turns out to be invalid never
+        // reaches the ledger (FR-016). The earning base excludes AdditionalFees entirely (FR-016a).
+        var cashbackEarned = 0m;
+        if (customer is not null)
+        {
+            var earningBase = Math.Max(0m, sale.Subtotal - sale.DiscountAmount - sale.CashbackApplied);
+            var accrueResult = await _cashbackLedger.AccrueAsync(
+                tenantId, customer.Id, sale.Id, earningBase, sale.SoldAt, cancellationToken);
+            if (accrueResult.IsFailure)
+                return accrueResult.Error;
+
+            cashbackEarned = accrueResult.Value;
+            var recordResult = sale.RecordCashbackEarned(cashbackEarned);
+            if (recordResult.IsFailure)
+                return recordResult.Error;
+        }
+
         try
         {
             await _saleRepository.AddAsync(sale, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Another terminal consumed the same cashback entry first (research.md Decision 5). The
+            // whole sale rolls back with it — nothing here is partially applied — so the caller can
+            // safely resubmit the same checkout after refetching the customer's balance.
+            return Error.Validation("sale.cashback_conflict",
+                "This customer's cashback balance changed concurrently. Refresh their balance and retry.");
         }
         catch (DbUpdateException)
         {
@@ -109,7 +166,7 @@ public sealed class RegisterSaleCommandHandler
 
         await _fiscalQueue.QueueSaleAsync(sale.Id, cancellationToken);
 
-        return new RegisterSaleResponse(sale.Id, SyncStatus.Created);
+        return new RegisterSaleResponse(sale.Id, SyncStatus.Created, cashbackApplied, cashbackEarned);
     }
 
     private async Task<Result> BuildItemsAsync(

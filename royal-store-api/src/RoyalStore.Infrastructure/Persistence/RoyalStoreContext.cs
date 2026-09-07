@@ -7,6 +7,7 @@ using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Fiscal;
 using RoyalStore.Domain.Identity;
+using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Permissions;
 using RoyalStore.Domain.Security;
 using RoyalStore.Domain.Sales;
@@ -32,6 +33,10 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<SalePayment> SalePayments { get; set; } = null!;
     public DbSet<Seller> Sellers { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
+    public DbSet<LoyaltyTier> LoyaltyTiers { get; set; } = null!;
+    public DbSet<CashbackEntry> CashbackEntries { get; set; } = null!;
+    public DbSet<CashbackRedemption> CashbackRedemptions { get; set; } = null!;
+    public DbSet<Clawback> Clawbacks { get; set; } = null!;
     public DbSet<UserPermissionGrant> UserPermissionGrants { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
@@ -106,6 +111,18 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<Customer>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<LoyaltyTier>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<CashbackEntry>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<CashbackRedemption>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Clawback>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<CashMovement>()

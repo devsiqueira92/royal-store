@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RoyalStore.Domain.Customers;
+using RoyalStore.Domain.Loyalty;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -30,6 +31,13 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasDefaultValue(false)
             .IsRequired();
 
+        builder.Property(e => e.LoyaltyTierId)
+            .IsRequired();
+
+        builder.Property(e => e.IsActive)
+            .HasDefaultValue(true)
+            .IsRequired();
+
         builder.Property(e => e.CreatedAt).IsRequired();
         builder.Property(e => e.CreatedBy).HasMaxLength(450).IsRequired();
         builder.Property(e => e.UpdatedAt).IsRequired();
@@ -37,5 +45,12 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => new { e.TenantId, e.Document }).IsUnique();
+
+        // A tier in use can't be deleted (FR-014, enforced by ILoyaltyTierUsageChecker) — Restrict
+        // makes that explicit rather than relying on the usage check alone.
+        builder.HasOne<LoyaltyTier>()
+            .WithMany()
+            .HasForeignKey(e => e.LoyaltyTierId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

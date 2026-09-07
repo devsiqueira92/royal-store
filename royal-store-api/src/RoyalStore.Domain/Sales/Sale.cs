@@ -14,12 +14,15 @@ public sealed class Sale : Entity, IAuditableEntity
     public Guid TenantId { get; private set; }
     public Guid CashShiftId { get; private set; }
     public string? UserId { get; private set; }
+    public Guid? CustomerId { get; private set; }
     public decimal Subtotal { get; private set; }
     public decimal DiscountAmount { get; private set; }
     public DiscountMode DiscountMode { get; private set; }
     public decimal AdditionalFees { get; private set; }
     public decimal TotalAmount { get; private set; }
     public decimal Change { get; private set; }
+    public decimal CashbackApplied { get; private set; }
+    public decimal CashbackEarned { get; private set; }
     public DateTime SoldAt { get; private set; }
     public DateTime SyncedAt { get; private set; }
     public InvoiceStatus FiscalStatus { get; private set; }
@@ -37,28 +40,31 @@ public sealed class Sale : Entity, IAuditableEntity
 
     private Sale() : base(Guid.NewGuid()) { }
 
-    private Sale(Guid id, Guid tenantId, Guid cashShiftId, string? userId,
+    private Sale(Guid id, Guid tenantId, Guid cashShiftId, string? userId, Guid? customerId,
         decimal subtotal, decimal discountAmount, DiscountMode discountMode, decimal additionalFees,
-        decimal totalAmount, decimal change, DateTime soldAt, DateTime syncedAt)
+        decimal totalAmount, decimal change, decimal cashbackApplied, DateTime soldAt, DateTime syncedAt)
         : base(id)
     {
         TenantId = tenantId;
         CashShiftId = cashShiftId;
         UserId = userId;
+        CustomerId = customerId;
         Subtotal = subtotal;
         DiscountAmount = discountAmount;
         DiscountMode = discountMode;
         AdditionalFees = additionalFees;
         TotalAmount = totalAmount;
         Change = change;
+        CashbackApplied = cashbackApplied;
+        CashbackEarned = 0;
         SoldAt = soldAt;
         SyncedAt = syncedAt;
         FiscalStatus = InvoiceStatus.Pending;
     }
 
-    public static Result<Sale> Create(Guid id, Guid tenantId, Guid cashShiftId, string? userId,
+    public static Result<Sale> Create(Guid id, Guid tenantId, Guid cashShiftId, string? userId, Guid? customerId,
         decimal subtotal, decimal discountAmount, DiscountMode discountMode, decimal additionalFees,
-        decimal totalAmount, decimal change, DateTime soldAt, DateTime syncedAt)
+        decimal totalAmount, decimal change, decimal cashbackApplied, DateTime soldAt, DateTime syncedAt)
     {
         if (id == Guid.Empty)
             return Error.Validation("sale.id_required", "Sale ID is required.");
@@ -87,6 +93,9 @@ public sealed class Sale : Entity, IAuditableEntity
         if (change < 0)
             return Error.Validation("sale.change_negative", "Change cannot be negative.");
 
+        if (cashbackApplied < 0)
+            return Error.Validation("sale.cashback_applied_negative", "Cashback applied cannot be negative.");
+
         if (discountAmount > subtotal)
             return Error.Validation("sale.discount_exceeds_subtotal", "Discount amount cannot exceed the subtotal.");
 
@@ -94,8 +103,20 @@ public sealed class Sale : Entity, IAuditableEntity
             return Error.Validation("sale.totals_do_not_reconcile",
                 "Subtotal less discount plus additional fees must equal the total.");
 
-        return new Sale(id, tenantId, cashShiftId, userId, subtotal, discountAmount, discountMode,
-            additionalFees, totalAmount, change, soldAt, syncedAt);
+        return new Sale(id, tenantId, cashShiftId, userId, customerId, subtotal, discountAmount, discountMode,
+            additionalFees, totalAmount, change, cashbackApplied, soldAt, syncedAt);
+    }
+
+    /// <summary>Records what this sale earned, once, after the ledger computes it from the earning
+    /// base (FR-016a) — set here rather than in the constructor because it's only known after items
+    /// are built and the ledger has run (data-model.md §Sale).</summary>
+    public Result RecordCashbackEarned(decimal amount)
+    {
+        if (amount < 0)
+            return Result.Failure(Error.Validation("sale.cashback_earned_negative", "Cashback earned cannot be negative."));
+
+        CashbackEarned = amount;
+        return Result.Success();
     }
 
     public Result AddItem(SaleItem item)

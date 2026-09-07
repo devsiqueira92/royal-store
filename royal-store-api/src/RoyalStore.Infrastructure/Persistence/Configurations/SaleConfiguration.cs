@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Sales;
 
@@ -46,6 +47,16 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .HasDefaultValue(0m)
             .IsRequired();
 
+        builder.Property(e => e.CashbackApplied)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(e => e.CashbackEarned)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
         builder.Property(e => e.SoldAt).IsRequired();
         builder.Property(e => e.SyncedAt).IsRequired();
 
@@ -67,6 +78,14 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // Nullable: null means the sale was unidentified (FR-017). A customer in use is never
+        // deleted (customers are deactivated, not erased), so Restrict is never actually exercised —
+        // it's here to make that invariant explicit rather than implicit.
+        builder.HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(e => e.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(e => e.Items)
             .WithOne()

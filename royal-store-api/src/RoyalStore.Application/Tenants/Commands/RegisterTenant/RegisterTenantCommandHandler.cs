@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Email;
 using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
+using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Tenants;
 using System.Text;
 
@@ -15,17 +16,20 @@ public sealed class RegisterTenantCommandHandler
 {
     private readonly IIdentityService _identityService;
     private readonly ITenantRepository _tenantRepository;
+    private readonly ILoyaltyTierRepository _loyaltyTierRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
 
     public RegisterTenantCommandHandler(
         IIdentityService identityService,
         ITenantRepository tenantRepository,
+        ILoyaltyTierRepository loyaltyTierRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService)
     {
         _identityService = identityService;
         _tenantRepository = tenantRepository;
+        _loyaltyTierRepository = loyaltyTierRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
     }
@@ -73,6 +77,11 @@ public sealed class RegisterTenantCommandHandler
                     return (Result<RegistrationResponse>)roleResult.Error;
 
                 await _tenantRepository.AddAsync(tenant, ct);
+
+                // Every tenant starts with the four loyalty tiers (FR-010) — seeded here, in the same
+                // transaction, so a tenant never exists without them (research.md Decision 9).
+                await _loyaltyTierRepository.AddRangeAsync(LoyaltyTier.SeedDefaults(tenant.Id), ct);
+
                 await _unitOfWork.SaveChangesAsync(ct);
 
                 var token = await _identityService.GenerateEmailConfirmationTokenAsync(createdUser);
