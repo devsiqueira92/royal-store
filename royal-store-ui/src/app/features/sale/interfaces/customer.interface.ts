@@ -1,25 +1,11 @@
-export type CustomerTier = 'standard' | 'silver' | 'gold' | 'vip';
+import { Customer } from '@app/features/customer/interfaces/customer.interface';
 
-export interface Customer {
-  id: string;
-  name: string;
-  phone: string;
-  document: string;
-  tier: CustomerTier;
-  cashbackBalance: number;
+export type { Customer } from '@app/features/customer/interfaces/customer.interface';
+
+/**
+ * The API stores the tier cashback as a whole number ("4" means 4%). Checkout math works with the
+ * 0.04 fraction, so every consumer goes through this helper instead of dividing inline.
+ */
+export function loyaltyRateOf(customer: Customer | null): number {
+  return customer ? customer.loyaltyTierCashbackPercentage / 100 : 0;
 }
-
-/** Loyalty discount granted by tier, applied over the cart base. */
-export const TIER_DISCOUNT_RATE: Record<CustomerTier, number> = {
-  standard: 0,
-  silver: 0.03,
-  gold: 0.05,
-  vip: 0.1,
-};
-
-export const TIER_LABEL: Record<CustomerTier, string> = {
-  standard: 'sale.checkout.customer.tier.standard',
-  silver: 'sale.checkout.customer.tier.silver',
-  gold: 'sale.checkout.customer.tier.gold',
-  vip: 'sale.checkout.customer.tier.vip',
-};

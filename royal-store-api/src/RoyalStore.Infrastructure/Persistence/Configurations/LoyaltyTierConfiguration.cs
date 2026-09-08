@@ -25,6 +25,8 @@ public sealed class LoyaltyTierConfiguration : IEntityTypeConfiguration<LoyaltyT
         builder.Property(e => e.CashbackValidityDays)
             .IsRequired();
 
+        builder.Property(e => e.Active).IsRequired();
+
         builder.Property(e => e.CreatedAt).IsRequired();
         builder.Property(e => e.CreatedBy).HasMaxLength(450).IsRequired();
         builder.Property(e => e.UpdatedAt).IsRequired();

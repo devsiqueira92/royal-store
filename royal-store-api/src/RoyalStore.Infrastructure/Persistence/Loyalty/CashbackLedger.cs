@@ -186,6 +186,39 @@ public sealed class CashbackLedger : ICashbackLedger
         return grossAvailable - outstandingClawback;
     }
 
+    public async Task<IReadOnlyDictionary<Guid, decimal>> GetUsableBalancesAsync(
+        Guid tenantId, IReadOnlyCollection<Guid> customerIds, CancellationToken ct = default)
+    {
+        if (customerIds.Count == 0)
+            return new Dictionary<Guid, decimal>();
+
+        var now = DateTime.UtcNow;
+
+        var grossAvailable = await _context.CashbackEntries
+            .Where(e => e.TenantId == tenantId && customerIds.Contains(e.CustomerId)
+                && e.State == CashbackEntryState.Available && e.ExpiresAt >= now)
+            .GroupBy(e => e.CustomerId)
+            .Select(g => new { CustomerId = g.Key, Amount = g.Sum(e => e.RemainingAmount) })
+            .ToDictionaryAsync(x => x.CustomerId, x => x.Amount, ct);
+
+        var outstandingClawback = await _context.Clawbacks
+            .Where(c => c.TenantId == tenantId && customerIds.Contains(c.CustomerId))
+            .GroupBy(c => c.CustomerId)
+            .Select(g => new { CustomerId = g.Key, Amount = g.Sum(c => c.Amount) })
+            .ToDictionaryAsync(x => x.CustomerId, x => x.Amount, ct);
+
+        var result = new Dictionary<Guid, decimal>(customerIds.Count);
+        foreach (var customerId in customerIds)
+        {
+            var gross = grossAvailable.GetValueOrDefault(customerId);
+            var clawback = outstandingClawback.GetValueOrDefault(customerId);
+            if (gross != 0m || clawback != 0m)
+                result[customerId] = gross - clawback;
+        }
+
+        return result;
+    }
+
     public async Task<IReadOnlyList<CashbackEntry>> GetHistoryAsync(
         Guid tenantId, Guid customerId, CancellationToken ct = default) =>
         await _context.CashbackEntries

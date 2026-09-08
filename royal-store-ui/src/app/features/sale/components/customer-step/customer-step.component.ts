@@ -10,11 +10,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import {
-  Customer,
-  TIER_DISCOUNT_RATE,
-  TIER_LABEL,
-} from '../../interfaces/customer.interface';
+import { Customer } from '../../interfaces/customer.interface';
 
 @Component({
   selector: 'app-customer-step',
@@ -36,7 +32,4 @@ export class CustomerStepComponent {
   selectedId = input<string | null>(null);
 
   customerSelected = output<string | null>();
-
-  protected readonly tierLabel = TIER_LABEL;
-  protected readonly tierRate = TIER_DISCOUNT_RATE;
 }

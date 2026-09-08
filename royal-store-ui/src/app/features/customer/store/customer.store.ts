@@ -6,6 +6,7 @@ import {
   deactivateCustomer,
   reactivateCustomer,
   loadCashbackHistory,
+  loadCashbackBalance,
 } from './customer.effects';
 
 export const customerStore = {
@@ -16,4 +17,5 @@ export const customerStore = {
   deactivateCustomer,
   reactivateCustomer,
   loadCashbackHistory,
+  loadCashbackBalance,
 };

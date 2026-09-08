@@ -7,8 +7,10 @@ export interface Customer {
   phone?: string | null;
   loyaltyTierId: string;
   loyaltyTierName: string;
+  loyaltyTierCashbackPercentage: number;
   isActive: boolean;
-  cashbackBalance: number;
+  // Null until the customer earns cashback for the first time.
+  cashbackBalance: number | null;
 }
 
 export interface CustomerFormControls {

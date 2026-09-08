@@ -28,6 +28,10 @@ export const CustomerActions = createActionGroup({
     'Load Cashback History': props<{ id: string }>(),
     'Load Cashback History Success': props<{ entries: CashbackEntry[] }>(),
     'Load Cashback History Failure': props<{ error: string }>(),
+    'Load Cashback Balance': props<{ id: string }>(),
+    'Load Cashback Balance Success': props<{ balance: number }>(),
+    'Load Cashback Balance Failure': props<{ error: string }>(),
+    'Clear Cashback Balance': emptyProps(),
     'Clear Selected Customer': emptyProps(),
   },
 });

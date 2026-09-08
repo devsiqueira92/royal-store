@@ -11,18 +11,15 @@ public sealed class GetCustomersQueryHandler
     : IRequestHandler<GetCustomersQuery, Result<IReadOnlyList<CustomerResponse>>>
 {
     private readonly ICustomerRepository _customerRepository;
-    private readonly ILoyaltyTierRepository _loyaltyTierRepository;
     private readonly ICashbackLedger _cashbackLedger;
     private readonly ITenantContext _tenantContext;
 
     public GetCustomersQueryHandler(
         ICustomerRepository customerRepository,
-        ILoyaltyTierRepository loyaltyTierRepository,
         ICashbackLedger cashbackLedger,
         ITenantContext tenantContext)
     {
         _customerRepository = customerRepository;
-        _loyaltyTierRepository = loyaltyTierRepository;
         _cashbackLedger = cashbackLedger;
         _tenantContext = tenantContext;
     }
@@ -35,17 +32,20 @@ public sealed class GetCustomersQueryHandler
 
         // Active customers only (FR-006) — unpaginated, matching every other list query in this
         // codebase (research.md Decision 10; single-store customer bases don't warrant it).
+        // The tier is joined in via Include, and every cashback balance is resolved in one batch —
+        // three queries total, regardless of how many customers there are.
         var customers = await _customerRepository.GetAllAsync(includeInactive: false, cancellationToken);
-        var tiers = (await _loyaltyTierRepository.GetAllAsync(cancellationToken)).ToDictionary(t => t.Id);
+        var customerIds = customers.Select(c => c.Id).ToArray();
 
         var responses = new List<CustomerResponse>(customers.Count);
         foreach (var customer in customers)
         {
-            if (!tiers.TryGetValue(customer.LoyaltyTierId, out var tier))
+            if (customer.LoyaltyTier is null)
                 continue;
 
-            var balance = await _cashbackLedger.GetUsableBalanceAsync(tenantId, customer.Id, cancellationToken);
-            responses.Add(CustomerResponse.From(customer, tier, balance));
+            responses.Add(CustomerResponse.From(
+                customer,
+                customer.LoyaltyTier));
         }
 
         return Result<IReadOnlyList<CustomerResponse>>.Success(responses);

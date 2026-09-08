@@ -6,21 +6,21 @@ namespace RoyalStore.Application.Customers.DTOs;
 public record CustomerResponse(
     Guid Id,
     string Name,
-    string Document,
     string? Phone,
     Guid LoyaltyTierId,
     string LoyaltyTierName,
+    decimal LoyaltyTierCashbackPercentage,
     bool IsActive,
-    decimal CashbackBalance)
+    decimal? CashbackBalance)
 {
-    public static CustomerResponse From(Customer customer, LoyaltyTier tier, decimal cashbackBalance) =>
+    public static CustomerResponse From(Customer customer, LoyaltyTier tier, decimal? cashbackBalance = null) =>
         new(
             customer.Id,
             customer.Name,
-            customer.Document,
             customer.Phone,
             customer.LoyaltyTierId,
             tier.Name,
+            tier.CashbackPercentage,
             customer.IsActive,
             cashbackBalance);
 }

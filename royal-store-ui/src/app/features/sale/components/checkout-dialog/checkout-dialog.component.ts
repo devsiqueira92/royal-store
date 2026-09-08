@@ -32,8 +32,8 @@ import {
 import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
 import { Customer } from '../../interfaces/customer.interface';
 import { PaymentState } from '../../interfaces/payment.interface';
-import { CustomerService } from '../../services/customer.service';
 import { StoreBranchService } from '../../services/store-branch.service';
+import { CustomerFacade } from '@app/features/customer/facade/customer.facade';
 import {
   CheckoutStep,
   CheckoutStepsComponent,
@@ -70,11 +70,11 @@ function matches(customer: Customer, term: string): boolean {
   }
 
   const digits = onlyDigits(text);
+  const phone = customer.phone ?? '';
 
   return (
     customer.name.toLowerCase().includes(text) ||
-    (!!digits && customer.phone.includes(digits)) ||
-    (!!digits && customer.document.includes(digits))
+    (!!digits && phone.includes(digits))
   );
 }
 
@@ -98,7 +98,7 @@ function matches(customer: Customer, term: string): boolean {
 export class CheckoutDialogComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly customerService = inject(CustomerService);
+  private readonly customerFacade = inject(CustomerFacade);
   private readonly branchService = inject(StoreBranchService);
 
   subtotal = input<number>(0);
@@ -124,7 +124,7 @@ export class CheckoutDialogComponent implements OnInit {
     }),
   });
 
-  private readonly customers$ = this.customerService.getCustomers();
+  private readonly customers$ = this.customerFacade.customers$;
 
   protected readonly branches = toSignal(this.branchService.getBranches(), {
     initialValue: [],
@@ -160,6 +160,12 @@ export class CheckoutDialogComponent implements OnInit {
     { initialValue: false },
   );
 
+  // Fetched on demand from the cashback-balance endpoint whenever the customer changes.
+  protected readonly cashbackBalance = toSignal(
+    this.customerFacade.cashbackBalance$,
+    { initialValue: null as number | null },
+  );
+
   protected readonly mode = toSignal(
     this.form.controls.fulfillment.controls.mode.valueChanges.pipe(
       startWith(this.form.controls.fulfillment.controls.mode.value),
@@ -180,6 +186,7 @@ export class CheckoutDialogComponent implements OnInit {
       saleDiscount: this.saleDiscount(),
       tax: this.tax(),
       customer: this.selectedCustomer(),
+      cashbackBalance: this.cashbackBalance() ?? 0,
       useCashback: this.useCashback(),
       paymentRate: this.payment()?.details.discountRate ?? 0,
     }),
@@ -197,12 +204,23 @@ export class CheckoutDialogComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.customerFacade.loadCustomers();
+
     const { customerId, useCashback, fulfillment } = this.form.controls;
 
-    // A balance belongs to one customer, so switching customers drops the toggle.
+    // A balance belongs to one customer, so switching customers drops the toggle and
+    // refetches the usable cashback for whoever is now selected.
     customerId.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => useCashback.setValue(false));
+      .subscribe(id => {
+        useCashback.setValue(false);
+
+        if (id) {
+          this.customerFacade.loadCashbackBalance(id);
+        } else {
+          this.customerFacade.clearCashbackBalance();
+        }
+      });
 
     // A branch is only required when the goods are picked up in store.
     fulfillment.controls.mode.valueChanges

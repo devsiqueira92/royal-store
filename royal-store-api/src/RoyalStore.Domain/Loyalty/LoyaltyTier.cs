@@ -13,6 +13,7 @@ public sealed class LoyaltyTier : Entity, IAuditableEntity
     public string Name { get; private set; } = string.Empty;
     public decimal CashbackPercentage { get; private set; }
     public int CashbackValidityDays { get; private set; }
+    public bool Active { get; private set; }
 
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
@@ -21,13 +22,14 @@ public sealed class LoyaltyTier : Entity, IAuditableEntity
 
     private LoyaltyTier() : base(Guid.NewGuid()) { }
 
-    private LoyaltyTier(Guid id, Guid tenantId, string name, decimal cashbackPercentage, int cashbackValidityDays)
+    private LoyaltyTier(Guid id, Guid tenantId, string name, decimal cashbackPercentage, int cashbackValidityDays, bool active)
         : base(id)
     {
         TenantId = tenantId;
         Name = name;
         CashbackPercentage = cashbackPercentage;
         CashbackValidityDays = cashbackValidityDays;
+        Active = active;
     }
 
     public static Result<LoyaltyTier> Create(Guid tenantId, string name, decimal cashbackPercentage, int cashbackValidityDays)
@@ -50,7 +52,22 @@ public sealed class LoyaltyTier : Entity, IAuditableEntity
         if (validityCheck.IsFailure)
             return validityCheck.Error;
 
-        return new LoyaltyTier(Guid.NewGuid(), tenantId, name, cashbackPercentage, cashbackValidityDays);
+        return new LoyaltyTier(Guid.NewGuid(), tenantId, name, cashbackPercentage, cashbackValidityDays, active: true);
+    }
+
+    /// <summary>Idempotent — activating an already-active tier is a no-op success.</summary>
+    public Result Activate()
+    {
+        Active = true;
+        return Result.Success();
+    }
+
+    /// <summary>Idempotent — deactivating an already-inactive tier is a no-op success. A deactivated
+    /// tier stops accruing future cashback; cashback already earned under it is untouched.</summary>
+    public Result Deactivate()
+    {
+        Active = false;
+        return Result.Success();
     }
 
     public Result Update(decimal cashbackPercentage, int cashbackValidityDays)

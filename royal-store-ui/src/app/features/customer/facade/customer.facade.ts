@@ -7,8 +7,10 @@ import {
   selectCustomers,
   selectSelectedCustomer,
   selectCashbackHistory,
+  selectCashbackBalance,
   selectIsLoading,
   selectIsLoadingHistory,
+  selectIsLoadingBalance,
   selectError,
 } from '../store/customer.selectors';
 
@@ -21,8 +23,10 @@ export class CustomerFacade {
   customers$ = this.store.select(selectCustomers);
   selectedCustomer$ = this.store.select(selectSelectedCustomer);
   cashbackHistory$ = this.store.select(selectCashbackHistory);
+  cashbackBalance$ = this.store.select(selectCashbackBalance);
   isLoading$ = this.store.select(selectIsLoading);
   isLoadingHistory$ = this.store.select(selectIsLoadingHistory);
+  isLoadingBalance$ = this.store.select(selectIsLoadingBalance);
   error$ = this.store.select(selectError);
 
   loadCustomers(): void {
@@ -51,6 +55,14 @@ export class CustomerFacade {
 
   loadCashbackHistory(id: string): void {
     this.store.dispatch(CustomerActions.loadCashbackHistory({ id }));
+  }
+
+  loadCashbackBalance(id: string): void {
+    this.store.dispatch(CustomerActions.loadCashbackBalance({ id }));
+  }
+
+  clearCashbackBalance(): void {
+    this.store.dispatch(CustomerActions.clearCashbackBalance());
   }
 
   clearSelectedCustomer(): void {

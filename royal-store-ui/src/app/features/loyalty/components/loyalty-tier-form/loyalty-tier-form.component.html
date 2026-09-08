@@ -1,0 +1,79 @@
+<form class="loyalty-tier-form" [formGroup]="formGroup">
+  <app-form-layout
+    title="loyalty.form.section.details"
+    [index]="1"
+    [collapsedPanel]="false"
+  >
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="loyalty.form.name"
+      placeholder="loyalty.form.namePlaceholder"
+    ></app-input-field>
+
+    <div class="loyalty-tier-form__field">
+      <label for="cashbackPercentage" class="loyalty-tier-form__label">
+        {{ 'loyalty.form.cashbackPercentage' | translate }}
+      </label>
+      <p-inputnumber
+        inputId="cashbackPercentage"
+        formControlName="cashbackPercentage"
+        suffix="%"
+        [min]="0"
+        [max]="100"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="2"
+        [showButtons]="true"
+        [invalid]="
+          formGroup.controls.cashbackPercentage.touched &&
+          formGroup.controls.cashbackPercentage.invalid
+        "
+      />
+    </div>
+
+    <div class="loyalty-tier-form__field">
+      <label for="cashbackValidityDays" class="loyalty-tier-form__label">
+        {{ 'loyalty.form.cashbackValidityDays' | translate }}
+      </label>
+      <p-inputnumber
+        inputId="cashbackValidityDays"
+        formControlName="cashbackValidityDays"
+        [min]="1"
+        [showButtons]="true"
+        [invalid]="
+          formGroup.controls.cashbackValidityDays.touched &&
+          formGroup.controls.cashbackValidityDays.invalid
+        "
+      />
+    </div>
+
+    @if (!isCreateMode()) {
+      <div class="loyalty-tier-form__field">
+        <span class="loyalty-tier-form__label">
+          {{ 'loyalty.form.status' | translate }}
+        </span>
+        <app-switch
+          [checked]="active()"
+          [ariaLabel]="'loyalty.toggleActive' | translate"
+          (changed)="onActiveChange($event)"
+        />
+      </div>
+    }
+  </app-form-layout>
+
+  <div class="loyalty-tier-form__footer">
+    <app-button
+      label="loyalty.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      [label]="
+        isCreateMode() ? 'loyalty.form.createSubmit' : 'loyalty.form.submit'
+      "
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

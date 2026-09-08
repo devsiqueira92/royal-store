@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RoyalStore.Domain.Customers;
-using RoyalStore.Domain.Loyalty;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -48,7 +47,7 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         // A tier in use can't be deleted (FR-014, enforced by ILoyaltyTierUsageChecker) — Restrict
         // makes that explicit rather than relying on the usage check alone.
-        builder.HasOne<LoyaltyTier>()
+        builder.HasOne(e => e.LoyaltyTier)
             .WithMany()
             .HasForeignKey(e => e.LoyaltyTierId)
             .OnDelete(DeleteBehavior.Restrict);

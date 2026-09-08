@@ -13,7 +13,6 @@ public sealed class UpdateCustomerCommandHandler
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly ILoyaltyTierRepository _loyaltyTierRepository;
-    private readonly ICashbackLedger _cashbackLedger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -22,7 +21,6 @@ public sealed class UpdateCustomerCommandHandler
     public UpdateCustomerCommandHandler(
         ICustomerRepository customerRepository,
         ILoyaltyTierRepository loyaltyTierRepository,
-        ICashbackLedger cashbackLedger,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -30,7 +28,6 @@ public sealed class UpdateCustomerCommandHandler
     {
         _customerRepository = customerRepository;
         _loyaltyTierRepository = loyaltyTierRepository;
-        _cashbackLedger = cashbackLedger;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -64,7 +61,6 @@ public sealed class UpdateCustomerCommandHandler
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var currentTier = await _loyaltyTierRepository.GetByIdAsync(customer.LoyaltyTierId, cancellationToken);
-        var balance = await _cashbackLedger.GetUsableBalanceAsync(_tenantContext.TenantId, customer.Id, cancellationToken);
 
         var userId = _currentUserService.CurrentUserId ?? "unknown";
         await _auditService.RecordAsync(
@@ -74,6 +70,6 @@ public sealed class UpdateCustomerCommandHandler
             userId,
             cancellationToken);
 
-        return CustomerResponse.From(customer, currentTier!, balance);
+        return CustomerResponse.From(customer, currentTier!);
     }
 }

@@ -1,4 +1,5 @@
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Primitives;
 
 namespace RoyalStore.Domain.Customers;
@@ -18,6 +19,10 @@ public sealed class Customer : Entity, IAuditableEntity
     public bool TermsAccepted { get; private set; }
     public Guid LoyaltyTierId { get; private set; }
     public bool IsActive { get; private set; }
+
+    /// <summary>EF navigation to the customer's tier. Populated only when a query explicitly
+    /// <c>Include</c>s it (e.g. the customer listing) — never assume it's loaded.</summary>
+    public LoyaltyTier? LoyaltyTier { get; private set; }
 
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;

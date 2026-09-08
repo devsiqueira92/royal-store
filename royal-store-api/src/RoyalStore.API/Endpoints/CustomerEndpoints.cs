@@ -5,6 +5,7 @@ using RoyalStore.Application.Customers.Commands.DeactivateCustomer;
 using RoyalStore.Application.Customers.Commands.ReactivateCustomer;
 using RoyalStore.Application.Customers.Commands.UpdateCustomer;
 using RoyalStore.Application.Customers.Queries.GetCustomerById;
+using RoyalStore.Application.Customers.Queries.GetCustomerCashbackBalance;
 using RoyalStore.Application.Customers.Queries.GetCustomerCashbackHistory;
 using RoyalStore.Application.Customers.Queries.GetCustomers;
 using RoyalStore.Domain.Const;
@@ -25,6 +26,7 @@ public sealed class CustomerEndpoints : IEndpointDefinition
 
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.StaffRead);
+        routes.MapGet("{id:guid}/cashback-balance", GetCashbackBalance).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}/cashback-history", GetCashbackHistory).RequireAuthorization(PolicyNames.StaffRead);
     }
 
@@ -68,6 +70,12 @@ public sealed class CustomerEndpoints : IEndpointDefinition
     private static async Task<IResult> GetById(Guid id, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new GetCustomerByIdQuery(id), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> GetCashbackBalance(Guid id, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetCustomerCashbackBalanceQuery(id), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

@@ -307,7 +307,7 @@
         "title": "Select customer",
         "anonymous": "No customer / Walk-in",
         "anonymousHint": "Order without a customer record",
-        "searchPlaceholder": "Search by name, phone or document...",
+        "searchPlaceholder": "Search by name or phone...",
         "notFound": "No customer matches this search.",
         "tier": {
           "standard": "Standard",
@@ -444,6 +444,40 @@
       "discount": "Discount",
       "cancel": "Cancel",
       "submit": "Save discount"
+    }
+  },
+  "loyalty": {
+    "title": "Loyalty tiers",
+    "subtitle": "Cashback rate and expiry for each customer tier.",
+    "empty": "No loyalty tiers found.",
+    "newTier": "New tier",
+    "viewDetails": "View details",
+    "toggleActive": "Activate or deactivate tier",
+    "deleteConfirm": "Delete the tier \"{{name}}\"?",
+    "daysValue": "{{days}} days",
+    "columns": {
+      "name": "Tier",
+      "cashbackPercentage": "Cashback",
+      "cashbackValidityDays": "Validity",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Edit tier",
+      "create": "New tier",
+      "subtitle": "Cashback rate and expiry",
+      "createSubtitle": "Register a new loyalty tier",
+      "section": {
+        "details": "Tier details"
+      },
+      "name": "Name",
+      "namePlaceholder": "e.g. Gold",
+      "cashbackPercentage": "Cashback (%)",
+      "cashbackValidityDays": "Validity (days)",
+      "status": "Status",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "submit": "Save tier",
+      "createSubmit": "Create tier"
     }
   }
 }

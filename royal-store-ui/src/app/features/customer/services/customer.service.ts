@@ -43,4 +43,9 @@ export class CustomerService {
       `${this.apiUrl}/${id}/cashback-history`,
     );
   }
+
+  // Usable balance: what the customer can actually spend right now (never negative).
+  getCashbackBalance(id: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/${id}/cashback-balance`);
+  }
 }

@@ -1,0 +1,75 @@
+<section class="loyalty-tiers-page">
+  <header class="loyalty-tiers-page__header">
+    <div>
+      <h1 class="loyalty-tiers-page__title">
+        {{ 'loyalty.title' | translate }}
+      </h1>
+      <p class="loyalty-tiers-page__subtitle">
+        {{ 'loyalty.subtitle' | translate }}
+      </p>
+    </div>
+    <p-button
+      [label]="'loyalty.newTier' | translate"
+      icon="pi pi-plus"
+      (onClick)="createTier()"
+    />
+  </header>
+
+  <div class="loyalty-tiers-page__panel">
+    <p-table [value]="loyaltyTiers()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'loyalty.columns.name' | translate }}</th>
+          <th>{{ 'loyalty.columns.cashbackPercentage' | translate }}</th>
+          <th>{{ 'loyalty.columns.cashbackValidityDays' | translate }}</th>
+          <th>{{ 'loyalty.columns.status' | translate }}</th>
+          <th class="loyalty-tiers-page__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-tier>
+        <tr>
+          <td>
+            <span class="loyalty-tier-cell__name">{{ tier.name }}</span>
+          </td>
+          <td>{{ tier.cashbackPercentage }}%</td>
+          <td>
+            {{
+              'loyalty.daysValue'
+                | translate: { days: tier.cashbackValidityDays }
+            }}
+          </td>
+          <td>
+            <app-switch
+              [checked]="tier.isActive"
+              [ariaLabel]="'loyalty.toggleActive' | translate"
+              (changed)="onActiveChange(tier, $event)"
+            />
+          </td>
+          <td class="loyalty-tiers-page__actions">
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'loyalty.viewDetails' | translate"
+              (onClick)="editTier(tier)"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              [attr.aria-label]="'loyalty.form.delete' | translate"
+              (onClick)="deleteTier(tier, $event)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">{{ 'loyalty.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

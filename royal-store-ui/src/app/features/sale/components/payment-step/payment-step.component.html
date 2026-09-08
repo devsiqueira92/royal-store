@@ -6,7 +6,7 @@
         <div>
           <strong>
             {{ 'sale.checkout.payment.loyaltyTitle' | translate }} —
-            {{ tierLabel[selected.tier] | translate }}
+            {{ selected.loyaltyTierName }}
           </strong>
           <span>
             {{
@@ -18,12 +18,12 @@
       </div>
     }
 
-    @if (selected.cashbackBalance > 0) {
+    @if ((cashbackBalance() ?? 0) > 0) {
       <div class="payment-step__cashback">
         <div>
           <strong>{{ 'sale.checkout.payment.cashback' | translate }}</strong>
           <span class="payment-step__cashback-value">
-            {{ selected.cashbackBalance | currency }}
+            {{ cashbackBalance() | currency }}
           </span>
           <span>{{ 'sale.checkout.payment.cashbackHint' | translate }}</span>
         </div>

@@ -7,8 +7,10 @@ export interface CustomerState {
   customers: Customer[];
   selectedCustomer: Customer | null;
   cashbackHistory: CashbackEntry[];
+  cashbackBalance: number | null;
   isLoading: boolean;
   isLoadingHistory: boolean;
+  isLoadingBalance: boolean;
   error: string | null;
 }
 
@@ -16,8 +18,10 @@ export const initialCustomerState: CustomerState = {
   customers: [],
   selectedCustomer: null,
   cashbackHistory: [],
+  cashbackBalance: null,
   isLoading: false,
   isLoadingHistory: false,
+  isLoadingBalance: false,
   error: null,
 };
 
@@ -126,10 +130,38 @@ export const customerFeature = createFeature({
         error,
       }),
     ),
+    on(CustomerActions.loadCashbackBalance, (state): CustomerState => ({
+      ...state,
+      cashbackBalance: null,
+      isLoadingBalance: true,
+    })),
+    on(
+      CustomerActions.loadCashbackBalanceSuccess,
+      (state, { balance }): CustomerState => ({
+        ...state,
+        cashbackBalance: balance,
+        isLoadingBalance: false,
+      }),
+    ),
+    on(
+      CustomerActions.loadCashbackBalanceFailure,
+      (state, { error }): CustomerState => ({
+        ...state,
+        cashbackBalance: null,
+        isLoadingBalance: false,
+        error,
+      }),
+    ),
+    on(CustomerActions.clearCashbackBalance, (state): CustomerState => ({
+      ...state,
+      cashbackBalance: null,
+      isLoadingBalance: false,
+    })),
     on(CustomerActions.clearSelectedCustomer, (state): CustomerState => ({
       ...state,
       selectedCustomer: null,
       cashbackHistory: [],
+      cashbackBalance: null,
     })),
   ),
 });

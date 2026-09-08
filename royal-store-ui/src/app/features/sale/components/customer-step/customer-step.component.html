@@ -42,15 +42,18 @@
       <span class="customer-step__info">
         <span class="customer-step__name">
           {{ customer.name }}
-          <span class="customer-step__tag" [attr.data-tier]="customer.tier">
-            {{ tierLabel[customer.tier] | translate }}
+          <span
+            class="customer-step__tag"
+            [attr.data-tier]="customer.loyaltyTierName.toLowerCase()"
+          >
+            {{ customer.loyaltyTierName }}
           </span>
         </span>
         <span class="customer-step__meta">{{ customer.phone }}</span>
       </span>
-      @if (tierRate[customer.tier] > 0) {
+      @if (customer.loyaltyTierCashbackPercentage > 0) {
         <span class="customer-step__discount">
-          +{{ tierRate[customer.tier] | percent }}
+          +{{ customer.loyaltyTierCashbackPercentage / 100 | percent }}
         </span>
       }
       @if (selectedId() === customer.id) {

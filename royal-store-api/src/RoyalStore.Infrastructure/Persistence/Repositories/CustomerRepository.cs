@@ -25,7 +25,10 @@ public sealed class CustomerRepository : ICustomerRepository
 
     public async Task<IReadOnlyList<Customer>> GetAllAsync(bool includeInactive = false, CancellationToken ct = default)
     {
-        var query = _context.Customers.AsQueryable();
+        // Join the tier in the same round-trip so the listing handler never queries per customer.
+        var query = _context.Customers
+            .Include(c => c.LoyaltyTier)
+            .AsQueryable();
         if (!includeInactive)
             query = query.Where(c => c.IsActive);
 

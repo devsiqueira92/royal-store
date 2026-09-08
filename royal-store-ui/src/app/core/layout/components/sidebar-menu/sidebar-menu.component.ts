@@ -80,6 +80,11 @@ export class SidebarMenuComponent {
             icon: 'pi pi-credit-card',
             routerLink: '/payment-methods',
           },
+          {
+            label: 'Fidelidade',
+            icon: 'pi pi-star',
+            routerLink: '/loyalty',
+          },
         ],
       },
     ];

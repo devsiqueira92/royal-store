@@ -51,6 +51,13 @@ export const routes: Routes = [
             m => m.PAYMENT_METHOD_ROUTES,
           ),
       },
+      {
+        path: 'loyalty',
+        loadChildren: () =>
+          import('./features/loyalty/loyalty.routes').then(
+            m => m.LOYALTY_ROUTES,
+          ),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

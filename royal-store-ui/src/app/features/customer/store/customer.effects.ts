@@ -134,6 +134,31 @@ export const reactivateCustomer = createEffect(
   },
 );
 
+export const loadCashbackBalance = createEffect(
+  (actions$ = inject(Actions), customerService = inject(CustomerService)) => {
+    return actions$.pipe(
+      ofType(CustomerActions.loadCashbackBalance),
+      switchMap(({ id }) =>
+        customerService.getCashbackBalance(id).pipe(
+          map(balance =>
+            CustomerActions.loadCashbackBalanceSuccess({ balance }),
+          ),
+          catchError(error =>
+            of(
+              CustomerActions.loadCashbackBalanceFailure({
+                error: toError(error),
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const loadCashbackHistory = createEffect(
   (actions$ = inject(Actions), customerService = inject(CustomerService)) => {
     return actions$.pipe(

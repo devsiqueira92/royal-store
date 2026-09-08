@@ -35,6 +35,12 @@ public interface ICashbackLedger
     /// clawback (FR-028).</summary>
     Task<decimal> GetUsableBalanceAsync(Guid tenantId, Guid customerId, CancellationToken ct = default);
 
+    /// <summary>Same computation as <see cref="GetUsableBalanceAsync"/> for many customers at once,
+    /// in two grouped queries instead of two per customer — for list endpoints. Customers with no
+    /// cashback history are omitted from the result; treat a missing key as a zero balance.</summary>
+    Task<IReadOnlyDictionary<Guid, decimal>> GetUsableBalancesAsync(
+        Guid tenantId, IReadOnlyCollection<Guid> customerIds, CancellationToken ct = default);
+
     /// <summary>Full cashback history for a customer, newest-earned first (FR-021).</summary>
     Task<IReadOnlyList<CashbackEntry>> GetHistoryAsync(Guid tenantId, Guid customerId, CancellationToken ct = default);
 }

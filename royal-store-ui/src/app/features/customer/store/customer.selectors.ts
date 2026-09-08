@@ -4,7 +4,9 @@ export const {
   selectCustomers,
   selectSelectedCustomer,
   selectCashbackHistory,
+  selectCashbackBalance,
   selectIsLoading,
   selectIsLoadingHistory,
+  selectIsLoadingBalance,
   selectError,
 } = customerFeature;
