@@ -3,12 +3,10 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { map, startWith, switchMap } from 'rxjs';
 import {
   CardFlag,
   CardPaymentForm,
-  CardPaymentType,
   PaymentOption,
 } from '../../interfaces/payment.interface';
 
@@ -18,11 +16,6 @@ const FLAG_OPTIONS: PaymentOption<CardFlag>[] = [
   { label: 'Elo', value: 'elo' },
   { label: 'Amex', value: 'amex' },
   { label: 'Hipercard', value: 'hipercard' },
-];
-
-const TYPE_OPTIONS: PaymentOption<CardPaymentType>[] = [
-  { label: 'sale.current.payment.credit', value: 'credit' },
-  { label: 'sale.current.payment.debit', value: 'debit' },
 ];
 
 // Missing keys fall through untranslated, so "2x" .. "12x" render as-is.
@@ -36,35 +29,18 @@ const INSTALLMENT_OPTIONS: PaymentOption<number>[] = Array.from(
 
 @Component({
   selector: 'app-card-payment-form',
-  imports: [
-    ReactiveFormsModule,
-    TranslatePipe,
-    SelectModule,
-    SelectButtonModule,
-  ],
+  imports: [ReactiveFormsModule, TranslatePipe, SelectModule],
   templateUrl: './card-payment-form.component.html',
   styleUrl: './card-payment-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardPaymentFormComponent {
   form = input.required<CardPaymentForm>();
+  /** Debit cards are charged in full, so terms only apply to credit. */
+  showInstallments = input<boolean>(false);
 
   protected readonly flagOptions = FLAG_OPTIONS;
-  protected readonly typeOptions = TYPE_OPTIONS;
   protected readonly installmentOptions = INSTALLMENT_OPTIONS;
-
-  private readonly type$ = toObservable(this.form).pipe(
-    switchMap(form =>
-      form.controls.type.valueChanges.pipe(startWith(form.controls.type.value)),
-    ),
-  );
-
-  protected readonly isCredit = toSignal(
-    this.type$.pipe(map(type => type === 'credit')),
-    {
-      initialValue: false,
-    },
-  );
 
   private readonly flagStatus$ = toObservable(this.form).pipe(
     switchMap(form =>

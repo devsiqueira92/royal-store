@@ -11,10 +11,16 @@ public sealed class SalePayment : Entity
     public decimal Amount { get; private set; }
     public PaymentCardDetails Card { get; private set; } = PaymentCardDetails.Empty;
 
+    /// <summary>Which catalog <c>Payment</c> (037-payment-methods-catalog) the terminal selected for
+    /// this line, when it sent one. Null for terminals that don't yet send it and for historical
+    /// rows that predate this feature — resolving/validating it happens one layer up, in the command
+    /// handler, against live tenant data this entity cannot see (data-model.md §SalePayment).</summary>
+    public Guid? PaymentId { get; private set; }
+
     private SalePayment() : base(Guid.NewGuid()) { }
 
     private SalePayment(Guid id, Guid tenantId, Guid saleId, PaymentMethod method,
-        decimal amount, PaymentCardDetails card)
+        decimal amount, PaymentCardDetails card, Guid? paymentId)
         : base(id)
     {
         TenantId = tenantId;
@@ -22,10 +28,11 @@ public sealed class SalePayment : Entity
         Method = method;
         Amount = amount;
         Card = card;
+        PaymentId = paymentId;
     }
 
     public static Result<SalePayment> Create(Guid id, Guid tenantId, Guid saleId,
-        PaymentMethod method, decimal amount, PaymentCardDetails? card = null)
+        PaymentMethod method, decimal amount, PaymentCardDetails? card = null, Guid? paymentId = null)
     {
         if (id == Guid.Empty)
             return Error.Validation("salepayment.id_required", "Sale payment ID is required.");
@@ -48,7 +55,7 @@ public sealed class SalePayment : Entity
         if (cardResult.IsFailure)
             return cardResult.Error;
 
-        return new SalePayment(id, tenantId, saleId, method, amount, card);
+        return new SalePayment(id, tenantId, saleId, method, amount, card, paymentId);
     }
 
     private static Result ValidateCard(PaymentCardDetails card, PaymentMethod method)

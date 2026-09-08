@@ -1116,6 +1116,56 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("LoyaltyTiers", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Payments.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Discount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("nchar(2)")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId", "PaymentType")
+                        .IsUnique();
+
+                    b.ToTable("Payments", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Permissions.UserPermissionGrant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1317,6 +1367,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<decimal>("PaymentDiscountApplied")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("ReceiptPrintUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -1428,6 +1481,9 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<int>("Method")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("SaleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1435,6 +1491,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PaymentId");
 
                     b.HasIndex("SaleId");
 
@@ -1980,6 +2038,11 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.SalePayment", b =>
                 {
+                    b.HasOne("RoyalStore.Domain.Payments.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("RoyalStore.Domain.Sales.Sale", null)
                         .WithMany("Payments")
                         .HasForeignKey("SaleId")

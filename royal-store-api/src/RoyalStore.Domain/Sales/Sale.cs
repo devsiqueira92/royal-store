@@ -23,6 +23,7 @@ public sealed class Sale : Entity, IAuditableEntity
     public decimal Change { get; private set; }
     public decimal CashbackApplied { get; private set; }
     public decimal CashbackEarned { get; private set; }
+    public decimal PaymentDiscountApplied { get; private set; }
     public DateTime SoldAt { get; private set; }
     public DateTime SyncedAt { get; private set; }
     public InvoiceStatus FiscalStatus { get; private set; }
@@ -42,7 +43,8 @@ public sealed class Sale : Entity, IAuditableEntity
 
     private Sale(Guid id, Guid tenantId, Guid cashShiftId, string? userId, Guid? customerId,
         decimal subtotal, decimal discountAmount, DiscountMode discountMode, decimal additionalFees,
-        decimal totalAmount, decimal change, decimal cashbackApplied, DateTime soldAt, DateTime syncedAt)
+        decimal totalAmount, decimal change, decimal cashbackApplied, decimal paymentDiscountApplied,
+        DateTime soldAt, DateTime syncedAt)
         : base(id)
     {
         TenantId = tenantId;
@@ -57,6 +59,7 @@ public sealed class Sale : Entity, IAuditableEntity
         Change = change;
         CashbackApplied = cashbackApplied;
         CashbackEarned = 0;
+        PaymentDiscountApplied = paymentDiscountApplied;
         SoldAt = soldAt;
         SyncedAt = syncedAt;
         FiscalStatus = InvoiceStatus.Pending;
@@ -64,7 +67,8 @@ public sealed class Sale : Entity, IAuditableEntity
 
     public static Result<Sale> Create(Guid id, Guid tenantId, Guid cashShiftId, string? userId, Guid? customerId,
         decimal subtotal, decimal discountAmount, DiscountMode discountMode, decimal additionalFees,
-        decimal totalAmount, decimal change, decimal cashbackApplied, DateTime soldAt, DateTime syncedAt)
+        decimal totalAmount, decimal change, decimal cashbackApplied, decimal paymentDiscountApplied,
+        DateTime soldAt, DateTime syncedAt)
     {
         if (id == Guid.Empty)
             return Error.Validation("sale.id_required", "Sale ID is required.");
@@ -96,15 +100,21 @@ public sealed class Sale : Entity, IAuditableEntity
         if (cashbackApplied < 0)
             return Error.Validation("sale.cashback_applied_negative", "Cashback applied cannot be negative.");
 
+        if (paymentDiscountApplied < 0)
+            return Error.Validation("sale.payment_discount_negative", "Payment method discount cannot be negative.");
+
         if (discountAmount > subtotal)
             return Error.Validation("sale.discount_exceeds_subtotal", "Discount amount cannot exceed the subtotal.");
 
-        if (Math.Abs(subtotal - discountAmount + additionalFees - totalAmount) > ReconciliationTolerance)
+        // Extends the pre-existing reconciliation check with the payment-method discount (037
+        // research.md Decision 7) — same tolerance, same "terminal states its own already-correct
+        // arithmetic, server validates it" contract every other total here already follows.
+        if (Math.Abs(subtotal - discountAmount - paymentDiscountApplied + additionalFees - totalAmount) > ReconciliationTolerance)
             return Error.Validation("sale.totals_do_not_reconcile",
-                "Subtotal less discount plus additional fees must equal the total.");
+                "Subtotal less discount less payment method discount plus additional fees must equal the total.");
 
         return new Sale(id, tenantId, cashShiftId, userId, customerId, subtotal, discountAmount, discountMode,
-            additionalFees, totalAmount, change, cashbackApplied, soldAt, syncedAt);
+            additionalFees, totalAmount, change, cashbackApplied, paymentDiscountApplied, soldAt, syncedAt);
     }
 
     /// <summary>Records what this sale earned, once, after the ledger computes it from the earning

@@ -1,23 +1,22 @@
-<div class="payment-panel" [formGroup]="form">
-  <p-selectbutton
-    class="payment-panel__methods"
-    formControlName="method"
-    [options]="methodOptions"
-    optionValue="value"
-    [allowEmpty]="false"
-  >
-    <ng-template let-option #item>
-      {{ option.label | translate }}
-    </ng-template>
-  </p-selectbutton>
+<div class="payment-panel">
+  <app-payment-method-list
+    [methods]="methods()"
+    [selected]="method()"
+    [base]="base()"
+    (methodSelected)="selectMethod($event)"
+  />
 
-  @switch (method()) {
-    @case ('card') {
-      <app-card-payment-form [form]="form.controls.card" />
+  @if (selectedOption(); as option) {
+    @if (option.cardType) {
+      <app-card-payment-form
+        [form]="form.controls.card"
+        [showInstallments]="option.cardType === 'credit'"
+      />
     }
-    @case ('split') {
+    @if (option.isSplit) {
       <app-split-payment-form
         [form]="form.controls.splits"
+        [methods]="splitMethods()"
         [remaining]="remaining()"
         (addPayment)="addSplit()"
         (removePayment)="removeSplit($event)"

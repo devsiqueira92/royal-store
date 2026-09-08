@@ -44,6 +44,13 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/sale/sale.routes').then(m => m.SALE_ROUTES),
       },
+      {
+        path: 'payment-methods',
+        loadChildren: () =>
+          import('./features/payment-method/payment-method.routes').then(
+            m => m.PAYMENT_METHOD_ROUTES,
+          ),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

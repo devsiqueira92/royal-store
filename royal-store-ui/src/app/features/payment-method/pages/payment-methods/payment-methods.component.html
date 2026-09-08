@@ -1,0 +1,59 @@
+<section class="payment-methods-page">
+  <header class="payment-methods-page__header">
+    <div>
+      <h1 class="payment-methods-page__title">
+        {{ 'paymentMethod.title' | translate }}
+      </h1>
+      <p class="payment-methods-page__subtitle">
+        {{ 'paymentMethod.subtitle' | translate }}
+      </p>
+    </div>
+  </header>
+
+  <div class="payment-methods-page__panel">
+    <p-table [value]="paymentMethods()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'paymentMethod.columns.method' | translate }}</th>
+          <th>{{ 'paymentMethod.columns.fiscalCode' | translate }}</th>
+          <th>{{ 'paymentMethod.columns.discount' | translate }}</th>
+          <th>{{ 'paymentMethod.columns.status' | translate }}</th>
+          <th class="payment-methods-page__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-paymentMethod>
+        <tr>
+          <td>
+            <span class="payment-method-cell__name">
+              {{ paymentMethod.paymentMethod }}
+            </span>
+          </td>
+          <td>{{ paymentMethod.paymentType }}</td>
+          <td>{{ paymentMethod.discount }}%</td>
+          <td>
+            <app-switch
+              [checked]="paymentMethod.active"
+              [ariaLabel]="'paymentMethod.toggleActive' | translate"
+              (changed)="onActiveChange(paymentMethod, $event)"
+            />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'paymentMethod.viewDetails' | translate"
+              (onClick)="openDetails(paymentMethod)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">{{ 'paymentMethod.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

@@ -9,18 +9,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import {
-  PaymentOption,
-  SplitPaymentFormArray,
-  SplitPaymentMethod,
-} from '../../interfaces/payment.interface';
-
-const METHOD_OPTIONS: PaymentOption<SplitPaymentMethod>[] = [
-  { label: 'sale.current.payment.cash', value: 'cash' },
-  { label: 'sale.current.payment.debit', value: 'debit' },
-  { label: 'sale.current.payment.credit', value: 'credit' },
-  { label: 'sale.current.payment.pix', value: 'pix' },
-];
+import { SplitPaymentFormArray } from '../../interfaces/payment.interface';
+import { SelectablePaymentMethod } from '../../interfaces/payment-method-option.const';
 
 @Component({
   selector: 'app-split-payment-form',
@@ -36,9 +26,9 @@ const METHOD_OPTIONS: PaymentOption<SplitPaymentMethod>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SplitPaymentFormComponent {
-  protected readonly methodOptions = METHOD_OPTIONS;
-
   form = input.required<SplitPaymentFormArray>();
+  /** Real catalog methods a split row can settle with — the split option itself is excluded. */
+  methods = input.required<SelectablePaymentMethod[]>();
   remaining = input<number>(0);
 
   addPayment = output<void>();

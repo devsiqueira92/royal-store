@@ -9,4 +9,8 @@ public record RegisterSalePayment(
     int? Installments,
     decimal Amount,
     string? AuthCode,
-    string? Nsu);
+    string? Nsu,
+    /// <summary>The selected payment-methods-catalog entry (037), when the terminal knows one.
+    /// Optional and additive — omitting it preserves today's exact behavior (037 research.md
+    /// Decision 8; contracts/register-sale-api-changes.md).</summary>
+    Guid? PaymentId = null);

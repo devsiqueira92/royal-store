@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Sales;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
@@ -22,6 +23,15 @@ public sealed class SalePaymentConfiguration : IEntityTypeConfiguration<SalePaym
         builder.Property(e => e.Amount)
             .HasColumnType("decimal(18,2)")
             .IsRequired();
+
+        // Which catalog Payment (037-payment-methods-catalog) this line used, when known. Nullable —
+        // never required — and never deleted alongside it, since Payment rows are themselves never
+        // deleted (FR-004); Restrict just documents that intent explicitly.
+        builder.Property(e => e.PaymentId);
+        builder.HasOne<Payment>()
+            .WithMany()
+            .HasForeignKey(e => e.PaymentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Acquirer detail. Every column is optional so cash and Pix settle without them.
         builder.OwnsOne(e => e.Card, card =>

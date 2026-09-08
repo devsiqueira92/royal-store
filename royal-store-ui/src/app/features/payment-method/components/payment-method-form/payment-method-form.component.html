@@ -1,0 +1,70 @@
+<form class="payment-method-form" [formGroup]="formGroup">
+  <app-form-layout
+    title="paymentMethod.form.section.details"
+    [index]="1"
+    [collapsedPanel]="false"
+  >
+    <div class="payment-method-form__field">
+      <span class="payment-method-form__label">
+        {{ 'paymentMethod.form.method' | translate }}
+      </span>
+      <span class="payment-method-form__value">
+        {{ selectedPaymentMethod()?.paymentMethod }}
+      </span>
+    </div>
+
+    <div class="payment-method-form__field">
+      <span class="payment-method-form__label">
+        {{ 'paymentMethod.form.fiscalCode' | translate }}
+      </span>
+      <span class="payment-method-form__value">
+        {{ selectedPaymentMethod()?.paymentType }}
+      </span>
+    </div>
+
+    <div class="payment-method-form__field">
+      <span class="payment-method-form__label">
+        {{ 'paymentMethod.form.status' | translate }}
+      </span>
+      <app-switch
+        [checked]="active()"
+        [ariaLabel]="'paymentMethod.toggleActive' | translate"
+        (changed)="onActiveChange($event)"
+      />
+    </div>
+
+    <div
+      class="payment-method-form__field payment-method-form__field--discount"
+    >
+      <label for="discount" class="payment-method-form__label">
+        {{ 'paymentMethod.form.discount' | translate }}
+      </label>
+      <p-inputnumber
+        inputId="discount"
+        formControlName="discount"
+        suffix="%"
+        [min]="0"
+        [max]="100"
+        [showButtons]="true"
+        [invalid]="
+          formGroup.controls.discount.touched &&
+          formGroup.controls.discount.invalid
+        "
+      />
+    </div>
+  </app-form-layout>
+
+  <div class="payment-method-form__footer">
+    <app-button
+      label="paymentMethod.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      label="paymentMethod.form.submit"
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

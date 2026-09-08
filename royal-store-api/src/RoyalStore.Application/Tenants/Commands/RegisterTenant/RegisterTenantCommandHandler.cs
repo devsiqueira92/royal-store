@@ -6,6 +6,7 @@ using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Loyalty;
+using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Tenants;
 using System.Text;
 
@@ -17,6 +18,7 @@ public sealed class RegisterTenantCommandHandler
     private readonly IIdentityService _identityService;
     private readonly ITenantRepository _tenantRepository;
     private readonly ILoyaltyTierRepository _loyaltyTierRepository;
+    private readonly IPaymentRepository _paymentRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
 
@@ -24,12 +26,14 @@ public sealed class RegisterTenantCommandHandler
         IIdentityService identityService,
         ITenantRepository tenantRepository,
         ILoyaltyTierRepository loyaltyTierRepository,
+        IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService)
     {
         _identityService = identityService;
         _tenantRepository = tenantRepository;
         _loyaltyTierRepository = loyaltyTierRepository;
+        _paymentRepository = paymentRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
     }
@@ -81,6 +85,10 @@ public sealed class RegisterTenantCommandHandler
                 // Every tenant starts with the four loyalty tiers (FR-010) — seeded here, in the same
                 // transaction, so a tenant never exists without them (research.md Decision 9).
                 await _loyaltyTierRepository.AddRangeAsync(LoyaltyTier.SeedDefaults(tenant.Id), ct);
+
+                // Every tenant starts with its default payment methods catalog too (FR-003) — same
+                // reasoning and same transaction as the loyalty tiers above (037 research.md Decision 12).
+                await _paymentRepository.AddRangeAsync(Payment.SeedDefaults(tenant.Id), ct);
 
                 await _unitOfWork.SaveChangesAsync(ct);
 

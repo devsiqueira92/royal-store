@@ -9,6 +9,7 @@ using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Fiscal;
+using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Sales;
 
 namespace RoyalStore.Application.Sales.Commands.RegisterSale;
@@ -22,6 +23,7 @@ public sealed class RegisterSaleCommandHandler
     private readonly IIbptTaxRepository _ibptTaxRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly ICashbackLedger _cashbackLedger;
+    private readonly IPaymentRepository _paymentRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ITenantContext _tenantContext;
     private readonly ICurrentUserService _currentUserService;
@@ -34,6 +36,7 @@ public sealed class RegisterSaleCommandHandler
         IIbptTaxRepository ibptTaxRepository,
         ICustomerRepository customerRepository,
         ICashbackLedger cashbackLedger,
+        IPaymentRepository paymentRepository,
         IUnitOfWork unitOfWork,
         ITenantContext tenantContext,
         ICurrentUserService currentUserService,
@@ -45,6 +48,7 @@ public sealed class RegisterSaleCommandHandler
         _ibptTaxRepository = ibptTaxRepository;
         _customerRepository = customerRepository;
         _cashbackLedger = cashbackLedger;
+        _paymentRepository = paymentRepository;
         _unitOfWork = unitOfWork;
         _tenantContext = tenantContext;
         _currentUserService = currentUserService;
@@ -111,9 +115,30 @@ public sealed class RegisterSaleCommandHandler
             cashbackApplied = redeemResult.Value;
         }
 
+        // The catalog discount (037-payment-methods-catalog) only has one unambiguous meaning when a
+        // single payment method covers the whole sale — split settlement is unaffected, matching the
+        // reference checkout UX and avoiding an arbitrary proration rule (037 research.md Decision 6).
+        // Computed here, before Sale.Create, so it can feed the same reconciliation check every other
+        // total already goes through — never trusted from the client (Decision 7).
+        var paymentDiscountApplied = 0m;
+        if (command.Payments.Count == 1 && command.Payments[0].PaymentId is Guid singlePaymentId)
+        {
+            var selectedPayment = await _paymentRepository.GetByIdAsync(singlePaymentId, cancellationToken);
+            if (selectedPayment is null || selectedPayment.TenantId != tenantId)
+                return Error.Validation("sale.payment_method_invalid",
+                    $"Payment method {singlePaymentId} was not found or does not belong to this store.");
+
+            if (!selectedPayment.Active)
+                return Error.Validation("sale.payment_method_inactive",
+                    $"Payment method '{selectedPayment.PaymentMethod}' is no longer active.");
+
+            var preDiscountTotal = totals.Subtotal - totals.Discount + totals.AdditionalFees;
+            paymentDiscountApplied = Math.Round(preDiscountTotal * selectedPayment.Discount / 100m, 2);
+        }
+
         var saleResult = Sale.Create(saleId, tenantId, shift.Id, userId, customer?.Id,
             totals.Subtotal, totals.Discount, discountMode.Value, totals.AdditionalFees,
-            totals.Total, totals.Change, cashbackApplied, soldAt, DateTime.UtcNow);
+            totals.Total, totals.Change, cashbackApplied, paymentDiscountApplied, soldAt, DateTime.UtcNow);
 
         if (saleResult.IsFailure)
             return saleResult.Error;
@@ -166,7 +191,7 @@ public sealed class RegisterSaleCommandHandler
 
         await _fiscalQueue.QueueSaleAsync(sale.Id, cancellationToken);
 
-        return new RegisterSaleResponse(sale.Id, SyncStatus.Created, cashbackApplied, cashbackEarned);
+        return new RegisterSaleResponse(sale.Id, SyncStatus.Created, cashbackApplied, cashbackEarned, paymentDiscountApplied);
     }
 
     private async Task<Result> BuildItemsAsync(
@@ -241,8 +266,10 @@ public sealed class RegisterSaleCommandHandler
                 payment.AuthCode?.Trim(),
                 payment.Nsu?.Trim());
 
+            // PaymentId is attributed on every line that carries one, split or not — only whether the
+            // *discount* was computed is scoped to the single-payment-method case (see Handle above).
             var paymentResult = SalePayment.Create(
-                Guid.NewGuid(), tenantId, sale.Id, method.Value, payment.Amount, card);
+                Guid.NewGuid(), tenantId, sale.Id, method.Value, payment.Amount, card, payment.PaymentId);
 
             if (paymentResult.IsFailure)
                 return Result.Failure(paymentResult.Error);

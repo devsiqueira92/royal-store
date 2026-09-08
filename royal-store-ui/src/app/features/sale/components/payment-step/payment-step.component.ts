@@ -29,6 +29,7 @@ export class PaymentStepComponent {
   loyaltyRate = input<number>(0);
   useCashback = input<boolean>(false);
   total = input<number>(0);
+  base = input<number>(0);
 
   cashbackToggled = output<boolean>();
   paymentChange = output<PaymentState>();

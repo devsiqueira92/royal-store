@@ -4,17 +4,11 @@
       <p-select
         class="split-payment__method"
         formControlName="method"
-        [options]="methodOptions"
-        optionValue="value"
+        [options]="methods()"
+        optionLabel="label"
+        optionValue="id"
         appendTo="body"
-      >
-        <ng-template #selectedItem let-option>
-          {{ option.label | translate }}
-        </ng-template>
-        <ng-template let-option #item>
-          {{ option.label | translate }}
-        </ng-template>
-      </p-select>
+      />
 
       <p-inputnumber
         class="split-payment__amount"

@@ -1,11 +1,8 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { PaymentMethod } from './sale-totals.interface';
 
 export type CardFlag = 'visa' | 'mastercard' | 'elo' | 'amex' | 'hipercard';
 
 export type CardPaymentType = 'credit' | 'debit';
-
-export type SplitPaymentMethod = 'cash' | 'debit' | 'credit' | 'pix';
 
 export interface PaymentOption<T> {
   label: string;
@@ -18,13 +15,17 @@ export interface CardPaymentDetails {
   installments: number;
 }
 
+/** `methodId` is a real catalog id — never the synthetic split row's own id. */
 export interface SplitPaymentEntry {
-  method: SplitPaymentMethod;
+  methodId: string;
   amount: number;
 }
 
 export interface PaymentDetails {
-  method: PaymentMethod;
+  /** A real payment-method catalog id, or the synthetic split id — never a fixed enum. */
+  methodId: string | null;
+  /** The selected method's catalog discount as a 0..1 rate; 0 for split, since it has none. */
+  discountRate: number;
   card: CardPaymentDetails | null;
   splits: SplitPaymentEntry[];
 }
@@ -36,19 +37,18 @@ export interface PaymentState {
 
 export type CardPaymentForm = FormGroup<{
   flag: FormControl<CardFlag | null>;
-  type: FormControl<CardPaymentType>;
   installments: FormControl<number>;
 }>;
 
 export type SplitPaymentForm = FormGroup<{
-  method: FormControl<SplitPaymentMethod>;
+  method: FormControl<string>;
   amount: FormControl<number | null>;
 }>;
 
 export type SplitPaymentFormArray = FormArray<SplitPaymentForm>;
 
 export type PaymentForm = FormGroup<{
-  method: FormControl<PaymentMethod>;
+  method: FormControl<string | null>;
   card: CardPaymentForm;
   splits: SplitPaymentFormArray;
 }>;

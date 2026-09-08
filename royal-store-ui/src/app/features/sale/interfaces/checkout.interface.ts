@@ -13,9 +13,12 @@ export interface StoreBranch {
 /** Money figures presented in the checkout footer, before the sale is registered. */
 export interface CheckoutTotals {
   subtotal: number;
+  base: number;
   saleDiscount: number;
   loyaltyRate: number;
   loyaltyDiscount: number;
+  paymentRate: number;
+  paymentDiscount: number;
   cashbackApplied: number;
   discountTotal: number;
   tax: number;

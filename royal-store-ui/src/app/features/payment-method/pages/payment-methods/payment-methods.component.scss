@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.payment-methods-page {
+  padding: 1.25rem 1.5rem 2rem;
+}
+
+.payment-methods-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.payment-methods-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.payment-methods-page__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.payment-methods-page__panel {
+  border-radius: 0.75rem;
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  overflow: hidden;
+}
+
+.payment-methods-page__action-col {
+  width: 3rem;
+}
+
+.payment-method-cell__name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}

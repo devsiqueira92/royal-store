@@ -42,6 +42,7 @@
 
   <app-payment-panel
     [total]="total()"
+    [base]="base()"
     (paymentChange)="paymentChange.emit($event)"
   />
 </div>

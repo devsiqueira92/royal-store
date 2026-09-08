@@ -157,6 +157,7 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<ILoyaltyTierRepository, LoyaltyTierRepository>();
         services.AddScoped<ILoyaltyTierUsageChecker, LoyaltyTierUsageChecker>();
         services.AddScoped<ICashbackLedger, CashbackLedger>();
+        services.AddScoped<IPaymentRepository, PaymentRepository>();
 
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();

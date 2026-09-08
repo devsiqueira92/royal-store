@@ -181,6 +181,7 @@ export class CheckoutDialogComponent implements OnInit {
       tax: this.tax(),
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
+      paymentRate: this.payment()?.details.discountRate ?? 0,
     }),
   );
 

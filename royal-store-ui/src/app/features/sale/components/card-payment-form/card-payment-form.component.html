@@ -15,24 +15,7 @@
     />
   </div>
 
-  <div class="card-payment__row">
-    <span class="card-payment__label">
-      {{ 'sale.current.payment.type' | translate }}
-    </span>
-    <p-selectbutton
-      class="card-payment__control"
-      formControlName="type"
-      [options]="typeOptions"
-      optionValue="value"
-      [allowEmpty]="false"
-    >
-      <ng-template let-option #item>
-        {{ option.label | translate }}
-      </ng-template>
-    </p-selectbutton>
-  </div>
-
-  @if (isCredit()) {
+  @if (showInstallments()) {
     <div class="card-payment__row">
       <span class="card-payment__label">
         {{ 'sale.current.payment.terms' | translate }}

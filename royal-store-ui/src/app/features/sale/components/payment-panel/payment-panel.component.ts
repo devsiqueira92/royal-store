@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  computed,
   inject,
   input,
   output,
@@ -20,28 +21,22 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { combineLatest, map, startWith } from 'rxjs';
 import {
   CardFlag,
-  CardPaymentType,
   PaymentDetails,
   PaymentForm,
-  PaymentOption,
   PaymentState,
   SplitPaymentForm,
-  SplitPaymentMethod,
 } from '../../interfaces/payment.interface';
-import { PaymentMethod } from '../../interfaces/sale-totals.interface';
+import {
+  SelectablePaymentMethod,
+  toSelectableOptions,
+} from '../../interfaces/payment-method-option.const';
+import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
+import { PaymentMethodListComponent } from '../payment-method-list/payment-method-list.component';
 import { CardPaymentFormComponent } from '../card-payment-form/card-payment-form.component';
 import { SplitPaymentFormComponent } from '../split-payment-form/split-payment-form.component';
-
-const METHOD_OPTIONS: PaymentOption<PaymentMethod>[] = [
-  { label: 'sale.current.payment.cash', value: 'cash' },
-  { label: 'sale.current.payment.card', value: 'card' },
-  { label: 'sale.current.payment.split', value: 'split' },
-];
 
 const round = (value: number): number => Math.round(value * 100) / 100;
 
@@ -52,8 +47,7 @@ const sumAmounts = (rows: { amount?: number | null }[]): number =>
   selector: 'app-payment-panel',
   imports: [
     ReactiveFormsModule,
-    TranslatePipe,
-    SelectButtonModule,
+    PaymentMethodListComponent,
     CardPaymentFormComponent,
     SplitPaymentFormComponent,
   ],
@@ -64,12 +58,12 @@ const sumAmounts = (rows: { amount?: number | null }[]): number =>
 export class PaymentPanelComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly paymentMethodFacade = inject(PaymentMethodFacade);
 
   total = input<number>(0);
+  base = input<number>(0);
 
   paymentChange = output<PaymentState>();
-
-  protected readonly methodOptions = METHOD_OPTIONS;
 
   private readonly splitsMatchTotal: ValidatorFn = (
     control: AbstractControl,
@@ -84,14 +78,26 @@ export class PaymentPanelComponent implements OnInit {
   };
 
   protected readonly form: PaymentForm = this.fb.group({
-    method: this.fb.control<PaymentMethod>('cash'),
+    method: this.fb.control<string | null>(null, Validators.required),
     card: this.fb.group({
       flag: this.fb.control<CardFlag | null>(null, Validators.required),
-      type: this.fb.control<CardPaymentType>('credit'),
       installments: this.fb.control<number>(1, Validators.required),
     }),
     splits: this.fb.array<SplitPaymentForm>([], this.splitsMatchTotal),
   });
+
+  /** Every active catalog method plus the synthetic split row, in picker order. */
+  protected readonly methods = toSignal(
+    this.paymentMethodFacade.activePaymentMethods$.pipe(
+      map(toSelectableOptions),
+    ),
+    { initialValue: [] as SelectablePaymentMethod[] },
+  );
+
+  /** Real catalog rows only — offered as the per-line choice inside a split. */
+  protected readonly splitMethods = computed(() =>
+    this.methods().filter(option => !option.isSplit),
+  );
 
   private readonly total$ = toObservable(this.total);
 
@@ -107,23 +113,20 @@ export class PaymentPanelComponent implements OnInit {
   );
 
   protected readonly method = toSignal(
-    this.form.controls.method.valueChanges.pipe(
-      startWith(this.form.controls.method.value),
-    ),
-    { initialValue: this.form.controls.method.value },
+    this.form.controls.method.valueChanges.pipe(startWith(null)),
+    { initialValue: null as string | null },
+  );
+
+  protected readonly selectedOption = computed(
+    () => this.methods().find(option => option.id === this.method()) ?? null,
   );
 
   ngOnInit(): void {
-    const { method, card } = this.form.controls;
+    this.paymentMethodFacade.loadPaymentMethods();
 
-    combineLatest([
-      method.valueChanges.pipe(startWith(method.value)),
-      card.controls.type.valueChanges.pipe(startWith(card.controls.type.value)),
-    ])
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(([selected, cardType]) =>
-        this.syncControls(selected, cardType),
-      );
+    this.form.controls.method.valueChanges
+      .pipe(startWith(null), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncControls());
 
     // Split rows are only valid against the current sale total.
     this.total$
@@ -135,6 +138,10 @@ export class PaymentPanelComponent implements OnInit {
       .subscribe(() => this.paymentChange.emit(this.snapshot()));
   }
 
+  protected selectMethod(id: string): void {
+    this.form.controls.method.setValue(id);
+  }
+
   protected addSplit(): void {
     this.form.controls.splits.push(this.createSplitRow());
   }
@@ -143,14 +150,15 @@ export class PaymentPanelComponent implements OnInit {
     this.form.controls.splits.removeAt(index);
   }
 
-  private syncControls(method: PaymentMethod, cardType: CardPaymentType): void {
+  private syncControls(): void {
+    const option = this.selectedOption();
     const { card, splits } = this.form.controls;
     const options = { emitEvent: false };
 
-    if (method === 'card') {
+    if (option?.cardType) {
       card.enable(options);
 
-      if (cardType === 'credit') {
+      if (option.cardType === 'credit') {
         card.controls.installments.enable(options);
       } else {
         card.controls.installments.setValue(1, options);
@@ -160,7 +168,7 @@ export class PaymentPanelComponent implements OnInit {
       card.disable(options);
     }
 
-    if (method === 'split') {
+    if (option?.isSplit) {
       splits.enable(options);
 
       if (splits.length === 0) {
@@ -173,8 +181,10 @@ export class PaymentPanelComponent implements OnInit {
   }
 
   private createSplitRow(): SplitPaymentForm {
+    const defaultMethodId = this.splitMethods()[0]?.id ?? '';
+
     return this.fb.group({
-      method: this.fb.control<SplitPaymentMethod>('cash'),
+      method: this.fb.control<string>(defaultMethodId),
       amount: this.fb.control<number | null>(null, [
         Validators.required,
         Validators.min(0.01),
@@ -184,21 +194,21 @@ export class PaymentPanelComponent implements OnInit {
 
   private snapshot(): PaymentState {
     const { method, card, splits } = this.form.getRawValue();
+    const option = this.selectedOption();
 
     const details: PaymentDetails = {
-      method,
-      card:
-        method === 'card'
-          ? {
-              flag: card.flag,
-              type: card.type,
-              installments: card.type === 'credit' ? card.installments : 1,
-            }
-          : null,
-      splits:
-        method === 'split'
-          ? splits.map(row => ({ method: row.method, amount: row.amount ?? 0 }))
-          : [],
+      methodId: method,
+      discountRate: option ? option.discount / 100 : 0,
+      card: option?.cardType
+        ? {
+            flag: card.flag,
+            type: option.cardType,
+            installments: option.cardType === 'credit' ? card.installments : 1,
+          }
+        : null,
+      splits: option?.isSplit
+        ? splits.map(row => ({ methodId: row.method, amount: row.amount ?? 0 }))
+        : [],
     };
 
     return { valid: this.form.valid, details };

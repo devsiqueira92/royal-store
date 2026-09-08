@@ -75,6 +75,11 @@ export class SidebarMenuComponent {
             icon: 'pi pi-users',
             routerLink: '/sellers',
           },
+          {
+            label: 'Formas de pagamento',
+            icon: 'pi pi-credit-card',
+            routerLink: '/payment-methods',
+          },
         ],
       },
     ];

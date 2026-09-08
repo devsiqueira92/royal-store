@@ -46,6 +46,8 @@ import { loyaltyTierFeature } from './core/loyalty-tier/store/loyalty-tier.reduc
 import { loyaltyTierStore } from './core/loyalty-tier/store/loyalty-tier.store';
 import { originOptionFeature } from './core/origin-option/store/origin-option.reducer';
 import { originOptionStore } from './core/origin-option/store/origin-option.store';
+import { paymentMethodFeature } from './features/payment-method/store/payment-method.reducer';
+import { paymentMethodStore } from './features/payment-method/store/payment-method.store';
 
 registerLocaleData(localeEn);
 
@@ -82,6 +84,7 @@ export const appConfig: ApplicationConfig = {
       [customerFeature.name]: customerFeature.reducer,
       [loyaltyTierFeature.name]: loyaltyTierFeature.reducer,
       [originOptionFeature.name]: originOptionFeature.reducer,
+      [paymentMethodFeature.name]: paymentMethodFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -97,6 +100,7 @@ export const appConfig: ApplicationConfig = {
       customerStore,
       loyaltyTierStore,
       originOptionStore,
+      paymentMethodStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,
