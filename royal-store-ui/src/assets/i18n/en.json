@@ -364,5 +364,56 @@
       "orange": "Orange",
       "neutral": "Neutral"
     }
+  },
+  "customer": {
+    "title": "Customers",
+    "subtitle": "People who buy, their loyalty tier and cashback.",
+    "empty": "No customers found.",
+    "newCustomer": "New customer",
+    "viewDetails": "View details",
+    "toggleActive": "Activate or deactivate customer",
+    "columns": {
+      "customer": "Customer",
+      "document": "Document",
+      "phone": "Phone",
+      "tier": "Loyalty tier",
+      "cashback": "Cashback",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Edit customer",
+      "create": "New customer",
+      "subtitle": "Customer details and cashback",
+      "createSubtitle": "Register a new customer",
+      "section": {
+        "details": "Customer details",
+        "cashback": "Cashback history"
+      },
+      "name": "Name",
+      "namePlaceholder": "e.g. Ana Carolina Souza",
+      "document": "Document (CPF/CNPJ)",
+      "documentPlaceholder": "Digits only",
+      "phone": "Phone",
+      "phonePlaceholder": "e.g. 11987650001",
+      "tier": "Loyalty tier",
+      "tierPlaceholder": "Standard tier when left empty",
+      "cancel": "Cancel",
+      "submit": "Save customer",
+      "createSubmit": "Create customer"
+    },
+    "cashback": {
+      "balance": "Balance",
+      "available": "Available now",
+      "earnedAt": "Earned",
+      "granted": "Granted",
+      "remaining": "Remaining",
+      "expiresAt": "Expires",
+      "state": "State",
+      "empty": "No cashback earned yet.",
+      "states": {
+        "available": "Available",
+        "used": "Used"
+      }
+    }
   }
 }

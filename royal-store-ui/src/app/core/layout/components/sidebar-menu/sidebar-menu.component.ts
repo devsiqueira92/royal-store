@@ -44,6 +44,11 @@ export class SidebarMenuComponent {
             routerLink: '/products',
           },
           {
+            label: 'Clientes',
+            icon: 'pi pi-id-card',
+            routerLink: '/customers',
+          },
+          {
             label: 'PDV',
             icon: 'pi pi-dollar',
             routerLink: '/sales',

@@ -1,0 +1,71 @@
+<section class="customers-page">
+  <header class="customers-page__header">
+    <div>
+      <h1 class="customers-page__title">{{ 'customer.title' | translate }}</h1>
+      <p class="customers-page__subtitle">
+        {{ 'customer.subtitle' | translate }}
+      </p>
+    </div>
+    <p-button
+      [label]="'customer.newCustomer' | translate"
+      icon="pi pi-plus"
+      (onClick)="createCustomer()"
+    />
+  </header>
+
+  <div class="customers-page__panel">
+    <p-table [value]="customers()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'customer.columns.customer' | translate }}</th>
+          <th>{{ 'customer.columns.document' | translate }}</th>
+          <th>{{ 'customer.columns.phone' | translate }}</th>
+          <th>{{ 'customer.columns.tier' | translate }}</th>
+          <th>{{ 'customer.columns.cashback' | translate }}</th>
+          <th>{{ 'customer.columns.status' | translate }}</th>
+          <th class="customers-page__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-customer>
+        <tr>
+          <td>
+            <div class="customer-cell">
+              <span class="customer-cell__avatar">
+                {{ getInitials(customer.name) }}
+              </span>
+              <span class="customer-cell__name">{{ customer.name }}</span>
+            </div>
+          </td>
+          <td>{{ customer.document }}</td>
+          <td>{{ customer.phone || '—' }}</td>
+          <td>
+            <span class="customer-tier">{{ customer.loyaltyTierName }}</span>
+          </td>
+          <td>{{ customer.cashbackBalance | currency }}</td>
+          <td>
+            <app-switch
+              [checked]="customer.isActive"
+              [ariaLabel]="'customer.toggleActive' | translate"
+              (changed)="onActiveChange(customer, $event)"
+            />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'customer.viewDetails' | translate"
+              (onClick)="editCustomer(customer)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7">{{ 'customer.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

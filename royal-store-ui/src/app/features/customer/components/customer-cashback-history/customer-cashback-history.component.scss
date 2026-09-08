@@ -1,0 +1,51 @@
+:host {
+  display: block;
+}
+
+.cashback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cashback__totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.cashback__total {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.75rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  border-radius: var(--p-border-radius-md, 0.5rem);
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.cashback__total strong {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: light-dark(var(--p-primary-700), var(--p-primary-300));
+}
+
+.cashback__state {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: light-dark(var(--p-surface-100), var(--p-surface-700));
+  color: light-dark(var(--p-surface-600), var(--p-surface-200));
+
+  &[data-state='available'] {
+    background: light-dark(var(--p-green-100), var(--p-green-900));
+    color: light-dark(var(--p-green-800), var(--p-green-200));
+  }
+}
+
+.cashback__expired {
+  color: light-dark(var(--p-red-600), var(--p-red-400));
+}

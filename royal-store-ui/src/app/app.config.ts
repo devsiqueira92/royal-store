@@ -40,6 +40,10 @@ import { taxProfileTemplateFeature } from './core/tax-profile-template/store/tax
 import { taxProfileTemplateStore } from './core/tax-profile-template/store/tax-profile-template.store';
 import { unitMeasureOptionFeature } from './core/unit-measure-option/store/unit-measure-option.reducer';
 import { unitMeasureOptionStore } from './core/unit-measure-option/store/unit-measure-option.store';
+import { customerFeature } from './features/customer/store/customer.reducer';
+import { customerStore } from './features/customer/store/customer.store';
+import { loyaltyTierFeature } from './core/loyalty-tier/store/loyalty-tier.reducer';
+import { loyaltyTierStore } from './core/loyalty-tier/store/loyalty-tier.store';
 import { originOptionFeature } from './core/origin-option/store/origin-option.reducer';
 import { originOptionStore } from './core/origin-option/store/origin-option.store';
 
@@ -75,6 +79,8 @@ export const appConfig: ApplicationConfig = {
       [saleFeature.name]: saleFeature.reducer,
       [taxProfileTemplateFeature.name]: taxProfileTemplateFeature.reducer,
       [unitMeasureOptionFeature.name]: unitMeasureOptionFeature.reducer,
+      [customerFeature.name]: customerFeature.reducer,
+      [loyaltyTierFeature.name]: loyaltyTierFeature.reducer,
       [originOptionFeature.name]: originOptionFeature.reducer,
     }),
     provideEffects(
@@ -88,6 +94,8 @@ export const appConfig: ApplicationConfig = {
       saleStore,
       taxProfileTemplateStore,
       unitMeasureOptionStore,
+      customerStore,
+      loyaltyTierStore,
       originOptionStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },

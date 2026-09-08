@@ -1,0 +1,62 @@
+<form class="customer-form" [formGroup]="formGroup">
+  <app-form-layout
+    title="customer.form.section.details"
+    [index]="1"
+    [collapsedPanel]="false"
+  >
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="customer.form.name"
+      placeholder="customer.form.namePlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="document"
+      [parentForm]="formGroup"
+      label="customer.form.document"
+      placeholder="customer.form.documentPlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="phone"
+      [parentForm]="formGroup"
+      label="customer.form.phone"
+      placeholder="customer.form.phonePlaceholder"
+    ></app-input-field>
+
+    <app-select-field
+      controlName="loyaltyTierId"
+      [parentForm]="formGroup"
+      label="customer.form.tier"
+      placeholder="customer.form.tierPlaceholder"
+      [options]="tierOptions()"
+    ></app-select-field>
+  </app-form-layout>
+
+  @if (!isCreateMode()) {
+    <app-form-layout title="customer.form.section.cashback" [index]="2">
+      <app-customer-cashback-history
+        [entries]="cashbackHistory()"
+        [isLoading]="isLoadingHistory()"
+        [balance]="selectedCustomer()?.cashbackBalance ?? 0"
+      ></app-customer-cashback-history>
+    </app-form-layout>
+  }
+
+  <div class="customer-form__footer">
+    <app-button
+      label="customer.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      [label]="
+        isCreateMode() ? 'customer.form.createSubmit' : 'customer.form.submit'
+      "
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

@@ -1,0 +1,44 @@
+<div class="cashback">
+  <div class="cashback__totals">
+    <div class="cashback__total">
+      <span>{{ 'customer.cashback.balance' | translate }}</span>
+      <strong>{{ balance() | currency }}</strong>
+    </div>
+    <div class="cashback__total">
+      <span>{{ 'customer.cashback.available' | translate }}</span>
+      <strong>{{ availableTotal() | currency }}</strong>
+    </div>
+  </div>
+
+  <p-table [value]="entries()" [loading]="isLoading()" dataKey="id">
+    <ng-template #header>
+      <tr>
+        <th>{{ 'customer.cashback.earnedAt' | translate }}</th>
+        <th>{{ 'customer.cashback.granted' | translate }}</th>
+        <th>{{ 'customer.cashback.remaining' | translate }}</th>
+        <th>{{ 'customer.cashback.expiresAt' | translate }}</th>
+        <th>{{ 'customer.cashback.state' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-entry>
+      <tr>
+        <td>{{ entry.earnedAt | date: 'shortDate' }}</td>
+        <td>{{ entry.grantedAmount | currency }}</td>
+        <td>{{ entry.remainingAmount | currency }}</td>
+        <td [class.cashback__expired]="isExpired(entry)">
+          {{ entry.expiresAt | date: 'shortDate' }}
+        </td>
+        <td>
+          <span class="cashback__state" [attr.data-state]="entry.state">
+            {{ 'customer.cashback.states.' + entry.state | translate }}
+          </span>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5">{{ 'customer.cashback.empty' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

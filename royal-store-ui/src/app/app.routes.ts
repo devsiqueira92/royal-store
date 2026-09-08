@@ -33,6 +33,13 @@ export const routes: Routes = [
           import('./features/seller/seller.routes').then(m => m.SELLER_ROUTES),
       },
       {
+        path: 'customers',
+        loadChildren: () =>
+          import('./features/customer/customer.routes').then(
+            m => m.CUSTOMER_ROUTES,
+          ),
+      },
+      {
         path: 'sales',
         loadChildren: () =>
           import('./features/sale/sale.routes').then(m => m.SALE_ROUTES),
