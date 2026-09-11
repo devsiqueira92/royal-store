@@ -29,6 +29,11 @@ public sealed class SaleItemConfiguration : IEntityTypeConfiguration<SaleItem>
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
+        builder.Property(e => e.CostPrice)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
         builder.Property(e => e.DiscountItem)
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0m)

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { SaleFacade } from '../../facade/sale.facade';
 import { CategoryFacade } from '@app/features/category/facade/category.facade';
@@ -15,11 +15,13 @@ import { Category } from '@app/features/category/interfaces/category.interface';
 import { PosProduct } from '../../interfaces/pos-product.interface';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
 import { CheckoutResult } from '../../interfaces/checkout.interface';
+import { RegisterSaleRequest } from '../../interfaces/register-sale-request.interface';
 import { SalesStatsComponent } from '../../components/sales-stats/sales-stats.component';
 import { CategoryFilterComponent } from '../../components/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { CurrentSaleComponent } from '../../components/current-sale/current-sale.component';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
+import { NotificationService } from '@app/shared/services/notification.service';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, filter, tap } from 'rxjs';
 
@@ -48,6 +50,8 @@ export class SalesComponent implements OnInit {
   private readonly saleFacade = inject(SaleFacade);
   private readonly categoryFacade = inject(CategoryFacade);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly notificationService = inject(NotificationService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly sellerName = MOCK_SELLER_NAME;
   protected readonly saleRef = MOCK_SALE_REF;
@@ -74,6 +78,19 @@ export class SalesComponent implements OnInit {
   ngOnInit(): void {
     this.categoryFacade.loadCategories();
     this.saleFacade.loadPosProducts();
+
+    this.saleFacade.lastRegisterSaleResult$
+      .pipe(
+        filter(result => !!result),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.items.set([]);
+        this.notificationService.success({
+          detail: this.translateService.instant('sale.current.chargeSuccess'),
+        });
+        this.saleFacade.clearRegisterSaleResult();
+      });
 
     this.formGroup
       .get('barcode')
@@ -162,19 +179,21 @@ export class SalesComponent implements OnInit {
   }
 
   protected onCharge(checkout: CheckoutResult): void {
-    // No charge endpoint yet — completing the sale just resets the cart.
-    const items = this.items().map(item => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
-      productId: item.productId,
-    }));
-
-    const payload = {
-      items,
-      checkout,
+    const request: RegisterSaleRequest = {
+      items: this.items().map(item => ({
+        variantId: item.variantId,
+        quantity: item.quantity,
+        productId: item.productId,
+      })),
+      checkout: {
+        customer: checkout.customer ? { id: checkout.customer.id } : null,
+        useCashback: checkout.useCashback,
+        fulfillment: checkout.fulfillment,
+        payments: checkout.payments,
+        totals: checkout.totals,
+      },
     };
 
-    console.log('Sale completed:', payload);
-    // this.items.set([]);
+    this.saleFacade.registerSale(request);
   }
 }

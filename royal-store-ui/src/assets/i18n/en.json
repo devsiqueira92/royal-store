@@ -274,10 +274,10 @@
       "tax": "Tax ({{rate}}%)",
       "total": "Total",
       "charge": "Charge",
+      "chargeSuccess": "Sale completed successfully.",
       "payment": {
         "cash": "Cash",
         "card": "Card",
-        "split": "Split",
         "debit": "Debit",
         "credit": "Credit",
         "pix": "Pix",
@@ -285,11 +285,7 @@
         "brandPlaceholder": "Select brand",
         "type": "Type",
         "terms": "Terms",
-        "singleCharge": "Single charge",
-        "addPayment": "+ Add payment",
-        "removePayment": "Remove payment",
-        "remaining": "Remaining",
-        "overpaid": "Overpaid"
+        "singleCharge": "Single charge"
       }
     },
     "checkout": {
@@ -322,10 +318,7 @@
         "loyaltyTitle": "Loyalty discount",
         "loyaltyHint": "{{rate}} applied automatically for this customer",
         "cashback": "Cashback available",
-        "cashbackHint": "Toggle to use it on this order",
-        "methods": {
-          "split": "Split payment"
-        }
+        "cashbackHint": "Toggle to use it on this order"
       },
       "fulfillment": {
         "title": "Delivery or pickup",

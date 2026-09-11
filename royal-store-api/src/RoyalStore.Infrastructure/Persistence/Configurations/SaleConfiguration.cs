@@ -15,7 +15,10 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.TenantId).IsRequired();
-        builder.Property(e => e.CashShiftId).IsRequired();
+
+        // Reserved for a future cash-register-session feature — accepted and stored, never required
+        // or validated (038-register-sale-checkout FR-007).
+        builder.Property(e => e.CashShiftId);
 
         builder.Property(e => e.UserId).HasMaxLength(450);
 
@@ -24,27 +27,28 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .HasDefaultValue(0m)
             .IsRequired();
 
-        builder.Property(e => e.TotalAmount)
-            .HasColumnType("decimal(18,2)")
-            .IsRequired();
-
         builder.Property(e => e.DiscountAmount)
             .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
             .IsRequired();
 
-        builder.Property(e => e.DiscountMode)
-            .HasConversion<int>()
-            .HasDefaultValue(DiscountMode.Amount)
-            .IsRequired();
-
-        builder.Property(e => e.AdditionalFees)
+        builder.Property(e => e.LoyaltyDiscountApplied)
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0m)
             .IsRequired();
 
-        builder.Property(e => e.Change)
+        builder.Property(e => e.PaymentDiscountApplied)
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(e => e.TaxAmount)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(e => e.TotalAmount)
+            .HasColumnType("decimal(18,2)")
             .IsRequired();
 
         builder.Property(e => e.CashbackApplied)
@@ -56,6 +60,17 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0m)
             .IsRequired();
+
+        builder.Property(e => e.CashbackRemaining)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(0m)
+            .IsRequired();
+
+        builder.Property(e => e.FulfillmentMode)
+            .HasConversion<int>()
+            .IsRequired();
+
+        builder.Property(e => e.BranchId).HasMaxLength(100);
 
         builder.Property(e => e.SoldAt).IsRequired();
         builder.Property(e => e.SyncedAt).IsRequired();
@@ -74,14 +89,22 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
         builder.Property(e => e.UpdatedAt).IsRequired();
         builder.Property(e => e.UpdatedBy).HasMaxLength(450).IsRequired();
 
+        // Customer snapshot — frozen at sale time, deliberately excludes document/phone. Nullable:
+        // absent on guest sales.
+        builder.OwnsOne(e => e.CustomerSnapshot, snapshot =>
+        {
+            snapshot.Property(s => s.Name).HasColumnName("CustomerName").HasMaxLength(150).IsRequired();
+            snapshot.Property(s => s.LoyaltyTierName).HasColumnName("CustomerLoyaltyTierName").HasMaxLength(50).IsRequired();
+        });
+
         builder.HasOne<UserEntity>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        // Nullable: null means the sale was unidentified (FR-017). A customer in use is never
-        // deleted (customers are deactivated, not erased), so Restrict is never actually exercised —
-        // it's here to make that invariant explicit rather than implicit.
+        // Nullable: null means the sale was unidentified. A customer in use is never deleted
+        // (customers are deactivated, not erased), so Restrict is never actually exercised — it's
+        // here to make that invariant explicit rather than implicit.
         builder.HasOne<Customer>()
             .WithMany()
             .HasForeignKey(e => e.CustomerId)

@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { SyncSalesRequest } from '../interfaces/sync-sales-request.interface';
 import { SyncSalesResponse } from '../interfaces/sync-sales-response.interface';
 import { PosProduct } from '../interfaces/pos-product.interface';
+import { RegisterSaleRequest } from '../interfaces/register-sale-request.interface';
+import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +17,10 @@ export class SaleService {
 
   sync(request: SyncSalesRequest): Observable<SyncSalesResponse> {
     return this.http.post<SyncSalesResponse>(`${this.apiUrl}/sync`, request);
+  }
+
+  registerSale(request: RegisterSaleRequest): Observable<RegisterSaleResponse> {
+    return this.http.post<RegisterSaleResponse>(this.apiUrl, request);
   }
 
   getProducts(categoryId?: string): Observable<PosProduct[]> {

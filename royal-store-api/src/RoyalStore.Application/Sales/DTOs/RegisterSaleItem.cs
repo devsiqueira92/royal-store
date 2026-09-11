@@ -7,5 +7,4 @@ namespace RoyalStore.Application.Sales.DTOs;
 public record RegisterSaleItem(
     Guid VariantId,
     Guid ProductId,
-    decimal Quantity,
-    decimal DiscountItem = 0m);
+    decimal Quantity);

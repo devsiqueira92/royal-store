@@ -28,6 +28,29 @@ export const syncSales = createEffect(
   },
 );
 
+export const registerSale = createEffect(
+  (actions$ = inject(Actions), saleService = inject(SaleService)) => {
+    return actions$.pipe(
+      ofType(SaleActions.registerSale),
+      switchMap(({ request }) =>
+        saleService.registerSale(request).pipe(
+          map(response => SaleActions.registerSaleSuccess({ response })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              SaleActions.registerSaleFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const loadPosProducts = createEffect(
   (actions$ = inject(Actions), saleService = inject(SaleService)) => {
     return actions$.pipe(

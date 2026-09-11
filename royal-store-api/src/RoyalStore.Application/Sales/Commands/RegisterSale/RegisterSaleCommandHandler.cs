@@ -17,8 +17,12 @@ namespace RoyalStore.Application.Sales.Commands.RegisterSale;
 public sealed class RegisterSaleCommandHandler
     : IRequestHandler<RegisterSaleCommand, Result<RegisterSaleResponse>>
 {
+    /// <summary>The catalog's fixed 2-char fiscal code for the cashback/loyalty settlement method
+    /// (037-payment-methods-catalog seeds it from <see cref="FiscalPaymentType.CashbackOrLoyalty"/>).
+    /// A payment line resolving to this code is a cashback redemption, not real tender (FR-018).</summary>
+    private static readonly string CashbackPaymentTypeCode = ((int)FiscalPaymentType.CashbackOrLoyalty).ToString("D2");
+
     private readonly ISaleRepository _saleRepository;
-    private readonly ICashShiftRepository _cashShiftRepository;
     private readonly IProductRepository _productRepository;
     private readonly IIbptTaxRepository _ibptTaxRepository;
     private readonly ICustomerRepository _customerRepository;
@@ -31,7 +35,6 @@ public sealed class RegisterSaleCommandHandler
 
     public RegisterSaleCommandHandler(
         ISaleRepository saleRepository,
-        ICashShiftRepository cashShiftRepository,
         IProductRepository productRepository,
         IIbptTaxRepository ibptTaxRepository,
         ICustomerRepository customerRepository,
@@ -43,7 +46,6 @@ public sealed class RegisterSaleCommandHandler
         IFiscalReceiptQueue fiscalQueue)
     {
         _saleRepository = saleRepository;
-        _cashShiftRepository = cashShiftRepository;
         _productRepository = productRepository;
         _ibptTaxRepository = ibptTaxRepository;
         _customerRepository = customerRepository;
@@ -56,105 +58,139 @@ public sealed class RegisterSaleCommandHandler
     }
 
     public async Task<Result<RegisterSaleResponse>> Handle(
-        RegisterSaleCommand command,
-        CancellationToken cancellationToken)
+        RegisterSaleCommand command, CancellationToken cancellationToken)
     {
         var tenantId = _tenantContext.TenantId;
 
-        // The operator is the authenticated principal. metadata.SellerId is deliberately ignored:
-        // a client-supplied attribution would be trivially forgeable.
+        // The operator is always the authenticated principal — the new request shape has no
+        // seller/operator field at all to even attempt to forge (038-register-sale-checkout FR-006).
         var userId = _currentUserService.CurrentUserId;
 
-        var totals = command.Sale;
+        var checkout = command.Checkout;
 
-        var discountMode = DiscountModeParser.Parse(totals.DiscountMode);
-        if (discountMode.IsFailure)
-            return discountMode.Error;
+        var fulfillmentModeResult = FulfillmentModeParser.Parse(checkout.Fulfillment.Mode);
+        if (fulfillmentModeResult.IsFailure)
+            return fulfillmentModeResult.Error;
 
-        var reconciliation = ValidateMonetaryConsistency(command);
-        if (reconciliation.IsFailure)
-            return reconciliation.Error;
+        var fulfillmentMode = fulfillmentModeResult.Value;
+        if (fulfillmentMode == FulfillmentMode.Pickup && string.IsNullOrWhiteSpace(checkout.Fulfillment.BranchId))
+            return Error.Validation("sale.branch_required_for_pickup",
+                "A branch is required when the fulfillment mode is pickup.");
 
-        var saleId = command.Metadata.SaleId ?? Guid.NewGuid();
-
-        if (command.Metadata.SaleId is not null)
-        {
-            var existing = await _saleRepository.GetExistingIdsAsync([saleId], cancellationToken);
-            if (existing.Contains(saleId))
-                return new RegisterSaleResponse(saleId, SyncStatus.AlreadyRegistered);
-        }
-
-        var shift = await _cashShiftRepository.GetByIdAsync(command.Metadata.CashRegisterSessionId, cancellationToken);
-        if (shift is null || shift.ClosedAt is not null)
-            return Error.Validation("sale.cash_shift_not_open",
-                "The cash register session is unknown, does not belong to this store, or is already closed.");
-
-        var soldAt = command.Metadata.SoldAt ?? DateTime.UtcNow;
-
-        // The document the terminal already sends is the only signal used to identify a customer for
-        // loyalty purposes — a checkout never creates one (that stays a manager action, FR-005). No
-        // match, or no document at all, makes this an unidentified sale (FR-017): loyalty is simply
-        // skipped, checkout is otherwise unaffected (research.md Decision 1).
+        // Customer is identified by id only — never by document (FR-008); a request with no
+        // matching customer is rejected outright (FR-017).
         Customer? customer = null;
-        if (!string.IsNullOrWhiteSpace(command.Customer?.Document))
+        if (checkout.Customer is not null)
         {
-            var normalizedDocument = DocumentValidator.Normalize(command.Customer.Document);
-            customer = await _customerRepository.GetByDocumentAsync(tenantId, normalizedDocument, cancellationToken);
+            customer = await _customerRepository.GetByIdAsync(checkout.Customer.Id, cancellationToken);
+            if (customer is null || customer.TenantId != tenantId)
+                return Error.Validation("sale.customer_not_found",
+                    $"Customer {checkout.Customer.Id} was not found.");
         }
 
-        // Redeemed before Sale.Create because CashbackApplied feeds both the sale record and the
-        // earning-base calculation below (FR-016a: cashback redeemed on a sale never earns cashback).
+        var saleId = Guid.NewGuid();
+        var soldAt = DateTime.UtcNow;
+
+        var itemsResult = await BuildItemsAsync(command.Items, tenantId, saleId, soldAt, cancellationToken);
+        if (itemsResult.IsFailure)
+            return itemsResult.Error;
+
+        var (items, subtotal, taxAmount) = itemsResult.Value;
+
+        if (Math.Abs(subtotal - checkout.Totals.Subtotal) > Sale.ReconciliationTolerance)
+            return Error.Validation("sale.subtotal_does_not_match_items",
+                "The sum of the sale lines does not match the stated subtotal.");
+
+        // The one genuine client input among the totals: a manual, cashier-entered discount with no
+        // other source (research.md Decision 8). Everything downstream is computed server-side.
+        var saleDiscount = checkout.Totals.SaleDiscount;
+        var baseAmount = Math.Max(subtotal - saleDiscount, 0m);
+
+        var loyaltyDiscount = customer?.LoyaltyTier is not null
+            ? Math.Round(baseAmount * customer.LoyaltyTier.CashbackPercentage / 100m, 2)
+            : 0m;
+
+        var paymentsResult = await ResolvePaymentsAsync(checkout.Payments, tenantId, cancellationToken);
+        if (paymentsResult.IsFailure)
+            return paymentsResult.Error;
+
+        var resolvedPayments = paymentsResult.Value;
+        var cashbackLines = resolvedPayments.Where(p => p.IsCashback).ToList();
+        var tenderLines = resolvedPayments.Where(p => !p.IsCashback).ToList();
+
+        if (cashbackLines.Count > 0 && !checkout.UseCashback)
+            return Error.Validation("sale.cashback_not_requested",
+                "A cashback settlement line was submitted, but cashback redemption was not requested.");
+
+        if (cashbackLines.Count > 1)
+            return Error.Validation("sale.multiple_cashback_lines",
+                "A sale can carry at most one cashback settlement line.");
+
+        var tenderAmountSum = tenderLines.Sum(p => p.Line.Amount);
+        var paymentDiscount = tenderAmountSum > 0
+            ? tenderLines.Sum(p => Math.Round(baseAmount * (p.Line.Amount / tenderAmountSum) * (p.CatalogPayment.Discount / 100m), 2))
+            : 0m;
+
+        var amountDue = Math.Max(baseAmount - loyaltyDiscount - paymentDiscount + taxAmount, 0m);
+
+        // Redeemed before Sale.Create because CashbackApplied feeds the earning-base calculation
+        // below (a sale never earns cashback on the amount it just redeemed) and CashbackRemaining
+        // (data-model.md §Sale) — matches the existing pattern from 036/037.
         var cashbackApplied = 0m;
-        if (customer is not null && totals.CashbackRequested > 0)
+        // Read before redeeming: RedeemAsync's changes are only tracked in-memory until
+        // SaveChangesAsync runs later, so a query issued *after* it would still see the
+        // pre-redemption balance from the database. Computing the post-redemption figure
+        // arithmetically avoids that staleness entirely.
+        var cashbackBalanceBeforeRedemption = customer is not null
+            ? await _cashbackLedger.GetUsableBalanceAsync(tenantId, customer.Id, cancellationToken)
+            : 0m;
+
+        if (customer is not null && checkout.UseCashback && cashbackLines.Count == 1)
         {
+            var requested = cashbackLines[0].Line.Amount;
             var redeemResult = await _cashbackLedger.RedeemAsync(
-                tenantId, customer.Id, totals.CashbackRequested, saleId, cancellationToken);
+                tenantId, customer.Id, Math.Min(requested, amountDue), saleId, cancellationToken);
             if (redeemResult.IsFailure)
                 return redeemResult.Error;
 
             cashbackApplied = redeemResult.Value;
         }
 
-        // The catalog discount (037-payment-methods-catalog) only has one unambiguous meaning when a
-        // single payment method covers the whole sale — split settlement is unaffected, matching the
-        // reference checkout UX and avoiding an arbitrary proration rule (037 research.md Decision 6).
-        // Computed here, before Sale.Create, so it can feed the same reconciliation check every other
-        // total already goes through — never trusted from the client (Decision 7).
-        var paymentDiscountApplied = 0m;
-        if (command.Payments.Count == 1 && command.Payments[0].PaymentId is Guid singlePaymentId)
-        {
-            var selectedPayment = await _paymentRepository.GetByIdAsync(singlePaymentId, cancellationToken);
-            if (selectedPayment is null || selectedPayment.TenantId != tenantId)
-                return Error.Validation("sale.payment_method_invalid",
-                    $"Payment method {singlePaymentId} was not found or does not belong to this store.");
+        var cashbackRemaining = cashbackBalanceBeforeRedemption - cashbackApplied;
 
-            if (!selectedPayment.Active)
-                return Error.Validation("sale.payment_method_inactive",
-                    $"Payment method '{selectedPayment.PaymentMethod}' is no longer active.");
+        var totalAmount = amountDue - cashbackApplied;
 
-            var preDiscountTotal = totals.Subtotal - totals.Discount + totals.AdditionalFees;
-            paymentDiscountApplied = Math.Round(preDiscountTotal * selectedPayment.Discount / 100m, 2);
-        }
+        if (Math.Abs(tenderAmountSum - totalAmount) > Sale.ReconciliationTolerance)
+            return Error.Validation("sale.payments_do_not_settle_total",
+                "Payment amounts must equal the sale total.");
 
-        var saleResult = Sale.Create(saleId, tenantId, shift.Id, userId, customer?.Id,
-            totals.Subtotal, totals.Discount, discountMode.Value, totals.AdditionalFees,
-            totals.Total, totals.Change, cashbackApplied, paymentDiscountApplied, soldAt, DateTime.UtcNow);
+        SaleCustomerSnapshot? customerSnapshot = customer is null
+            ? null
+            : new SaleCustomerSnapshot(customer.Name, customer.LoyaltyTier?.Name ?? string.Empty);
+
+        var saleResult = Sale.Create(saleId, tenantId, checkout.CashRegisterSessionId, userId, customer?.Id,
+            subtotal, saleDiscount, loyaltyDiscount, paymentDiscount, taxAmount, totalAmount,
+            cashbackApplied, cashbackRemaining, fulfillmentMode, checkout.Fulfillment.BranchId,
+            customerSnapshot, soldAt, DateTime.UtcNow);
 
         if (saleResult.IsFailure)
             return saleResult.Error;
 
         var sale = saleResult.Value;
 
-        var itemsResult = await BuildItemsAsync(command, tenantId, sale, cancellationToken);
-        if (itemsResult.IsFailure)
-            return itemsResult.Error;
+        foreach (var item in items)
+        {
+            var added = sale.AddItem(item);
+            if (added.IsFailure)
+                return added.Error;
+        }
 
-        var paymentsResult = BuildPayments(command, tenantId, sale);
-        if (paymentsResult.IsFailure)
-            return paymentsResult.Error;
+        var buildPaymentsResult = BuildPayments(resolvedPayments, tenantId, sale, cashbackApplied);
+        if (buildPaymentsResult.IsFailure)
+            return buildPaymentsResult.Error;
 
         // Earned after items/payments validate cleanly, so a sale that turns out to be invalid never
-        // reaches the ledger (FR-016). The earning base excludes AdditionalFees entirely (FR-016a).
+        // reaches the ledger. The earning base excludes cashback just redeemed on this same sale.
         var cashbackEarned = 0m;
         if (customer is not null)
         {
@@ -177,27 +213,24 @@ public sealed class RegisterSaleCommandHandler
         }
         catch (DbUpdateConcurrencyException)
         {
-            // Another terminal consumed the same cashback entry first (research.md Decision 5). The
-            // whole sale rolls back with it — nothing here is partially applied — so the caller can
-            // safely resubmit the same checkout after refetching the customer's balance.
+            // Another terminal consumed the same cashback entry first. The whole sale rolls back with
+            // it — nothing here is partially applied — so the caller can safely resubmit the same
+            // checkout after refetching the customer's balance (research.md Decision 11).
             return Error.Validation("sale.cashback_conflict",
                 "This customer's cashback balance changed concurrently. Refresh their balance and retry.");
-        }
-        catch (DbUpdateException)
-        {
-            // A concurrent submission of the same idempotency key won the race.
-            return new RegisterSaleResponse(saleId, SyncStatus.AlreadyRegistered);
         }
 
         await _fiscalQueue.QueueSaleAsync(sale.Id, cancellationToken);
 
-        return new RegisterSaleResponse(sale.Id, SyncStatus.Created, cashbackApplied, cashbackEarned, paymentDiscountApplied);
+        return new RegisterSaleResponse(sale.Id, SyncStatus.Created, cashbackApplied, cashbackEarned,
+            paymentDiscount, loyaltyDiscount, taxAmount, totalAmount);
     }
 
-    private async Task<Result> BuildItemsAsync(
-        RegisterSaleCommand command, Guid tenantId, Sale sale, CancellationToken cancellationToken)
+    private async Task<Result<(List<SaleItem> Items, decimal Subtotal, decimal TaxAmount)>> BuildItemsAsync(
+        IReadOnlyList<RegisterSaleItem> requestItems, Guid tenantId, Guid saleId, DateTime soldAt,
+        CancellationToken cancellationToken)
     {
-        var variantIds = command.Items.Select(i => i.VariantId).ToList();
+        var variantIds = requestItems.Select(i => i.VariantId).ToList();
         var products = await _productRepository.GetForCheckoutAsync(variantIds, cancellationToken);
 
         var variantIndex = products
@@ -212,64 +245,101 @@ public sealed class RegisterSaleCommandHandler
             .ToList();
 
         var ibptByCode = await _ibptTaxRepository.GetCurrentByCodesAsync(
-            ncmCodes, DateOnly.FromDateTime(sale.SoldAt), cancellationToken);
+            ncmCodes, DateOnly.FromDateTime(soldAt), cancellationToken);
 
-        var lineTotal = 0m;
+        var items = new List<SaleItem>();
+        var subtotal = 0m;
+        var taxAmount = 0m;
 
-        foreach (var line in command.Items)
+        foreach (var line in requestItems)
         {
             if (!variantIndex.TryGetValue(line.VariantId, out var pair))
-                return Result.Failure(Error.Validation("sale.variant_not_found",
-                    $"Variant {line.VariantId} was not found, is inactive, or does not belong to this store."));
+                return Error.Validation("sale.variant_not_found",
+                    $"Variant {line.VariantId} was not found, is inactive, or does not belong to this store.");
 
             var (product, variant) = pair;
 
             if (product.Id != line.ProductId)
-                return Result.Failure(Error.Validation("sale.variant_product_mismatch",
-                    $"Variant {line.VariantId} does not belong to product {line.ProductId}."));
+                return Error.Validation("sale.variant_product_mismatch",
+                    $"Variant {line.VariantId} does not belong to product {line.ProductId}.");
 
             var ibptTax = ResolveTax(product, ibptByCode);
 
-            var itemResult = SaleItemEnricher.Enrich(line, tenantId, sale.Id, product, variant, ibptTax);
+            var itemResult = SaleItemEnricher.Enrich(line, tenantId, saleId, product, variant, ibptTax);
             if (itemResult.IsFailure)
-                return Result.Failure(itemResult.Error);
+                return itemResult.Error;
 
-            var added = sale.AddItem(itemResult.Value);
-            if (added.IsFailure)
-                return added;
-
-            lineTotal += itemResult.Value.TotalPrice;
+            items.Add(itemResult.Value);
+            subtotal += itemResult.Value.TotalPrice;
+            taxAmount += ItemTaxAmount(itemResult.Value);
         }
 
-        if (Math.Abs(lineTotal - sale.Subtotal) > Sale.ReconciliationTolerance)
-            return Result.Failure(Error.Validation("sale.subtotal_does_not_match_items",
-                "The sum of the sale lines does not match the stated subtotal."));
+        return (items, subtotal, taxAmount);
+    }
 
-        return Result.Success();
+    /// <summary>Per-item tax-burden amount: the federal share (national or imported, by origin) plus
+    /// state and municipal rates, applied to the line's total — an exact port of the checkout
+    /// frontend's own <c>lineItemTaxRate</c> formula (research.md Decision 8), so a receipt computed
+    /// by either side agrees.</summary>
+    private static decimal ItemTaxAmount(SaleItem item)
+    {
+        var isNational = item.Fiscal.Origin == "0";
+        var federalRate = isNational ? item.TaxRates.NationalRate : item.TaxRates.ImportedFederalRate;
+        var rate = (federalRate ?? 0m) + (item.TaxRates.StateRate ?? 0m) + (item.TaxRates.MunicipalRate ?? 0m);
+        return Math.Round(item.TotalPrice * rate / 100m, 2);
     }
 
     private static IbptTax? ResolveTax(Product product, IReadOnlyDictionary<string, IbptTax> ibptByCode) =>
         product.Ncm is not null && ibptByCode.TryGetValue(product.Ncm, out var tax) ? tax : null;
 
-    private static Result BuildPayments(RegisterSaleCommand command, Guid tenantId, Sale sale)
+    private sealed record ResolvedPayment(
+        RegisterSalePayment Line, Payment CatalogPayment, FiscalPaymentType FiscalType, bool IsCashback);
+
+    private async Task<Result<List<ResolvedPayment>>> ResolvePaymentsAsync(
+        IReadOnlyList<RegisterSalePayment> payments, Guid tenantId, CancellationToken cancellationToken)
     {
-        foreach (var payment in command.Payments)
+        var resolved = new List<ResolvedPayment>();
+
+        foreach (var line in payments)
         {
-            var method = PaymentMethodMapper.Map(payment.Method, payment.Type);
-            if (method.IsFailure)
-                return Result.Failure(method.Error);
+            var catalogPayment = await _paymentRepository.GetByIdAsync(line.MethodId, cancellationToken);
+            if (catalogPayment is null || catalogPayment.TenantId != tenantId)
+                return Error.Validation("sale.payment_method_invalid",
+                    $"Payment method {line.MethodId} was not found or does not belong to this store.");
 
-            var card = new PaymentCardDetails(
-                payment.Type?.Trim(),
-                payment.Brand?.Trim(),
-                payment.Installments,
-                payment.AuthCode?.Trim(),
-                payment.Nsu?.Trim());
+            if (!catalogPayment.Active)
+                return Error.Validation("sale.payment_method_invalid",
+                    $"Payment method '{catalogPayment.PaymentMethod}' is no longer active.");
 
-            // PaymentId is attributed on every line that carries one, split or not — only whether the
-            // *discount* was computed is scoped to the single-payment-method case (see Handle above).
+            if (!Enum.IsDefined(typeof(FiscalPaymentType), line.FiscalType))
+                return Error.Validation("sale.fiscal_type_invalid",
+                    $"Fiscal payment type {line.FiscalType} is not recognised.");
+
+            var fiscalType = (FiscalPaymentType)line.FiscalType;
+            var isCashback = catalogPayment.PaymentType == CashbackPaymentTypeCode;
+
+            resolved.Add(new ResolvedPayment(line, catalogPayment, fiscalType, isCashback));
+        }
+
+        return resolved;
+    }
+
+    private static Result BuildPayments(
+        List<ResolvedPayment> resolvedPayments, Guid tenantId, Sale sale, decimal cashbackApplied)
+    {
+        foreach (var resolved in resolvedPayments)
+        {
+            // The cashback line's persisted amount is what the ledger actually redeemed — the
+            // client-submitted amount for that line is never trusted (FR-018).
+            var amount = resolved.IsCashback ? cashbackApplied : resolved.Line.Amount;
+
+            var cardDto = resolved.Line.Card;
+            var card = cardDto is null
+                ? PaymentCardDetails.Empty
+                : new PaymentCardDetails(cardDto.Flag, cardDto.Type, cardDto.Installments);
+
             var paymentResult = SalePayment.Create(
-                Guid.NewGuid(), tenantId, sale.Id, method.Value, payment.Amount, card, payment.PaymentId);
+                Guid.NewGuid(), tenantId, sale.Id, resolved.FiscalType, amount, resolved.CatalogPayment.Id, card);
 
             if (paymentResult.IsFailure)
                 return Result.Failure(paymentResult.Error);
@@ -277,32 +347,6 @@ public sealed class RegisterSaleCommandHandler
             var added = sale.AddPayment(paymentResult.Value);
             if (added.IsFailure)
                 return added;
-        }
-
-        return Result.Success();
-    }
-
-    /// <summary>
-    /// The terminal's own figures must be internally consistent before anything is stored. A one-cent
-    /// tolerance absorbs the rounding a percentage discount produces per line.
-    /// </summary>
-    private static Result ValidateMonetaryConsistency(RegisterSaleCommand command)
-    {
-        var totals = command.Sale;
-
-        var settled = command.Payments.Sum(p => p.Amount) - totals.Change;
-        if (Math.Abs(settled - totals.Total) > Sale.ReconciliationTolerance)
-            return Result.Failure(Error.Validation("sale.payments_do_not_settle_total",
-                "Payment amounts less change must equal the sale total."));
-
-        if (totals.Change > 0)
-        {
-            var hasCash = command.Payments.Any(p =>
-                PaymentMethodMapper.Map(p.Method, p.Type) is { IsSuccess: true, Value: PaymentMethod.Money });
-
-            if (!hasCash)
-                return Result.Failure(Error.Validation("sale.change_without_cash_payment",
-                    "Change can only be returned on a sale settled at least partly in cash."));
         }
 
         return Result.Success();

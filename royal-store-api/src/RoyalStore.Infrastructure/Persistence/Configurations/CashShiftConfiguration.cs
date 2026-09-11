@@ -39,11 +39,10 @@ public sealed class CashShiftConfiguration : IEntityTypeConfiguration<CashShift>
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasMany(e => e.Sales)
-            .WithOne()
-            .HasForeignKey(s => s.CashShiftId)
-            .OnDelete(DeleteBehavior.Cascade);
-
+        // No relationship to Sale is configured here (or on Sale's own configuration): a sale's
+        // CashShiftId is reserved for a future cash-register-session feature and is neither required
+        // nor validated against a real CashShift (038-register-sale-checkout FR-007) — an enforced
+        // FK would contradict that by rejecting exactly the unvalidated values the feature calls for.
         builder.HasMany(e => e.Movements)
             .WithOne()
             .HasForeignKey(m => m.CashShiftId)

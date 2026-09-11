@@ -65,7 +65,8 @@ public static class SaleItemEnricher
             productCode: variant.Barcode ?? product.Sku,
             quantity: line.Quantity,
             unitPrice: variant.EffectivePrice(product),
-            discountItem: line.DiscountItem,
+            costPrice: variant.Price ?? product.BasePrice,
+            discountItem: 0m,
             catalog: catalog,
             fiscal: fiscal,
             taxRates: taxRates);

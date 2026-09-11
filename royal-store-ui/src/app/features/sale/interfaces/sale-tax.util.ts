@@ -8,7 +8,7 @@ import { SaleLineItem } from './sale-line-item.interface';
  */
 export function lineItemTaxRate(item: SaleLineItem): number {
   const federal =
-    item.origin === 0
+    item.origin === '0'
       ? (item.nationalRate ?? 0)
       : (item.importedFederalRate ?? 0);
 

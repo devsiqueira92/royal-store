@@ -17,7 +17,9 @@ public sealed class CustomerRepository : ICustomerRepository
         await _context.Customers.AddAsync(customer, ct);
 
     public async Task<Customer?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
-        await _context.Customers.FirstOrDefaultAsync(c => c.Id == id, ct);
+        await _context.Customers
+            .Include(c => c.LoyaltyTier)
+            .FirstOrDefaultAsync(c => c.Id == id, ct);
 
     public async Task<Customer?> GetByDocumentAsync(Guid tenantId, string normalizedDocument, CancellationToken ct = default) =>
         await _context.Customers.FirstOrDefaultAsync(

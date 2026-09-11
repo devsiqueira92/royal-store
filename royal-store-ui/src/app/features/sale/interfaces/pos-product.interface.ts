@@ -14,7 +14,8 @@ export interface PosProduct {
   soldOut: boolean;
 
   // Fiscal / IBPT tax data
-  origin: number;
+  /** NFe origin code as the catalog stores it — a string ("0" = national), never a number. */
+  origin: string;
   nationalRate?: number | null;
   federalRate?: number | null;
   importedFederalRate?: number | null;

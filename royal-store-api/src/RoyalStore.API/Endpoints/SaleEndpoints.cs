@@ -14,7 +14,7 @@ public sealed class SaleEndpoints : IEndpointDefinition
     public void RegisterEndpoints(WebApplication app)
     {
         var routes = app.MapGroup("api/sales").WithTags("Sales");
-        routes.MapPost("", RegisterSale).RequireAuthorization(PolicyNames.Seller);
+        routes.MapPost("", RegisterSale).RequireAuthorization(PolicyNames.Admin);
         routes.MapGet("products", GetProducts).RequireAuthorization(PolicyNames.Admin);
 
         routes.MapPost("{id:guid}/cashback/reversal", ReverseCashback)

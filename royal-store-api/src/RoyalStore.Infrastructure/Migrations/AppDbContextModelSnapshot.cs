@@ -1317,12 +1317,11 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("AdditionalFees")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
+                    b.Property<string>("BranchId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("CashShiftId")
+                    b.Property<Guid?>("CashShiftId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("CashbackApplied")
@@ -1335,7 +1334,7 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
 
-                    b.Property<decimal>("Change")
+                    b.Property<decimal>("CashbackRemaining")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
@@ -1352,12 +1351,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("DiscountAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("DiscountMode")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("ExternalInvoiceId")
                         .HasColumnType("nvarchar(max)");
@@ -1370,8 +1366,18 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<int>("FulfillmentMode")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LoyaltyDiscountApplied")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
                     b.Property<decimal>("PaymentDiscountApplied")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("ReceiptPrintUrl")
                         .HasColumnType("nvarchar(max)");
@@ -1386,6 +1392,11 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TaxAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
@@ -1423,6 +1434,11 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("CostPrice")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<decimal>("DiscountItem")
                         .ValueGeneratedOnAdd()
@@ -1481,10 +1497,10 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Method")
+                    b.Property<int>("FiscalType")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("PaymentId")
+                    b.Property<Guid>("PaymentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("SaleId")
@@ -1800,11 +1816,13 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Customers.Customer", b =>
                 {
-                    b.HasOne("RoyalStore.Domain.Loyalty.LoyaltyTier", null)
+                    b.HasOne("RoyalStore.Domain.Loyalty.LoyaltyTier", "LoyaltyTier")
                         .WithMany()
                         .HasForeignKey("LoyaltyTierId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("LoyaltyTier");
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Loyalty.CashbackRedemption", b =>
@@ -1849,12 +1867,6 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.Sale", b =>
                 {
-                    b.HasOne("RoyalStore.Domain.Sales.CashShift", null)
-                        .WithMany("Sales")
-                        .HasForeignKey("CashShiftId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("RoyalStore.Domain.Customers.Customer", null)
                         .WithMany()
                         .HasForeignKey("CustomerId")
@@ -1864,6 +1876,33 @@ namespace RoyalStore.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.OwnsOne("RoyalStore.Domain.Sales.SaleCustomerSnapshot", "CustomerSnapshot", b1 =>
+                        {
+                            b1.Property<Guid>("SaleId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("LoyaltyTierName")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("nvarchar(50)")
+                                .HasColumnName("CustomerLoyaltyTierName");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(150)
+                                .HasColumnType("nvarchar(150)")
+                                .HasColumnName("CustomerName");
+
+                            b1.HasKey("SaleId");
+
+                            b1.ToTable("Sales");
+
+                            b1.WithOwner()
+                                .HasForeignKey("SaleId");
+                        });
+
+                    b.Navigation("CustomerSnapshot");
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.SaleItem", b =>
@@ -2044,7 +2083,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasOne("RoyalStore.Domain.Payments.Payment", null)
                         .WithMany()
                         .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("RoyalStore.Domain.Sales.Sale", null)
                         .WithMany("Payments")
@@ -2057,24 +2097,14 @@ namespace RoyalStore.Infrastructure.Migrations
                             b1.Property<Guid>("SalePaymentId")
                                 .HasColumnType("uniqueidentifier");
 
-                            b1.Property<string>("AuthCode")
-                                .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
-                                .HasColumnName("AuthCode");
-
-                            b1.Property<string>("Brand")
+                            b1.Property<string>("Flag")
                                 .HasMaxLength(30)
                                 .HasColumnType("nvarchar(30)")
-                                .HasColumnName("CardBrand");
+                                .HasColumnName("CardFlag");
 
                             b1.Property<int?>("Installments")
                                 .HasColumnType("int")
                                 .HasColumnName("Installments");
-
-                            b1.Property<string>("Nsu")
-                                .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
-                                .HasColumnName("Nsu");
 
                             b1.Property<string>("Type")
                                 .HasMaxLength(20)
@@ -2121,8 +2151,6 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashShift", b =>
                 {
                     b.Navigation("Movements");
-
-                    b.Navigation("Sales");
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Sales.Sale", b =>

@@ -10,7 +10,8 @@ export interface SaleLineItem {
   coverPhotoUrl?: string;
 
   // Fiscal / IBPT tax data carried from the catalog
-  origin: number;
+  /** NFe origin code as the catalog stores it — a string ("0" = national), never a number. */
+  origin: string;
   nationalRate?: number | null;
   federalRate?: number | null;
   importedFederalRate?: number | null;

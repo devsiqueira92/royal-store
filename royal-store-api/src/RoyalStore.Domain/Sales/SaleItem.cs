@@ -14,6 +14,7 @@ public sealed class SaleItem : Entity
     public string? ProductCode { get; private set; }
     public decimal Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
+    public decimal CostPrice { get; private set; }
     public decimal DiscountItem { get; private set; }
 
     /// <summary>Quantity x unit price, less the line discount. Always computed, never supplied.</summary>
@@ -26,7 +27,7 @@ public sealed class SaleItem : Entity
     private SaleItem() : base(Guid.NewGuid()) { }
 
     private SaleItem(Guid id, Guid tenantId, Guid saleId, Guid productId, Guid variantId,
-        string productName, string? productCode, decimal quantity, decimal unitPrice,
+        string productName, string? productCode, decimal quantity, decimal unitPrice, decimal costPrice,
         decimal discountItem, decimal totalPrice,
         SaleItemCatalogSnapshot catalog, SaleItemFiscalSnapshot fiscal, SaleItemTaxRates taxRates)
         : base(id)
@@ -39,6 +40,7 @@ public sealed class SaleItem : Entity
         ProductCode = productCode;
         Quantity = quantity;
         UnitPrice = unitPrice;
+        CostPrice = costPrice;
         DiscountItem = discountItem;
         TotalPrice = totalPrice;
         Catalog = catalog;
@@ -48,7 +50,8 @@ public sealed class SaleItem : Entity
 
     public static Result<SaleItem> Create(
         Guid id, Guid tenantId, Guid saleId, Guid productId, Guid variantId, ItemType itemType,
-        string productName, string? productCode, decimal quantity, decimal unitPrice, decimal discountItem,
+        string productName, string? productCode, decimal quantity, decimal unitPrice, decimal costPrice,
+        decimal discountItem,
         SaleItemCatalogSnapshot catalog, SaleItemFiscalSnapshot fiscal, SaleItemTaxRates taxRates)
     {
         if (id == Guid.Empty)
@@ -71,6 +74,9 @@ public sealed class SaleItem : Entity
 
         if (unitPrice < 0)
             return Error.Validation("saleitem.unit_price_negative", "Unit price cannot be negative.");
+
+        if (costPrice < 0)
+            return Error.Validation("saleitem.cost_price_negative", "Cost price cannot be negative.");
 
         if (discountItem < 0)
             return Error.Validation("saleitem.discount_negative", "Item discount cannot be negative.");
@@ -104,7 +110,7 @@ public sealed class SaleItem : Entity
             return ratesResult.Error;
 
         return new SaleItem(id, tenantId, saleId, productId, variantId, productName, productCode,
-            quantity, unitPrice, discountItem, grossPrice - discountItem, catalog, fiscal, taxRates);
+            quantity, unitPrice, costPrice, discountItem, grossPrice - discountItem, catalog, fiscal, taxRates);
     }
 
     private static Result ValidateCatalog(SaleItemCatalogSnapshot catalog)

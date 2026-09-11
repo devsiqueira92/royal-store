@@ -33,7 +33,7 @@ import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
 import { Customer } from '../../interfaces/customer.interface';
 import { PaymentEntry, PaymentState } from '../../interfaces/payment.interface';
 import {
-  isCashbackMethod,
+  CASHBACK_FISCAL_TYPE,
   resolveFiscalType,
 } from '../../interfaces/payment-method-option.const';
 import { StoreBranchService } from '../../services/store-branch.service';
@@ -288,12 +288,19 @@ export class CheckoutDialogComponent implements OnInit {
     const { methodId, fiscalType, discountRate, card } = payment.details;
 
     const payments: PaymentEntry[] = [
-      { methodId: methodId ?? '', fiscalType, amount: totals.total, discountRate, card },
+      {
+        methodId: methodId ?? '',
+        fiscalType,
+        amount: totals.total,
+        discountRate,
+        card,
+      },
     ];
 
     if (totals.cashbackApplied > 0) {
-      const cashbackMethod = this.methods().find(method =>
-        isCashbackMethod(method.paymentMethod),
+      const cashbackMethod = this.methods().find(
+        method =>
+          resolveFiscalType(method.paymentType) === CASHBACK_FISCAL_TYPE,
       );
 
       if (cashbackMethod) {

@@ -5,7 +5,6 @@ namespace RoyalStore.Domain.Sales;
 
 public sealed class CashShift : Entity, IAuditableEntity
 {
-    private readonly List<Sale> _sales = [];
     private readonly List<CashMovement> _movements = [];
 
     public Guid TenantId { get; private set; }
@@ -16,7 +15,6 @@ public sealed class CashShift : Entity, IAuditableEntity
     public decimal? ExpectedEndingCash { get; private set; }
     public decimal? ActualEndingCash { get; private set; }
 
-    public IReadOnlyList<Sale> Sales => _sales.AsReadOnly();
     public IReadOnlyList<CashMovement> Movements => _movements.AsReadOnly();
 
     public DateTimeOffset CreatedAt { get; set; }

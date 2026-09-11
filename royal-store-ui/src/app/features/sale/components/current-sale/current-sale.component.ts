@@ -76,13 +76,7 @@ export class CurrentSaleComponent {
       const lineSubtotal = item.unitPrice * item.quantity;
       const lineNet = lineSubtotal - discount * (lineSubtotal / subtotal);
 
-      const federalRate =
-        item.origin === 0 ? item.nationalRate : item.importedFederalRate;
-
-      const itemTotalRate =
-        federalRate! + item.stateRate! + item.municipalRate!;
-
-      const lineTax = (lineNet * itemTotalRate) / 100;
+      const lineTax = (lineNet * lineItemTaxRate(item)) / 100;
       return total + Math.round(lineTax * 100) / 100;
     }, 0);
 

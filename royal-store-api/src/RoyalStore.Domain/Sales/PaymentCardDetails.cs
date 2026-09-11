@@ -1,15 +1,13 @@
 namespace RoyalStore.Domain.Sales;
 
 /// <summary>
-/// Acquirer detail for a card settlement. Every field is optional so that cash and instant-transfer
-/// payments can be recorded without them.
+/// Card detail for a card settlement. Every field is optional so that cash, Pix and cashback
+/// settlements can be recorded without them.
 /// </summary>
 public sealed record PaymentCardDetails(
+    string? Flag,
     string? Type,
-    string? Brand,
-    int? Installments,
-    string? AuthCode,
-    string? Nsu)
+    int? Installments)
 {
-    public static readonly PaymentCardDetails Empty = new(null, null, null, null, null);
+    public static readonly PaymentCardDetails Empty = new(null, null, null);
 }

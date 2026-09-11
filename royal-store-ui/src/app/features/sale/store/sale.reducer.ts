@@ -1,6 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { SyncSalesResponse } from '../interfaces/sync-sales-response.interface';
 import { PosProduct } from '../interfaces/pos-product.interface';
+import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
 import { SaleActions } from './sale.actions';
 
 export interface SaleState {
@@ -8,6 +9,8 @@ export interface SaleState {
   lastSyncResult: SyncSalesResponse | null;
   posProducts: PosProduct[];
   isLoadingProducts: boolean;
+  isRegisteringSale: boolean;
+  lastRegisterSaleResult: RegisterSaleResponse | null;
   error: string | null;
 }
 
@@ -16,6 +19,8 @@ export const initialSaleState: SaleState = {
   lastSyncResult: null,
   posProducts: [],
   isLoadingProducts: false,
+  isRegisteringSale: false,
+  lastRegisterSaleResult: null,
   error: null,
 };
 
@@ -56,6 +61,25 @@ export const saleFeature = createFeature({
       ...state,
       isLoadingProducts: false,
       error,
+    })),
+    on(SaleActions.registerSale, (state): SaleState => ({
+      ...state,
+      isRegisteringSale: true,
+      error: null,
+    })),
+    on(SaleActions.registerSaleSuccess, (state, { response }): SaleState => ({
+      ...state,
+      isRegisteringSale: false,
+      lastRegisterSaleResult: response,
+    })),
+    on(SaleActions.registerSaleFailure, (state, { error }): SaleState => ({
+      ...state,
+      isRegisteringSale: false,
+      error,
+    })),
+    on(SaleActions.clearRegisterSaleResult, (state): SaleState => ({
+      ...state,
+      lastRegisterSaleResult: null,
     })),
   ),
 });

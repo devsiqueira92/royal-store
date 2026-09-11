@@ -1,14 +1,19 @@
 namespace RoyalStore.Application.Sales.DTOs;
 
-/// <summary>The money figures exactly as the terminal presented them to the customer.</summary>
+/// <summary>The checkout screen's own totals breakdown. Of all these figures, only
+/// <see cref="SaleDiscount"/> is a genuine input to the server's own calculation (a manual,
+/// cashier-entered discount with no other source); <see cref="Subtotal"/> is cross-checked against
+/// the server-priced item lines. Every other field is informational only — received so the contract
+/// matches the wire payload exactly, never trusted as submitted (research.md Decision 8).</summary>
 public record RegisterSaleTotals(
     decimal Subtotal,
-    decimal Discount,
-    string? DiscountMode,
-    decimal AdditionalFees,
-    decimal Total,
-    decimal Change,
-    /// <summary>How much of the customer's cashback balance to apply (FR-023). A request, not an
-    /// instruction: the server clamps this to what is actually usable and to the amount due
-    /// (FR-027) — see <c>RegisterSaleResponse.CashbackApplied</c> for what was actually applied.</summary>
-    decimal CashbackRequested = 0m);
+    decimal SaleDiscount,
+    decimal Base,
+    decimal LoyaltyRate,
+    decimal LoyaltyDiscount,
+    decimal PaymentRate,
+    decimal PaymentDiscount,
+    decimal CashbackApplied,
+    decimal DiscountTotal,
+    decimal Tax,
+    decimal Total);

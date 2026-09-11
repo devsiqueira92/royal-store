@@ -2,6 +2,8 @@ import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { SyncSalesRequest } from '../interfaces/sync-sales-request.interface';
 import { SyncSalesResponse } from '../interfaces/sync-sales-response.interface';
 import { PosProduct } from '../interfaces/pos-product.interface';
+import { RegisterSaleRequest } from '../interfaces/register-sale-request.interface';
+import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
 
 export const SaleActions = createActionGroup({
   source: 'Sale',
@@ -13,5 +15,9 @@ export const SaleActions = createActionGroup({
     'Load Pos Products': props<{ categoryId?: string }>(),
     'Load Pos Products Success': props<{ products: PosProduct[] }>(),
     'Load Pos Products Failure': props<{ error: string }>(),
+    'Register Sale': props<{ request: RegisterSaleRequest }>(),
+    'Register Sale Success': props<{ response: RegisterSaleResponse }>(),
+    'Register Sale Failure': props<{ error: string }>(),
+    'Clear Register Sale Result': emptyProps(),
   },
 });
