@@ -31,9 +31,14 @@ import {
 } from '../../interfaces/checkout.interface';
 import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
 import { Customer } from '../../interfaces/customer.interface';
-import { PaymentState } from '../../interfaces/payment.interface';
+import { PaymentEntry, PaymentState } from '../../interfaces/payment.interface';
+import {
+  isCashbackMethod,
+  resolveFiscalType,
+} from '../../interfaces/payment-method-option.const';
 import { StoreBranchService } from '../../services/store-branch.service';
 import { CustomerFacade } from '@app/features/customer/facade/customer.facade';
+import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
 import {
   CheckoutStep,
   CheckoutStepsComponent,
@@ -100,6 +105,7 @@ export class CheckoutDialogComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly customerFacade = inject(CustomerFacade);
   private readonly branchService = inject(StoreBranchService);
+  private readonly paymentMethodFacade = inject(PaymentMethodFacade);
 
   subtotal = input<number>(0);
   saleDiscount = input<number>(0);
@@ -112,6 +118,12 @@ export class CheckoutDialogComponent implements OnInit {
   protected readonly step = signal(1);
   protected readonly open = signal(true);
   protected readonly payment = signal<PaymentState | null>(null);
+
+  /** Looked up only to attach a cashback line to the charge payload when it's redeemed. */
+  protected readonly methods = toSignal(
+    this.paymentMethodFacade.activePaymentMethods$,
+    { initialValue: [] },
+  );
 
   protected readonly search = this.fb.control('');
 
@@ -272,12 +284,35 @@ export class CheckoutDialogComponent implements OnInit {
       return;
     }
 
+    const totals = this.totals();
+    const { methodId, fiscalType, discountRate, card } = payment.details;
+
+    const payments: PaymentEntry[] = [
+      { methodId: methodId ?? '', fiscalType, amount: totals.total, discountRate, card },
+    ];
+
+    if (totals.cashbackApplied > 0) {
+      const cashbackMethod = this.methods().find(method =>
+        isCashbackMethod(method.paymentMethod),
+      );
+
+      if (cashbackMethod) {
+        payments.push({
+          methodId: cashbackMethod.id,
+          fiscalType: resolveFiscalType(cashbackMethod.paymentType),
+          amount: totals.cashbackApplied,
+          discountRate: 0,
+          card: null,
+        });
+      }
+    }
+
     this.confirmed.emit({
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
       fulfillment: this.form.controls.fulfillment.getRawValue(),
-      payment: payment.details,
-      totals: this.totals(),
+      payments,
+      totals,
     });
   }
 }

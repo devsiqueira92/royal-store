@@ -1,4 +1,4 @@
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 
 export type CardFlag = 'visa' | 'mastercard' | 'elo' | 'amex' | 'hipercard';
 
@@ -15,19 +15,14 @@ export interface CardPaymentDetails {
   installments: number;
 }
 
-/** `methodId` is a real catalog id — never the synthetic split row's own id. */
-export interface SplitPaymentEntry {
-  methodId: string;
-  amount: number;
-}
-
 export interface PaymentDetails {
-  /** A real payment-method catalog id, or the synthetic split id — never a fixed enum. */
+  /** A real payment-method catalog id — never a fixed enum. */
   methodId: string | null;
-  /** The selected method's catalog discount as a 0..1 rate; 0 for split, since it has none. */
+  /** The selected method's catalog fiscal payment code. */
+  fiscalType: number;
+  /** The selected method's catalog discount as a 0..1 rate. */
   discountRate: number;
   card: CardPaymentDetails | null;
-  splits: SplitPaymentEntry[];
 }
 
 export interface PaymentState {
@@ -35,20 +30,22 @@ export interface PaymentState {
   details: PaymentDetails;
 }
 
+/** One line of the final charge payload — the chosen method, plus a separate line per cashback
+ * redemption applied on top of it. */
+export interface PaymentEntry {
+  methodId: string;
+  fiscalType: number;
+  amount: number;
+  discountRate: number;
+  card: CardPaymentDetails | null;
+}
+
 export type CardPaymentForm = FormGroup<{
   flag: FormControl<CardFlag | null>;
   installments: FormControl<number>;
 }>;
 
-export type SplitPaymentForm = FormGroup<{
-  method: FormControl<string>;
-  amount: FormControl<number | null>;
-}>;
-
-export type SplitPaymentFormArray = FormArray<SplitPaymentForm>;
-
 export type PaymentForm = FormGroup<{
   method: FormControl<string | null>;
   card: CardPaymentForm;
-  splits: SplitPaymentFormArray;
 }>;

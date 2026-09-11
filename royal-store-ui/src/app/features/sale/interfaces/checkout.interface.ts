@@ -1,4 +1,4 @@
-import { PaymentDetails } from './payment.interface';
+import { PaymentEntry } from './payment.interface';
 import { Customer } from './customer.interface';
 
 export type FulfillmentMode = 'delivery' | 'pickup';
@@ -34,6 +34,7 @@ export interface CheckoutResult {
   customer: Customer | null;
   useCashback: boolean;
   fulfillment: FulfillmentDetails;
-  payment: PaymentDetails;
+  /** The chosen payment method, plus a separate line when cashback is redeemed alongside it. */
+  payments: PaymentEntry[];
   totals: CheckoutTotals;
 }

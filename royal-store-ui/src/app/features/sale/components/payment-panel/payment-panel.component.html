@@ -13,14 +13,5 @@
         [showInstallments]="option.cardType === 'credit'"
       />
     }
-    @if (option.isSplit) {
-      <app-split-payment-form
-        [form]="form.controls.splits"
-        [methods]="splitMethods()"
-        [remaining]="remaining()"
-        (addPayment)="addSplit()"
-        (removePayment)="removeSplit($event)"
-      />
-    }
   }
 </div>
