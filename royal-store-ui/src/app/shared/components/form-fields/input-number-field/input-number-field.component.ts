@@ -58,7 +58,7 @@ export class InputNumberFieldComponent {
     const cents = parseInt(numericString || '0', 10);
     const floatValue = cents / 100;
     this.parentForm().controls[this.controlName()].setValue(floatValue, {
-      emitEvent: false,
+      emitModelToViewChange: false,
     });
     inputElement.value = floatValue.toFixed(2);
   }

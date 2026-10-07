@@ -13,9 +13,9 @@ public sealed class CashShiftEndpoints : IEndpointDefinition
     {
         var routes = app.MapGroup("api/cash-shifts").WithTags("CashShifts");
 
-        routes.MapPost("", Open).RequireAuthorization(PolicyNames.Seller);
-        routes.MapPatch("close", Close).RequireAuthorization(PolicyNames.Seller);
-        routes.MapGet("current", GetCurrent).RequireAuthorization(PolicyNames.Seller);
+        routes.MapPost("", Open).RequireAuthorization(PolicyNames.Admin);
+        routes.MapPatch("close", Close).RequireAuthorization(PolicyNames.Admin);
+        routes.MapGet("current", GetCurrent).RequireAuthorization(PolicyNames.Admin);
     }
 
     private static async Task<IResult> Open(

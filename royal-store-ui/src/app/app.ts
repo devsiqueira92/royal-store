@@ -7,6 +7,7 @@ import { DeviceService } from './core/layout/services/device.service';
 import { ToastModule } from 'primeng/toast';
 import { OriginOptionFacade } from './core/origin-option/facade/origin-option.facade';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { CashShiftFacade } from './features/cash-shift/facade/cash-shift.facade';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ export class App {
   private readonly layoutService = inject(LayoutService);
   private readonly deviceService = inject(DeviceService);
   private readonly originOptionFacade = inject(OriginOptionFacade);
+  private readonly cashShiftFacade = inject(CashShiftFacade);
   private translate = inject(TranslateService);
 
   protected readonly title = signal('royal-store-ui');
@@ -28,6 +30,8 @@ export class App {
     this.translate.addLangs(['en']);
 
     this.originOptionFacade.loadOriginOptions();
+
+    this.cashShiftFacade.loadCurrent();
   }
 
   private canPushContent() {

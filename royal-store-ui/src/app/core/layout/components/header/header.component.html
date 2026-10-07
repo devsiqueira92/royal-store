@@ -10,6 +10,19 @@
 
     <ng-template #end>
       <ul class="d-flex align-items-center list-unstyled m-0">
+        @if (cashShift(); as shift) {
+          <li class="mx-2">
+            <button type="button" class="cash-shift-chip" (click)="openManageCashShift()">
+              <span class="cash-shift-chip__dot"></span>
+              <span class="cash-shift-chip__text">
+                <span class="cash-shift-chip__label">{{ 'cashShift.chip.label' | translate }}</span>
+                <span class="cash-shift-chip__value">{{
+                  'cashShift.chip.openSince' | translate: { time: formatOpenedAt(shift.openedAt) }
+                }}</span>
+              </span>
+            </button>
+          </li>
+        }
         <li class="mx-4">
           <a class="cursor-pointer">
             <i class="pi pi-bell" style="font-size: 1.2rem"></i>

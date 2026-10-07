@@ -41,7 +41,7 @@ public sealed class OpenCashShiftCommandHandler
                 return Error.Conflict("cashshift.already_open", "A cash shift is already open for this user.");
         }
 
-        var shiftResult = CashShift.Create(Guid.NewGuid(), tenantId, userId, DateTime.UtcNow, command.StartingCash);
+        var shiftResult = CashShift.Create(Guid.NewGuid(), tenantId, userId, DateTime.UtcNow, command.openingBalance);
         if (!shiftResult.IsSuccess)
             return shiftResult.Error;
 

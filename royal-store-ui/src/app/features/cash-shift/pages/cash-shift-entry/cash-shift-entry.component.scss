@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+
+.cash-shift-entry {
+  max-width: 28rem;
+  margin: 1.25rem auto;
+  border-radius: 0.75rem;
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}

@@ -10,13 +10,16 @@ public sealed class GetCurrentCashShiftQueryHandler
     : IRequestHandler<GetCurrentCashShiftQuery, Result<CashShiftResponse?>>
 {
     private readonly ICashShiftRepository _cashShiftRepository;
+    private readonly ISaleRepository _saleRepository;
     private readonly ICurrentUserService _currentUserService;
 
     public GetCurrentCashShiftQueryHandler(
         ICashShiftRepository cashShiftRepository,
+        ISaleRepository saleRepository,
         ICurrentUserService currentUserService)
     {
         _cashShiftRepository = cashShiftRepository;
+        _saleRepository = saleRepository;
         _currentUserService = currentUserService;
     }
 
@@ -30,6 +33,8 @@ public sealed class GetCurrentCashShiftQueryHandler
         if (shift is null)
             return Result<CashShiftResponse?>.Success(null);
 
-        return Result<CashShiftResponse?>.Success(CashShiftResponse.From(shift));
+        var totals = await _saleRepository.GetShiftSalesTotalsAsync(shift.Id, cancellationToken);
+
+        return Result<CashShiftResponse?>.Success(CashShiftResponse.From(shift, totals));
     }
 }

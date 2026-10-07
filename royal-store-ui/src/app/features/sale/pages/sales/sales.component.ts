@@ -22,8 +22,18 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { CurrentSaleComponent } from '../../components/current-sale/current-sale.component';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { NotificationService } from '@app/shared/services/notification.service';
+import { DialogManagerService } from '@app/shared/services/dialog.service';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged, filter, tap } from 'rxjs';
+import {
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  take,
+  tap,
+} from 'rxjs';
+import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
+import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open-cash-shift/open-cash-shift.component';
 
 // Mocked until auth/session and reporting are wired.
 const MOCK_SELLER_NAME = 'Maya Chen';
@@ -52,6 +62,8 @@ export class SalesComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
+  private readonly cashShiftFacade = inject(CashShiftFacade);
+  private readonly dialogManagerService = inject(DialogManagerService);
 
   protected readonly sellerName = MOCK_SELLER_NAME;
   protected readonly saleRef = MOCK_SALE_REF;
@@ -78,6 +90,7 @@ export class SalesComponent implements OnInit {
   ngOnInit(): void {
     this.categoryFacade.loadCategories();
     this.saleFacade.loadPosProducts();
+    this.loadCashShift();
 
     this.saleFacade.lastRegisterSaleResult$
       .pipe(
@@ -172,6 +185,34 @@ export class SalesComponent implements OnInit {
   private findProduct(code: string) {
     if (!code) return;
     return this.products().find(p => p.barcode === code);
+  }
+
+  private loadCashShift(): void {
+    combineLatest([
+      this.cashShiftFacade.currentLoaded$,
+      this.cashShiftFacade.current$,
+    ])
+      .pipe(
+        filter(([loaded]) => loaded),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(([, cashShift]) => {
+        if (!cashShift) {
+          this.openMandatoryCashShiftDialog();
+        }
+      });
+  }
+
+  private openMandatoryCashShiftDialog(): void {
+    this.dialogManagerService.open(OpenCashShiftComponent, {
+      showHeader: true,
+      closable: true,
+      closeOnEscape: true,
+      dismissableMask: false,
+      width: '440px',
+      height: 'auto',
+    });
   }
 
   protected clearSale(): void {

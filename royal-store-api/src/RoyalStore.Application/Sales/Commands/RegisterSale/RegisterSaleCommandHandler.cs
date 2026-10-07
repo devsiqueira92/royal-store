@@ -32,6 +32,7 @@ public sealed class RegisterSaleCommandHandler
     private readonly ITenantContext _tenantContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IFiscalReceiptQueue _fiscalQueue;
+    private readonly ICashShiftRepository _cashShiftRepository;
 
     public RegisterSaleCommandHandler(
         ISaleRepository saleRepository,
@@ -43,7 +44,8 @@ public sealed class RegisterSaleCommandHandler
         IUnitOfWork unitOfWork,
         ITenantContext tenantContext,
         ICurrentUserService currentUserService,
-        IFiscalReceiptQueue fiscalQueue)
+        IFiscalReceiptQueue fiscalQueue,
+        ICashShiftRepository cashShiftRepository)
     {
         _saleRepository = saleRepository;
         _productRepository = productRepository;
@@ -55,6 +57,7 @@ public sealed class RegisterSaleCommandHandler
         _tenantContext = tenantContext;
         _currentUserService = currentUserService;
         _fiscalQueue = fiscalQueue;
+        _cashShiftRepository = cashShiftRepository;
     }
 
     public async Task<Result<RegisterSaleResponse>> Handle(
@@ -65,6 +68,10 @@ public sealed class RegisterSaleCommandHandler
         // The operator is always the authenticated principal — the new request shape has no
         // seller/operator field at all to even attempt to forge (038-register-sale-checkout FR-006).
         var userId = _currentUserService.CurrentUserId;
+        var openShift = await _cashShiftRepository.GetOpenByUserIdAsync(userId, cancellationToken);
+        if (openShift is null) 
+            return Error.Validation("sale.no_open_shift",
+                "The current user does not have an open cash shift and cannot register a sale.");
 
         var checkout = command.Checkout;
 
@@ -168,7 +175,7 @@ public sealed class RegisterSaleCommandHandler
             ? null
             : new SaleCustomerSnapshot(customer.Name, customer.LoyaltyTier?.Name ?? string.Empty);
 
-        var saleResult = Sale.Create(saleId, tenantId, checkout.CashRegisterSessionId, userId, customer?.Id,
+        var saleResult = Sale.Create(saleId, tenantId, openShift.Id, userId, customer?.Id,
             subtotal, saleDiscount, loyaltyDiscount, paymentDiscount, taxAmount, totalAmount,
             cashbackApplied, cashbackRemaining, fulfillmentMode, checkout.Fulfillment.BranchId,
             customerSnapshot, soldAt, DateTime.UtcNow);

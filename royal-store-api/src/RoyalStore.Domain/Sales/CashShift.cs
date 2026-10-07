@@ -47,14 +47,28 @@ public sealed class CashShift : Entity, IAuditableEntity
         return new CashShift(id, tenantId, userId, openedAt, startingCash);
     }
 
-    public Result Close(decimal actualEndingCash, decimal expectedEndingCash)
+    public decimal SumSupplements() =>
+        _movements.Where(m => m.Type == MovementType.In).Sum(m => m.Amount);
+
+    public decimal SumWithdrawals() =>
+        _movements.Where(m => m.Type == MovementType.Out).Sum(m => m.Amount);
+
+    /// <summary>Cash that should physically be in the drawer: starting cash plus cash sales plus
+    /// supplements minus withdrawals. Card and other non-cash sales never enter the drawer. Requires
+    /// <see cref="Movements"/> to be loaded. May be negative when withdrawals exceed the drawer.</summary>
+    public decimal CalculateExpectedCash(decimal cashSales) =>
+        StartingCash + cashSales + SumSupplements() - SumWithdrawals();
+
+    /// <summary>Closes the shift, recording the same expected cash the current-shift summary shows
+    /// (<see cref="CalculateExpectedCash"/>), so the two figures never diverge.</summary>
+    public Result Close(decimal actualEndingCash, decimal cashSales)
     {
         if (ClosedAt is not null)
             return Result.Failure(Error.Conflict("cashshift.already_closed", "Cash shift is already closed."));
 
         ClosedAt = DateTime.UtcNow;
         ActualEndingCash = actualEndingCash;
-        ExpectedEndingCash = expectedEndingCash;
+        ExpectedEndingCash = CalculateExpectedCash(cashSales);
         return Result.Success();
     }
 }

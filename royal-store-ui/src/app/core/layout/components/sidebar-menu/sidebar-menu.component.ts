@@ -53,6 +53,12 @@ export class SidebarMenuComponent {
             icon: 'pi pi-dollar',
             routerLink: '/sales',
           },
+
+          {
+            label: 'Cash Shift',
+            icon: 'pi pi-money-bill',
+            routerLink: '/cash-shift',
+          },
         ],
       },
 

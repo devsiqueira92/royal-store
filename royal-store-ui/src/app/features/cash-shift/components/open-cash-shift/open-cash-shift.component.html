@@ -1,0 +1,26 @@
+<div class="open-cash-shift">
+  <div class="open-cash-shift__header">
+    <span class="open-cash-shift__eyebrow">{{ 'cashShift.eyebrow' | translate }}</span>
+    <h2 class="open-cash-shift__title">{{ 'cashShift.open.title' | translate }}</h2>
+    <p class="open-cash-shift__subtitle">{{ 'cashShift.open.subtitle' | translate }}</p>
+  </div>
+
+  <form [formGroup]="formGroup" class="open-cash-shift__form">
+    <app-input-number-field
+      [parentForm]="formGroup"
+      controlName="openingBalance"
+      [label]="'cashShift.open.openingBalance'"
+      [id]="'openingBalance'"
+    ></app-input-number-field>
+    <p class="open-cash-shift__hint">{{ 'cashShift.open.hint' | translate }}</p>
+  </form>
+
+  <div class="open-cash-shift__footer">
+    <p-button
+      [label]="'cashShift.open.submit' | translate"
+      [loading]="submitting()"
+      [disabled]="formGroup.invalid"
+      (onClick)="confirm()"
+    ></p-button>
+  </div>
+</div>

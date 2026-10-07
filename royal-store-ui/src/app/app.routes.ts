@@ -45,6 +45,13 @@ export const routes: Routes = [
           import('./features/sale/sale.routes').then(m => m.SALE_ROUTES),
       },
       {
+        path: 'cash-shift',
+        loadChildren: () =>
+          import('./features/cash-shift/cash-shift.routes').then(
+            m => m.CASH_SHIFT_ROUTES,
+          ),
+      },
+      {
         path: 'payment-methods',
         loadChildren: () =>
           import('./features/payment-method/payment-method.routes').then(

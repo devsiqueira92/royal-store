@@ -439,6 +439,73 @@
       "submit": "Save discount"
     }
   },
+  "cashShift": {
+    "eyebrow": "Cash Shift",
+    "status": {
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "chip": {
+      "label": "Cash Shift",
+      "openSince": "Open · since {{time}}"
+    },
+    "open": {
+      "title": "Open a Cash Shift to Continue",
+      "subtitle": "Count the cash in the drawer before you begin selling.",
+      "openingBalance": "Initial Value",
+      "hint": "You won't be able to use the register until a shift is open.",
+      "submit": "Open Shift"
+    },
+    "close": {
+      "title": "Close shift",
+      "subtitle": "Count the drawer and declare what is physically there.",
+      "openingBalance": "Opening balance",
+      "cashSales": "Cash sales",
+      "supplements": "Supplements",
+      "sangrias": "Sangrias",
+      "expected": "Expected in drawer",
+      "actualEndingCash": "Actual ending cash",
+      "matches": "Matches",
+      "over": "Over (sobra)",
+      "short": "Short (falta)",
+      "hint": "The difference is recorded on the shift report and kept in the audit trail.",
+      "closingNote": "Closing note (optional)",
+      "submit": "Close shift with"
+    },
+    "manage": {
+      "title": "Cash Shift",
+      "subtitle": "Review the shift and log cash movements outside of a sale.",
+      "close": "Close",
+      "status": "Status",
+      "openedAt": "Opened At",
+      "closedAt": "Closed At",
+      "openingBalance": "Opening Balance"
+    },
+    "movement": {
+      "addMoney": "Add money",
+      "removeMoney": "Remove money",
+      "caption": {
+        "in": "Suplemento",
+        "out": "Sangria"
+      },
+      "title": "Cash movement",
+      "subtitle": "Money put into or taken out of the drawer outside of a sale.",
+      "amount": "Amount",
+      "reason": "Reason",
+      "submitAdd": "Add to drawer",
+      "submitRemove": "Remove from drawer",
+      "addedSuccess": "R$ {{amount}} added to the drawer.",
+      "removedSuccess": "R$ {{amount}} removed from the drawer.",
+      "quickReason": {
+        "changeFund": "Change fund top-up",
+        "ownerContribution": "Owner contribution",
+        "reimbursement": "Reimbursement returned",
+        "bankDeposit": "Bank deposit",
+        "safeTransfer": "Transfer to safe",
+        "refund": "Customer refund"
+      }
+    }
+  },
   "loyalty": {
     "title": "Loyalty tiers",
     "subtitle": "Cashback rate and expiry for each customer tier.",

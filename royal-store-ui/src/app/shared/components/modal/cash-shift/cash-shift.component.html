@@ -1,0 +1,138 @@
+<div class="cash-shift">
+  <div class="cash-shift__header">
+    <div class="cash-shift__header-text">
+      <span class="cash-shift__eyebrow">{{
+        'cashShift.eyebrow' | translate
+      }}</span>
+      <h2 class="cash-shift__title">
+        {{ 'cashShift.manage.title' | translate }}
+      </h2>
+      <p class="cash-shift__subtitle">
+        {{ 'cashShift.manage.subtitle' | translate }}
+      </p>
+    </div>
+    <button
+      type="button"
+      class="cash-shift__close"
+      (click)="close()"
+      [attr.aria-label]="'cashShift.manage.close' | translate"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <div class="cash-shift__summary">
+    <div class="cash-shift__summary-item">
+      <span class="cash-shift__summary-label">{{
+        'cashShift.manage.status' | translate
+      }}</span>
+      <span class="cash-shift__summary-value">
+        <span class="cash-shift__status-dot"></span>
+        {{ 'cashShift.status.open' | translate }}
+      </span>
+    </div>
+    <div class="cash-shift__summary-item">
+      <span class="cash-shift__summary-label">{{
+        'cashShift.manage.openedAt' | translate
+      }}</span>
+      <span class="cash-shift__summary-value">{{
+        cashShift.openedAt | date: 'short'
+      }}</span>
+    </div>
+    <div class="cash-shift__summary-item">
+      <span class="cash-shift__summary-label">{{
+        'cashShift.manage.openingBalance' | translate
+      }}</span>
+      <span class="cash-shift__summary-value">{{
+        cashShift.startingCash | currency: 'BRL'
+      }}</span>
+    </div>
+
+    <div class="cash-shift__summary-item">
+      <span class="cash-shift__summary-label">{{
+        'cashShift.manage.closedAt' | translate
+      }}</span>
+      <span class="cash-shift__summary-value">{{
+        cashShift.closedAt ? (cashShift.closedAt | date: 'short') : '—'
+      }}</span>
+    </div>
+  </div>
+
+  <div class="cash-shift__movement">
+    <div class="cash-shift__movement-header">
+      <h3 class="cash-shift__movement-title">
+        {{ 'cashShift.movement.title' | translate }}
+      </h3>
+      <p class="cash-shift__movement-subtitle">
+        {{ 'cashShift.movement.subtitle' | translate }}
+      </p>
+    </div>
+
+    <p-selectbutton
+      class="cash-shift__movement-toggle"
+      [options]="movementOptions"
+      optionLabel="label"
+      optionValue="value"
+      [allowEmpty]="false"
+      [ngModel]="movementType()"
+      (ngModelChange)="onMovementTypeChange($event)"
+    >
+      <ng-template let-option #item>
+        <div class="movement-option">
+          <span class="movement-option__label">{{
+            option.label | translate
+          }}</span>
+          <span class="movement-option__caption">{{
+            'cashShift.movement.caption.' + option.value | translate
+          }}</span>
+        </div>
+      </ng-template>
+    </p-selectbutton>
+
+    <form [formGroup]="formGroup" class="cash-shift__movement-form">
+      <app-input-number-field
+        [parentForm]="formGroup"
+        controlName="amount"
+        [label]="'cashShift.movement.amount'"
+        [id]="'movementAmount'"
+      ></app-input-number-field>
+
+      <app-input-field
+        [parentForm]="formGroup"
+        controlName="reason"
+        [label]="'cashShift.movement.reason'"
+        [id]="'movementReason'"
+      ></app-input-field>
+    </form>
+
+    <div class="cash-shift__quick-reasons">
+      @for (reasonKey of quickReasons(); track reasonKey) {
+        <button
+          type="button"
+          class="quick-reason-chip"
+          (click)="applyQuickReason(reasonKey)"
+        >
+          {{ reasonKey | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="cash-shift__footer">
+    <p-button
+      [label]="
+        (movementType() === 'in'
+          ? 'cashShift.movement.submitAdd'
+          : 'cashShift.movement.submitRemove'
+        ) | translate
+      "
+      [disabled]="formGroup.invalid"
+      (onClick)="submitMovement()"
+    ></p-button>
+
+    <p-button
+      [label]="'cashShift.closeShift' | translate"
+      (onClick)="closeShift()"
+    ></p-button>
+  </div>
+</div>

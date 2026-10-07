@@ -48,6 +48,8 @@ import { originOptionFeature } from './core/origin-option/store/origin-option.re
 import { originOptionStore } from './core/origin-option/store/origin-option.store';
 import { paymentMethodFeature } from './features/payment-method/store/payment-method.reducer';
 import { paymentMethodStore } from './features/payment-method/store/payment-method.store';
+import { cashShiftFeature } from './features/cash-shift/store/cash-shift.reducer';
+import { cashShiftStore } from './features/cash-shift/store/cash-shift.store';
 
 registerLocaleData(localeEn);
 
@@ -85,6 +87,7 @@ export const appConfig: ApplicationConfig = {
       [loyaltyTierFeature.name]: loyaltyTierFeature.reducer,
       [originOptionFeature.name]: originOptionFeature.reducer,
       [paymentMethodFeature.name]: paymentMethodFeature.reducer,
+      [cashShiftFeature.name]: cashShiftFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -101,6 +104,7 @@ export const appConfig: ApplicationConfig = {
       loyaltyTierStore,
       originOptionStore,
       paymentMethodStore,
+      cashShiftStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,

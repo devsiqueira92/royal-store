@@ -6,7 +6,7 @@ public sealed class OpenCashShiftValidator : AbstractValidator<OpenCashShiftComm
 {
     public OpenCashShiftValidator()
     {
-        RuleFor(x => x.StartingCash)
+        RuleFor(x => x.openingBalance)
             .GreaterThanOrEqualTo(0)
             .WithMessage("Starting cash cannot be negative.");
     }
