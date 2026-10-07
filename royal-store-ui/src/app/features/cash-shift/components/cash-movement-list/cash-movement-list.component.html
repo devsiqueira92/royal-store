@@ -1,0 +1,43 @@
+<section class="cash-movement-list">
+  <header class="cash-movement-list__header">
+    <h3 class="cash-movement-list__title">
+      {{ 'cashShift.movements.title' | translate }}
+    </h3>
+    <span class="cash-movement-list__count">{{
+      'cashShift.movements.count' | translate: { count: movements().length }
+    }}</span>
+  </header>
+
+  <ul class="cash-movement-list__items">
+    @for (movement of movements(); track movement.id) {
+      <li class="movement movement--{{ movement.type }}">
+        <span class="movement__icon" aria-hidden="true">
+          <i
+            class="pi"
+            [class.pi-plus]="!isOutgoing(movement.type)"
+            [class.pi-minus]="isOutgoing(movement.type)"
+          ></i>
+        </span>
+        <div class="movement__body">
+          <span class="movement__title">{{
+            'cashShift.movements.type.' + movement.type | translate
+          }}</span>
+          <span class="movement__description">{{
+            movement.description
+          }}</span>
+        </div>
+        <span class="movement__time">{{
+          movement.occurredAt | date: 'HH:mm'
+        }}</span>
+        <span class="movement__amount"
+          >{{ isOutgoing(movement.type) ? '−' : '+'
+          }}{{ movement.amount | number: '1.2-2' }}</span
+        >
+      </li>
+    } @empty {
+      <li class="cash-movement-list__empty">
+        {{ 'cashShift.movements.empty' | translate }}
+      </li>
+    }
+  </ul>
+</section>

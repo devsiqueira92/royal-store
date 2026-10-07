@@ -1,0 +1,123 @@
+<section class="close-shift">
+  <header>
+    <h3 class="close-shift__title">
+      {{ 'cashShift.close.title' | translate }}
+    </h3>
+    <p class="close-shift__subtitle">
+      {{ 'cashShift.close.subtitle' | translate }}
+    </p>
+  </header>
+
+  <div class="close-shift__breakdown">
+    <div class="close-shift__row">
+      <span>{{ 'cashShift.close.openingBalance' | translate }}</span>
+      <span class="close-shift__amount">{{
+        cashShift().startingCash | currency: 'BRL'
+      }}</span>
+    </div>
+    <div class="close-shift__row">
+      <span>{{ 'cashShift.close.cashSales' | translate }}</span>
+      <span class="close-shift__amount close-shift__amount--in"
+        >+{{ cashShift().cashSales | currency: 'BRL' }}</span
+      >
+    </div>
+    <div class="close-shift__row">
+      <span>{{ 'cashShift.close.supplements' | translate }}</span>
+      <span class="close-shift__amount close-shift__amount--in"
+        >+{{ cashShift().totalSupplements | currency: 'BRL' }}</span
+      >
+    </div>
+    <div class="close-shift__row">
+      <span>{{ 'cashShift.close.sangrias' | translate }}</span>
+      <span class="close-shift__amount close-shift__amount--out"
+        >−{{ cashShift().totalWithdrawals | currency: 'BRL' }}</span
+      >
+    </div>
+    <div class="close-shift__row close-shift__row--total">
+      <span>{{ 'cashShift.close.expected' | translate }}</span>
+      <span class="close-shift__amount">{{
+        cashShift().expectedCash | currency: 'BRL'
+      }}</span>
+    </div>
+  </div>
+
+  <form [formGroup]="formGroup" class="close-shift__form">
+    <div class="close-shift__field">
+      <label class="close-shift__label" for="actualEndingCash">{{
+        'cashShift.close.actualEndingCash' | translate
+      }}</label>
+      <div
+        class="close-shift__actual"
+        [class.close-shift__actual--invalid]="isActualInvalid()"
+      >
+        <span class="close-shift__currency">R$</span>
+        <p-inputnumber
+          inputId="actualEndingCash"
+          formControlName="actualEndingCash"
+          mode="decimal"
+          locale="en-US"
+          placeholder="0.00"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          [fluid]="true"
+        ></p-inputnumber>
+        <p-button
+          severity="secondary"
+          size="small"
+          [label]="'cashShift.close.matches' | translate"
+          (onClick)="fillExpected()"
+        ></p-button>
+      </div>
+    </div>
+
+    @if (difference() !== null) {
+      <div class="close-shift__difference-group">
+        <div
+          class="close-shift__difference close-shift__difference--{{
+            differenceState()
+          }}"
+        >
+          <span>{{ 'cashShift.close.' + differenceState() | translate }}</span>
+          <span class="close-shift__difference-amount"
+            >{{ differenceSign() }}{{ absDifference() | currency: 'BRL' }}</span
+          >
+        </div>
+        <p class="close-shift__hint">
+          {{
+            (differenceState() === 'balanced'
+              ? 'cashShift.close.balancedHint'
+              : 'cashShift.close.hint'
+            ) | translate
+          }}
+        </p>
+      </div>
+    }
+
+    <div class="close-shift__field">
+      <label class="close-shift__label" for="closingNote">{{
+        'cashShift.close.closingNote' | translate
+      }}</label>
+      <input
+        pInputText
+        id="closingNote"
+        class="close-shift__input"
+        formControlName="closingNote"
+        autocomplete="off"
+        [placeholder]="'cashShift.close.closingNotePlaceholder' | translate"
+      />
+    </div>
+  </form>
+
+  <p-button
+    severity="contrast"
+    styleClass="close-shift__submit"
+    [fluid]="true"
+    [loading]="isClosing()"
+    [disabled]="formGroup.invalid"
+    (onClick)="confirm()"
+  >
+    {{ 'cashShift.close.submit' | translate }}
+    {{ actualEndingCash() ?? 0 | currency: 'BRL' }}
+  </p-button>
+</section>

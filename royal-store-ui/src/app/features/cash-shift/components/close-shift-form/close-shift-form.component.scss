@@ -1,0 +1,202 @@
+:host {
+  display: block;
+}
+
+.close-shift {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}
+
+.close-shift__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.close-shift__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.close-shift__breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.625rem;
+  background: light-dark(var(--p-surface-50), var(--p-surface-800));
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.close-shift__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.close-shift__row--total {
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed light-dark(var(--p-surface-300), var(--p-surface-600));
+  font-weight: 700;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+
+  .close-shift__amount {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+}
+
+.close-shift__amount {
+  font-family: var(--app-font-mono);
+  font-weight: 500;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.close-shift__amount--in {
+  color: light-dark(var(--p-green-700), var(--p-green-400));
+}
+
+.close-shift__amount--out {
+  color: light-dark(var(--p-red-700), var(--p-red-400));
+}
+
+.close-shift__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.close-shift__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.close-shift__label {
+  font-family: var(--app-font-mono);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.close-shift__actual {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 3.25rem;
+  padding: 0 0.625rem 0 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--p-inputtext-border-color);
+  background: var(--p-inputtext-background);
+  box-shadow: var(--p-inputtext-shadow);
+  transition: border-color 0.15s ease;
+}
+
+.close-shift__actual:hover {
+  border-color: var(--p-inputtext-hover-border-color);
+}
+
+.close-shift__actual:focus-within {
+  border-color: var(--p-inputtext-focus-border-color);
+}
+
+.close-shift__actual--invalid,
+.close-shift__actual--invalid:hover {
+  border-color: var(--p-inputtext-invalid-border-color);
+}
+
+.close-shift__currency {
+  font-family: var(--app-font-mono);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+:host ::ng-deep .close-shift__actual .p-inputnumber {
+  flex: 1;
+  min-width: 0;
+}
+
+:host ::ng-deep .close-shift__actual .p-inputnumber-input {
+  width: 100%;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  font-family: var(--app-font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.close-shift__difference-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.close-shift__difference {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.close-shift__difference--balanced {
+  background: light-dark(var(--p-green-50), var(--p-green-950));
+  border-color: light-dark(var(--p-green-200), var(--p-green-800));
+  color: light-dark(var(--p-green-700), var(--p-green-300));
+}
+
+.close-shift__difference--over {
+  background: light-dark(var(--p-amber-50), var(--p-amber-950));
+  border-color: light-dark(var(--p-amber-200), var(--p-amber-800));
+  color: light-dark(var(--p-amber-700), var(--p-amber-300));
+}
+
+.close-shift__difference--short {
+  background: light-dark(var(--p-red-50), var(--p-red-950));
+  border-color: light-dark(var(--p-red-200), var(--p-red-800));
+  color: light-dark(var(--p-red-700), var(--p-red-300));
+}
+
+.close-shift__difference-amount {
+  font-family: var(--app-font-mono);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.close-shift__hint {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.close-shift__input {
+  width: 100%;
+  height: 2.5rem;
+  font-size: 0.8125rem;
+}
+
+:host ::ng-deep .close-shift__submit {
+  height: 2.75rem;
+  font-weight: 700;
+}

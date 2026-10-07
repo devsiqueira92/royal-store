@@ -441,6 +441,13 @@
   },
   "cashShift": {
     "eyebrow": "Cash Shift",
+    "closeShift": "Close shift",
+    "page": {
+      "title": "Cash shift",
+      "subtitle": "Open the drawer, log supplements and sangrias, then count down and close.",
+      "shiftOpen": "Shift open",
+      "shiftClosed": "Shift closed"
+    },
     "status": {
       "open": "Open",
       "closed": "Closed"
@@ -466,10 +473,13 @@
       "expected": "Expected in drawer",
       "actualEndingCash": "Actual ending cash",
       "matches": "Matches",
+      "balanced": "Balanced",
       "over": "Over (sobra)",
       "short": "Short (falta)",
+      "balancedHint": "The drawer matches the expected amount exactly.",
       "hint": "The difference is recorded on the shift report and kept in the audit trail.",
-      "closingNote": "Closing note (optional)",
+      "closingNote": "Closing note",
+      "closingNotePlaceholder": "Optional — explain a difference",
       "submit": "Close shift with"
     },
     "manage": {
@@ -492,6 +502,7 @@
       "subtitle": "Money put into or taken out of the drawer outside of a sale.",
       "amount": "Amount",
       "reason": "Reason",
+      "reasonPlaceholder": "e.g. Change fund top-up",
       "submitAdd": "Add to drawer",
       "submitRemove": "Remove from drawer",
       "addedSuccess": "R$ {{amount}} added to the drawer.",
@@ -503,6 +514,16 @@
         "bankDeposit": "Bank deposit",
         "safeTransfer": "Transfer to safe",
         "refund": "Customer refund"
+      }
+    },
+    "movements": {
+      "title": "Movements",
+      "count": "{{count}} entries",
+      "empty": "No movements recorded yet.",
+      "type": {
+        "sale": "Cash sale",
+        "supplement": "Suplemento — added",
+        "withdrawal": "Sangria — removed"
       }
     }
   },

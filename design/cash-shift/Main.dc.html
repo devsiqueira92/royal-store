@@ -1,0 +1,686 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  :root {
+    color-scheme: light dark;
+    --c-0: light-dark(#ffffff, #0f172a);
+    --c-50: light-dark(#f8fafc, #16202f);
+    --c-100: light-dark(#f1f5f9, #1e293b);
+    --c-200: light-dark(#e2e8f0, #334155);
+    --c-300: light-dark(#cbd5e1, #475569);
+    --c-400: light-dark(#94a3b8, #64748b);
+    --c-500: light-dark(#64748b, #94a3b8);
+    --c-700: light-dark(#334155, #cbd5e1);
+    --c-900: light-dark(#0f172a, #f1f5f9);
+    --c-950: light-dark(#020617, #f8fafc);
+    --primary-50: light-dark(#ecfdf5, #052e21);
+    --primary-100: light-dark(#d1fae5, #064e3b);
+    --primary-200: light-dark(#a7f3d0, #065f46);
+    --primary-500: light-dark(#10b981, #34d399);
+    --primary-600: light-dark(#059669, #10b981);
+    --primary-700: light-dark(#047857, #6ee7b7);
+    --danger-50: light-dark(#fef2f2, #450a0a);
+    --danger-200: light-dark(#fecaca, #7f1d1d);
+    --danger-500: light-dark(#ef4444, #f87171);
+    --danger-600: light-dark(#dc2626, #ef4444);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    background: var(--c-50);
+    color: var(--c-900);
+  }
+  a { color: var(--primary-600); }
+  a:hover { color: var(--primary-700); }
+  button { font-family: inherit; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.5rem;
+    padding: 0 1.25rem;
+    background: var(--c-0);
+    border-bottom: 1px solid var(--c-200);
+  }
+  .topbar__brand { display: flex; align-items: baseline; gap: 0.5rem; }
+  .topbar__brand-name { font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.01em; }
+  .topbar__brand-tag {
+    font-size: 0.625rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--c-400);
+  }
+  .topbar__right { display: flex; align-items: center; gap: 1rem; }
+
+  .shift-chip { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.625rem 0.375rem 0.5rem; border-radius: 999px; border: 1px solid var(--c-200); background: var(--c-0); }
+  .shift-chip__dot { width: 0.5rem; height: 0.5rem; border-radius: 999px; flex-shrink: 0; }
+  .shift-chip__text { display: flex; flex-direction: column; line-height: 1.15; }
+  .shift-chip__label { font-size: 0.625rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-400); }
+  .shift-chip__value { font-size: 0.75rem; font-weight: 700; color: var(--c-900); }
+
+  .avatar { width: 2rem; height: 2rem; border-radius: 999px; background: var(--c-200); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--c-700); flex-shrink: 0; }
+
+  .pos { display: grid; grid-template-columns: 1fr 24rem; align-items: start; min-height: calc(100vh - 3.5rem); transition: opacity 0.15s ease; }
+  .pos__catalog { display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem 1.5rem 2rem; }
+  .pos__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .pos__title { margin: 0; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: var(--c-900); }
+  .pos__subtitle { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--c-400); }
+
+  .sales-stats { display: flex; gap: 0.75rem; }
+  .sales-stats__card { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.625rem 1rem; border-radius: 0.625rem; background: var(--c-0); border: 1px solid var(--c-200); min-width: 6rem; }
+  .sales-stats__label { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-400); }
+  .sales-stats__value { font-size: 1.125rem; font-weight: 700; color: var(--c-900); }
+
+  .pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .pill { padding: 0.375rem 0.875rem; border-radius: 999px; border: 1px solid var(--c-200); font-size: 0.75rem; font-weight: 600; color: var(--c-500); background: var(--c-0); }
+  .pill--active { border-color: var(--primary-200); background: var(--primary-50); color: var(--primary-700); }
+
+  .scan {
+    display: flex; align-items: center; gap: 0.625rem; height: 2.5rem; padding: 0 0.875rem;
+    border: 1px solid var(--c-300); border-radius: 0.625rem; background: var(--c-0); color: var(--c-400);
+  }
+  .scan svg { flex-shrink: 0; }
+  .scan span { font-size: 0.8125rem; }
+
+  .pos__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.875rem; }
+  .product-card { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--c-200); border-radius: 0.75rem; background: var(--c-0); }
+  .product-card__thumb { height: 5rem; border-radius: 0.5rem; background: var(--c-100); display: flex; align-items: center; justify-content: center; color: var(--c-300); }
+  .product-card__name { font-size: 0.8125rem; font-weight: 600; color: var(--c-900); }
+  .product-card__price { font-size: 0.75rem; font-weight: 700; color: var(--c-500); }
+
+  .pos__sale { position: sticky; top: 0; height: calc(100vh - 3.5rem); display: flex; flex-direction: column; border-left: 1px solid var(--c-200); background: var(--c-0); }
+  .pos__sale-header { padding: 1.25rem 1.25rem 0.75rem; border-bottom: 1px solid var(--c-200); }
+  .pos__sale-title { margin: 0; font-size: 1rem; font-weight: 700; color: var(--c-900); }
+  .pos__sale-sub { margin: 0.25rem 0 0; font-size: 0.75rem; color: var(--c-400); }
+  .pos__sale-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.625rem; padding: 2rem; color: var(--c-300); text-align: center; }
+  .pos__sale-empty span { font-size: 0.8125rem; color: var(--c-400); max-width: 12rem; }
+  .pos__sale-footer { padding: 1rem 1.25rem; border-top: 1px solid var(--c-200); display: flex; flex-direction: column; gap: 0.75rem; }
+  .pos__sale-total { display: flex; justify-content: space-between; font-size: 0.875rem; font-weight: 700; color: var(--c-900); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem;
+    height: 2.5rem; padding: 0 1rem; border-radius: 0.5rem; font-size: 0.8125rem; font-weight: 700;
+    border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn--sm { height: 2rem; padding: 0 0.75rem; font-size: 0.75rem; }
+  .btn--block { width: 100%; }
+  .btn--primary { background: var(--primary-600); color: #ffffff; }
+  .btn--danger { background: var(--danger-600); color: #ffffff; }
+  .btn--secondary { background: transparent; border-color: var(--c-300); color: var(--c-700); }
+  .btn--outline-primary { background: transparent; border-color: var(--primary-500); color: var(--primary-700); }
+  .btn--outline-danger { background: transparent; border-color: var(--danger-500); color: var(--danger-600); }
+
+  .dialog-backdrop {
+    position: fixed; inset: 0; background: rgba(2, 6, 23, 0.55);
+    display: flex; align-items: center; justify-content: center; padding: 1.5rem; z-index: 40;
+  }
+  .dialog-card {
+    width: 30rem; max-width: 100%; max-height: 85vh; background: var(--c-0); border-radius: 0.875rem;
+    box-shadow: 0 24px 60px -12px rgba(2, 6, 23, 0.45); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .dialog-card--sm { width: 26rem; }
+  .dialog-card--wide { width: 32rem; }
+  .dialog-header { padding: 1.5rem 1.5rem 0; display: flex; flex-direction: column; gap: 0.125rem; }
+  .dialog-eyebrow { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-500); }
+  .dialog-title { margin: 0; font-size: 1.125rem; font-weight: 700; color: var(--c-900); }
+  .dialog-body { padding: 1.25rem 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+  .dialog-footer { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--c-200); display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.5rem; }
+  .dialog-footer .btn { width: 100%; }
+
+  .field-label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--c-700); margin-bottom: 0.375rem; }
+  .field-help { font-size: 0.6875rem; color: var(--c-400); margin-top: 0.375rem; }
+  .input-group { display: flex; }
+  .input-group__addon {
+    display: flex; align-items: center; padding: 0 0.75rem; border: 1px solid var(--c-300); border-right: none;
+    border-radius: 0.5rem 0 0 0.5rem; background: var(--c-100); color: var(--c-500); font-weight: 700; font-size: 0.875rem;
+  }
+  .input-group input { border-radius: 0 0.5rem 0.5rem 0; }
+  input.text-input {
+    height: 2.5rem; padding: 0 0.75rem; border: 1px solid var(--c-300); border-radius: 0.5rem; font-size: 0.875rem;
+    background: var(--c-0); color: var(--c-900); width: 100%; outline: none;
+  }
+  input.text-input:focus { border-color: var(--primary-500); box-shadow: 0 0 0 3px var(--primary-100); }
+
+  .info-bar { display: flex; gap: 0.5rem; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: var(--c-100); color: var(--c-500); font-size: 0.75rem; line-height: 1.4; }
+
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem 1rem; }
+  .summary-item__label { font-size: 0.625rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-400); }
+  .summary-item__value { font-size: 0.9375rem; font-weight: 700; color: var(--c-900); margin-top: 0.125rem; }
+  .summary-item--full { grid-column: 1 / -1; padding-top: 0.875rem; border-top: 1px solid var(--c-200); }
+  .summary-item--full .summary-item__value { font-size: 1.25rem; font-weight: 800; }
+
+  .ops-head { display: flex; align-items: center; gap: 0.5rem; }
+  .ops-head__title { font-size: 0.8125rem; font-weight: 700; color: var(--c-900); }
+  .ops-badge { font-size: 0.625rem; font-weight: 700; padding: 0.0625rem 0.4375rem; border-radius: 999px; background: var(--c-100); color: var(--c-500); }
+  .ops-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 9.5rem; overflow-y: auto; }
+  .ops-empty { font-size: 0.75rem; color: var(--c-400); padding: 0.75rem 0; text-align: center; }
+  .op-row { display: flex; align-items: center; gap: 0.625rem; }
+  .op-icon { width: 1.75rem; height: 1.75rem; border-radius: 999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .op-body { flex: 1; min-width: 0; }
+  .op-reason { font-size: 0.8125rem; font-weight: 600; color: var(--c-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .op-time { font-size: 0.6875rem; color: var(--c-400); }
+  .op-value { font-size: 0.875rem; font-weight: 700; flex-shrink: 0; }
+
+  .ops-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+
+  .over-row { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0.875rem; border-radius: 0.5rem; background: var(--c-100); }
+  .over-row__label { font-size: 0.75rem; font-weight: 700; color: var(--c-700); }
+  .over-row__value { font-size: 1rem; font-weight: 800; }
+</style>
+</helmet>
+
+<div class="app">
+  <div class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__brand-name">Royal Store</span>
+      <span class="topbar__brand-tag">POS</span>
+    </div>
+    <div class="topbar__right">
+      <div class="shift-chip">
+        <sc-if value="{{shiftOpen}}" hint-placeholder-val="{{true}}">
+          <span class="shift-chip__dot" style="background:{{primaryColor}}"></span>
+          <span class="shift-chip__text">
+            <span class="shift-chip__label">Cash Shift</span>
+            <span class="shift-chip__value">Open · since {{openedAtDisplay}}</span>
+          </span>
+          <button class="btn btn--secondary btn--sm" onClick="{{openManage}}">Manage</button>
+        </sc-if>
+        <sc-if value="{{shiftClosed}}" hint-placeholder-val="{{false}}">
+          <span class="shift-chip__dot" style="background:var(--c-300)"></span>
+          <span class="shift-chip__text">
+            <span class="shift-chip__label">Cash Shift</span>
+            <span class="shift-chip__value" style="color:var(--c-400)">Closed</span>
+          </span>
+        </sc-if>
+      </div>
+      <div class="avatar">AR</div>
+    </div>
+  </div>
+
+  <section class="pos" style="opacity:{{posOpacity}}; pointer-events:{{posPointerEvents}}">
+    <div class="pos__catalog">
+      <header class="pos__header">
+        <div>
+          <h1 class="pos__title">Point of Sale</h1>
+          <p class="pos__subtitle">Register a walk-in sale, scan or search a product to begin</p>
+        </div>
+        <div class="sales-stats">
+          <div class="sales-stats__card">
+            <span class="sales-stats__label">Today's Sales</span>
+            <span class="sales-stats__value">$0</span>
+          </div>
+          <div class="sales-stats__card">
+            <span class="sales-stats__label">Orders</span>
+            <span class="sales-stats__value">0</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="pills">
+        <span class="pill pill--active">All</span>
+        <span class="pill">Drinks</span>
+        <span class="pill">Snacks</span>
+        <span class="pill">Bakery</span>
+      </div>
+
+      <div class="scan">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Scan or search a product…</span>
+      </div>
+
+      <div class="pos__grid">
+        <sc-for list="{{products}}" as="product" hint-placeholder-count="6">
+          <div class="product-card">
+            <div class="product-card__thumb">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8"></path><path d="M3 8l1.5-4.5A1 1 0 0 1 5.44 3h13.12a1 1 0 0 1 .94.5L21 8"></path><path d="M3 8h18"></path><path d="M9 12h6"></path></svg>
+            </div>
+            <span class="product-card__name">{{product.name}}</span>
+            <span class="product-card__price">{{product.price}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <aside class="pos__sale">
+      <div class="pos__sale-header">
+        <h2 class="pos__sale-title">Current Sale</h2>
+        <p class="pos__sale-sub">Seller: Alex Rivera</p>
+      </div>
+      <div class="pos__sale-empty">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        <span>No items yet — scan a product to add it to this sale.</span>
+      </div>
+      <div class="pos__sale-footer">
+        <div class="pos__sale-total"><span>Total</span><span>$0.00</span></div>
+        <button class="btn btn--primary btn--block" disabled>Charge</button>
+      </div>
+    </aside>
+  </section>
+
+  <!-- Mandatory: open a cash shift before the register can be used -->
+  <sc-if value="{{shiftClosed}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop">
+      <div class="dialog-card">
+        <div class="dialog-header">
+          <span class="dialog-eyebrow">Cash Shift</span>
+          <h2 class="dialog-title">Open a Cash Shift to Continue</h2>
+        </div>
+        <div class="dialog-body">
+          <sc-if value="{{lastClosedVisible}}" hint-placeholder-val="{{false}}">
+            <div class="info-bar">
+              Previous shift closed at {{lastClosedAtDisplay}} · Actual {{lastActualCashDisplay}} · <span style="font-weight:700; color:{{lastOverColor}}">{{lastOverLabel}} {{lastOverDisplay}}</span>
+            </div>
+          </sc-if>
+          <div>
+            <label class="field-label">Initial Value</label>
+            <div class="input-group">
+              <span class="input-group__addon">$</span>
+              <input class="text-input" type="text" inputmode="decimal" placeholder="0.00" value="{{openingValueInput}}" onInput="{{updateOpeningInput}}" />
+            </div>
+            <p class="field-help">Count the cash in the drawer before you begin selling.</p>
+          </div>
+        </div>
+        <div class="dialog-footer" style="grid-template-columns: 1fr;">
+          <button class="btn btn--primary" disabled="{{openConfirmDisabled}}" onClick="{{confirmOpenShift}}">Open Shift</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Manage the open shift: balances + add/remove operations + close -->
+  <sc-if value="{{showManage}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" onClick="{{closeManage}}">
+      <div class="dialog-card dialog-card--wide" onClick="{{stopClick}}">
+        <div class="dialog-header">
+          <span class="dialog-eyebrow">Cash Shift</span>
+          <h2 class="dialog-title">Manage Cash Shift</h2>
+        </div>
+        <div class="dialog-body">
+          <div class="summary-grid">
+            <div>
+              <div class="summary-item__label">Opened At</div>
+              <div class="summary-item__value">{{openedAtDisplay}}</div>
+            </div>
+            <div>
+              <div class="summary-item__label">Opening Balance</div>
+              <div class="summary-item__value">{{openingBalanceDisplay}}</div>
+            </div>
+            <div>
+              <div class="summary-item__label">Cash In</div>
+              <div class="summary-item__value" style="color:var(--primary-600)">{{cashInDisplay}}</div>
+            </div>
+            <div>
+              <div class="summary-item__label">Cash Out</div>
+              <div class="summary-item__value" style="color:var(--danger-600)">{{cashOutDisplay}}</div>
+            </div>
+            <div class="summary-item--full">
+              <div class="summary-item__label">Expected Cash</div>
+              <div class="summary-item__value">{{expectedCashDisplay}}</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="ops-head">
+              <span class="ops-head__title">Operations</span>
+              <span class="ops-badge">{{operationsCountDisplay}}</span>
+            </div>
+            <div class="ops-list" style="margin-top:0.625rem;">
+              <sc-if value="{{noOperations}}" hint-placeholder-val="{{false}}">
+                <div class="ops-empty">No operations yet — add or remove money to record one.</div>
+              </sc-if>
+              <sc-for list="{{operations}}" as="op" hint-placeholder-count="2">
+                <div class="op-row">
+                  <div class="op-icon" style="background:{{op.iconBg}}; color:{{op.iconColor}}">
+                    <sc-if value="{{op.isIn}}" hint-placeholder-val="{{true}}">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </sc-if>
+                    <sc-if value="{{op.isOut}}" hint-placeholder-val="{{false}}">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </sc-if>
+                  </div>
+                  <div class="op-body">
+                    <div class="op-reason">{{op.reason}}</div>
+                    <div class="op-time">{{op.time}}</div>
+                  </div>
+                  <div class="op-value" style="color:{{op.valueColor}}">{{op.valueDisplay}}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div class="ops-actions">
+            <button class="btn btn--outline-primary" onClick="{{openAddOperation}}">Add Money</button>
+            <button class="btn btn--outline-danger" onClick="{{openRemoveOperation}}">Remove Money</button>
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn--secondary" onClick="{{closeManage}}">Done</button>
+          <button class="btn btn--danger" onClick="{{openCloseDialog}}">Close Shift</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Add / remove money operation -->
+  <sc-if value="{{showOperation}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" onClick="{{closeOperation}}">
+      <div class="dialog-card dialog-card--sm" onClick="{{stopClick}}">
+        <div class="dialog-header">
+          <span class="dialog-eyebrow">Cash Shift</span>
+          <h2 class="dialog-title">{{operationTitle}}</h2>
+        </div>
+        <div class="dialog-body">
+          <div>
+            <label class="field-label">Value</label>
+            <div class="input-group">
+              <span class="input-group__addon">$</span>
+              <input class="text-input" type="text" inputmode="decimal" placeholder="0.00" value="{{operationValueInput}}" onInput="{{updateOperationValue}}" />
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Reason</label>
+            <input class="text-input" type="text" placeholder="e.g. Change fund top-up" value="{{operationReasonInput}}" onInput="{{updateOperationReason}}" />
+          </div>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn--secondary" onClick="{{closeOperation}}">Cancel</button>
+          <button class="btn" style="background:{{operationAccentColor}}; color:#ffffff;" disabled="{{operationConfirmDisabled}}" onClick="{{confirmOperation}}">{{operationConfirmLabel}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Close the shift -->
+  <sc-if value="{{showClose}}" hint-placeholder-val="{{false}}">
+    <div class="dialog-backdrop" onClick="{{cancelCloseDialog}}">
+      <div class="dialog-card" onClick="{{stopClick}}">
+        <div class="dialog-header">
+          <span class="dialog-eyebrow">Cash Shift</span>
+          <h2 class="dialog-title">Close Cash Shift</h2>
+        </div>
+        <div class="dialog-body">
+          <div class="summary-grid">
+            <div>
+              <div class="summary-item__label">Opened At</div>
+              <div class="summary-item__value">{{openedAtDisplay}}</div>
+            </div>
+            <div>
+              <div class="summary-item__label">Opening Balance</div>
+              <div class="summary-item__value">{{openingBalanceDisplay}}</div>
+            </div>
+            <div class="summary-item--full">
+              <div class="summary-item__label">Expected Cash</div>
+              <div class="summary-item__value">{{expectedCashDisplay}}</div>
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Actual Ending Cash</label>
+            <div class="input-group">
+              <span class="input-group__addon">$</span>
+              <input class="text-input" type="text" inputmode="decimal" placeholder="0.00" value="{{closingValueInput}}" onInput="{{updateClosingValue}}" />
+            </div>
+            <p class="field-help">Count the cash in the drawer at the end of the shift.</p>
+          </div>
+          <sc-if value="{{overVisible}}" hint-placeholder-val="{{false}}">
+            <div class="over-row">
+              <span class="over-row__label">{{overLabel}}</span>
+              <span class="over-row__value" style="color:{{overColor}}">{{overValueDisplay}}</span>
+            </div>
+          </sc-if>
+        </div>
+        <div class="dialog-footer">
+          <button class="btn btn--secondary" onClick="{{cancelCloseDialog}}">Cancel</button>
+          <button class="btn btn--danger" disabled="{{closeConfirmDisabled}}" onClick="{{confirmCloseShift}}">Close Shift</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+
+<script data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      shiftOpen: false,
+      openedAt: null,
+      openingBalance: 0,
+      operations: [],
+
+      closedAt: null,
+      lastActualCash: null,
+      lastOver: null,
+
+      showManage: false,
+      showOperation: false,
+      operationMode: 'in',
+      showClose: false,
+
+      openingValueInput: '',
+      operationValueInput: '',
+      operationReasonInput: '',
+      closingValueInput: '',
+    };
+  }
+
+  parseNum(str) {
+    const n = parseFloat(String(str || '').replace(',', '.'));
+    return isNaN(n) ? 0 : n;
+  }
+
+  isValidAmount(str) {
+    const trimmed = String(str || '').trim();
+    if (!trimmed) return false;
+    const n = Number(trimmed.replace(',', '.'));
+    return !isNaN(n) && n >= 0;
+  }
+
+  fmt(n) {
+    return '$' + n.toFixed(2);
+  }
+
+  timeFmt(d) {
+    return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  stopClick = (e) => {
+    e.stopPropagation();
+  };
+
+  updateOpeningInput = (e) => {
+    this.setState({ openingValueInput: e.target.value });
+  };
+
+  confirmOpenShift = () => {
+    const val = this.parseNum(this.state.openingValueInput);
+    if (val <= 0) return;
+    this.setState({
+      shiftOpen: true,
+      openedAt: new Date(),
+      openingBalance: val,
+      operations: [],
+      openingValueInput: '',
+    });
+  };
+
+  openManage = () => this.setState({ showManage: true });
+  closeManage = () => this.setState({ showManage: false });
+
+  openAddOperation = () =>
+    this.setState({
+      showOperation: true,
+      showManage: false,
+      operationMode: 'in',
+      operationValueInput: '',
+      operationReasonInput: '',
+    });
+
+  openRemoveOperation = () =>
+    this.setState({
+      showOperation: true,
+      showManage: false,
+      operationMode: 'out',
+      operationValueInput: '',
+      operationReasonInput: '',
+    });
+
+  closeOperation = () => this.setState({ showOperation: false, showManage: true });
+
+  updateOperationValue = (e) => this.setState({ operationValueInput: e.target.value });
+  updateOperationReason = (e) => this.setState({ operationReasonInput: e.target.value });
+
+  confirmOperation = () => {
+    const val = this.parseNum(this.state.operationValueInput);
+    const reason = String(this.state.operationReasonInput || '').trim();
+    if (val <= 0 || !reason) return;
+    const op = {
+      id: Date.now(),
+      type: this.state.operationMode,
+      value: val,
+      reason,
+      time: new Date(),
+    };
+    this.setState({
+      operations: [...this.state.operations, op],
+      showOperation: false,
+      showManage: true,
+      operationValueInput: '',
+      operationReasonInput: '',
+    });
+  };
+
+  openCloseDialog = () => this.setState({ showClose: true, showManage: false, closingValueInput: '' });
+  cancelCloseDialog = () => this.setState({ showClose: false, showManage: true });
+  updateClosingValue = (e) => this.setState({ closingValueInput: e.target.value });
+
+  confirmCloseShift = () => {
+    if (!this.isValidAmount(this.state.closingValueInput)) return;
+    const actual = this.parseNum(this.state.closingValueInput);
+    const cashIn = this.state.operations.filter((o) => o.type === 'in').reduce((a, o) => a + o.value, 0);
+    const cashOut = this.state.operations.filter((o) => o.type === 'out').reduce((a, o) => a + o.value, 0);
+    const expected = this.state.openingBalance + cashIn - cashOut;
+    const over = actual - expected;
+    this.setState({
+      shiftOpen: false,
+      closedAt: new Date(),
+      lastActualCash: actual,
+      lastOver: over,
+      showClose: false,
+      showManage: false,
+      operations: [],
+      openingValueInput: '',
+    });
+  };
+
+  renderVals() {
+    const s = this.state;
+    const cashIn = s.operations.filter((o) => o.type === 'in').reduce((a, o) => a + o.value, 0);
+    const cashOut = s.operations.filter((o) => o.type === 'out').reduce((a, o) => a + o.value, 0);
+    const expected = s.openingBalance + cashIn - cashOut;
+
+    const operations = s.operations
+      .slice()
+      .reverse()
+      .map((o) => ({
+        id: o.id,
+        isIn: o.type === 'in',
+        isOut: o.type === 'out',
+        iconBg: o.type === 'in' ? 'var(--primary-100)' : 'var(--danger-50)',
+        iconColor: o.type === 'in' ? 'var(--primary-600)' : 'var(--danger-600)',
+        reason: o.reason,
+        time: this.timeFmt(o.time),
+        valueDisplay: (o.type === 'in' ? '+' : '-') + this.fmt(o.value),
+        valueColor: o.type === 'in' ? 'var(--primary-600)' : 'var(--danger-600)',
+      }));
+
+    const openingVal = this.parseNum(s.openingValueInput);
+    const operationVal = this.parseNum(s.operationValueInput);
+    const reasonTrim = String(s.operationReasonInput || '').trim();
+    const closingVal = this.parseNum(s.closingValueInput);
+    const diff = closingVal - expected;
+    const lastOverVal = s.lastOver ?? 0;
+
+    return {
+      shiftOpen: s.shiftOpen,
+      shiftClosed: !s.shiftOpen,
+      primaryColor: 'var(--primary-500)',
+      openedAtDisplay: s.openedAt ? this.timeFmt(s.openedAt) : '',
+      openingBalanceDisplay: this.fmt(s.openingBalance),
+      cashInDisplay: this.fmt(cashIn),
+      cashOutDisplay: this.fmt(cashOut),
+      expectedCashDisplay: this.fmt(expected),
+
+      products: [
+        { name: 'House Blend Coffee', price: '$4.50' },
+        { name: 'Iced Latte', price: '$5.25' },
+        { name: 'Croissant', price: '$3.75' },
+        { name: 'Blueberry Muffin', price: '$3.25' },
+        { name: 'Sparkling Water', price: '$2.50' },
+        { name: 'Chicken Sandwich', price: '$7.90' },
+      ],
+
+      showManage: s.showManage,
+      showOperation: s.showOperation,
+      showClose: s.showClose,
+
+      posOpacity: s.shiftOpen ? '1' : '0.45',
+      posPointerEvents: s.shiftOpen ? 'auto' : 'none',
+
+      openingValueInput: s.openingValueInput,
+      openConfirmDisabled: !(openingVal > 0),
+
+      lastClosedVisible: !!s.closedAt,
+      lastClosedAtDisplay: s.closedAt ? this.timeFmt(s.closedAt) : '',
+      lastActualCashDisplay: s.lastActualCash != null ? this.fmt(s.lastActualCash) : '',
+      lastOverLabel: lastOverVal >= 0 ? 'Over' : 'Short',
+      lastOverDisplay: s.lastOver != null ? (lastOverVal >= 0 ? '+' : '-') + '$' + Math.abs(lastOverVal).toFixed(2) : '',
+      lastOverColor: lastOverVal >= 0 ? 'var(--primary-600)' : 'var(--danger-600)',
+
+      operationsCountDisplay: String(s.operations.length),
+      noOperations: operations.length === 0,
+      operations,
+
+      operationTitle: s.operationMode === 'in' ? 'Add Money' : 'Remove Money',
+      operationConfirmLabel: s.operationMode === 'in' ? 'Add Money' : 'Remove Money',
+      operationAccentColor: s.operationMode === 'in' ? 'var(--primary-600)' : 'var(--danger-600)',
+      operationValueInput: s.operationValueInput,
+      operationReasonInput: s.operationReasonInput,
+      operationConfirmDisabled: !(operationVal > 0 && reasonTrim.length > 0),
+
+      closingValueInput: s.closingValueInput,
+      closeConfirmDisabled: !this.isValidAmount(s.closingValueInput),
+      overVisible: this.isValidAmount(s.closingValueInput),
+      overLabel: diff >= 0 ? 'Over' : 'Short',
+      overValueDisplay: (diff >= 0 ? '+' : '-') + '$' + Math.abs(diff).toFixed(2),
+      overColor: diff >= 0 ? 'var(--primary-600)' : 'var(--danger-600)',
+
+      stopClick: this.stopClick,
+      updateOpeningInput: this.updateOpeningInput,
+      confirmOpenShift: this.confirmOpenShift,
+      openManage: this.openManage,
+      closeManage: this.closeManage,
+      openAddOperation: this.openAddOperation,
+      openRemoveOperation: this.openRemoveOperation,
+      closeOperation: this.closeOperation,
+      updateOperationValue: this.updateOperationValue,
+      updateOperationReason: this.updateOperationReason,
+      confirmOperation: this.confirmOperation,
+      openCloseDialog: this.openCloseDialog,
+      cancelCloseDialog: this.cancelCloseDialog,
+      updateClosingValue: this.updateClosingValue,
+      confirmCloseShift: this.confirmCloseShift,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<div class="cash-shift-summary">
+  <div class="cash-shift-summary__card">
+    <span class="cash-shift-summary__label">{{
+      'cashShift.manage.status' | translate
+    }}</span>
+    <span class="cash-shift-summary__value">
+      <span
+        class="cash-shift-summary__dot"
+        [class.cash-shift-summary__dot--closed]="!isOpen()"
+      ></span>
+      {{
+        (isOpen() ? 'cashShift.status.open' : 'cashShift.status.closed')
+          | translate
+      }}
+    </span>
+  </div>
+
+  <div class="cash-shift-summary__card">
+    <span class="cash-shift-summary__label">{{
+      'cashShift.manage.openedAt' | translate
+    }}</span>
+    <span class="cash-shift-summary__value cash-shift-summary__value--mono">{{
+      cashShift().openedAt | date: dateFormat
+    }}</span>
+  </div>
+
+  <div class="cash-shift-summary__card">
+    <span class="cash-shift-summary__label">{{
+      'cashShift.manage.closedAt' | translate
+    }}</span>
+    @if (cashShift().closedAt; as closedAt) {
+      <span class="cash-shift-summary__value cash-shift-summary__value--mono">{{
+        closedAt | date: dateFormat
+      }}</span>
+    } @else {
+      <span
+        class="cash-shift-summary__value cash-shift-summary__value--mono cash-shift-summary__value--muted"
+        >—</span
+      >
+    }
+  </div>
+
+  <div class="cash-shift-summary__card">
+    <span class="cash-shift-summary__label">{{
+      'cashShift.manage.openingBalance' | translate
+    }}</span>
+    <span class="cash-shift-summary__value cash-shift-summary__value--amount">{{
+      cashShift().startingCash | currency: 'BRL'
+    }}</span>
+  </div>
+</div>

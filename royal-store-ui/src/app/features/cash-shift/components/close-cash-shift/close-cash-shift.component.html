@@ -1,102 +1,50 @@
 @if (cashShift(); as shift) {
   <section class="close-cash-shift">
     <header class="close-cash-shift__header">
-      <h1 class="close-cash-shift__title">
-        {{ 'cashShift.close.title' | translate }}
-      </h1>
-      <p class="close-cash-shift__subtitle">
-        {{ 'cashShift.close.subtitle' | translate }}
-      </p>
+      <div>
+        <h1 class="close-cash-shift__title">
+          {{ 'cashShift.page.title' | translate }}
+        </h1>
+        <p class="close-cash-shift__subtitle">
+          {{ 'cashShift.page.subtitle' | translate }}
+        </p>
+      </div>
+
+      <div class="close-cash-shift__meta">
+        <span
+          class="close-cash-shift__badge"
+          [class.close-cash-shift__badge--closed]="!isOpen()"
+          >{{
+            (isOpen()
+              ? 'cashShift.page.shiftOpen'
+              : 'cashShift.page.shiftClosed'
+            ) | translate
+          }}</span
+        >
+        <span class="close-cash-shift__reference"
+          >{{ shiftMeta.code }} · {{ shiftMeta.register }}</span
+        >
+      </div>
     </header>
 
-    <div class="close-cash-shift__breakdown">
-      <div class="close-cash-shift__row">
-        <span>{{ 'cashShift.close.openingBalance' | translate }}</span>
-        <span class="close-cash-shift__amount">{{
-          shift.startingCash | currency: 'BRL'
-        }}</span>
+    <app-cash-shift-summary [cashShift]="shift"></app-cash-shift-summary>
+
+    <div class="close-cash-shift__grid">
+      <div class="close-cash-shift__column">
+        <app-cash-movement-form
+          (submitted)="registerMovement($event)"
+        ></app-cash-movement-form>
+
+        <app-cash-movement-list
+          [movements]="movements()"
+        ></app-cash-movement-list>
       </div>
-      <div class="close-cash-shift__row">
-        <span>{{ 'cashShift.close.cashSales' | translate }}</span>
-        <span class="close-cash-shift__amount close-cash-shift__amount--in"
-          >+{{ shift.cashSales | currency: 'BRL' }}</span
-        >
-      </div>
-      <div class="close-cash-shift__row">
-        <span>{{ 'cashShift.close.supplements' | translate }}</span>
-        <span class="close-cash-shift__amount close-cash-shift__amount--in"
-          >+{{ shift.totalSupplements | currency: 'BRL' }}</span
-        >
-      </div>
-      <div class="close-cash-shift__row">
-        <span>{{ 'cashShift.close.sangrias' | translate }}</span>
-        <span class="close-cash-shift__amount close-cash-shift__amount--out"
-          >-{{ shift.totalWithdrawals | currency: 'BRL' }}</span
-        >
-      </div>
-      <div class="close-cash-shift__row close-cash-shift__row--total">
-        <span>{{ 'cashShift.close.expected' | translate }}</span>
-        <span class="close-cash-shift__amount">{{
-          shift.expectedCash | currency: 'BRL'
-        }}</span>
-      </div>
+
+      <app-close-shift-form
+        [cashShift]="shift"
+        [isClosing]="isClosing()"
+        (confirmed)="closeShift($event)"
+      ></app-close-shift-form>
     </div>
-
-    <form [formGroup]="formGroup" class="close-cash-shift__form">
-      <div class="close-cash-shift__actual">
-        <app-input-number-field
-          class="close-cash-shift__actual-field"
-          [parentForm]="formGroup"
-          controlName="actualEndingCash"
-          [label]="'cashShift.close.actualEndingCash'"
-          [id]="'actualEndingCash'"
-        ></app-input-number-field>
-        <p-button
-          severity="secondary"
-          [outlined]="true"
-          size="small"
-          [label]="'cashShift.close.matches' | translate"
-          (onClick)="fillExpected()"
-        ></p-button>
-      </div>
-
-      @if (difference() !== null) {
-        <div
-          class="close-cash-shift__difference"
-          [class.close-cash-shift__difference--short]="isShort()"
-        >
-          <span>{{
-            (isShort() ? 'cashShift.close.short' : 'cashShift.close.over')
-              | translate
-          }}</span>
-          <span class="close-cash-shift__amount"
-            >{{ isShort() ? '-' : '+'
-            }}{{ absDifference() | currency: 'BRL' }}</span
-          >
-        </div>
-        <p class="close-cash-shift__hint">
-          {{ 'cashShift.close.hint' | translate }}
-        </p>
-      }
-
-      <app-input-field
-        [parentForm]="formGroup"
-        controlName="closingNote"
-        [label]="'cashShift.close.closingNote'"
-        [id]="'closingNote'"
-      ></app-input-field>
-    </form>
-
-    <p-button
-      styleClass="close-cash-shift__submit"
-      [loading]="isClosing()"
-      [disabled]="formGroup.invalid"
-      (onClick)="confirm()"
-    >
-      {{ 'cashShift.close.submit' | translate }}
-      {{ actualEndingCash() ?? 0 | currency: 'BRL' }}
-    </p-button>
   </section>
-
-  {{ shift | json }}
 }

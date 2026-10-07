@@ -1,38 +1,40 @@
-import { CurrencyPipe, JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
   OnInit,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
-import { ButtonModule } from 'primeng/button';
-import { filter, startWith, take } from 'rxjs';
-import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
-import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { filter, take } from 'rxjs';
+import { CashShiftStatus } from '@app/shared/enum/cash-shift-status.enum';
+import { NotificationService } from '@app/shared/services/notification.service';
 import { CashShiftFacade } from '../../facade/cash-shift.facade';
 import { CashShift } from '../../interfaces/cash-shift.interface';
+import { CashMovement } from '../../interfaces/cash-movement.interface';
+import { CashMovementRequest } from '../../interfaces/cash-movement-request.interface';
+import { CloseCashShiftRequest } from '../../interfaces/close-cash-shift-request.interface';
+import {
+  CASH_MOVEMENTS_MOCK,
+  CASH_SHIFT_META_MOCK,
+} from '../../mocks/cash-shift.mock';
+import { CashShiftSummaryComponent } from '../cash-shift-summary/cash-shift-summary.component';
+import { CashMovementFormComponent } from '../cash-movement-form/cash-movement-form.component';
+import { CashMovementListComponent } from '../cash-movement-list/cash-movement-list.component';
+import { CloseShiftFormComponent } from '../close-shift-form/close-shift-form.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-close-cash-shift',
   imports: [
-    ReactiveFormsModule,
     TranslatePipe,
-    CurrencyPipe,
-    ButtonModule,
-    InputNumberFieldComponent,
-    InputFieldComponent,
-    JsonPipe,
+    CashShiftSummaryComponent,
+    CashMovementFormComponent,
+    CashMovementListComponent,
+    CloseShiftFormComponent,
   ],
   templateUrl: './close-cash-shift.component.html',
   styleUrl: './close-cash-shift.component.scss',
@@ -40,6 +42,8 @@ import { CashShift } from '../../interfaces/cash-shift.interface';
 export class CloseCashShiftComponent implements OnInit {
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly router = inject(Router);
+  private readonly notificationService = inject(NotificationService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly cashShift = toSignal(this.cashShiftFacade.current$, {
     initialValue: null as CashShift | null,
@@ -47,52 +51,43 @@ export class CloseCashShiftComponent implements OnInit {
   protected readonly isClosing = toSignal(this.cashShiftFacade.isClosing$, {
     initialValue: false,
   });
+  protected readonly isOpen = computed(() => this.cashShift() !== null);
 
-  protected readonly formGroup = new FormGroup({
-    actualEndingCash: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(0),
-    ]),
-    closingNote: new FormControl<string | null>(null, [
-      Validators.maxLength(200),
-    ]),
-  });
-
-  protected readonly actualEndingCash = toSignal(
-    this.formGroup.controls.actualEndingCash.valueChanges.pipe(
-      startWith(this.formGroup.controls.actualEndingCash.value),
-    ),
-    { initialValue: null },
-  );
-
-  protected readonly difference = computed(() => {
-    const actual = this.actualEndingCash();
-    const shift = this.cashShift();
-    if (actual === null || !shift) {
-      return null;
-    }
-    return actual - shift.expectedCash;
-  });
-
-  protected readonly isShort = computed(() => (this.difference() ?? 0) < 0);
-  protected readonly absDifference = computed(() =>
-    Math.abs(this.difference() ?? 0),
-  );
+  // Mocked until the shift metadata and cash-movement endpoints exist.
+  protected readonly shiftMeta = CASH_SHIFT_META_MOCK;
+  protected readonly movements = signal<CashMovement[]>(CASH_MOVEMENTS_MOCK);
 
   ngOnInit(): void {
     this.cashShiftFacade.loadCurrent();
   }
 
-  protected fillExpected(): void {
-    const shift = this.cashShift();
-    if (shift) {
-      this.formGroup.controls.actualEndingCash.setValue(shift.expectedCash);
-    }
+  protected registerMovement(request: CashMovementRequest): void {
+    // TODO: call CashShiftService.registerMovement(...) once the add/remove-money endpoint exists.
+    this.movements.update(movements => [
+      {
+        id: crypto.randomUUID(),
+        type: request.direction === 'in' ? 'supplement' : 'withdrawal',
+        amount: request.amount,
+        description: request.reason,
+        occurredAt: new Date().toISOString(),
+      },
+      ...movements,
+    ]);
+
+    const messageKey =
+      request.direction === 'in'
+        ? 'cashShift.movement.addedSuccess'
+        : 'cashShift.movement.removedSuccess';
+
+    this.notificationService.success({
+      detail: this.translateService.instant(messageKey, {
+        amount: request.amount.toFixed(2),
+      }),
+    });
   }
 
-  protected confirm(): void {
-    if (this.formGroup.invalid || this.isClosing() || !this.cashShift()) {
-      this.formGroup.markAllAsTouched();
+  protected closeShift(request: CloseCashShiftRequest): void {
+    if (this.isClosing()) {
       return;
     }
 
@@ -103,9 +98,6 @@ export class CloseCashShiftComponent implements OnInit {
       )
       .subscribe(() => this.router.navigate(['/dashboard']));
 
-    this.cashShiftFacade.closeCashShift({
-      actualEndingCash: this.formGroup.controls.actualEndingCash.value!,
-      closingNote: this.formGroup.controls.closingNote.value?.trim() || null,
-    });
+    this.cashShiftFacade.closeCashShift(request);
   }
 }

@@ -1,0 +1,38 @@
+<div class="cash-shift">
+  <div class="cash-shift__header">
+    <div class="cash-shift__header-text">
+      <span class="cash-shift__eyebrow">{{
+        'cashShift.eyebrow' | translate
+      }}</span>
+      <h2 class="cash-shift__title">
+        {{ 'cashShift.manage.title' | translate }}
+      </h2>
+      <p class="cash-shift__subtitle">
+        {{ 'cashShift.manage.subtitle' | translate }}
+      </p>
+    </div>
+    <button
+      type="button"
+      class="cash-shift__close"
+      (click)="close()"
+      [attr.aria-label]="'cashShift.manage.close' | translate"
+    >
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <app-cash-shift-summary [cashShift]="cashShift()"></app-cash-shift-summary>
+
+  <app-cash-movement-form
+    (submitted)="registerMovement($event)"
+  ></app-cash-movement-form>
+
+  <div class="cash-shift__footer">
+    <p-button
+      severity="contrast"
+      [fluid]="true"
+      [label]="'cashShift.closeShift' | translate"
+      (onClick)="closeShift()"
+    ></p-button>
+  </div>
+</div>

@@ -1,0 +1,104 @@
+<section class="cash-movement">
+  <header>
+    <h3 class="cash-movement__title">
+      {{ 'cashShift.movement.title' | translate }}
+    </h3>
+    <p class="cash-movement__subtitle">
+      {{ 'cashShift.movement.subtitle' | translate }}
+    </p>
+  </header>
+
+  <div
+    class="cash-movement__toggle"
+    role="radiogroup"
+    [attr.aria-label]="'cashShift.movement.title' | translate"
+  >
+    @for (option of movementOptions; track option.value) {
+      <button
+        type="button"
+        role="radio"
+        class="movement-option movement-option--{{ option.value }}"
+        [class.movement-option--active]="movementType() === option.value"
+        [attr.aria-checked]="movementType() === option.value"
+        (click)="movementType.set(option.value)"
+      >
+        <span class="movement-option__label">{{
+          option.label | translate
+        }}</span>
+        <span class="movement-option__caption">{{
+          'cashShift.movement.caption.' + option.value | translate
+        }}</span>
+      </button>
+    }
+  </div>
+
+  <form
+    [formGroup]="formGroup"
+    class="cash-movement__form"
+    (ngSubmit)="submit()"
+  >
+    <div class="cash-movement__field">
+      <label class="cash-movement__label" for="movementAmount">{{
+        'cashShift.movement.amount' | translate
+      }}</label>
+      <div
+        class="money-input"
+        [class.money-input--invalid]="isInvalid('amount')"
+      >
+        <span class="money-input__prefix">R$</span>
+        <p-inputnumber
+          inputId="movementAmount"
+          formControlName="amount"
+          mode="decimal"
+          locale="en-US"
+          placeholder="0.00"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [min]="0"
+          [fluid]="true"
+        ></p-inputnumber>
+      </div>
+    </div>
+
+    <div class="cash-movement__field">
+      <label class="cash-movement__label" for="movementReason">{{
+        'cashShift.movement.reason' | translate
+      }}</label>
+      <input
+        pInputText
+        id="movementReason"
+        class="cash-movement__input"
+        formControlName="reason"
+        autocomplete="off"
+        [placeholder]="'cashShift.movement.reasonPlaceholder' | translate"
+        [invalid]="isInvalid('reason')"
+      />
+    </div>
+  </form>
+
+  <div class="cash-movement__quick-reasons">
+    @for (reasonKey of quickReasons(); track reasonKey) {
+      <button
+        type="button"
+        class="quick-reason-chip"
+        (click)="applyQuickReason(reasonKey)"
+      >
+        {{ reasonKey | translate }}
+      </button>
+    }
+  </div>
+
+  <div>
+    <p-button
+      [label]="
+        (movementType() === 'in'
+          ? 'cashShift.movement.submitAdd'
+          : 'cashShift.movement.submitRemove'
+        ) | translate
+      "
+      [severity]="movementType() === 'out' ? 'danger' : null"
+      [disabled]="formGroup.invalid"
+      (onClick)="submit()"
+    ></p-button>
+  </div>
+</section>
