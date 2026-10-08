@@ -4,12 +4,13 @@
       {{ 'cashShift.movements.title' | translate }}
     </h3>
     <span class="cash-movement-list__count">{{
-      'cashShift.movements.count' | translate: { count: movements().length }
+      'cashShift.movements.count'
+        | translate: { count: (movements$ | async)?.length }
     }}</span>
   </header>
 
   <ul class="cash-movement-list__items">
-    @for (movement of movements(); track movement.id) {
+    @for (movement of movements$ | async; track movement.id) {
       <li class="movement movement--{{ movement.type }}">
         <span class="movement__icon" aria-hidden="true">
           <i
@@ -22,12 +23,10 @@
           <span class="movement__title">{{
             'cashShift.movements.type.' + movement.type | translate
           }}</span>
-          <span class="movement__description">{{
-            movement.description
-          }}</span>
+          <span class="movement__description">{{ movement.description }}</span>
         </div>
         <span class="movement__time">{{
-          movement.occurredAt | date: 'HH:mm'
+          movement.movedAt | date: 'HH:mm'
         }}</span>
         <span class="movement__amount"
           >{{ isOutgoing(movement.type) ? '−' : '+'

@@ -26,7 +26,7 @@ public sealed class CashMovementConfiguration : IEntityTypeConfiguration<CashMov
             .HasColumnType("decimal(18,2)")
             .IsRequired();
 
-        builder.Property(e => e.Description);
+        builder.Property(e => e.Description).HasMaxLength(CashMovement.DescriptionMaxLength);
 
         builder.Property(e => e.MovedAt).IsRequired();
         builder.Property(e => e.SyncedAt).IsRequired();

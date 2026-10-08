@@ -20,6 +20,8 @@ import {
   CashMovementDirection,
   CashMovementRequest,
 } from '../../interfaces/cash-movement-request.interface';
+import { CashShiftFacade } from '../../facade/cash-shift.facade';
+import { RecordCashMovementRequest } from '../../interfaces/record-cash-movement-request.interface';
 
 interface MovementOption {
   label: string;
@@ -59,8 +61,7 @@ const QUICK_REASON_KEYS: Record<CashMovementDirection, string[]> = {
 })
 export class CashMovementFormComponent {
   private readonly translateService = inject(TranslateService);
-
-  readonly submitted = output<CashMovementRequest>();
+  private readonly cashShiftFacade = inject(CashShiftFacade);
 
   protected readonly movementOptions = MOVEMENT_OPTIONS;
   protected readonly movementType = signal<CashMovementDirection>('in');
@@ -95,12 +96,16 @@ export class CashMovementFormComponent {
       this.formGroup.markAllAsTouched();
       return;
     }
-
-    this.submitted.emit({
-      direction: this.movementType(),
+    const movement: RecordCashMovementRequest = {
       amount: this.formGroup.controls.amount.value!,
-      reason: this.formGroup.controls.reason.value!.trim(),
-    });
+      description: this.formGroup.controls.reason.value!.trim(),
+    };
+
+    if (this.movementType() === 'in') {
+      this.cashShiftFacade.recordSupplement(movement);
+    } else {
+      this.cashShiftFacade.recordWithdrawal(movement);
+    }
 
     this.formGroup.reset();
   }

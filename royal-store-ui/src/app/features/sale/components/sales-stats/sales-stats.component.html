@@ -1,12 +1,18 @@
-<div class="sales-stats">
-  <div class="sales-stats__card">
-    <span class="sales-stats__label">{{ 'sale.stats.todaySales' | translate }}</span>
-    <span class="sales-stats__value">
-      {{ todaySales() | currency: 'USD' : 'symbol' : '1.0-0' }}
-    </span>
+@if (current$ | async; as current) {
+  <div class="sales-stats">
+    <div class="sales-stats__card">
+      <span class="sales-stats__label">{{
+        'sale.stats.todaySales' | translate
+      }}</span>
+      <span class="sales-stats__value">
+        {{ current.totalSales | currency: 'R$' : 'symbol' : '1.0-0' }}
+      </span>
+    </div>
+    <div class="sales-stats__card">
+      <span class="sales-stats__label">{{
+        'sale.stats.orders' | translate
+      }}</span>
+      <span class="sales-stats__value">{{ current.salesCount }}</span>
+    </div>
   </div>
-  <div class="sales-stats__card">
-    <span class="sales-stats__label">{{ 'sale.stats.orders' | translate }}</span>
-    <span class="sales-stats__value">{{ todayOrders() }}</span>
-  </div>
-</div>
+}

@@ -21,9 +21,7 @@
             ) | translate
           }}</span
         >
-        <span class="close-cash-shift__reference"
-          >{{ shiftMeta.code }} · {{ shiftMeta.register }}</span
-        >
+        <span class="close-cash-shift__reference">{{ shiftMeta }}</span>
       </div>
     </header>
 
@@ -31,13 +29,9 @@
 
     <div class="close-cash-shift__grid">
       <div class="close-cash-shift__column">
-        <app-cash-movement-form
-          (submitted)="registerMovement($event)"
-        ></app-cash-movement-form>
+        <app-cash-movement-form></app-cash-movement-form>
 
-        <app-cash-movement-list
-          [movements]="movements()"
-        ></app-cash-movement-list>
+        <app-cash-movement-list></app-cash-movement-list>
       </div>
 
       <app-close-shift-form

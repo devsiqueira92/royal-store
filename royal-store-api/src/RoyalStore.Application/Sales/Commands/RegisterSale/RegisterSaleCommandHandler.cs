@@ -213,10 +213,29 @@ public sealed class RegisterSaleCommandHandler
                 return recordResult.Error;
         }
 
+        // Every sale also lands in the shift's movement history (041-sale-cash-movement). Cashback lines
+        // are not money received, so only tender lines name the payment methods.
+        var paymentMethodNames = tenderLines.Select(p => p.CatalogPayment.PaymentMethod).ToList();
+        var saleMovementResult = openShift.RecordSale(Guid.NewGuid(), sale, paymentMethodNames);
+        if (saleMovementResult.IsFailure)
+            return saleMovementResult.Error;
+
         try
         {
+            // Explicit add (no UpdateAsync on the tracked shift): the movement must be tracked as Added,
+            // and the shift's Version bump is picked up by change detection on the same save.
+            if (saleMovementResult.Value is not null)
+                await _cashShiftRepository.AddMovementAsync(saleMovementResult.Value, cancellationToken);
+
             await _saleRepository.AddAsync(sale, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException ex) when (ex.Entries.Any(e => e.Entity is CashShift))
+        {
+            // The shift changed after it was loaded — closed, or another movement/sale committed — so
+            // nothing (sale, movement, cashback) is saved; the operator refreshes and retries (FR-009).
+            return Error.Conflict("cashshift.concurrent_update",
+                "The cash shift was changed by another operation. Refresh and try again.");
         }
         catch (DbUpdateConcurrencyException)
         {

@@ -29,6 +29,10 @@ public sealed class CashShiftConfiguration : IEntityTypeConfiguration<CashShift>
         builder.Property(e => e.ActualEndingCash)
             .HasColumnType("decimal(18,2)");
 
+        builder.Property(e => e.Version)
+            .IsRequired()
+            .IsConcurrencyToken();
+
         builder.Property(e => e.CreatedAt).IsRequired();
         builder.Property(e => e.CreatedBy).HasMaxLength(450).IsRequired();
         builder.Property(e => e.UpdatedAt).IsRequired();

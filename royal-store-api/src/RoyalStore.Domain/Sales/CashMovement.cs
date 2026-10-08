@@ -5,6 +5,8 @@ namespace RoyalStore.Domain.Sales;
 
 public sealed class CashMovement : Entity
 {
+    public const int DescriptionMaxLength = 250;
+
     public Guid TenantId { get; private set; }
     public Guid CashShiftId { get; private set; }
     public string? UserId { get; private set; }
@@ -48,6 +50,13 @@ public sealed class CashMovement : Entity
         if (amount <= 0)
             return Error.Validation("cashmovement.amount_invalid", "Movement amount must be greater than zero.");
 
-        return new CashMovement(id, tenantId, cashShiftId, userId, type, amount, description, movedAt, syncedAt);
+        if (amount != decimal.Round(amount, 2))
+            return Error.Validation("cashmovement.amount_precision", "Movement amount must have at most two decimal places.");
+
+        var normalizedDescription = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        if (normalizedDescription?.Length > DescriptionMaxLength)
+            return Error.Validation("cashmovement.description_too_long", "Movement description must not exceed 250 characters.");
+
+        return new CashMovement(id, tenantId, cashShiftId, userId, type, amount, normalizedDescription, movedAt, syncedAt);
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Sales.DTOs;
@@ -43,7 +44,18 @@ public sealed class CloseCashShiftCommandHandler
             return closeResult.Error;
 
         await _cashShiftRepository.UpdateAsync(shift, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // A movement was recorded on this shift after it was loaded — the expected ending cash
+            // computed above is stale, so nothing is committed and the caller retries.
+            return Error.Conflict("cashshift.concurrent_update",
+                "The cash shift was changed by another operation. Refresh and try again.");
+        }
 
         return new CloseCashShiftResponse(
             shift.Id,

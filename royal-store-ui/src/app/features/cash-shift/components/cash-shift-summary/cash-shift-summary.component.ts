@@ -6,7 +6,6 @@ import {
   input,
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CashShiftStatus } from '@app/shared/enum/cash-shift-status.enum';
 import { CashShift } from '../../interfaces/cash-shift.interface';
 
 @Component({
@@ -21,6 +20,6 @@ export class CashShiftSummaryComponent {
 
   protected readonly dateFormat = 'HH:mm · MMM d, y';
   protected readonly isOpen = computed(
-    () => this.cashShift().status === CashShiftStatus.Open,
+    () => this.cashShift().closedAt !== null,
   );
 }

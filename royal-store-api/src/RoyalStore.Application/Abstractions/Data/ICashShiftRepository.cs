@@ -9,4 +9,6 @@ public interface ICashShiftRepository
     Task<CashShift?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task UpdateAsync(CashShift cashShift, CancellationToken ct = default);
     Task<HashSet<Guid>> GetExistingIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
+    Task AddMovementAsync(CashMovement movement, CancellationToken ct = default);
+    Task<CashShift?> GetByIdWithMovementsAsync(Guid id, CancellationToken ct = default);
 }

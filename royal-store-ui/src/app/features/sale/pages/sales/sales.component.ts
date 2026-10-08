@@ -67,8 +67,6 @@ export class SalesComponent implements OnInit {
 
   protected readonly sellerName = MOCK_SELLER_NAME;
   protected readonly saleRef = MOCK_SALE_REF;
-  protected readonly todaySales = MOCK_TODAY_SALES;
-  protected readonly todayOrders = MOCK_TODAY_ORDERS;
 
   protected readonly formGroup = new FormGroup({
     barcode: new FormControl<string | null>(null),

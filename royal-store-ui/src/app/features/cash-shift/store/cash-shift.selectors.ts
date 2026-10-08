@@ -5,5 +5,9 @@ export const {
   selectCurrentLoaded,
   selectIsOpening,
   selectIsClosing,
+  selectMovements,
+  selectIsLoadingMovements,
+  selectIsRecordingMovement,
+  selectLastRecordedMovement,
   selectError,
 } = cashShiftFeature;

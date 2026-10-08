@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { SaleService } from '../services/sale.service';
+import { CashShiftActions } from '../../cash-shift/store/cash-shift.actions';
 import { SaleActions } from './sale.actions';
 
 export const syncSales = createEffect(
@@ -44,6 +45,18 @@ export const registerSale = createEffect(
           ),
         ),
       ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const refreshCashShiftAfterSale = createEffect(
+  (actions$ = inject(Actions)) => {
+    return actions$.pipe(
+      ofType(SaleActions.registerSaleSuccess),
+      map(() => CashShiftActions.refreshCurrent()),
     );
   },
   {

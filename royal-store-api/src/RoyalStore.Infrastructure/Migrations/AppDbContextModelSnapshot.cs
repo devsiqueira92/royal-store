@@ -1229,7 +1229,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<DateTime>("MovedAt")
                         .HasColumnType("datetime2");
@@ -1301,6 +1302,10 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

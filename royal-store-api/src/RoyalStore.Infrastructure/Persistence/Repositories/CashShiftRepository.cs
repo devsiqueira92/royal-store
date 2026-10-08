@@ -27,6 +27,12 @@ public sealed class CashShiftRepository : ICashShiftRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.Id == id, ct);
 
+    public async Task<CashShift?> GetByIdWithMovementsAsync(Guid id, CancellationToken ct = default) =>
+        await _context.CashShifts
+            .AsNoTracking()
+            .Include(s => s.Movements)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+
     public Task UpdateAsync(CashShift cashShift, CancellationToken ct = default)
     {
         _context.CashShifts.Update(cashShift);
@@ -38,4 +44,9 @@ public sealed class CashShiftRepository : ICashShiftRepository
             .Where(cs => ids.Contains(cs.Id))
             .Select(cs => cs.Id)
             .ToListAsync(ct));
+
+    // Explicit Add: a movement with a preset Guid key discovered only through CashShift.Movements
+    // would be tracked as Modified by DetectChanges and issue an UPDATE for a row that doesn't exist.
+    public async Task AddMovementAsync(CashMovement movement, CancellationToken ct = default) =>
+        await _context.CashMovements.AddAsync(movement, ct);
 }

@@ -41,10 +41,13 @@ public sealed class SaleRepository : ISaleRepository
 
     public async Task<ShiftSalesTotals> GetShiftSalesTotalsAsync(Guid cashShiftId, CancellationToken ct = default)
     {
-        var totalSales = await _context.Sales
+        // Sum and count in one round trip; no row at all when the shift has no sales.
+        var salesAggregate = await _context.Sales
             .AsNoTracking()
             .Where(s => s.CashShiftId == cashShiftId)
-            .SumAsync(s => s.TotalAmount, ct);
+            .GroupBy(_ => 1)
+            .Select(g => new { Total = g.Sum(s => s.TotalAmount), Count = g.Count() })
+            .FirstOrDefaultAsync(ct);
 
         // Classified by the catalog Payment's fiscal code, not SalePayment.Card.Type — that owned
         // column is also named "PaymentType" in the database but holds "credit"/"debit" card detail
@@ -66,9 +69,10 @@ public sealed class SaleRepository : ISaleRepository
             .ToDictionaryAsync(x => x.Code, x => x.Total, ct);
 
         return new ShiftSalesTotals(
-            totalSales,
+            salesAggregate?.Total ?? 0m,
             byCode.GetValueOrDefault(cashCode),
             byCode.GetValueOrDefault(creditCode),
-            byCode.GetValueOrDefault(debitCode));
+            byCode.GetValueOrDefault(debitCode),
+            salesAggregate?.Count ?? 0);
     }
 }

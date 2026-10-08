@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { CashShift } from '../interfaces/cash-shift.interface';
 import { OpenCashShiftRequest } from '../interfaces/open-cash-shift-request.interface';
 import { CloseCashShiftRequest } from '../interfaces/close-cash-shift-request.interface';
+import { RecordCashMovementRequest } from '../interfaces/record-cash-movement-request.interface';
+import { CashMovementResponse } from '../interfaces/cash-movement-response.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -24,5 +26,17 @@ export class CashShiftService {
 
   close(request: CloseCashShiftRequest): Observable<CashShift> {
     return this.http.patch<CashShift>(`${this.apiUrl}/close`, request);
+  }
+
+  getMovements(shiftId: string): Observable<CashMovementResponse[]> {
+    return this.http.get<CashMovementResponse[]>(`${this.apiUrl}/${shiftId}/movements`);
+  }
+
+  recordSupplement(request: RecordCashMovementRequest): Observable<CashMovementResponse> {
+    return this.http.post<CashMovementResponse>(`${this.apiUrl}/current/supplements`, request);
+  }
+
+  recordWithdrawal(request: RecordCashMovementRequest): Observable<CashMovementResponse> {
+    return this.http.post<CashMovementResponse>(`${this.apiUrl}/current/withdrawals`, request);
   }
 }

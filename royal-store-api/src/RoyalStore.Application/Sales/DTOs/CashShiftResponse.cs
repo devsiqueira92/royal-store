@@ -14,7 +14,8 @@ public record CashShiftResponse(
     decimal CashSales,
     decimal CreditCardSales,
     decimal DebitCardSales,
-    decimal CardSales)
+    decimal CardSales,
+    int SalesCount)
 {
     public static CashShiftResponse From(CashShift shift, ShiftSalesTotals totals) =>
         new(shift.Id, shift.UserId, shift.StartingCash, shift.OpenedAt,
@@ -25,5 +26,6 @@ public record CashShiftResponse(
             totals.CashSales,
             totals.CreditCardSales,
             totals.DebitCardSales,
-            totals.CardSales);
+            totals.CardSales,
+            totals.SalesCount);
 }

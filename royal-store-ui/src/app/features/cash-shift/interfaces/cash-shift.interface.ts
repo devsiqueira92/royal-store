@@ -16,4 +16,5 @@ export interface CashShift {
   cardSales: number;
   actualEndingCash: number | null;
   over: number | null;
+  salesCount: number;
 }

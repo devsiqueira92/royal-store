@@ -1,14 +1,15 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, concatMap, map, of, switchMap } from 'rxjs';
 import { CashShiftService } from '../services/cash-shift.service';
 import { CashShiftActions } from './cash-shift.actions';
 
+// refreshCurrent keeps currentLoaded untouched so the layout does not tear down the page.
 export const loadCurrentCashShift = createEffect(
   (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {
     return actions$.pipe(
-      ofType(CashShiftActions.loadCurrent),
+      ofType(CashShiftActions.loadCurrent, CashShiftActions.refreshCurrent),
       switchMap(() =>
         cashShiftService.getCurrent().pipe(
           map(cashShift => CashShiftActions.loadCurrentSuccess({ cashShift })),
@@ -61,6 +62,76 @@ export const closeCashShift = createEffect(
           catchError((error: HttpErrorResponse) =>
             of(
               CashShiftActions.closeCashShiftFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const loadCashShiftMovements = createEffect(
+  (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {
+    return actions$.pipe(
+      ofType(CashShiftActions.loadMovements),
+      switchMap(({ shiftId }) =>
+        cashShiftService.getMovements(shiftId).pipe(
+          map(movements => CashShiftActions.loadMovementsSuccess({ shiftId, movements })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              CashShiftActions.loadMovementsFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+// concatMap: writes must not be cancelled by a later dispatch.
+export const recordSupplement = createEffect(
+  (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {
+    return actions$.pipe(
+      ofType(CashShiftActions.recordSupplement),
+      concatMap(({ request }) =>
+        cashShiftService.recordSupplement(request).pipe(
+          map(movement => CashShiftActions.recordCashMovementSuccess({ movement })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              CashShiftActions.recordCashMovementFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const recordWithdrawal = createEffect(
+  (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {
+    return actions$.pipe(
+      ofType(CashShiftActions.recordWithdrawal),
+      concatMap(({ request }) =>
+        cashShiftService.recordWithdrawal(request).pipe(
+          map(movement => CashShiftActions.recordCashMovementSuccess({ movement })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              CashShiftActions.recordCashMovementFailure({
                 error: error.error?.message ?? 'error.unknowError',
               }),
             ),
