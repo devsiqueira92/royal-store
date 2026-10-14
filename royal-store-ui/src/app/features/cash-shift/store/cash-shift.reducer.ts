@@ -1,9 +1,15 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { CashShift } from '../interfaces/cash-shift.interface';
 import { CashMovementResponse } from '../interfaces/cash-movement-response.interface';
+import { CashShiftListItem } from '../interfaces/cash-shift-list-item.interface';
+import { CashShiftDetails } from '../interfaces/cash-shift-details.interface';
 import { CashShiftActions } from './cash-shift.actions';
 
 export interface CashShiftState {
+  shifts: CashShiftListItem[];
+  isLoadingShifts: boolean;
+  shiftDetails: CashShiftDetails | null;
+  isLoadingShiftDetails: boolean;
   current: CashShift | null;
   currentLoaded: boolean;
   isOpening: boolean;
@@ -17,6 +23,10 @@ export interface CashShiftState {
 }
 
 export const initialCashShiftState: CashShiftState = {
+  shifts: [],
+  isLoadingShifts: false,
+  shiftDetails: null,
+  isLoadingShiftDetails: false,
   current: null,
   currentLoaded: false,
   isOpening: false,
@@ -33,6 +43,41 @@ export const cashShiftFeature = createFeature({
   name: 'cashShift',
   reducer: createReducer(
     initialCashShiftState,
+    on(CashShiftActions.loadShifts, (state): CashShiftState => ({
+      ...state,
+      isLoadingShifts: true,
+      error: null,
+    })),
+    on(CashShiftActions.loadShiftsSuccess, (state, { shifts }): CashShiftState => ({
+      ...state,
+      shifts,
+      isLoadingShifts: false,
+    })),
+    on(CashShiftActions.loadShiftsFailure, (state, { error }): CashShiftState => ({
+      ...state,
+      isLoadingShifts: false,
+      error,
+    })),
+    on(CashShiftActions.loadShiftDetails, (state, { shiftId }): CashShiftState => ({
+      ...state,
+      shiftDetails: state.shiftDetails?.id === shiftId ? state.shiftDetails : null,
+      isLoadingShiftDetails: true,
+      error: null,
+    })),
+    on(CashShiftActions.loadShiftDetailsSuccess, (state, { shiftDetails }): CashShiftState => ({
+      ...state,
+      shiftDetails,
+      isLoadingShiftDetails: false,
+    })),
+    on(CashShiftActions.loadShiftDetailsFailure, (state, { error }): CashShiftState => ({
+      ...state,
+      isLoadingShiftDetails: false,
+      error,
+    })),
+    on(CashShiftActions.clearShiftDetails, (state): CashShiftState => ({
+      ...state,
+      shiftDetails: null,
+    })),
     on(CashShiftActions.loadCurrent, (state): CashShiftState => ({
       ...state,
       currentLoaded: false,

@@ -7,6 +7,8 @@ import { OpenCashShiftRequest } from '../interfaces/open-cash-shift-request.inte
 import { CloseCashShiftRequest } from '../interfaces/close-cash-shift-request.interface';
 import { RecordCashMovementRequest } from '../interfaces/record-cash-movement-request.interface';
 import { CashMovementResponse } from '../interfaces/cash-movement-response.interface';
+import { CashShiftListItem } from '../interfaces/cash-shift-list-item.interface';
+import { CashShiftDetails } from '../interfaces/cash-shift-details.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -15,12 +17,19 @@ export class CashShiftService {
   private http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/cash-shifts`;
 
+  getAll(): Observable<CashShiftListItem[]> {
+    return this.http.get<CashShiftListItem[]>(this.apiUrl);
+  }
+
+  getById(shiftId: string): Observable<CashShiftDetails> {
+    return this.http.get<CashShiftDetails>(`${this.apiUrl}/${shiftId}`);
+  }
+
   getCurrent(): Observable<CashShift | null> {
     return this.http.get<CashShift | null>(`${this.apiUrl}/current`);
   }
 
   open(request: OpenCashShiftRequest): Observable<CashShift> {
-    debugger;
     return this.http.post<CashShift>(this.apiUrl, request);
   }
 
@@ -29,14 +38,26 @@ export class CashShiftService {
   }
 
   getMovements(shiftId: string): Observable<CashMovementResponse[]> {
-    return this.http.get<CashMovementResponse[]>(`${this.apiUrl}/${shiftId}/movements`);
+    return this.http.get<CashMovementResponse[]>(
+      `${this.apiUrl}/${shiftId}/movements`,
+    );
   }
 
-  recordSupplement(request: RecordCashMovementRequest): Observable<CashMovementResponse> {
-    return this.http.post<CashMovementResponse>(`${this.apiUrl}/current/supplements`, request);
+  recordSupplement(
+    request: RecordCashMovementRequest,
+  ): Observable<CashMovementResponse> {
+    return this.http.post<CashMovementResponse>(
+      `${this.apiUrl}/current/supplements`,
+      request,
+    );
   }
 
-  recordWithdrawal(request: RecordCashMovementRequest): Observable<CashMovementResponse> {
-    return this.http.post<CashMovementResponse>(`${this.apiUrl}/current/withdrawals`, request);
+  recordWithdrawal(
+    request: RecordCashMovementRequest,
+  ): Observable<CashMovementResponse> {
+    return this.http.post<CashMovementResponse>(
+      `${this.apiUrl}/current/withdrawals`,
+      request,
+    );
   }
 }

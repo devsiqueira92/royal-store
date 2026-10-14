@@ -4,10 +4,19 @@ import { OpenCashShiftRequest } from '../interfaces/open-cash-shift-request.inte
 import { CloseCashShiftRequest } from '../interfaces/close-cash-shift-request.interface';
 import { RecordCashMovementRequest } from '../interfaces/record-cash-movement-request.interface';
 import { CashMovementResponse } from '../interfaces/cash-movement-response.interface';
+import { CashShiftListItem } from '../interfaces/cash-shift-list-item.interface';
+import { CashShiftDetails } from '../interfaces/cash-shift-details.interface';
 
 export const CashShiftActions = createActionGroup({
   source: 'CashShift',
   events: {
+    'Load Shifts': emptyProps(),
+    'Load Shifts Success': props<{ shifts: CashShiftListItem[] }>(),
+    'Load Shifts Failure': props<{ error: string }>(),
+    'Load Shift Details': props<{ shiftId: string }>(),
+    'Load Shift Details Success': props<{ shiftDetails: CashShiftDetails }>(),
+    'Load Shift Details Failure': props<{ error: string }>(),
+    'Clear Shift Details': emptyProps(),
     'Load Current': emptyProps(),
     'Refresh Current': emptyProps(),
     'Load Current Success': props<{ cashShift: CashShift | null }>(),

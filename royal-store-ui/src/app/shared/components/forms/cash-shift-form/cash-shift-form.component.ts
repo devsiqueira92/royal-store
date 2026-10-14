@@ -49,7 +49,7 @@ export class CashShiftFormComponent {
   }
 
   protected closeShift() {
-    this.router.navigate(['cash-shift/close']);
+    this.router.navigate(['cash-shift/management']);
     this.close();
   }
 }

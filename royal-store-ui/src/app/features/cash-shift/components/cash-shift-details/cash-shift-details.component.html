@@ -1,19 +1,19 @@
 @if (cashShift(); as shift) {
-  <section class="close-cash-shift">
-    <header class="close-cash-shift__header">
+  <section class="cash-shift-details">
+    <header class="cash-shift-details__header">
       <div>
-        <h1 class="close-cash-shift__title">
+        <h1 class="cash-shift-details__title">
           {{ 'cashShift.page.title' | translate }}
         </h1>
-        <p class="close-cash-shift__subtitle">
+        <p class="cash-shift-details__subtitle">
           {{ 'cashShift.page.subtitle' | translate }}
         </p>
       </div>
 
-      <div class="close-cash-shift__meta">
+      <div class="cash-shift-details__meta">
         <span
-          class="close-cash-shift__badge"
-          [class.close-cash-shift__badge--closed]="!isOpen()"
+          class="cash-shift-details__badge"
+          [class.cash-shift-details__badge--closed]="!isOpen()"
           >{{
             (isOpen()
               ? 'cashShift.page.shiftOpen'
@@ -21,14 +21,14 @@
             ) | translate
           }}</span
         >
-        <span class="close-cash-shift__reference">{{ shiftMeta }}</span>
+        <span class="cash-shift-details__reference">{{ shiftMeta }}</span>
       </div>
     </header>
 
     <app-cash-shift-summary [cashShift]="shift"></app-cash-shift-summary>
 
-    <div class="close-cash-shift__grid">
-      <div class="close-cash-shift__column">
+    <div class="cash-shift-details__grid">
+      <div class="cash-shift-details__column">
         <app-cash-movement-form></app-cash-movement-form>
 
         <app-cash-movement-list></app-cash-movement-list>

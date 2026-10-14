@@ -5,6 +5,52 @@ import { catchError, concatMap, map, of, switchMap } from 'rxjs';
 import { CashShiftService } from '../services/cash-shift.service';
 import { CashShiftActions } from './cash-shift.actions';
 
+export const loadCashShifts = createEffect(
+  (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {
+    return actions$.pipe(
+      ofType(CashShiftActions.loadShifts),
+      switchMap(() =>
+        cashShiftService.getAll().pipe(
+          map(shifts => CashShiftActions.loadShiftsSuccess({ shifts })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              CashShiftActions.loadShiftsFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const loadCashShiftDetails = createEffect(
+  (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {
+    return actions$.pipe(
+      ofType(CashShiftActions.loadShiftDetails),
+      switchMap(({ shiftId }) =>
+        cashShiftService.getById(shiftId).pipe(
+          map(shiftDetails => CashShiftActions.loadShiftDetailsSuccess({ shiftDetails })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              CashShiftActions.loadShiftDetailsFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 // refreshCurrent keeps currentLoaded untouched so the layout does not tear down the page.
 export const loadCurrentCashShift = createEffect(
   (actions$ = inject(Actions), cashShiftService = inject(CashShiftService)) => {

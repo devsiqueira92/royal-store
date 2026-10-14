@@ -1,4 +1,6 @@
 import {
+  loadCashShifts,
+  loadCashShiftDetails,
   loadCurrentCashShift,
   openCashShift,
   closeCashShift,
@@ -8,6 +10,8 @@ import {
 } from './cash-shift.effects';
 
 export const cashShiftStore = {
+  loadCashShifts,
+  loadCashShiftDetails,
   loadCurrentCashShift,
   openCashShift,
   closeCashShift,
