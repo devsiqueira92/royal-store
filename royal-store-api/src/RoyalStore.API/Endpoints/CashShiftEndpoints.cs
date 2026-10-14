@@ -3,6 +3,7 @@ using RoyalStore.API.Extensions;
 using RoyalStore.Application.Sales.Commands.CloseCashShift;
 using RoyalStore.Application.Sales.Commands.OpenCashShift;
 using RoyalStore.Application.Sales.Commands.RecordCashMovement;
+using RoyalStore.Application.Sales.Queries.GetCashShiftById;
 using RoyalStore.Application.Sales.Queries.GetCashShiftMovements;
 using RoyalStore.Application.Sales.Queries.GetCashShifts;
 using RoyalStore.Application.Sales.Queries.GetCurrentCashShift;
@@ -26,6 +27,7 @@ public sealed class CashShiftEndpoints : IEndpointDefinition
             .RequireAuthorization(PolicyNames.Permission(Permission.CashRegisterCashDrop));
         routes.MapPost("current/supplements", RecordSupplement)
             .RequireAuthorization(PolicyNames.Permission(Permission.CashRegisterCashDrop));
+        routes.MapGet("{shiftId:guid}", GetById).RequireAuthorization(PolicyNames.Admin);
         routes.MapGet("{shiftId:guid}/movements", GetMovements).RequireAuthorization(PolicyNames.Admin);
     }
 
@@ -79,6 +81,15 @@ public sealed class CashShiftEndpoints : IEndpointDefinition
     {
         var result = await mediator.Send(command with { Type = MovementType.In }, ct);
         return result.ToHttpResult(r => TypedResults.Created($"/api/cash-shifts/{r.CashShiftId}/movements", r));
+    }
+
+    private static async Task<IResult> GetById(
+        Guid shiftId,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetCashShiftByIdQuery(shiftId), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
     private static async Task<IResult> GetMovements(

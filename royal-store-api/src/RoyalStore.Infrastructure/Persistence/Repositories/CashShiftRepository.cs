@@ -56,6 +56,31 @@ public sealed class CashShiftRepository : ICashShiftRepository
                 s.Movements.Count))
             .ToListAsync(ct);
 
+    public async Task<CashShiftWithOperatorName?> GetByIdWithOperatorNameAsync(Guid id, CancellationToken ct = default)
+    {
+        var shift = await _context.CashShifts
+            .AsNoTracking()
+            .Include(s => s.Movements)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+        if (shift is null)
+            return null;
+
+        // Same rule as GetAllWithMovementTotalsAsync: seller full name, else login name. UserId is
+        // checked first, so the lookups never compare against null.
+        var operatorName = shift.UserId is null
+            ? null
+            : await _context.Sellers
+                  .Where(se => se.UserId == shift.UserId)
+                  .Select(se => se.FullName)
+                  .FirstOrDefaultAsync(ct)
+              ?? await _context.Users
+                  .Where(u => u.Id == shift.UserId)
+                  .Select(u => u.UserName)
+                  .FirstOrDefaultAsync(ct);
+
+        return new CashShiftWithOperatorName(shift, operatorName);
+    }
+
     public Task UpdateAsync(CashShift cashShift, CancellationToken ct = default)
     {
         _context.CashShifts.Update(cashShift);

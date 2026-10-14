@@ -12,4 +12,5 @@ public interface ICashShiftRepository
     Task AddMovementAsync(CashMovement movement, CancellationToken ct = default);
     Task<CashShift?> GetByIdWithMovementsAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<CashShiftWithMovementTotals>> GetAllWithMovementTotalsAsync(CancellationToken ct = default);
+    Task<CashShiftWithOperatorName?> GetByIdWithOperatorNameAsync(Guid id, CancellationToken ct = default);
 }
