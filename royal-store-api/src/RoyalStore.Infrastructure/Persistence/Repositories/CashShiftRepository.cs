@@ -33,6 +33,29 @@ public sealed class CashShiftRepository : ICashShiftRepository
             .Include(s => s.Movements)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
 
+    // One statement: operator name and movement totals are correlated subqueries, so a user with
+    // several Seller rows can't duplicate a shift. The UserId != null guard stops EF's C# null
+    // semantics from matching an operator-less shift to a Seller without a user. Supplements/withdrawals
+    // use the same In/Out predicates as CashShift.SumSupplements/SumWithdrawals; Sale entries count
+    // only as movements.
+    public async Task<IReadOnlyList<CashShiftWithMovementTotals>> GetAllWithMovementTotalsAsync(CancellationToken ct = default) =>
+        await _context.CashShifts
+            .AsNoTracking()
+            .OrderByDescending(s => s.OpenedAt)
+            .ThenBy(s => s.Id)
+            .Select(s => new CashShiftWithMovementTotals(
+                s.Id,
+                s.UserId,
+                _context.Sellers.Where(se => se.UserId != null && se.UserId == s.UserId).Select(se => se.FullName).FirstOrDefault()
+                    ?? _context.Users.Where(u => u.Id == s.UserId).Select(u => u.UserName).FirstOrDefault(),
+                s.StartingCash,
+                s.OpenedAt,
+                s.ClosedAt,
+                s.Movements.Where(m => m.Type == MovementType.In).Sum(m => m.Amount),
+                s.Movements.Where(m => m.Type == MovementType.Out).Sum(m => m.Amount),
+                s.Movements.Count))
+            .ToListAsync(ct);
+
     public Task UpdateAsync(CashShift cashShift, CancellationToken ct = default)
     {
         _context.CashShifts.Update(cashShift);

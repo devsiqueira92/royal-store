@@ -4,6 +4,7 @@ using RoyalStore.Application.Sales.Commands.CloseCashShift;
 using RoyalStore.Application.Sales.Commands.OpenCashShift;
 using RoyalStore.Application.Sales.Commands.RecordCashMovement;
 using RoyalStore.Application.Sales.Queries.GetCashShiftMovements;
+using RoyalStore.Application.Sales.Queries.GetCashShifts;
 using RoyalStore.Application.Sales.Queries.GetCurrentCashShift;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Permissions;
@@ -18,6 +19,7 @@ public sealed class CashShiftEndpoints : IEndpointDefinition
         var routes = app.MapGroup("api/cash-shifts").WithTags("CashShifts");
 
         routes.MapPost("", Open).RequireAuthorization(PolicyNames.Admin);
+        routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.Admin);
         routes.MapPatch("close", Close).RequireAuthorization(PolicyNames.Admin);
         routes.MapGet("current", GetCurrent).RequireAuthorization(PolicyNames.Admin);
         routes.MapPost("current/withdrawals", RecordWithdrawal)
@@ -34,6 +36,14 @@ public sealed class CashShiftEndpoints : IEndpointDefinition
     {
         var result = await mediator.Send(command, ct);
         return result.ToHttpResult(r => TypedResults.Created($"/api/cash-shifts/{r.Id}", r));
+    }
+
+    private static async Task<IResult> GetAll(
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetCashShiftsQuery(), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
     private static async Task<IResult> Close(

@@ -11,4 +11,8 @@ public interface ISaleRepository
     Task<Sale?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task UpdateAsync(Sale sale, CancellationToken ct = default);
     Task<ShiftSalesTotals> GetShiftSalesTotalsAsync(Guid cashShiftId, CancellationToken ct = default);
+
+    /// <summary>Sales totals of every shift of the current tenant, keyed by shift id, using the same
+    /// classification as <see cref="GetShiftSalesTotalsAsync"/>. Shifts with no sales are absent.</summary>
+    Task<IReadOnlyDictionary<Guid, ShiftSalesTotals>> GetSalesTotalsByShiftAsync(CancellationToken ct = default);
 }

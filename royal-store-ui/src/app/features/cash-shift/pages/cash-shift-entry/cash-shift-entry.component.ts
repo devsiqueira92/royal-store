@@ -39,7 +39,9 @@ export class CashShiftEntryComponent implements OnInit {
       )
       .subscribe(([, cashShift]) => {
         if (cashShift) {
-          this.router.navigate(['/cash-shift/close'], { replaceUrl: true });
+          this.router.navigate(['/cash-shift/management'], {
+            replaceUrl: true,
+          });
           return;
         }
         this.showOpen.set(true);

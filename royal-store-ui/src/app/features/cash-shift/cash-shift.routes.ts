@@ -4,5 +4,5 @@ import { CloseCashShiftComponent } from './components/close-cash-shift/close-cas
 
 export const CASH_SHIFT_ROUTES: Routes = [
   { path: '', component: CashShiftEntryComponent },
-  { path: 'close', component: CloseCashShiftComponent },
+  { path: 'management', component: CloseCashShiftComponent },
 ];
