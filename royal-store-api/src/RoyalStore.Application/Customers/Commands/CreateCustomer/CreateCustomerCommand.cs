@@ -8,4 +8,5 @@ public record CreateCustomerCommand(
     string Name,
     string Document,
     string? Phone,
-    Guid? LoyaltyTierId) : IRequest<Result<CustomerResponse>>;
+    Guid? LoyaltyTierId,
+    CustomerAddressRequest? Address = null) : IRequest<Result<CustomerResponse>>;

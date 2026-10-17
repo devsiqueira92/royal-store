@@ -38,6 +38,11 @@ public sealed class Sale : Entity, IAuditableEntity
 
     public FulfillmentMode FulfillmentMode { get; private set; }
     public string? BranchId { get; private set; }
+
+    /// <summary>Delivery/pickup address, set once at creation. Never null —
+    /// <see cref="SaleAddress.Empty"/> when none was given.</summary>
+    public SaleAddress Address { get; private set; } = SaleAddress.Empty;
+
     public SaleCustomerSnapshot? CustomerSnapshot { get; private set; }
     public DateTime SoldAt { get; private set; }
     public DateTime SyncedAt { get; private set; }
@@ -59,7 +64,7 @@ public sealed class Sale : Entity, IAuditableEntity
     private Sale(Guid id, Guid tenantId, Guid? cashShiftId, string? userId, Guid? customerId,
         decimal subtotal, decimal discountAmount, decimal loyaltyDiscountApplied, decimal paymentDiscountApplied,
         decimal taxAmount, decimal totalAmount, decimal cashbackApplied, decimal cashbackRemaining,
-        FulfillmentMode fulfillmentMode, string? branchId, SaleCustomerSnapshot? customerSnapshot,
+        FulfillmentMode fulfillmentMode, string? branchId, SaleAddress address, SaleCustomerSnapshot? customerSnapshot,
         DateTime soldAt, DateTime syncedAt)
         : base(id)
     {
@@ -78,6 +83,7 @@ public sealed class Sale : Entity, IAuditableEntity
         CashbackRemaining = cashbackRemaining;
         FulfillmentMode = fulfillmentMode;
         BranchId = branchId;
+        Address = address;
         CustomerSnapshot = customerSnapshot;
         SoldAt = soldAt;
         SyncedAt = syncedAt;
@@ -87,7 +93,7 @@ public sealed class Sale : Entity, IAuditableEntity
     public static Result<Sale> Create(Guid id, Guid tenantId, Guid? cashShiftId, string? userId, Guid? customerId,
         decimal subtotal, decimal discountAmount, decimal loyaltyDiscountApplied, decimal paymentDiscountApplied,
         decimal taxAmount, decimal totalAmount, decimal cashbackApplied, decimal cashbackRemaining,
-        FulfillmentMode fulfillmentMode, string? branchId, SaleCustomerSnapshot? customerSnapshot,
+        FulfillmentMode fulfillmentMode, string? branchId, SaleAddress address, SaleCustomerSnapshot? customerSnapshot,
         DateTime soldAt, DateTime syncedAt)
     {
         if (id == Guid.Empty)
@@ -132,6 +138,9 @@ public sealed class Sale : Entity, IAuditableEntity
         if (fulfillmentMode == FulfillmentMode.Pickup && string.IsNullOrWhiteSpace(branchId))
             return Error.Validation("sale.branch_required_for_pickup", "A branch is required for in-store pickup.");
 
+        if (address is null)
+            return Error.Validation("sale.address_required", "Sale address must be provided; use SaleAddress.Empty for none.");
+
         // Server-authoritative invariant (research.md Decision 8): every discount and the tax amount
         // are computed independently server-side; this only confirms they add up to the total that
         // gets persisted and sent downstream to fiscal document generation.
@@ -142,7 +151,7 @@ public sealed class Sale : Entity, IAuditableEntity
 
         return new Sale(id, tenantId, cashShiftId, userId, customerId, subtotal, discountAmount,
             loyaltyDiscountApplied, paymentDiscountApplied, taxAmount, totalAmount, cashbackApplied,
-            cashbackRemaining, fulfillmentMode, branchId?.Trim(), customerSnapshot, soldAt, syncedAt);
+            cashbackRemaining, fulfillmentMode, branchId?.Trim(), address, customerSnapshot, soldAt, syncedAt);
     }
 
     /// <summary>Records what this sale earned, once, after the ledger computes it from the earning

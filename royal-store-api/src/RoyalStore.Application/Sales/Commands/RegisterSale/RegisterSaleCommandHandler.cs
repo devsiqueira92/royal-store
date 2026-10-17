@@ -84,6 +84,13 @@ public sealed class RegisterSaleCommandHandler
             return Error.Validation("sale.branch_required_for_pickup",
                 "A branch is required when the fulfillment mode is pickup.");
 
+        // Optional for both modes (044-sale-delivery-address FR-004). Built before any lookup so an
+        // over-long field fails fast; a missing address normalizes to SaleAddress.Empty.
+        var addressDto = checkout.Fulfillment.Address;
+        var addressResult = SaleAddress.Create(addressDto?.Street, addressDto?.Number, addressDto?.City, addressDto?.ZipCode);
+        if (addressResult.IsFailure)
+            return addressResult.Error;
+
         // Customer is identified by id only — never by document (FR-008); a request with no
         // matching customer is rejected outright (FR-017).
         Customer? customer = null;
@@ -178,7 +185,7 @@ public sealed class RegisterSaleCommandHandler
         var saleResult = Sale.Create(saleId, tenantId, openShift.Id, userId, customer?.Id,
             subtotal, saleDiscount, loyaltyDiscount, paymentDiscount, taxAmount, totalAmount,
             cashbackApplied, cashbackRemaining, fulfillmentMode, checkout.Fulfillment.BranchId,
-            customerSnapshot, soldAt, DateTime.UtcNow);
+            addressResult.Value, customerSnapshot, soldAt, DateTime.UtcNow);
 
         if (saleResult.IsFailure)
             return saleResult.Error;

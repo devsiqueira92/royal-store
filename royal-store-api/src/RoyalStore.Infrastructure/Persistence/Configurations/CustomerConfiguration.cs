@@ -45,6 +45,22 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => new { e.TenantId, e.Document }).IsUnique();
 
+        // Bumped by every address change; protects the one-default rule across concurrent requests
+        // (045 research Decision 4).
+        builder.Property(e => e.Version)
+            .IsRequired()
+            .IsConcurrencyToken();
+
+        // Cascade is never actually exercised — customers are deactivated, not deleted — it just
+        // states that addresses are owned by their customer.
+        builder.HasMany(e => e.Addresses)
+            .WithOne()
+            .HasForeignKey(a => a.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // The collection is exposed read-only, so EF must write through the backing field.
+        builder.Navigation(e => e.Addresses).UsePropertyAccessMode(PropertyAccessMode.Field);
+
         // A tier in use can't be deleted (FR-014, enforced by ILoyaltyTierUsageChecker) — Restrict
         // makes that explicit rather than relying on the usage check alone.
         builder.HasOne(e => e.LoyaltyTier)

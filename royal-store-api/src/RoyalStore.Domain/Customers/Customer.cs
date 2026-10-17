@@ -12,6 +12,8 @@ namespace RoyalStore.Domain.Customers;
 /// </summary>
 public sealed class Customer : Entity, IAuditableEntity
 {
+    private readonly List<CustomerAddress> _addresses = [];
+
     public Guid TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Document { get; private set; } = string.Empty;
@@ -23,6 +25,14 @@ public sealed class Customer : Entity, IAuditableEntity
     /// <summary>EF navigation to the customer's tier. Populated only when a query explicitly
     /// <c>Include</c>s it (e.g. the customer listing) — never assume it's loaded.</summary>
     public LoyaltyTier? LoyaltyTier { get; private set; }
+
+    /// <summary>Delivery addresses. Loaded only by <c>GetByIdWithAddressesAsync</c> (or after
+    /// <see cref="AddAddress"/>) — never assume it's populated otherwise.</summary>
+    public IReadOnlyList<CustomerAddress> Addresses => _addresses.AsReadOnly();
+
+    /// <summary>Optimistic concurrency token, bumped by every address change so two concurrent
+    /// address edits can't both commit and break the one-default rule (045 research Decision 4).</summary>
+    public int Version { get; private set; }
 
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
@@ -115,6 +125,93 @@ public sealed class Customer : Entity, IAuditableEntity
 
         IsActive = true;
         return Result.Success();
+    }
+
+    /// <summary>Adds an active address. It becomes the default when marked, or when the customer has
+    /// no active address — and so no default — yet (FR-010); either way the previous default is
+    /// cleared in the same change (FR-008).</summary>
+    public Result<CustomerAddress> AddAddress(Guid addressId, PostalAddress address, bool markAsDefault)
+    {
+        var becomesDefault = markAsDefault || !_addresses.Any(a => a.IsActive);
+
+        var created = CustomerAddress.Create(addressId, TenantId, Id, address, becomesDefault);
+        if (created.IsFailure)
+            return created.Error;
+
+        if (becomesDefault)
+            ClearDefault();
+
+        _addresses.Add(created.Value);
+        Version++;
+        return created.Value;
+    }
+
+    /// <summary>Full replacement of the address's fields and default flag (045 clarification). Marking
+    /// it default clears any other default; unmarking the current default leaves none.</summary>
+    public Result<CustomerAddress> UpdateAddress(Guid addressId, PostalAddress address, bool markAsDefault)
+    {
+        var found = FindAddress(addressId);
+        if (found.IsFailure)
+            return found.Error;
+
+        var target = found.Value;
+        if (markAsDefault && !target.IsActive)
+            return Error.Validation("customer.address_inactive_cannot_be_default",
+                "An inactive address cannot be the default delivery address.");
+
+        if (markAsDefault)
+            ClearDefault(except: addressId);
+
+        target.Update(address, markAsDefault);
+        Version++;
+        return target;
+    }
+
+    /// <summary>Deactivating the default leaves the customer with no default — no other address is
+    /// promoted (FR-009).</summary>
+    public Result<CustomerAddress> DeactivateAddress(Guid addressId)
+    {
+        var found = FindAddress(addressId);
+        if (found.IsFailure)
+            return found.Error;
+
+        var target = found.Value;
+        if (!target.IsActive)
+            return Error.Validation("customer.address_already_inactive", "Address is already inactive.");
+
+        target.Deactivate();
+        Version++;
+        return target;
+    }
+
+    /// <summary>The address comes back active but not default (FR-010).</summary>
+    public Result<CustomerAddress> ReactivateAddress(Guid addressId)
+    {
+        var found = FindAddress(addressId);
+        if (found.IsFailure)
+            return found.Error;
+
+        var target = found.Value;
+        if (target.IsActive)
+            return Error.Validation("customer.address_already_active", "Address is already active.");
+
+        target.Reactivate();
+        Version++;
+        return target;
+    }
+
+    private void ClearDefault(Guid? except = null)
+    {
+        foreach (var address in _addresses.Where(a => a.IsDefaultDelivery && a.Id != except))
+            address.SetDefault(false);
+    }
+
+    private Result<CustomerAddress> FindAddress(Guid addressId)
+    {
+        var address = _addresses.FirstOrDefault(a => a.Id == addressId);
+        return address is null
+            ? Error.NotFound("customer.address_not_found", "Address not found for this customer.")
+            : address;
     }
 
     private static Result ValidateNameAndPhone(string name, string? phone)

@@ -97,6 +97,17 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             snapshot.Property(s => s.LoyaltyTierName).HasColumnName("CustomerLoyaltyTierName").HasMaxLength(50).IsRequired();
         });
 
+        // Delivery/pickup address — frozen at sale time, every column nullable. The required
+        // navigation (same as SalePayment.Card) makes an all-NULL row load as SaleAddress.Empty, not null.
+        builder.OwnsOne(e => e.Address, address =>
+        {
+            address.Property(a => a.Street).HasColumnName("AddressStreet").HasMaxLength(SaleAddress.StreetMaxLength);
+            address.Property(a => a.Number).HasColumnName("AddressNumber").HasMaxLength(SaleAddress.NumberMaxLength);
+            address.Property(a => a.City).HasColumnName("AddressCity").HasMaxLength(SaleAddress.CityMaxLength);
+            address.Property(a => a.ZipCode).HasColumnName("AddressZipCode").HasMaxLength(SaleAddress.ZipCodeMaxLength);
+        });
+        builder.Navigation(e => e.Address).IsRequired();
+
         builder.HasOne<UserEntity>()
             .WithMany()
             .HasForeignKey(e => e.UserId)

@@ -48,6 +48,20 @@ public sealed class CreateCustomerCommandHandler
             return Error.Conflict("customer.document_conflict",
                 $"A customer with document '{command.Document}' is already registered.");
 
+        // Optional address, saved with the customer or not at all (045 FR-003). Validated before the
+        // tier lookup so a bad field fails fast; an all-blank address counts as none (FR-011a).
+        PostalAddress? postal = null;
+        if (command.Address is { } addressRequest)
+        {
+            var postalResult = PostalAddress.Create(addressRequest.ZipCode, addressRequest.Street,
+                addressRequest.Number, addressRequest.Neighborhood, addressRequest.City, addressRequest.State,
+                addressRequest.Complement, addressRequest.AdditionalInfo);
+            if (postalResult.IsFailure)
+                return postalResult.Error;
+
+            postal = postalResult.Value;
+        }
+
         var tier = command.LoyaltyTierId is Guid explicitTierId
             ? await _loyaltyTierRepository.GetByIdAsync(explicitTierId, cancellationToken)
             : await _loyaltyTierRepository.GetStandardTierAsync(tenantId, cancellationToken);
@@ -62,6 +76,14 @@ public sealed class CreateCustomerCommandHandler
 
         var customer = customerResult.Value;
 
+        // First address, so it always becomes the default (FR-010). AddAsync below inserts the whole graph.
+        if (postal is { IsEmpty: false })
+        {
+            var addressResult = customer.AddAddress(Guid.NewGuid(), postal, command.Address!.IsDefaultDelivery);
+            if (addressResult.IsFailure)
+                return addressResult.Error;
+        }
+
         await _customerRepository.AddAsync(customer, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -73,6 +95,16 @@ public sealed class CreateCustomerCommandHandler
             userId,
             cancellationToken);
 
-        return CustomerResponse.From(customer, tier, cashbackBalance: 0m);
+        // Ids only — an address is personal data and the security log doesn't need its content.
+        foreach (var address in customer.Addresses)
+            await _auditService.RecordAsync(
+                "customer.address_added",
+                tenantId,
+                $"Address {address.Id} added to customer {customer.Id}.",
+                userId,
+                cancellationToken);
+
+        return CustomerResponse.From(customer, tier, cashbackBalance: 0m,
+            addresses: customer.Addresses.Select(CustomerAddressResponse.From).ToList());
     }
 }

@@ -34,6 +34,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<SalePayment> SalePayments { get; set; } = null!;
     public DbSet<Seller> Sellers { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
+    public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;
     public DbSet<LoyaltyTier> LoyaltyTiers { get; set; } = null!;
     public DbSet<CashbackEntry> CashbackEntries { get; set; } = null!;
     public DbSet<CashbackRedemption> CashbackRedemptions { get; set; } = null!;
@@ -113,6 +114,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<Customer>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<CustomerAddress>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<LoyaltyTier>()

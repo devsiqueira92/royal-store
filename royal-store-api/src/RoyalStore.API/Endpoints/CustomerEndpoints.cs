@@ -1,9 +1,13 @@
 using MediatR;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.Customers.Commands.AddCustomerAddress;
 using RoyalStore.Application.Customers.Commands.CreateCustomer;
 using RoyalStore.Application.Customers.Commands.DeactivateCustomer;
+using RoyalStore.Application.Customers.Commands.DeactivateCustomerAddress;
 using RoyalStore.Application.Customers.Commands.ReactivateCustomer;
+using RoyalStore.Application.Customers.Commands.ReactivateCustomerAddress;
 using RoyalStore.Application.Customers.Commands.UpdateCustomer;
+using RoyalStore.Application.Customers.Commands.UpdateCustomerAddress;
 using RoyalStore.Application.Customers.Queries.GetCustomerById;
 using RoyalStore.Application.Customers.Queries.GetCustomerCashbackBalance;
 using RoyalStore.Application.Customers.Queries.GetCustomerCashbackHistory;
@@ -23,6 +27,11 @@ public sealed class CustomerEndpoints : IEndpointDefinition
         routes.MapPut("{id:guid}", Update).RequireAuthorization(PolicyNames.AdminOrManager);
         routes.MapPatch("{id:guid}/deactivate", Deactivate).RequireAuthorization(PolicyNames.AdminOrManager);
         routes.MapPatch("{id:guid}/reactivate", Reactivate).RequireAuthorization(PolicyNames.AdminOrManager);
+
+        routes.MapPost("{id:guid}/addresses", AddAddress).RequireAuthorization(PolicyNames.AdminOrManager);
+        routes.MapPut("{id:guid}/addresses/{addressId:guid}", UpdateAddress).RequireAuthorization(PolicyNames.AdminOrManager);
+        routes.MapPatch("{id:guid}/addresses/{addressId:guid}/deactivate", DeactivateAddress).RequireAuthorization(PolicyNames.AdminOrManager);
+        routes.MapPatch("{id:guid}/addresses/{addressId:guid}/reactivate", ReactivateAddress).RequireAuthorization(PolicyNames.AdminOrManager);
 
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.StaffRead);
@@ -59,6 +68,40 @@ public sealed class CustomerEndpoints : IEndpointDefinition
     {
         var result = await mediator.Send(new ReactivateCustomerCommand(id), ct);
         return result.ToHttpResult(() => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> AddAddress(
+        Guid id,
+        IMediator mediator,
+        AddCustomerAddressCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command with { CustomerId = id }, ct);
+        return result.ToHttpResult(r => TypedResults.Created($"/api/customers/{id}", r));
+    }
+
+    private static async Task<IResult> UpdateAddress(
+        Guid id,
+        Guid addressId,
+        IMediator mediator,
+        UpdateCustomerAddressCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command with { CustomerId = id, AddressId = addressId }, ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    // Unlike the customer deactivate/reactivate routes (204), these return the resulting address (045 FR-014).
+    private static async Task<IResult> DeactivateAddress(Guid id, Guid addressId, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new DeactivateCustomerAddressCommand(id, addressId), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> ReactivateAddress(Guid id, Guid addressId, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new ReactivateCustomerAddressCommand(id, addressId), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
     private static async Task<IResult> GetAll(IMediator mediator, CancellationToken ct)

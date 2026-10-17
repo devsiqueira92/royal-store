@@ -21,6 +21,17 @@ public sealed class CustomerRepository : ICustomerRepository
             .Include(c => c.LoyaltyTier)
             .FirstOrDefaultAsync(c => c.Id == id, ct);
 
+    public async Task<Customer?> GetByIdWithAddressesAsync(Guid id, CancellationToken ct = default) =>
+        await _context.Customers
+            .Include(c => c.LoyaltyTier)
+            .Include(c => c.Addresses)
+            .FirstOrDefaultAsync(c => c.Id == id, ct);
+
+    // Explicit Add, not just Customer.AddAddress: a client-assigned Guid key found through a
+    // navigation is tracked as Modified, not Added (040 research Decision 3).
+    public async Task AddAddressAsync(CustomerAddress address, CancellationToken ct = default) =>
+        await _context.CustomerAddresses.AddAsync(address, ct);
+
     public async Task<Customer?> GetByDocumentAsync(Guid tenantId, string normalizedDocument, CancellationToken ct = default) =>
         await _context.Customers.FirstOrDefaultAsync(
             c => c.TenantId == tenantId && c.Document == normalizedDocument && c.IsActive, ct);

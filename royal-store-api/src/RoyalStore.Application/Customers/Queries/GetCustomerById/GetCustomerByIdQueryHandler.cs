@@ -33,7 +33,7 @@ public sealed class GetCustomerByIdQueryHandler
     {
         // Returned regardless of IsActive — deactivation removes a customer from listings and
         // checkout selection, not from direct lookup (contracts/customers-api.md).
-        var customer = await _customerRepository.GetByIdAsync(request.Id, cancellationToken);
+        var customer = await _customerRepository.GetByIdWithAddressesAsync(request.Id, cancellationToken);
         if (customer is null)
             return Error.NotFound("customer.not_found", "Customer not found.");
 
@@ -43,6 +43,14 @@ public sealed class GetCustomerByIdQueryHandler
 
         var balance = await _cashbackLedger.GetUsableBalanceAsync(_tenantContext.TenantId, customer.Id, cancellationToken);
 
-        return CustomerResponse.From(customer, tier, balance);
+        // Every address, active and inactive (045 FR-013): default first, then active, then oldest.
+        var addresses = customer.Addresses
+            .OrderByDescending(a => a.IsDefaultDelivery)
+            .ThenByDescending(a => a.IsActive)
+            .ThenBy(a => a.CreatedAt)
+            .Select(CustomerAddressResponse.From)
+            .ToList();
+
+        return CustomerResponse.From(customer, tier, balance, addresses);
     }
 }
