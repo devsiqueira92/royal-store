@@ -14,6 +14,7 @@ import {
   selectIsOpening,
   selectIsClosing,
   selectMovements,
+  selectMovementsShiftId,
   selectIsLoadingMovements,
   selectIsRecordingMovement,
   selectLastRecordedMovement,
@@ -35,6 +36,7 @@ export class CashShiftFacade {
   isOpening$ = this.store.select(selectIsOpening);
   isClosing$ = this.store.select(selectIsClosing);
   movements$ = this.store.select(selectMovements);
+  movementsShiftId$ = this.store.select(selectMovementsShiftId);
   isLoadingMovements$ = this.store.select(selectIsLoadingMovements);
   isRecordingMovement$ = this.store.select(selectIsRecordingMovement);
   lastRecordedMovement$ = this.store.select(selectLastRecordedMovement);
@@ -54,6 +56,10 @@ export class CashShiftFacade {
 
   loadCurrent(): void {
     this.store.dispatch(CashShiftActions.loadCurrent());
+  }
+
+  refreshCurrent(): void {
+    this.store.dispatch(CashShiftActions.refreshCurrent());
   }
 
   openCashShift(request: OpenCashShiftRequest): void {

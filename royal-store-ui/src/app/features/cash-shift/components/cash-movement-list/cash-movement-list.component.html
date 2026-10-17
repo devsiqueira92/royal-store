@@ -5,12 +5,12 @@
     </h3>
     <span class="cash-movement-list__count">{{
       'cashShift.movements.count'
-        | translate: { count: (movements$ | async)?.length }
+        | translate: { count: movements().length }
     }}</span>
   </header>
 
   <ul class="cash-movement-list__items">
-    @for (movement of movements$ | async; track movement.id) {
+    @for (movement of movements(); track movement.id) {
       <li class="movement movement--{{ movement.type }}">
         <span class="movement__icon" aria-hidden="true">
           <i

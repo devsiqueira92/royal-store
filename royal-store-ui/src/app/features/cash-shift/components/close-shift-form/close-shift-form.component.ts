@@ -20,6 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { startWith } from 'rxjs';
 import { CashShift } from '../../interfaces/cash-shift.interface';
 import { CloseCashShiftRequest } from '../../interfaces/close-cash-shift-request.interface';
+import { CashShiftOverview } from '../../interfaces/cash-shift-overview.interface';
 
 type DifferenceState = 'balanced' | 'over' | 'short';
 
@@ -38,8 +39,10 @@ type DifferenceState = 'balanced' | 'over' | 'short';
   styleUrl: './close-shift-form.component.scss',
 })
 export class CloseShiftFormComponent {
-  readonly cashShift = input.required<CashShift>();
+  readonly cashShift = input.required<CashShift | CashShiftOverview>();
+  readonly isOpenShift = input.required<boolean>();
   readonly isClosing = input(false);
+  readonly canPerformAction = input(true);
 
   readonly confirmed = output<CloseCashShiftRequest>();
 

@@ -6,7 +6,7 @@ import {
   input,
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
-import { CashShift } from '../../interfaces/cash-shift.interface';
+import { CashShiftOverview } from '../../interfaces/cash-shift-overview.interface';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,10 +16,10 @@ import { CashShift } from '../../interfaces/cash-shift.interface';
   styleUrl: './cash-shift-summary.component.scss',
 })
 export class CashShiftSummaryComponent {
-  readonly cashShift = input.required<CashShift>();
+  readonly cashShift = input.required<CashShiftOverview>();
 
   protected readonly dateFormat = 'HH:mm · MMM d, y';
   protected readonly isOpen = computed(
-    () => this.cashShift().closedAt !== null,
+    () => this.cashShift().closedAt === null,
   );
 }

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  inject,
   input,
   output,
   signal,
@@ -16,6 +17,11 @@ import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.componen
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
 import { CheckoutDialogComponent } from '../checkout-dialog/checkout-dialog.component';
 import { CheckoutResult } from '../../interfaces/checkout.interface';
+import { CashShift } from '@app/features/cash-shift/interfaces/cash-shift.interface';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
+import { DialogManagerService } from '@app/shared/services/dialog.service';
+import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open-cash-shift/open-cash-shift.component';
 
 @Component({
   selector: 'app-current-sale',
@@ -32,6 +38,8 @@ import { CheckoutResult } from '../../interfaces/checkout.interface';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CurrentSaleComponent {
+  private readonly cashShiftFacade = inject(CashShiftFacade);
+  private readonly dialogManagerService = inject(DialogManagerService);
   items = input<SaleLineItem[]>([]);
   sellerName = input<string>('');
   saleRef = input<string>('');
@@ -44,6 +52,10 @@ export class CurrentSaleComponent {
   protected readonly discountValue = signal(0);
   protected readonly discountMode = signal<DiscountMode>('amount');
   protected readonly checkoutOpen = signal(false);
+
+  private readonly current = toSignal(this.cashShiftFacade.current$, {
+    initialValue: null as CashShift | null,
+  });
 
   protected readonly subtotal = computed(() =>
     this.items().reduce(
@@ -97,5 +109,20 @@ export class CurrentSaleComponent {
   protected onConfirmed(result: CheckoutResult): void {
     this.checkoutOpen.set(false);
     this.charge.emit(result);
+  }
+
+  protected checkoutModalOpen() {
+    if (!this.current()) {
+      this.dialogManagerService.open(OpenCashShiftComponent, {
+        showHeader: true,
+        closable: true,
+        closeOnEscape: true,
+        dismissableMask: false,
+        width: '440px',
+        height: 'auto',
+      });
+      return;
+    }
+    this.checkoutOpen.set(true);
   }
 }

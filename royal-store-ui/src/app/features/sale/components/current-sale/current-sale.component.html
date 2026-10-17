@@ -51,7 +51,7 @@
       icon="pi pi-check"
       [label]="('sale.current.charge' | translate) + ' ' + (total() | currency)"
       [disabled]="items().length === 0"
-      (onClick)="checkoutOpen.set(true)"
+      (onClick)="checkoutModalOpen()"
     />
   </footer>
 

@@ -1,0 +1,120 @@
+<section class="cash-shift-list">
+  <header class="cash-shift-list__header">
+    <h1 class="cash-shift-list__title">
+      {{ 'cashShift.list.title' | translate }}
+    </h1>
+    <p class="cash-shift-list__subtitle">
+      {{ 'cashShift.list.subtitle' | translate }}
+    </p>
+  </header>
+
+  <div class="cash-shift-list__panel">
+    <p-table
+      [value]="shifts()"
+      [loading]="isLoading()"
+      [paginator]="true"
+      [rows]="20"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr>
+          <th>{{ 'cashShift.list.columns.operator' | translate }}</th>
+          <th>{{ 'cashShift.list.columns.openedAt' | translate }}</th>
+          <th>{{ 'cashShift.list.columns.closedAt' | translate }}</th>
+          <th>{{ 'cashShift.list.columns.status' | translate }}</th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.openingBalance' | translate }}
+          </th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.totalSales' | translate }}
+          </th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.cashSales' | translate }}
+          </th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.cardSales' | translate }}
+          </th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.supplements' | translate }}
+          </th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.withdrawals' | translate }}
+          </th>
+          <th class="cash-shift-list__amount-col">
+            {{ 'cashShift.list.columns.movements' | translate }}
+          </th>
+          <th class="cash-shift-list__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-shift>
+        <tr>
+          <td class="cash-shift-list__operator">{{ shift.userName || '—' }}</td>
+          <td class="cash-shift-list__mono">
+            {{ shift.openedAt | date: dateFormat }}
+          </td>
+          <td class="cash-shift-list__mono">
+            @if (shift.closedAt) {
+              {{ shift.closedAt | date: dateFormat }}
+            } @else {
+              <span class="cash-shift-list__muted">—</span>
+            }
+          </td>
+          <td>
+            <span
+              class="cash-shift-list__badge"
+              [class.cash-shift-list__badge--closed]="shift.closedAt"
+              >{{
+                (shift.closedAt
+                  ? 'cashShift.status.closed'
+                  : 'cashShift.status.open'
+                ) | translate
+              }}</span
+            >
+          </td>
+          <td class="cash-shift-list__amount-col">
+            {{ shift.startingCash | currency: 'BRL' }}
+          </td>
+          <td class="cash-shift-list__amount-col">
+            <span class="cash-shift-list__total">{{
+              shift.totalSales | currency: 'BRL'
+            }}</span>
+            <span class="cash-shift-list__caption">{{
+              'cashShift.list.salesCount'
+                | translate: { count: shift.salesCount }
+            }}</span>
+          </td>
+          <td class="cash-shift-list__amount-col">
+            {{ shift.cashSales | currency: 'BRL' }}
+          </td>
+          <td class="cash-shift-list__amount-col">
+            {{ shift.cardSales | currency: 'BRL' }}
+          </td>
+          <td class="cash-shift-list__amount-col">
+            {{ shift.totalSupplements | currency: 'BRL' }}
+          </td>
+          <td class="cash-shift-list__amount-col">
+            {{ shift.totalWithdrawals | currency: 'BRL' }}
+          </td>
+          <td class="cash-shift-list__amount-col">
+            {{ shift.numberOfMovements }}
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-eye"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'cashShift.list.viewDetails' | translate"
+              (onClick)="viewDetails(shift)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="12">{{ 'cashShift.list.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

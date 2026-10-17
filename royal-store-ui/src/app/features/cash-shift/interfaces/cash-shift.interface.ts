@@ -1,20 +1,7 @@
 import { CashShiftStatus } from '@app/shared/enum/cash-shift-status.enum';
+import { CashShiftOverview } from './cash-shift-overview.interface';
 
-export interface CashShift {
-  id: string;
+export interface CashShift extends CashShiftOverview {
   status: CashShiftStatus;
-  openedAt: string;
-  closedAt: string | null;
-  startingCash: number;
-  totalSales: number;
-  totalSupplements: number;
-  totalWithdrawals: number;
-  expectedCash: number;
-  cashSales: number;
-  creditCardSales: number;
-  debitCardSales: number;
-  cardSales: number;
-  actualEndingCash: number | null;
   over: number | null;
-  salesCount: number;
 }

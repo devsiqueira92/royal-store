@@ -10,6 +10,7 @@ export const {
   selectIsOpening,
   selectIsClosing,
   selectMovements,
+  selectMovementsShiftId,
   selectIsLoadingMovements,
   selectIsRecordingMovement,
   selectLastRecordedMovement,

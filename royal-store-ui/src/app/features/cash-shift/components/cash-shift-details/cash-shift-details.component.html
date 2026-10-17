@@ -21,7 +21,7 @@
             ) | translate
           }}</span
         >
-        <span class="cash-shift-details__reference">{{ shiftMeta }}</span>
+        <span class="cash-shift-details__reference">{{ shiftMeta() }}</span>
       </div>
     </header>
 
@@ -29,14 +29,20 @@
 
     <div class="cash-shift-details__grid">
       <div class="cash-shift-details__column">
-        <app-cash-movement-form></app-cash-movement-form>
+        @if (editableShift()) {
+          <app-cash-movement-form></app-cash-movement-form>
+        }
 
-        <app-cash-movement-list></app-cash-movement-list>
+        <app-cash-movement-list
+          [movements]="shiftMovements()"
+        ></app-cash-movement-list>
       </div>
 
       <app-close-shift-form
-        [cashShift]="shift"
+        [isOpenShift]="isOpen()"
+        [cashShift]="shiftData()"
         [isClosing]="isClosing()"
+        [canPerformAction]="editableShift() !== null"
         (confirmed)="closeShift($event)"
       ></app-close-shift-form>
     </div>

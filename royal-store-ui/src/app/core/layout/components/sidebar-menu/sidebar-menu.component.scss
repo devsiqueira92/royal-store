@@ -1,3 +1,12 @@
 #logo-name {
   font-size: 1.5rem;
 }
+
+::ng-deep .p-panelmenu-panel {
+  border-style: none;
+  border-bottom: 1px solid;
+  border-radius: 0;
+  border-end-end-radius: 0 !important;
+  border-end-start-radius: 0 !important;
+  border-color: var(--p-panelmenu-panel-border-color);
+}

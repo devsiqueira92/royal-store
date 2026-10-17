@@ -1,41 +1,28 @@
-import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  inject,
   input,
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import {
-  CashMovement,
-  CashMovementType,
-} from '../../interfaces/cash-movement.interface';
-import { CashShiftFacade } from '../../facade/cash-shift.facade';
-import { take, tap } from 'rxjs';
+  CashMovementResponse,
+  RecordedCashMovementType,
+} from '../../interfaces/cash-movement-response.interface';
 
-const OUTGOING_TYPES: CashMovementType[] = ['withdrawal'];
+const OUTGOING_TYPES: RecordedCashMovementType[] = ['withdrawal'];
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-cash-movement-list',
-  imports: [DatePipe, DecimalPipe, TranslatePipe, AsyncPipe],
+  imports: [DatePipe, DecimalPipe, TranslatePipe],
   templateUrl: './cash-movement-list.component.html',
   styleUrl: './cash-movement-list.component.scss',
 })
 export class CashMovementListComponent {
-  private readonly cashShiftFacade = inject(CashShiftFacade);
-  protected readonly movements$ = this.cashShiftFacade.movements$;
+  readonly movements = input.required<CashMovementResponse[]>();
 
-  protected isOutgoing(type: CashMovementType): boolean {
+  protected isOutgoing(type: RecordedCashMovementType): boolean {
     return OUTGOING_TYPES.includes(type);
-  }
-
-  ngOnInit() {
-    this.cashShiftFacade.current$
-      .pipe(
-        take(1),
-        tap(shift => this.cashShiftFacade.loadMovements(shift!.id)),
-      )
-      .subscribe();
   }
 }

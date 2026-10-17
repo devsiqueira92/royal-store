@@ -452,6 +452,26 @@
       "open": "Open",
       "closed": "Closed"
     },
+    "list": {
+      "title": "Cash shifts",
+      "subtitle": "Every shift opened in the store, with its sales and cash movements.",
+      "empty": "No cash shifts found.",
+      "viewDetails": "View shift details",
+      "salesCount": "{{count}} sales",
+      "columns": {
+        "operator": "Operator",
+        "openedAt": "Opened at",
+        "closedAt": "Closed at",
+        "status": "Status",
+        "openingBalance": "Opening balance",
+        "totalSales": "Total sales",
+        "cashSales": "Cash",
+        "cardSales": "Card",
+        "supplements": "Supplements",
+        "withdrawals": "Sangrias",
+        "movements": "Movements"
+      }
+    },
     "chip": {
       "label": "Cash Shift",
       "openSince": "Open · since {{time}}"

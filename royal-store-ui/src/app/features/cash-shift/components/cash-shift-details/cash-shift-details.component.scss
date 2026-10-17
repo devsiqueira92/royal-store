@@ -66,6 +66,10 @@
   gap: 1rem;
 }
 
+.cash-shift-details__grid--readonly {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .cash-shift-details__column {
   display: flex;
   flex-direction: column;
