@@ -156,8 +156,7 @@ public sealed class Customer : Entity, IAuditableEntity
 
         var target = found.Value;
         if (markAsDefault && !target.IsActive)
-            return Error.Validation("customer.address_inactive_cannot_be_default",
-                "An inactive address cannot be the default delivery address.");
+            return InactiveCannotBeDefault;
 
         if (markAsDefault)
             ClearDefault(except: addressId);
@@ -199,6 +198,66 @@ public sealed class Customer : Entity, IAuditableEntity
         Version++;
         return target;
     }
+
+    /// <summary>
+    /// Applies an address list from one request (046). Every entry is validated first, so a failure
+    /// leaves the customer untouched; then each kept entry is added or edited in order through
+    /// <see cref="AddAddress"/>/<see cref="UpdateAddress"/>, which carry the default rule. Errors
+    /// caused by one entry name its 1-based position in the list as sent, blank entries included.
+    /// </summary>
+    /// <param name="keepEmptyNewAddresses">The add action keeps new entries with every field blank
+    /// (045 FR-011a); registration and update drop them, mark included (046 FR-012, FR-020).</param>
+    public Result<CustomerAddressChangeSet> ApplyAddressChanges(
+        IReadOnlyList<CustomerAddressChange> changes, bool keepEmptyNewAddresses = false)
+    {
+        var kept = changes
+            .Select((change, index) => (Change: change, Position: index + 1))
+            .Where(e => keepEmptyNewAddresses || !(e.Change.IsNew && e.Change.Address.IsEmpty))
+            .ToList();
+
+        var marked = kept.Where(e => e.Change.MarkAsDefault).Select(e => e.Position).ToList();
+        if (marked.Count > 1)
+            return Error.Validation("customer.address_multiple_defaults",
+                $"Only one address can be the default delivery address (marked: {string.Join(", ", marked)}).");
+
+        var seen = new HashSet<Guid>();
+        foreach (var (change, position) in kept.Where(e => !e.Change.IsNew))
+        {
+            var addressId = change.AddressId!.Value;
+            if (!seen.Add(addressId))
+                return Error.Validation("customer.address_duplicated",
+                    $"Address {position}: the same address appears more than once in the list.");
+
+            var found = FindAddress(addressId);
+            if (found.IsFailure)
+                return AtPosition(found.Error, position);
+
+            if (change.MarkAsDefault && !found.Value.IsActive)
+                return AtPosition(InactiveCannotBeDefault, position);
+        }
+
+        var added = new List<CustomerAddress>();
+        var updated = new List<CustomerAddress>();
+        foreach (var (change, position) in kept)
+        {
+            var result = change.IsNew
+                ? AddAddress(Guid.NewGuid(), change.Address, change.MarkAsDefault)
+                : UpdateAddress(change.AddressId!.Value, change.Address, change.MarkAsDefault);
+            if (result.IsFailure)
+                return AtPosition(result.Error, position);
+
+            (change.IsNew ? added : updated).Add(result.Value);
+        }
+
+        return new CustomerAddressChangeSet(added, updated);
+    }
+
+    private static readonly Error InactiveCannotBeDefault = Error.Validation(
+        "customer.address_inactive_cannot_be_default",
+        "An inactive address cannot be the default delivery address.");
+
+    private static Error AtPosition(Error error, int position) =>
+        error.WithMessage($"Address {position}: {error.Message}");
 
     private void ClearDefault(Guid? except = null)
     {

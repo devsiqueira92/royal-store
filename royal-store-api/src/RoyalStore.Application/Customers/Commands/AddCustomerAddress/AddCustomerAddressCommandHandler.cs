@@ -5,12 +5,11 @@ using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Customers.DTOs;
 using RoyalStore.Domain.Common;
-using RoyalStore.Domain.Customers;
 
 namespace RoyalStore.Application.Customers.Commands.AddCustomerAddress;
 
 public sealed class AddCustomerAddressCommandHandler
-    : IRequestHandler<AddCustomerAddressCommand, Result<CustomerAddressResponse>>
+    : IRequestHandler<AddCustomerAddressCommand, Result<IReadOnlyList<CustomerAddressResponse>>>
 {
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -32,7 +31,7 @@ public sealed class AddCustomerAddressCommandHandler
         _currentUserService = currentUserService;
     }
 
-    public async Task<Result<CustomerAddressResponse>> Handle(
+    public async Task<Result<IReadOnlyList<CustomerAddressResponse>>> Handle(
         AddCustomerAddressCommand command,
         CancellationToken cancellationToken)
     {
@@ -40,19 +39,20 @@ public sealed class AddCustomerAddressCommandHandler
         if (customer is null)
             return Error.NotFound("customer.not_found", "Customer not found.");
 
-        var postal = PostalAddress.Create(command.ZipCode, command.Street, command.Number, command.Neighborhood,
-            command.City, command.State, command.Complement, command.AdditionalInfo);
-        if (postal.IsFailure)
-            return postal.Error;
+        var addressChanges = CustomerAddressChanges.From(command.Addresses);
+        if (addressChanges.IsFailure)
+            return addressChanges.Error;
 
-        var addResult = customer.AddAddress(Guid.NewGuid(), postal.Value, command.IsDefaultDelivery);
-        if (addResult.IsFailure)
-            return addResult.Error;
+        // Blank entries are kept on add (045 FR-011a, 046 FR-023).
+        var applied = customer.ApplyAddressChanges(addressChanges.Value, keepEmptyNewAddresses: true);
+        if (applied.IsFailure)
+            return applied.Error;
 
-        var address = addResult.Value;
+        var added = applied.Value.Added;
 
-        // No UpdateAsync(customer): it's tracked, and Update() would mark the new address Modified.
-        await _customerRepository.AddAddressAsync(address, cancellationToken);
+        // No UpdateAsync(customer): it's tracked, and Update() would mark the new addresses Modified.
+        foreach (var address in added)
+            await _customerRepository.AddAddressAsync(address, cancellationToken);
 
         try
         {
@@ -66,13 +66,16 @@ public sealed class AddCustomerAddressCommandHandler
                 "The customer was changed by another operation. Refresh and try again.");
         }
 
-        await _auditService.RecordAsync(
-            "customer.address_added",
-            _tenantContext.TenantId,
-            $"Address {address.Id} added to customer {customer.Id}.",
-            _currentUserService.CurrentUserId ?? "unknown",
-            cancellationToken);
+        var userId = _currentUserService.CurrentUserId ?? "unknown";
+        foreach (var address in added)
+            await _auditService.RecordAsync(
+                "customer.address_added",
+                _tenantContext.TenantId,
+                $"Address {address.Id} added to customer {customer.Id}.",
+                userId,
+                cancellationToken);
 
-        return CustomerAddressResponse.From(address);
+        return Result<IReadOnlyList<CustomerAddressResponse>>.Success(
+            added.Select(CustomerAddressResponse.From).ToList());
     }
 }

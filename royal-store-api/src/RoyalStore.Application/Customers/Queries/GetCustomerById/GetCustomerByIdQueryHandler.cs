@@ -43,13 +43,7 @@ public sealed class GetCustomerByIdQueryHandler
 
         var balance = await _cashbackLedger.GetUsableBalanceAsync(_tenantContext.TenantId, customer.Id, cancellationToken);
 
-        // Every address, active and inactive (045 FR-013): default first, then active, then oldest.
-        var addresses = customer.Addresses
-            .OrderByDescending(a => a.IsDefaultDelivery)
-            .ThenByDescending(a => a.IsActive)
-            .ThenBy(a => a.CreatedAt)
-            .Select(CustomerAddressResponse.From)
-            .ToList();
+        var addresses = CustomerAddressResponse.ListFrom(customer.Addresses);
 
         return CustomerResponse.From(customer, tier, balance, addresses);
     }

@@ -6,6 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import {
+  FormArray,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
@@ -18,6 +19,15 @@ import {
   CustomerFormControls,
 } from '../../interfaces/customer.interface';
 import { CashbackEntry } from '../../interfaces/cashback-entry.interface';
+import {
+  CustomerAddress,
+  CustomerAddressFormControls,
+} from '../../interfaces/customer-address.interface';
+import {
+  buildCustomerAddressGroup,
+  toCustomerAddressChangeRequests,
+  toCustomerAddressRequests,
+} from '../../utils/customer-address-form.util';
 import { CustomerFacade } from '../../facade/customer.facade';
 import { LoyaltyTierFacade } from '@app/core/loyalty-tier/facade/loyalty-tier.facade';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
@@ -26,6 +36,7 @@ import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/
 import { ButtonComponent } from '@app/shared/components/button/button.component';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { CustomerCashbackHistoryComponent } from '../customer-cashback-history/customer-cashback-history.component';
+import { CustomerAddressesComponent } from '../customer-addresses/customer-addresses.component';
 
 @Component({
   selector: 'app-customer-form',
@@ -35,6 +46,7 @@ import { CustomerCashbackHistoryComponent } from '../customer-cashback-history/c
     SelectFieldComponent,
     FormLayoutComponent,
     ButtonComponent,
+    CustomerAddressesComponent,
     CustomerCashbackHistoryComponent,
   ],
   templateUrl: './customer-form.component.html',
@@ -103,6 +115,7 @@ export class CustomerFormComponent {
 
     const { name, document, phone, loyaltyTierId } =
       this.formGroup.getRawValue();
+    const addresses = this.formGroup.controls.addresses;
 
     if (this.isCreateMode()) {
       this.customerFacade.createCustomer({
@@ -110,6 +123,7 @@ export class CustomerFormComponent {
         document: (document ?? '').trim(),
         phone: phone?.trim() || null,
         loyaltyTierId,
+        addresses: toCustomerAddressRequests(addresses),
       });
     } else {
       const customer = this.selectedCustomer();
@@ -121,6 +135,7 @@ export class CustomerFormComponent {
         name: (name ?? '').trim(),
         phone: phone?.trim() || null,
         loyaltyTierId,
+        addresses: toCustomerAddressChangeRequests(addresses),
       });
     }
 
@@ -136,6 +151,7 @@ export class CustomerFormComponent {
       phone: null,
       loyaltyTierId: null,
     });
+    this.setAddresses([]);
   }
 
   private populateForm(customer: Customer | null): void {
@@ -148,6 +164,17 @@ export class CustomerFormComponent {
       phone: customer?.phone ?? null,
       loyaltyTierId: customer?.loyaltyTierId ?? null,
     });
+    this.setAddresses(customer?.addresses ?? []);
+  }
+
+  private setAddresses(addresses: CustomerAddress[]): void {
+    const array = this.formGroup.controls.addresses;
+    array.clear({ emitEvent: false });
+    for (const address of addresses) {
+      array.push(buildCustomerAddressGroup(address), { emitEvent: false });
+    }
+    // A single emission, so the address list re-reads its rows once.
+    array.updateValueAndValidity();
   }
 
   private buildFormGroup(): FormGroup<CustomerFormControls> {
@@ -160,6 +187,7 @@ export class CustomerFormComponent {
       document: new FormControl(null, [Validators.required]),
       phone: new FormControl(null, [Validators.maxLength(20)]),
       loyaltyTierId: new FormControl(null),
+      addresses: new FormArray<FormGroup<CustomerAddressFormControls>>([]),
     });
   }
 }

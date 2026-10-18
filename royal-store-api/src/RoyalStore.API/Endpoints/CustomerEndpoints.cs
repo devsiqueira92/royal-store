@@ -70,6 +70,8 @@ public sealed class CustomerEndpoints : IEndpointDefinition
         return result.ToHttpResult(() => TypedResults.NoContent());
     }
 
+    // Returns the created addresses as an array, in the order sent (046 FR-024).
+    ///Deprecated: This endpoint is deprecated and will be removed in a future release. Use the new endpoint for adding a single address instead.
     private static async Task<IResult> AddAddress(
         Guid id,
         IMediator mediator,
@@ -80,6 +82,7 @@ public sealed class CustomerEndpoints : IEndpointDefinition
         return result.ToHttpResult(r => TypedResults.Created($"/api/customers/{id}", r));
     }
 
+    ///Deprecated: This endpoint is deprecated and will be removed in a future release. Use the new endpoint for adding a single address instead.
     private static async Task<IResult> UpdateAddress(
         Guid id,
         Guid addressId,

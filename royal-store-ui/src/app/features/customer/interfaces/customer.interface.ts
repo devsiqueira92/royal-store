@@ -1,4 +1,8 @@
-import { FormControl } from '@angular/forms';
+import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import {
+  CustomerAddress,
+  CustomerAddressFormControls,
+} from './customer-address.interface';
 
 export interface Customer {
   id: string;
@@ -11,6 +15,8 @@ export interface Customer {
   isActive: boolean;
   // Null until the customer earns cashback for the first time.
   cashbackBalance: number | null;
+  // Omitted from the list response.
+  addresses?: CustomerAddress[];
 }
 
 export interface CustomerFormControls {
@@ -19,4 +25,5 @@ export interface CustomerFormControls {
   document: FormControl<string | null>;
   phone: FormControl<string | null>;
   loyaltyTierId: FormControl<string | null>;
+  addresses: FormArray<FormGroup<CustomerAddressFormControls>>;
 }

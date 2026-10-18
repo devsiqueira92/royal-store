@@ -9,4 +9,4 @@ public record CreateCustomerCommand(
     string Document,
     string? Phone,
     Guid? LoyaltyTierId,
-    CustomerAddressRequest? Address = null) : IRequest<Result<CustomerResponse>>;
+    IReadOnlyList<CustomerAddressRequest>? Addresses = null) : IRequest<Result<CustomerResponse>>;

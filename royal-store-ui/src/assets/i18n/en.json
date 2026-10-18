@@ -43,6 +43,8 @@
     "required": "This field is required.",
     "email": "Enter a valid email address.",
     "minlength": "Value is too short.",
+    "maxlength": "Value is too long.",
+    "pattern": "Invalid format.",
     "passwordMismatch": "Passwords do not match."
   },
   "product": {
@@ -384,6 +386,7 @@
       "createSubtitle": "Register a new customer",
       "section": {
         "details": "Customer details",
+        "addresses": "Addresses",
         "cashback": "Cashback history"
       },
       "name": "Name",
@@ -397,6 +400,23 @@
       "cancel": "Cancel",
       "submit": "Save customer",
       "createSubmit": "Create customer"
+    },
+    "address": {
+      "empty": "No addresses yet.",
+      "add": "Add address",
+      "fallback": "New address",
+      "remove": "Remove address",
+      "default": "Default",
+      "inactive": "Inactive",
+      "defaultDelivery": "Default delivery address",
+      "zipCode": "Zip code",
+      "street": "Street",
+      "number": "Number",
+      "neighborhood": "Neighborhood",
+      "city": "City",
+      "state": "State",
+      "complement": "Complement",
+      "additionalInfo": "Reference / delivery notes"
     },
     "cashback": {
       "balance": "Balance",

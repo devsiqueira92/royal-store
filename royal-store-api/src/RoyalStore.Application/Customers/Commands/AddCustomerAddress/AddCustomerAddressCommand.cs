@@ -4,14 +4,8 @@ using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Customers.Commands.AddCustomerAddress;
 
+/// <summary>One or more new addresses (046), all saved or none. Returns the created addresses in the
+/// order sent.</summary>
 public record AddCustomerAddressCommand(
     Guid CustomerId,
-    string? ZipCode,
-    string? Street,
-    string? Number,
-    string? Neighborhood,
-    string? City,
-    string? State,
-    string? Complement,
-    string? AdditionalInfo,
-    bool IsDefaultDelivery = false) : IRequest<Result<CustomerAddressResponse>>;
+    IReadOnlyList<CustomerAddressRequest> Addresses) : IRequest<Result<IReadOnlyList<CustomerAddressResponse>>>;

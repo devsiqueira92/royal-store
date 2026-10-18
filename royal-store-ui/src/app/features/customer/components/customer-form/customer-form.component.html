@@ -34,8 +34,14 @@
     ></app-select-field>
   </app-form-layout>
 
+  <app-form-layout title="customer.form.section.addresses" [index]="2">
+    <app-customer-addresses
+      [addresses]="formGroup.controls.addresses"
+    ></app-customer-addresses>
+  </app-form-layout>
+
   @if (!isCreateMode()) {
-    <app-form-layout title="customer.form.section.cashback" [index]="2">
+    <app-form-layout title="customer.form.section.cashback" [index]="3">
       <app-customer-cashback-history
         [entries]="cashbackHistory()"
         [isLoading]="isLoadingHistory()"

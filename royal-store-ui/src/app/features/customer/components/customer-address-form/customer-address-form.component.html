@@ -1,0 +1,100 @@
+<div class="customer-address" [class.customer-address--inactive]="isInactive()">
+  <div class="customer-address__header">
+    <span class="customer-address__index">{{
+      index() + 1 | number: '2.0-0'
+    }}</span>
+    <span class="customer-address__label">
+      {{ summary() || ('customer.address.fallback' | translate) }}
+    </span>
+
+    @if (isDefault()) {
+      <span class="customer-address__badge customer-address__badge--default">
+        {{ 'customer.address.default' | translate }}
+      </span>
+    }
+
+    @if (isInactive()) {
+      <span class="customer-address__badge">
+        {{ 'customer.address.inactive' | translate }}
+      </span>
+    }
+
+    @if (isNew()) {
+      <button
+        type="button"
+        class="customer-address__remove"
+        [attr.aria-label]="'customer.address.remove' | translate"
+        (click)="remove.emit()"
+      >
+        <i class="pi pi-trash"></i>
+      </button>
+    }
+  </div>
+
+  <div class="form__row form__row--3">
+    <app-input-field
+      controlName="zipCode"
+      [parentForm]="addressGroup()"
+      label="customer.address.zipCode"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="city"
+      [parentForm]="addressGroup()"
+      label="customer.address.city"
+    ></app-input-field>
+
+    <app-select-field
+      controlName="state"
+      [parentForm]="addressGroup()"
+      label="customer.address.state"
+      [options]="stateOptions"
+      [showClear]="true"
+      [filter]="true"
+    ></app-select-field>
+  </div>
+
+  <div class="form__row form__row--2">
+    <app-input-field
+      controlName="street"
+      [parentForm]="addressGroup()"
+      label="customer.address.street"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="number"
+      [parentForm]="addressGroup()"
+      label="customer.address.number"
+    ></app-input-field>
+  </div>
+
+  <div class="form__row form__row--2">
+    <app-input-field
+      controlName="neighborhood"
+      [parentForm]="addressGroup()"
+      label="customer.address.neighborhood"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="complement"
+      [parentForm]="addressGroup()"
+      label="customer.address.complement"
+    ></app-input-field>
+  </div>
+
+  <app-textarea-field
+    controlName="additionalInfo"
+    [parentForm]="addressGroup()"
+    label="customer.address.additionalInfo"
+    [rows]="2"
+  ></app-textarea-field>
+
+  <label class="customer-address__default">
+    <p-checkbox
+      [binary]="true"
+      [formControl]="addressGroup().controls.isDefaultDelivery"
+      [inputId]="'customer-address-default-' + index()"
+    />
+    <span>{{ 'customer.address.defaultDelivery' | translate }}</span>
+  </label>
+</div>

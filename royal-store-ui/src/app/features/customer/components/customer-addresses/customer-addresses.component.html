@@ -1,0 +1,18 @@
+<div class="customer-addresses">
+  @for (group of groups(); track group; let i = $index) {
+    <app-customer-address-form
+      [addressGroup]="group"
+      [index]="i"
+      (remove)="removeAddress(i)"
+    ></app-customer-address-form>
+  } @empty {
+    <p class="customer-addresses__empty">
+      {{ 'customer.address.empty' | translate }}
+    </p>
+  }
+
+  <button type="button" class="customer-addresses__add" (click)="addAddress()">
+    <i class="pi pi-plus"></i>
+    {{ 'customer.address.add' | translate }}
+  </button>
+</div>

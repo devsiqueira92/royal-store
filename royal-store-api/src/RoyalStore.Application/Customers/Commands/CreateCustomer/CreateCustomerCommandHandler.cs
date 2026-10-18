@@ -48,19 +48,11 @@ public sealed class CreateCustomerCommandHandler
             return Error.Conflict("customer.document_conflict",
                 $"A customer with document '{command.Document}' is already registered.");
 
-        // Optional address, saved with the customer or not at all (045 FR-003). Validated before the
-        // tier lookup so a bad field fails fast; an all-blank address counts as none (FR-011a).
-        PostalAddress? postal = null;
-        if (command.Address is { } addressRequest)
-        {
-            var postalResult = PostalAddress.Create(addressRequest.ZipCode, addressRequest.Street,
-                addressRequest.Number, addressRequest.Neighborhood, addressRequest.City, addressRequest.State,
-                addressRequest.Complement, addressRequest.AdditionalInfo);
-            if (postalResult.IsFailure)
-                return postalResult.Error;
-
-            postal = postalResult.Value;
-        }
+        // Optional address list, saved with the customer or not at all (046 FR-002). Validated before
+        // the tier lookup so a bad field fails fast.
+        var addressChanges = CustomerAddressChanges.From(command.Addresses);
+        if (addressChanges.IsFailure)
+            return addressChanges.Error;
 
         var tier = command.LoyaltyTierId is Guid explicitTierId
             ? await _loyaltyTierRepository.GetByIdAsync(explicitTierId, cancellationToken)
@@ -76,13 +68,11 @@ public sealed class CreateCustomerCommandHandler
 
         var customer = customerResult.Value;
 
-        // First address, so it always becomes the default (FR-010). AddAsync below inserts the whole graph.
-        if (postal is { IsEmpty: false })
-        {
-            var addressResult = customer.AddAddress(Guid.NewGuid(), postal, command.Address!.IsDefaultDelivery);
-            if (addressResult.IsFailure)
-                return addressResult.Error;
-        }
+        // Blank entries are dropped; the marked one, or else the first, is the default (046 FR-006,
+        // FR-012). AddAsync below inserts the whole graph.
+        var applied = customer.ApplyAddressChanges(addressChanges.Value);
+        if (applied.IsFailure)
+            return applied.Error;
 
         await _customerRepository.AddAsync(customer, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -105,6 +95,6 @@ public sealed class CreateCustomerCommandHandler
                 cancellationToken);
 
         return CustomerResponse.From(customer, tier, cashbackBalance: 0m,
-            addresses: customer.Addresses.Select(CustomerAddressResponse.From).ToList());
+            addresses: CustomerAddressResponse.ListFrom(customer.Addresses));
     }
 }

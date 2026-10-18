@@ -21,4 +21,7 @@ public readonly struct Error
     public static Error Unauthorized(string code, string message) => new(code, message, ErrorType.Unauthorized);
     public static Error Unexpected(string code, string message) => new(code, message, ErrorType.Unexpected);
     public static Error RateLimit(string code, string message) => new(code, message, ErrorType.RateLimit);
+
+    /// <summary>Same code and type, new message — e.g. to say which entry of a list failed.</summary>
+    public Error WithMessage(string message) => new(Code, message, Type);
 }
