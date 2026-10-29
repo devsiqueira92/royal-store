@@ -65,6 +65,13 @@ export const routes: Routes = [
             m => m.LOYALTY_ROUTES,
           ),
       },
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('./features/profile/profile.routes').then(
+            m => m.PROFILE_ROUTES,
+          ),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

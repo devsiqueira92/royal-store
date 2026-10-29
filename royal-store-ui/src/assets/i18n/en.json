@@ -323,11 +323,15 @@
         "cashbackHint": "Toggle to use it on this order"
       },
       "fulfillment": {
-        "title": "Delivery or pickup",
-        "delivery": "Delivery",
-        "pickup": "Pick up in store",
-        "selectBranch": "Select the store",
-        "deliveryHint": "The order will be shipped to the customer address on file."
+        "title": "Delivery",
+        "customerHint": "Pick one of the customer's addresses.",
+        "manualHint": "No customer selected: fill in the delivery address, if any.",
+        "customerAddress": "Customer address",
+        "zipCode": "Zip code",
+        "street": "Street",
+        "number": "Number",
+        "city": "City",
+        "zipCodeNotFound": "We couldn't find the zip code you entered."
       },
       "summary": {
         "total": "Total",
@@ -410,6 +414,7 @@
       "inactive": "Inactive",
       "defaultDelivery": "Default delivery address",
       "zipCode": "Zip code",
+      "zipCodeNotFound": "We couldn't find the zip code you entered.",
       "street": "Street",
       "number": "Number",
       "neighborhood": "Neighborhood",
@@ -599,6 +604,19 @@
       "cancel": "Cancel",
       "submit": "Save tier",
       "createSubmit": "Create tier"
+    }
+  },
+  "profile": {
+    "empty": "We couldn't load your profile.",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "fields": {
+      "email": "Email",
+      "phone": "Phone",
+      "tenant": "Store",
+      "memberSince": "Member since"
     }
   }
 }

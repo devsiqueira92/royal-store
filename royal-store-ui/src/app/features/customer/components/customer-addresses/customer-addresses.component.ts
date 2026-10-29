@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  input,
+} from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import {
   takeUntilDestroyed,
@@ -10,19 +15,28 @@ import {
   filter,
   map,
   merge,
+  Observable,
   shareReplay,
   startWith,
   switchMap,
 } from 'rxjs';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CustomerAddressFormControls } from '../../interfaces/customer-address.interface';
 import {
   buildCustomerAddressGroup,
   CustomerAddressFormArray,
 } from '../../utils/customer-address-form.util';
 import { CustomerAddressFormComponent } from '../customer-address-form/customer-address-form.component';
+import { ViaCepService } from '@app/shared/services/via-cep.service';
+import { NotificationService } from '@app/shared/services/notification.service';
+import { ViaCepAddress } from '@app/shared/interfaces/via-cep.interface';
 
 type AddressGroup = FormGroup<CustomerAddressFormControls>;
+
+interface ZipCodeLookup {
+  group: AddressGroup;
+  address: ViaCepAddress | null;
+}
 
 const sameGroups = (previous: AddressGroup[], current: AddressGroup[]) =>
   previous.length === current.length &&
@@ -36,6 +50,10 @@ const sameGroups = (previous: AddressGroup[], current: AddressGroup[]) =>
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerAddressesComponent {
+  private readonly viaCepService = inject(ViaCepService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly translateService = inject(TranslateService);
+
   addresses = input.required<CustomerAddressFormArray>();
 
   // Zoneless: push/removeAt/clear on a FormArray aren't signals. Every one of
@@ -74,6 +92,15 @@ export class CustomerAddressesComponent {
         takeUntilDestroyed(),
       )
       .subscribe(selected => this.clearOtherDefaults(selected));
+
+    this.groups$
+      .pipe(
+        switchMap(groups =>
+          merge(...groups.map(group => this.lookupZipCode(group))),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(lookup => this.applyZipCodeLookup(lookup));
   }
 
   protected addAddress(): void {
@@ -86,6 +113,35 @@ export class CustomerAddressesComponent {
 
   protected removeAddress(index: number): void {
     this.addresses().removeAt(index);
+  }
+
+  private lookupZipCode(group: AddressGroup): Observable<ZipCodeLookup> {
+    return this.viaCepService
+      .lookupChanges(group.controls.zipCode)
+      .pipe(map(address => ({ group, address })));
+  }
+
+  private applyZipCodeLookup({ group, address }: ZipCodeLookup): void {
+    if (!address) {
+      this.notificationService.warn({
+        detail: this.translateService.instant(
+          'customer.address.zipCodeNotFound',
+        ),
+      });
+      return;
+    }
+
+    // Zip codes that cover a whole town come back without street or
+    // neighborhood: keep what the user already typed there. ViaCEP's
+    // `complemento` describes the zip code's range ("lado ímpar"), not the
+    // customer's unit, so it is left alone.
+    const { street, neighborhood, city, state } = group.controls;
+    group.patchValue({
+      street: address.logradouro || street.value,
+      neighborhood: address.bairro || neighborhood.value,
+      city: address.localidade || city.value,
+      state: address.uf || state.value,
+    });
   }
 
   private clearOtherDefaults(selected: AddressGroup): void {
