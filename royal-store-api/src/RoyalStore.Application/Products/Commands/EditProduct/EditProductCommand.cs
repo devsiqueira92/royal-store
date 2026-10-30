@@ -57,7 +57,8 @@ public record EditProductCommand(
     string? IcmsCst = null,
     string? PisCofinsCst = null,
     string? IvaCst = null,
-    bool? IsSelectiveTax = null)
+    bool? IsSelectiveTax = null,
+    Guid? SupplierId = null)
     : IRequest<Result<ProductResponse>>
 {
     public IReadOnlyList<VariantInput> VariantsToAdd { get; init; } = VariantsToAdd ?? [];

@@ -1,5 +1,6 @@
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Primitives;
+using RoyalStore.Domain.Suppliers;
 
 namespace RoyalStore.Domain.Catalog;
 
@@ -8,6 +9,8 @@ public sealed class Product : Entity, IAuditableEntity
     public Guid TenantId { get; private set; }
     public Guid CategoryId { get; private set; }
     public Category Category { get; private set; } = null!;
+    public Guid? SupplierId { get; private set; }
+    public Supplier? Supplier { get; private set; }
     public string Name { get; private set; } = string.Empty;
     public string Sku { get; private set; } = string.Empty;
     public string? Description { get; private set; }
@@ -156,7 +159,8 @@ public sealed class Product : Entity, IAuditableEntity
         string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
-        string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax)
+        string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
+        Supplier? supplier = null)
     {
         var common = ValidateCommonFields(tenantId, categoryId, name, sku, basePrice, baseCostPrice);
         if (!common.IsSuccess)
@@ -189,7 +193,9 @@ public sealed class Product : Entity, IAuditableEntity
             overrideTaxProfile ? isSelectiveTax : null,
             measureResult.Value)
         {
-            TaxProfileTemplate = taxProfileTemplate
+            TaxProfileTemplate = taxProfileTemplate,
+            SupplierId = supplier?.Id,
+            Supplier = supplier
         };
     }
 
@@ -198,7 +204,8 @@ public sealed class Product : Entity, IAuditableEntity
         decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
         string nbs, string issCode,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
-        string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax, string origin)
+        string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax, string origin,
+        Supplier? supplier = null)
     {
         var common = ValidateCommonFields(tenantId, categoryId, name, sku, basePrice, baseCostPrice);
         if (!common.IsSuccess)
@@ -229,7 +236,9 @@ public sealed class Product : Entity, IAuditableEntity
             overrideTaxProfile ? isSelectiveTax : null,
             ProductMeasure.Empty)
         {
-            TaxProfileTemplate = taxProfileTemplate
+            TaxProfileTemplate = taxProfileTemplate,
+            SupplierId = supplier?.Id,
+            Supplier = supplier
         };
     }
 
@@ -239,7 +248,8 @@ public sealed class Product : Entity, IAuditableEntity
         string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
-        string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax)
+        string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
+        Supplier? supplier = null)
     {
         if (Type != ItemType.Product)
             return Result.Failure(Error.Validation("product.wrong_kind", "This catalog line is not a physical product."));
@@ -286,6 +296,8 @@ public sealed class Product : Entity, IAuditableEntity
         PisCofinsCst = overrideTaxProfile ? Normalize(pisCofinsCst) : null;
         IvaCst = overrideTaxProfile ? Normalize(ivaCst) : null;
         IsSelectiveTax = overrideTaxProfile ? isSelectiveTax : null;
+        SupplierId = supplier?.Id;
+        Supplier = supplier;
         Version++;
 
         return Result.Success();
@@ -296,7 +308,8 @@ public sealed class Product : Entity, IAuditableEntity
         decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
         string nbs, string issCode,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
-        string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax)
+        string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
+        Supplier? supplier = null)
     {
         if (Type != ItemType.Service)
             return Result.Failure(Error.Validation("product.wrong_kind", "This catalog line is not a service."));
@@ -336,6 +349,8 @@ public sealed class Product : Entity, IAuditableEntity
         PisCofinsCst = overrideTaxProfile ? Normalize(pisCofinsCst) : null;
         IvaCst = overrideTaxProfile ? Normalize(ivaCst) : null;
         IsSelectiveTax = overrideTaxProfile ? isSelectiveTax : null;
+        SupplierId = supplier?.Id;
+        Supplier = supplier;
         Version++;
 
         return Result.Success();
@@ -349,11 +364,13 @@ public sealed class Product : Entity, IAuditableEntity
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
         IReadOnlyList<NewVariantRequest> variantsToAdd,
-        IReadOnlyList<VariantUpdateRequest> variantsToUpdate)
+        IReadOnlyList<VariantUpdateRequest> variantsToUpdate,
+        Supplier? supplier = null)
     {
         var fieldsResult = UpdateProductFields(categoryId, name, sku, stockTrack, basePrice, baseCostPrice,
             description, unitOfMeasure, ncm, cest, origin, netWeight, grossWeight, width, height, length,
-            taxProfileTemplate, overrideTaxProfile, defaultCfop, icmsCst, pisCofinsCst, ivaCst, isSelectiveTax);
+            taxProfileTemplate, overrideTaxProfile, defaultCfop, icmsCst, pisCofinsCst, ivaCst, isSelectiveTax,
+            supplier);
         if (!fieldsResult.IsSuccess)
             return fieldsResult;
 
@@ -367,11 +384,13 @@ public sealed class Product : Entity, IAuditableEntity
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
         IReadOnlyList<NewVariantRequest> variantsToAdd,
-        IReadOnlyList<VariantUpdateRequest> variantsToUpdate)
+        IReadOnlyList<VariantUpdateRequest> variantsToUpdate,
+        Supplier? supplier = null)
     {
         var fieldsResult = UpdateServiceFields(categoryId, name, sku, basePrice, baseCostPrice,
             description, unitOfMeasure, nbs, issCode,
-            taxProfileTemplate, overrideTaxProfile, pisCofinsCst, ivaCst, isSelectiveTax);
+            taxProfileTemplate, overrideTaxProfile, pisCofinsCst, ivaCst, isSelectiveTax,
+            supplier);
         if (!fieldsResult.IsSuccess)
             return fieldsResult;
 

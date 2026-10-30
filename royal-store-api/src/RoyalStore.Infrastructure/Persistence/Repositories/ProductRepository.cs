@@ -22,6 +22,7 @@ public sealed class ProductRepository : IProductRepository
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Products
             .Include(p => p.Category)
+            .Include(p => p.Supplier)
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.TaxProfileTemplate)
@@ -32,6 +33,7 @@ public sealed class ProductRepository : IProductRepository
     {
         var query = _context.Products
             .Include(p => p.Category)
+            .Include(p => p.Supplier)
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.TaxProfileTemplate)
@@ -82,6 +84,7 @@ public sealed class ProductRepository : IProductRepository
         var query = _context.Products
             .AsNoTracking()
             .Include(p => p.Category)
+            .Include(p => p.Supplier)
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.TaxProfileTemplate)

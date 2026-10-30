@@ -16,6 +16,8 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.CategoryId).IsRequired();
 
+        builder.Property(p => p.SupplierId);
+
         builder.Property(p => p.Name)
             .HasMaxLength(120)
             .IsRequired();
@@ -101,6 +103,11 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasOne(p => p.TaxProfileTemplate)
             .WithMany(t => t.Products)
             .HasForeignKey(p => p.TaxProfileTemplateId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Supplier)
+            .WithMany()
+            .HasForeignKey(p => p.SupplierId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(p => p.Variants)

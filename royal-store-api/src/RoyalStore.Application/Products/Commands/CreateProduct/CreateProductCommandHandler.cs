@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Suppliers;
 
 namespace RoyalStore.Application.Products.Commands.CreateProduct;
 
@@ -14,6 +15,7 @@ public sealed class CreateProductCommandHandler
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
+    private readonly ISupplierRepository _supplierRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -23,6 +25,7 @@ public sealed class CreateProductCommandHandler
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
+        ISupplierRepository supplierRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -31,6 +34,7 @@ public sealed class CreateProductCommandHandler
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
+        _supplierRepository = supplierRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -51,13 +55,22 @@ public sealed class CreateProductCommandHandler
         if (taxProfileTemplate is null || !taxProfileTemplate.IsActive)
             return Error.NotFound("product.tax_profile_template_not_found", "Tax profile template not found or inactive.");
 
+        Supplier? supplier = null;
+        if (command.SupplierId.HasValue)
+        {
+            supplier = await _supplierRepository.GetByIdAsync(command.SupplierId.Value, cancellationToken);
+            if (supplier is null || !supplier.IsActive)
+                return Error.Validation("product.supplier_invalid", "Supplier not found or inactive.");
+        }
+
         var productResult = Product.CreateProduct(
             tenantId, command.CategoryId, command.Name, command.Sku, command.StockTrack,
             command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Ncm, command.Cest, command.Origin,
             command.NetWeight, command.GrossWeight, command.Width, command.Height, command.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
-            command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax);
+            command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
+            supplier);
 
         if (!productResult.IsSuccess)
             return productResult.Error;
