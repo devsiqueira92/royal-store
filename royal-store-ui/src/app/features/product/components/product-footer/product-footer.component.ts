@@ -137,6 +137,7 @@ export class ProductFooterComponent {
       pisCofinsCst: raw.pisCofinsCst?.trim() || undefined,
       ivaCst: raw.ivaCst?.trim() || undefined,
       isSelectiveTax: raw.isSelectiveTax,
+      supplierId: raw.supplierId ?? undefined,
     };
 
     if (product) {
@@ -178,6 +179,7 @@ export class ProductFooterComponent {
       pisCofinsCst: raw.pisCofinsCst?.trim() || undefined,
       ivaCst: raw.ivaCst?.trim() || undefined,
       isSelectiveTax: raw.isSelectiveTax,
+      supplierId: raw.supplierId ?? undefined,
     };
 
     if (product) {

@@ -1,0 +1,66 @@
+<form class="supplier-form" [formGroup]="formGroup">
+  <app-form-layout title="supplier.form.section.details" [index]="1" [collapsedPanel]="false">
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="supplier.form.name"
+      placeholder="supplier.form.namePlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="cnpj"
+      [parentForm]="formGroup"
+      label="supplier.form.cnpj"
+      placeholder="supplier.form.cnpjPlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="phone"
+      [parentForm]="formGroup"
+      label="supplier.form.phone"
+      placeholder="supplier.form.phonePlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="address"
+      [parentForm]="formGroup"
+      label="supplier.form.address"
+      placeholder="supplier.form.addressPlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="city"
+      [parentForm]="formGroup"
+      label="supplier.form.city"
+      placeholder="supplier.form.cityPlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="zipCode"
+      [parentForm]="formGroup"
+      label="supplier.form.zipCode"
+      placeholder="supplier.form.zipCodePlaceholder"
+    ></app-input-field>
+
+    @if (!isCreateMode()) {
+      <div class="supplier-form__field">
+        <span class="supplier-form__label">{{ 'supplier.form.status' | translate }}</span>
+        <app-switch
+          [checked]="active()"
+          [ariaLabel]="'supplier.toggleActive' | translate"
+          (changed)="onActiveChange($event)"
+        />
+      </div>
+    }
+  </app-form-layout>
+
+  <div class="supplier-form__footer">
+    <app-button label="supplier.form.cancel" severity="secondary" (onClick)="onClose()"></app-button>
+
+    <app-button
+      [label]="isCreateMode() ? 'supplier.form.createSubmit' : 'supplier.form.submit'"
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

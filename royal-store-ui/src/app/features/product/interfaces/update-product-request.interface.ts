@@ -30,4 +30,5 @@ export interface UpdateProductRequest {
   pisCofinsCst?: string;
   ivaCst?: string;
   isSelectiveTax?: boolean;
+  supplierId?: string;
 }

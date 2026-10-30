@@ -52,6 +52,8 @@ import { cashShiftFeature } from './features/cash-shift/store/cash-shift.reducer
 import { cashShiftStore } from './features/cash-shift/store/cash-shift.store';
 import { currentSellerFeature } from './core/current-seller/store/current-seller.reducer';
 import { currentSellerStore } from './core/current-seller/store/current-seller.store';
+import { supplierFeature } from './features/supplier/store/supplier.reducer';
+import { supplierStore } from './features/supplier/store/supplier.store';
 
 registerLocaleData(localeEn);
 
@@ -91,6 +93,7 @@ export const appConfig: ApplicationConfig = {
       [paymentMethodFeature.name]: paymentMethodFeature.reducer,
       [cashShiftFeature.name]: cashShiftFeature.reducer,
       [currentSellerFeature.name]: currentSellerFeature.reducer,
+      [supplierFeature.name]: supplierFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -109,6 +112,7 @@ export const appConfig: ApplicationConfig = {
       paymentMethodStore,
       cashShiftStore,
       currentSellerStore,
+      supplierStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,

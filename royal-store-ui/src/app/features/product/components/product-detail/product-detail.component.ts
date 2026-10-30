@@ -1,4 +1,6 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { SupplierFacade } from '@app/features/supplier/facade/supplier.facade';
+import { Supplier } from '@app/features/supplier/interfaces/supplier.interface';
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
 import { TextareaFieldComponent } from '@app/shared/components/form-fields/textarea-field/textarea-field.component';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
@@ -15,8 +17,8 @@ import {
 } from '../../interfaces/product.interface';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CategorySelectFieldComponent } from '@app/shared/components/form-fields/category-select-field/category-select-field.component';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith, switchMap } from 'rxjs';
 import { UnitMeasureOptionFacade } from '@app/core/unit-measure-option/facade/unit-measure-option.facade';
 
 @Component({
@@ -38,6 +40,7 @@ import { UnitMeasureOptionFacade } from '@app/core/unit-measure-option/facade/un
 })
 export class ProductDetailComponent {
   private readonly unitMeasureOptionFacade = inject(UnitMeasureOptionFacade);
+  private readonly supplierFacade = inject(SupplierFacade);
 
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
@@ -63,6 +66,34 @@ export class ProductDetailComponent {
     { initialValue: false },
   );
   protected readonly photoFiles = signal<File[]>([]);
+
+  // Suppliers are loaded once, app-wide, by AdminLayoutComponent — read the
+  // store here, never dispatch another load from this component.
+  private readonly allSuppliers = toSignal(this.supplierFacade.suppliers$, {
+    initialValue: [] as Supplier[],
+  });
+
+  private readonly selectedSupplierId = toSignal(
+    toObservable(this.formGroup).pipe(
+      switchMap(formGroup =>
+        formGroup.controls.supplierId.valueChanges.pipe(
+          startWith(formGroup.controls.supplierId.value),
+        ),
+      ),
+    ),
+    { initialValue: null as string | null },
+  );
+
+  // Inactive suppliers are hidden from new assignments, but a product already
+  // linked to one must keep showing it (backend FR-010).
+  protected readonly supplierOptions = computed<Options[]>(() =>
+    this.allSuppliers()
+      .filter(
+        supplier =>
+          supplier.isActive || supplier.id === this.selectedSupplierId(),
+      )
+      .map(supplier => ({ code: supplier.id, description: supplier.name })),
+  );
 
   constructor() {
     this.unitMeasureOptionFacade.loadUnitMeasureOptions();

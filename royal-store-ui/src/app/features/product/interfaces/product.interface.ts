@@ -40,6 +40,8 @@ export interface Product {
   coverPhotoUrl?: string;
   photos: ProductPhoto[];
   variants: ProductVariant[];
+  supplierId?: string | null;
+  supplierName?: string | null;
 
   // Fiscal
   taxProfileTemplateId?: string;
@@ -97,6 +99,7 @@ export interface ProductFormControls {
   unitOfMeasure: FormControl<string | null>;
   isActive: FormControl<boolean | null>;
   stockTrack: FormControl<boolean | null>;
+  supplierId: FormControl<string | null>;
   // Taxes
   taxProfileTemplateId: FormControl<string | null>;
   ncm: FormControl<string | null>;

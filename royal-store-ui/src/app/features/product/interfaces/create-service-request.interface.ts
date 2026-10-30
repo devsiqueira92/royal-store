@@ -22,4 +22,5 @@ export interface CreateServiceRequest {
   pisCofinsCst?: string;
   ivaCst?: string;
   isSelectiveTax?: boolean;
+  supplierId?: string;
 }

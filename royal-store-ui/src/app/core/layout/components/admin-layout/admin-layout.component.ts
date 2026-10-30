@@ -11,6 +11,7 @@ import { LayoutService } from '../../services/layout.service';
 import { DeviceService } from '../../services/device.service';
 import { DetailsSidebarComponent } from '../details-sidebar/details-sidebar.component';
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
+import { SupplierFacade } from '@app/features/supplier/facade/supplier.facade';
 import { AsyncPipe } from '@angular/common';
 
 @Component({
@@ -30,6 +31,7 @@ export class AdminLayoutComponent {
   private readonly layoutService = inject(LayoutService);
   private readonly deviceService = inject(DeviceService);
   private readonly cashShiftFacade = inject(CashShiftFacade);
+  private readonly supplierFacade = inject(SupplierFacade);
 
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
   protected readonly shouldPushContent = computed(() => this.canPushContent());
@@ -37,6 +39,10 @@ export class AdminLayoutComponent {
 
   constructor() {
     this.cashShiftFacade.loadCurrent();
+    // Loaded once here (not inside the product form) so every screen that
+    // needs suppliers — today just the product form's dropdown — shares the
+    // same fetch instead of re-requesting it per component instance.
+    this.supplierFacade.loadSuppliers();
   }
 
   private canPushContent() {

@@ -1,0 +1,60 @@
+<section class="suppliers-page">
+  <header class="suppliers-page__header">
+    <div>
+      <h1 class="suppliers-page__title">{{ 'supplier.title' | translate }}</h1>
+      <p class="suppliers-page__subtitle">{{ 'supplier.subtitle' | translate }}</p>
+    </div>
+    <p-button
+      [label]="'supplier.newSupplier' | translate"
+      icon="pi pi-plus"
+      (onClick)="createSupplier()"
+    />
+  </header>
+
+  <div class="suppliers-page__panel">
+    <p-table [value]="suppliers()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'supplier.columns.name' | translate }}</th>
+          <th>{{ 'supplier.columns.cnpj' | translate }}</th>
+          <th>{{ 'supplier.columns.phone' | translate }}</th>
+          <th>{{ 'supplier.columns.city' | translate }}</th>
+          <th>{{ 'supplier.columns.status' | translate }}</th>
+          <th class="suppliers-page__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-supplier>
+        <tr>
+          <td>
+            <span class="supplier-cell__name">{{ supplier.name }}</span>
+          </td>
+          <td>{{ supplier.cnpj ?? '—' }}</td>
+          <td>{{ supplier.phone ?? '—' }}</td>
+          <td>{{ supplier.city ?? '—' }}</td>
+          <td>
+            <app-switch
+              [checked]="supplier.isActive"
+              [ariaLabel]="'supplier.toggleActive' | translate"
+              (changed)="onActiveChange(supplier, $event)"
+            />
+          </td>
+          <td class="suppliers-page__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'supplier.viewDetails' | translate"
+              (onClick)="editSupplier(supplier)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">{{ 'supplier.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

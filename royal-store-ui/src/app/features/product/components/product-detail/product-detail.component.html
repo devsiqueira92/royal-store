@@ -65,6 +65,15 @@
     ></app-input-field>
   </div>
 
+  <app-select-field
+    [parentForm]="formGroup()"
+    controlName="supplierId"
+    label="product.form.supplier"
+    [options]="supplierOptions()"
+    [showClear]="true"
+    [filter]="true"
+  ></app-select-field>
+
   <app-image-upload-field
     (filesChange)="onPhotoFilesChange($event)"
   ></app-image-upload-field>

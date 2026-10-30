@@ -91,6 +91,11 @@ export class SidebarMenuComponent {
             icon: 'pi pi-star',
             routerLink: '/loyalty',
           },
+          {
+            label: 'Fornecedores',
+            icon: 'pi pi-truck',
+            routerLink: '/suppliers',
+          },
         ],
       },
     ];

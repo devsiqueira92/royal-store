@@ -261,6 +261,7 @@ export class ProductFormComponent {
       baseCostPrice: new FormControl(0, [Validators.min(0.01)]),
       unitOfMeasure: new FormControl(null),
       isActive: new FormControl(true),
+      supplierId: new FormControl(null),
 
       stockTrack: new FormControl(true),
       taxProfileTemplateId: new FormControl(null, [Validators.required]),

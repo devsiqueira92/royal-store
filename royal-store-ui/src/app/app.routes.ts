@@ -72,6 +72,13 @@ export const routes: Routes = [
             m => m.PROFILE_ROUTES,
           ),
       },
+      {
+        path: 'suppliers',
+        loadChildren: () =>
+          import('./features/supplier/supplier.routes').then(
+            m => m.SUPPLIER_ROUTES,
+          ),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

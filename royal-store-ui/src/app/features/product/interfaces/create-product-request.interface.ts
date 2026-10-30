@@ -35,4 +35,5 @@ export interface CreateProductRequest {
   pisCofinsCst?: string;
   ivaCst?: string;
   isSelectiveTax?: boolean;
+  supplierId?: string;
 }
