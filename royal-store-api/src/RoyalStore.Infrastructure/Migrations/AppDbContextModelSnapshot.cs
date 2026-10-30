@@ -338,6 +338,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TaxProfileTemplateId")
                         .HasColumnType("uniqueidentifier");
 
@@ -369,6 +372,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("SupplierId");
 
                     b.HasIndex("TaxProfileTemplateId");
 
@@ -1767,6 +1772,70 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("Sellers", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Suppliers.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Cnpj")
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ZipCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Cnpj")
+                        .IsUnique()
+                        .HasFilter("[Cnpj] IS NOT NULL");
+
+                    b.ToTable("Suppliers", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Tenants.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1872,6 +1941,11 @@ namespace RoyalStore.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("RoyalStore.Domain.Suppliers.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("RoyalStore.Domain.Catalog.TaxProfileTemplate", "TaxProfileTemplate")
                         .WithMany("Products")
                         .HasForeignKey("TaxProfileTemplateId")
@@ -1920,6 +1994,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Navigation("Measure")
                         .IsRequired();
+
+                    b.Navigation("Supplier");
 
                     b.Navigation("TaxProfileTemplate");
                 });

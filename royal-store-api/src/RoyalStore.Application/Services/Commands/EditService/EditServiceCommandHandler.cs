@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Suppliers;
 
 namespace RoyalStore.Application.Services.Commands.EditService;
 
@@ -14,6 +15,7 @@ public sealed class EditServiceCommandHandler
     private readonly IProductRepository _productRepository;
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
+    private readonly ISupplierRepository _supplierRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -23,6 +25,7 @@ public sealed class EditServiceCommandHandler
         IProductRepository productRepository,
         ICategoryRepository categoryRepository,
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
+        ISupplierRepository supplierRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -31,6 +34,7 @@ public sealed class EditServiceCommandHandler
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
+        _supplierRepository = supplierRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -56,6 +60,14 @@ public sealed class EditServiceCommandHandler
         if (taxProfileTemplate is null || !taxProfileTemplate.IsActive)
             return Error.NotFound("product.tax_profile_template_not_found", "Tax profile template not found or inactive.");
 
+        Supplier? supplier = null;
+        if (command.SupplierId.HasValue)
+        {
+            supplier = await _supplierRepository.GetByIdAsync(command.SupplierId.Value, cancellationToken);
+            if (supplier is null || !supplier.IsActive)
+                return Error.Validation("product.supplier_invalid", "Supplier not found or inactive.");
+        }
+
         var variantsToAdd = command.VariantsToAdd
             .Select(v => new NewVariantRequest(null, null, v.OptionName, null, null, v.Price, v.CostPrice, null, null))
             .ToList();
@@ -72,7 +84,7 @@ public sealed class EditServiceCommandHandler
             command.Nbs, command.IssCode,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
-            variantsToAdd, variantsToUpdate);
+            variantsToAdd, variantsToUpdate, supplier);
 
         if (!updateResult.IsSuccess)
             return updateResult.Error;

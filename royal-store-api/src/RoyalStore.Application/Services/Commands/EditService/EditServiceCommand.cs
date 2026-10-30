@@ -33,7 +33,8 @@ public record EditServiceCommand(
     IReadOnlyList<ServiceVariantUpdateInput> VariantsToUpdate,
     string? PisCofinsCst = null,
     string? IvaCst = null,
-    bool? IsSelectiveTax = null)
+    bool? IsSelectiveTax = null,
+    Guid? SupplierId = null)
     : IRequest<Result<ProductResponse>>
 {
     public IReadOnlyList<ServiceVariantInput> VariantsToAdd { get; init; } = VariantsToAdd ?? [];

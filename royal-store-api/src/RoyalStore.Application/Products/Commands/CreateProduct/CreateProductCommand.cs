@@ -28,7 +28,8 @@ public record CreateProductCommand(
     string? IcmsCst = null,
     string? PisCofinsCst = null,
     string? IvaCst = null,
-    bool? IsSelectiveTax = null) : IRequest<Result<ProductResponse>>;
+    bool? IsSelectiveTax = null,
+    Guid? SupplierId = null) : IRequest<Result<ProductResponse>>;
 
 public record CreateVariantRequest(
     string? Size,
