@@ -50,6 +50,8 @@ import { paymentMethodFeature } from './features/payment-method/store/payment-me
 import { paymentMethodStore } from './features/payment-method/store/payment-method.store';
 import { cashShiftFeature } from './features/cash-shift/store/cash-shift.reducer';
 import { cashShiftStore } from './features/cash-shift/store/cash-shift.store';
+import { currentSellerFeature } from './core/current-seller/store/current-seller.reducer';
+import { currentSellerStore } from './core/current-seller/store/current-seller.store';
 
 registerLocaleData(localeEn);
 
@@ -88,6 +90,7 @@ export const appConfig: ApplicationConfig = {
       [originOptionFeature.name]: originOptionFeature.reducer,
       [paymentMethodFeature.name]: paymentMethodFeature.reducer,
       [cashShiftFeature.name]: cashShiftFeature.reducer,
+      [currentSellerFeature.name]: currentSellerFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -105,6 +108,7 @@ export const appConfig: ApplicationConfig = {
       originOptionStore,
       paymentMethodStore,
       cashShiftStore,
+      currentSellerStore,
     ),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,

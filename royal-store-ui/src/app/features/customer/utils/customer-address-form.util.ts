@@ -61,6 +61,15 @@ export type CustomerAddressFormArray = FormArray<
   FormGroup<CustomerAddressFormControls>
 >;
 
+/** "Street, 12 · City - UF", leaving out whatever is missing. */
+export function formatAddressLine(
+  address: Pick<CustomerAddress, 'street' | 'number' | 'city' | 'state'>,
+): string {
+  const street = [address.street, address.number].filter(Boolean).join(', ');
+  const place = [address.city, address.state].filter(Boolean).join(' - ');
+  return [street, place].filter(Boolean).join(' · ');
+}
+
 /** Every field is optional on the API; the limits mirror `PostalAddress` there. */
 export function buildCustomerAddressGroup(
   address: Partial<CustomerAddress> = {},

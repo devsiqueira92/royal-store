@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
@@ -23,6 +24,7 @@ export class HeaderComponent {
   private layoutService = inject(LayoutService);
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly dialogManagerService = inject(DialogManagerService);
+  private readonly router = inject(Router);
 
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
   protected readonly cashShift = toSignal(this.cashShiftFacade.current$, {
@@ -39,7 +41,9 @@ export class HeaderComponent {
           {
             label: 'Perfil',
             icon: 'pi pi-user',
-            command: () => {},
+            command: () => {
+              this.router.navigate(['/profile']);
+            },
           },
           {
             label: 'Configurações',

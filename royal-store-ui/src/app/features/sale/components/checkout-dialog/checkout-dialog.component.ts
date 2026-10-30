@@ -23,11 +23,16 @@ import {
   debounceTime,
   distinctUntilChanged,
   map,
+  of,
   startWith,
+  switchMap,
+  tap,
 } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import {
   CheckoutResult,
-  FulfillmentMode,
+  SaleAddress,
+  SaleAddressFormControls,
 } from '../../interfaces/checkout.interface';
 import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
 import { Customer } from '../../interfaces/customer.interface';
@@ -36,8 +41,8 @@ import {
   CASHBACK_FISCAL_TYPE,
   resolveFiscalType,
 } from '../../interfaces/payment-method-option.const';
-import { StoreBranchService } from '../../services/store-branch.service';
 import { CustomerFacade } from '@app/features/customer/facade/customer.facade';
+import { CustomerAddress } from '@app/features/customer/interfaces/customer-address.interface';
 import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
 import {
   CheckoutStep,
@@ -47,6 +52,8 @@ import { CheckoutSummaryComponent } from '../checkout-summary/checkout-summary.c
 import { CustomerStepComponent } from '../customer-step/customer-step.component';
 import { PaymentStepComponent } from '../payment-step/payment-step.component';
 import { FulfillmentStepComponent } from '../fulfillment-step/fulfillment-step.component';
+import { ViaCepService } from '@app/shared/services/via-cep.service';
+import { NotificationService } from '@app/shared/services/notification.service';
 
 const STEPS: CheckoutStep[] = [
   {
@@ -67,6 +74,27 @@ const STEPS: CheckoutStep[] = [
 ];
 
 const onlyDigits = (value: string): string => value.replace(/\D/g, '');
+
+const clean = (value: string | null): string | null => value?.trim() || null;
+
+const sameAddresses = (
+  previous: CustomerAddress[],
+  current: CustomerAddress[],
+) =>
+  previous.length === current.length &&
+  previous.every((address, index) => address === current[index]);
+
+/** Null when nothing was filled in, which the API reads as "no address". */
+function toSaleAddress(value: SaleAddress): SaleAddress | null {
+  const address: SaleAddress = {
+    zipCode: value.zipCode ? onlyDigits(value.zipCode) || null : null,
+    street: clean(value.street),
+    number: clean(value.number),
+    city: clean(value.city),
+  };
+
+  return Object.values(address).some(Boolean) ? address : null;
+}
 
 function matches(customer: Customer, term: string): boolean {
   const text = term.trim().toLowerCase();
@@ -104,8 +132,10 @@ export class CheckoutDialogComponent implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly customerFacade = inject(CustomerFacade);
-  private readonly branchService = inject(StoreBranchService);
   private readonly paymentMethodFacade = inject(PaymentMethodFacade);
+  private readonly viaCepService = inject(ViaCepService);
+  private readonly notificationService = inject(NotificationService);
+  private readonly translateService = inject(TranslateService);
 
   subtotal = input<number>(0);
   saleDiscount = input<number>(0);
@@ -131,16 +161,23 @@ export class CheckoutDialogComponent implements OnInit {
     customerId: this.fb.control<string | null>(null),
     useCashback: this.fb.control(false),
     fulfillment: this.fb.group({
-      mode: this.fb.control<FulfillmentMode>('pickup'),
-      branchId: this.fb.control<string | null>(null, Validators.required),
+      customerAddressId: this.fb.control<string | null>(null),
+      address: this.fb.group<SaleAddressFormControls>({
+        zipCode: this.fb.control<string | null>(null, [
+          Validators.pattern(/^\d{5}-?\d{3}$/),
+        ]),
+        street: this.fb.control<string | null>(null, [
+          Validators.maxLength(200),
+        ]),
+        number: this.fb.control<string | null>(null, [
+          Validators.maxLength(20),
+        ]),
+        city: this.fb.control<string | null>(null, [Validators.maxLength(100)]),
+      }),
     }),
   });
 
   private readonly customers$ = this.customerFacade.customers$;
-
-  protected readonly branches = toSignal(this.branchService.getBranches(), {
-    initialValue: [],
-  });
 
   protected readonly filteredCustomers = toSignal(
     combineLatest([
@@ -178,18 +215,14 @@ export class CheckoutDialogComponent implements OnInit {
     { initialValue: null as number | null },
   );
 
-  protected readonly mode = toSignal(
-    this.form.controls.fulfillment.controls.mode.valueChanges.pipe(
-      startWith(this.form.controls.fulfillment.controls.mode.value),
-    ),
-    { initialValue: this.form.controls.fulfillment.controls.mode.value },
-  );
+  // Active addresses of the selected customer, offered in the fulfillment step.
+  protected readonly customerAddresses = signal<CustomerAddress[]>([]);
 
-  protected readonly branchId = toSignal(
-    this.form.controls.fulfillment.controls.branchId.valueChanges.pipe(
-      startWith(null),
+  protected readonly isAddressValid = toSignal(
+    this.form.controls.fulfillment.controls.address.statusChanges.pipe(
+      map(status => status !== 'INVALID'),
     ),
-    { initialValue: null },
+    { initialValue: true },
   );
 
   protected readonly totals = computed(() =>
@@ -211,7 +244,7 @@ export class CheckoutDialogComponent implements OnInit {
       case 2:
         return !!this.payment()?.valid;
       default:
-        return this.mode() === 'delivery' || !!this.branchId();
+        return this.isAddressValid();
     }
   });
 
@@ -234,25 +267,85 @@ export class CheckoutDialogComponent implements OnInit {
         }
       });
 
-    // A branch is only required when the goods are picked up in store.
-    fulfillment.controls.mode.valueChanges
+    const { customerAddressId, address } = fulfillment.controls;
+
+    // With a customer, the address comes read-only from their record; without
+    // one, it's typed in by hand. The customer list carries no addresses, so
+    // the details record is loaded and only trusted once it's this customer's.
+    customerId.valueChanges
       .pipe(
-        startWith(fulfillment.controls.mode.value),
+        tap(id => {
+          address.reset();
+
+          if (id) {
+            this.customerFacade.loadCustomer(id);
+            address.disable();
+          } else {
+            address.enable();
+          }
+        }),
+        switchMap(id =>
+          id
+            ? this.customerFacade.selectedCustomer$.pipe(
+                map(customer =>
+                  customer?.id === id
+                    ? (customer.addresses ?? []).filter(item => item.isActive)
+                    : [],
+                ),
+                distinctUntilChanged(sameAddresses),
+              )
+            : of([]),
+        ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(mode => {
-        const branchId = fulfillment.controls.branchId;
-        branchId.setValidators(mode === 'pickup' ? Validators.required : null);
-        branchId.updateValueAndValidity({ emitEvent: false });
+      .subscribe(addresses => {
+        this.customerAddresses.set(addresses);
+        // Each customer's list starts on their default delivery address.
+        customerAddressId.setValue(
+          addresses.find(item => item.isDefaultDelivery)?.id ?? null,
+        );
+      });
+
+    customerAddressId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(id => {
+        const selected = this.customerAddresses().find(item => item.id === id);
+        address.reset(
+          selected
+            ? {
+                zipCode: selected.zipCode,
+                street: selected.street,
+                number: selected.number,
+                city: selected.city,
+              }
+            : {},
+        );
+      });
+
+    this.viaCepService
+      .lookupChanges(address.controls.zipCode)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(found => {
+        if (!found) {
+          this.notificationService.warn({
+            detail: this.translateService.instant(
+              'sale.checkout.fulfillment.zipCodeNotFound',
+            ),
+          });
+          return;
+        }
+
+        // Town-wide zip codes have no street: keep what was typed there.
+        const { street, city } = address.controls;
+        address.patchValue({
+          street: found.logradouro || street.value,
+          city: found.localidade || city.value,
+        });
       });
   }
 
   protected selectCustomer(id: string | null): void {
     this.form.controls.customerId.setValue(id);
-  }
-
-  protected selectBranch(id: string): void {
-    this.form.controls.fulfillment.controls.branchId.setValue(id);
   }
 
   protected toggleCashback(enabled: boolean): void {
@@ -317,7 +410,13 @@ export class CheckoutDialogComponent implements OnInit {
     this.confirmed.emit({
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
-      fulfillment: this.form.controls.fulfillment.getRawValue(),
+      fulfillment: {
+        mode: 'delivery',
+        branchId: null,
+        address: toSaleAddress(
+          this.form.controls.fulfillment.controls.address.getRawValue(),
+        ),
+      },
       payments,
       totals,
     });

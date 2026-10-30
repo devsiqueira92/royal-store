@@ -1,44 +1,48 @@
 <div class="fulfillment-step">
-  <p-selectbutton
-    class="fulfillment-step__mode"
-    [formControl]="mode()"
-    [options]="modeOptions"
-    optionValue="value"
-    [allowEmpty]="false"
-  >
-    <ng-template let-option #item>
-      {{ option.label | translate }}
-    </ng-template>
-  </p-selectbutton>
+  <p class="fulfillment-step__hint">
+    {{
+      (hasCustomer()
+        ? 'sale.checkout.fulfillment.customerHint'
+        : 'sale.checkout.fulfillment.manualHint'
+      ) | translate
+    }}
+  </p>
 
-  @if (isPickup()) {
-    <span class="fulfillment-step__section">
-      {{ 'sale.checkout.fulfillment.selectBranch' | translate }}
-    </span>
-
-    @for (branch of branches(); track branch.id) {
-      <button
-        type="button"
-        class="fulfillment-step__branch"
-        [class.fulfillment-step__branch--selected]="
-          selectedBranchId() === branch.id
-        "
-        (click)="branchSelected.emit(branch.id)"
-      >
-        <i class="pi pi-shop"></i>
-        <span class="fulfillment-step__info">
-          <strong>{{ branch.name }}</strong>
-          <span>{{ branch.address }}</span>
-          <span>{{ branch.openingHours }}</span>
-        </span>
-        @if (selectedBranchId() === branch.id) {
-          <i class="pi pi-check fulfillment-step__check"></i>
-        }
-      </button>
-    }
-  } @else {
-    <p class="fulfillment-step__hint">
-      {{ 'sale.checkout.fulfillment.deliveryHint' | translate }}
-    </p>
+  @if (hasCustomer()) {
+    <app-select-field
+      controlName="customerAddressId"
+      [parentForm]="fulfillmentForm()"
+      label="sale.checkout.fulfillment.customerAddress"
+      [options]="addressOptions()"
+      [showClear]="true"
+    ></app-select-field>
   }
+
+  <div class="form__row form__row--2">
+    <app-input-field
+      controlName="zipCode"
+      [parentForm]="fulfillmentForm().controls.address"
+      label="sale.checkout.fulfillment.zipCode"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="city"
+      [parentForm]="fulfillmentForm().controls.address"
+      label="sale.checkout.fulfillment.city"
+    ></app-input-field>
+  </div>
+
+  <div class="form__row form__row--2">
+    <app-input-field
+      controlName="street"
+      [parentForm]="fulfillmentForm().controls.address"
+      label="sale.checkout.fulfillment.street"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="number"
+      [parentForm]="fulfillmentForm().controls.address"
+      label="sale.checkout.fulfillment.number"
+    ></app-input-field>
+  </div>
 </div>

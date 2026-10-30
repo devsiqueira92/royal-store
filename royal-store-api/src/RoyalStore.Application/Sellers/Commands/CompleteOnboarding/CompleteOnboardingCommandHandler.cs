@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Sellers.DTOs;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Profiles;
 using RoyalStore.Domain.Sellers;
 
 namespace RoyalStore.Application.Sellers.Commands.CompleteOnboarding;
@@ -14,6 +15,7 @@ public sealed class CompleteOnboardingCommandHandler
 {
     private readonly IIdentityService _identityService;
     private readonly ISellerRepository _sellerRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -22,6 +24,7 @@ public sealed class CompleteOnboardingCommandHandler
     public CompleteOnboardingCommandHandler(
         IIdentityService identityService,
         ISellerRepository sellerRepository,
+        IProfileRepository profileRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -29,12 +32,13 @@ public sealed class CompleteOnboardingCommandHandler
     {
         _identityService = identityService;
         _sellerRepository = sellerRepository;
+        _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
         _currentUserService = currentUserService;
     }
-
+    /* TODO: Need to review this implemantation */
     public async Task<Result<SellerResponse>> Handle(
         CompleteOnboardingCommand command,
         CancellationToken cancellationToken)
@@ -54,17 +58,21 @@ public sealed class CompleteOnboardingCommandHandler
         if (!seller.IsActive)
             return Error.Validation("seller.inactive", "Cannot complete onboarding for an inactive seller.");
 
+        var profile = await _profileRepository.GetByUserIdAsync(userId, cancellationToken);
+        if (profile is null)
+            return Error.NotFound("profile.not_found", "Profile not found.");
+
         var normalizedEmail = command.Email.Trim().ToLowerInvariant();
 
-        if (string.IsNullOrWhiteSpace(seller.Cpf))
+        if (string.IsNullOrWhiteSpace(profile.Cpf))
         {
             var normalizedCpf = CpfValidator.Normalize(command.Cpf ?? string.Empty);
-            if (await _sellerRepository.ExistsByCpfAsync(normalizedCpf, seller.Id, cancellationToken))
-                return Error.Conflict("seller.cpf_already_exists", $"A seller with CPF '{normalizedCpf}' already exists.");
+            if (await _profileRepository.ExistsByCpfAsync(normalizedCpf, profile.Id, cancellationToken))
+                return Error.Conflict("profile.cpf_already_exists", $"A profile with CPF '{normalizedCpf}' already exists.");
         }
 
-        if (await _sellerRepository.ExistsByEmailAsync(normalizedEmail, seller.Id, cancellationToken))
-            return Error.Conflict("seller.email_already_exists", $"A seller with email '{normalizedEmail}' already exists.");
+        if (await _profileRepository.ExistsByEmailAsync(normalizedEmail, profile.Id, cancellationToken))
+            return Error.Conflict("profile.email_already_exists", $"A profile with email '{normalizedEmail}' already exists.");
 
         var mustChangePassword = user.RequiresPasswordChange;
         var willChangePassword = !string.IsNullOrWhiteSpace(command.NewPassword);
@@ -82,7 +90,7 @@ public sealed class CompleteOnboardingCommandHandler
                     return passwordResult.Error;
             }
 
-            var onboardingResult = seller.CompleteOnboarding(
+            var onboardingResult = profile.CompleteOnboarding(
                 command.FullName, command.Phone, command.Cpf, normalizedEmail);
             if (!onboardingResult.IsSuccess)
                 return onboardingResult.Error;
@@ -95,17 +103,17 @@ public sealed class CompleteOnboardingCommandHandler
                     return clearResult.Error;
             }
 
-            await _sellerRepository.UpdateAsync(seller, ct);
+            await _profileRepository.UpdateAsync(profile, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
             await _auditService.RecordAsync(
                 "seller.onboarding_completed",
                 _tenantContext.TenantId,
                 string.Empty,
-                seller.Cpf ?? string.Empty,
+                profile.Cpf ?? string.Empty,
                 ct);
 
-            return SellerResponse.From(seller);
+            return SellerResponse.From(seller, profile);
         }, cancellationToken);
     }
 }

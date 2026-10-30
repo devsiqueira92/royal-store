@@ -1,0 +1,44 @@
+@if (currentSeller(); as seller) {
+  <section class="profile">
+    <header class="profile__header">
+      <p-avatar
+        [label]="initials(seller.fullName)"
+        shape="circle"
+        size="xlarge"
+        class="profile__avatar"
+      ></p-avatar>
+
+      <div>
+        <h1 class="profile__name">{{ seller.fullName }}</h1>
+      </div>
+
+      <span
+        class="profile__badge"
+        [class.profile__badge--inactive]="!seller.isActive"
+        >{{
+          (seller.isActive ? 'profile.status.active' : 'profile.status.inactive')
+            | translate
+        }}</span
+      >
+    </header>
+
+    <div class="profile__card">
+      <div class="profile__field">
+        <span class="profile__label">{{ 'profile.fields.email' | translate }}</span>
+        <span class="profile__value">{{ seller.email ?? '—' }}</span>
+      </div>
+
+      <div class="profile__field">
+        <span class="profile__label">{{ 'profile.fields.phone' | translate }}</span>
+        <span class="profile__value">{{ seller.phone ?? '—' }}</span>
+      </div>
+
+      <div class="profile__field">
+        <span class="profile__label">{{ 'profile.fields.memberSince' | translate }}</span>
+        <span class="profile__value">{{ seller.createdAt | date: 'MMM d, y' }}</span>
+      </div>
+    </div>
+  </section>
+} @else if (!isLoading()) {
+  <p class="profile__empty">{{ 'profile.empty' | translate }}</p>
+}

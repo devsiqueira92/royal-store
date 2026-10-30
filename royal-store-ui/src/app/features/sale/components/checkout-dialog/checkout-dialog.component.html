@@ -40,11 +40,9 @@
 
     <app-fulfillment-step
       [class.checkout-dialog__panel--hidden]="step() !== 3"
-      [mode]="form.controls.fulfillment.controls.mode"
-      [branches]="branches()"
-      [selectedBranchId]="branchId()"
-      [isPickup]="mode() === 'pickup'"
-      (branchSelected)="selectBranch($event)"
+      [fulfillmentForm]="form.controls.fulfillment"
+      [hasCustomer]="!!customerId()"
+      [addresses]="customerAddresses()"
     />
   </div>
 

@@ -13,20 +13,20 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
 {
     private readonly IIdentityService _identityService;
     private readonly ITokenService _tokenService;
-    private readonly ISellerRepository _sellerRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IPermissionGrantRepository _permissionGrantRepository;
     private readonly ICurrentUserService _currentUserService;
 
     public RefreshTokenCommandHandler(
         IIdentityService identityService,
         ITokenService tokenService,
-        ISellerRepository sellerRepository,
+        IProfileRepository profileRepository,
         IPermissionGrantRepository permissionGrantRepository,
         ICurrentUserService currentUserService)
     {
         _identityService = identityService;
         _tokenService = tokenService;
-        _sellerRepository = sellerRepository;
+        _profileRepository = profileRepository;
         _permissionGrantRepository = permissionGrantRepository;
         _currentUserService = currentUserService;
     }
@@ -45,7 +45,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         var role = roles.FirstOrDefault() ?? string.Empty;
 
         var onboardingCompleted = role != Role.Seller
-            || (await _sellerRepository.GetByUserIdAsync(user.Id, cancellationToken))?.OnboardingCompletedAt is not null;
+            || (await _profileRepository.GetByUserIdAsync(user.Id, cancellationToken))?.IsComplete is true;
 
         var grants = await _permissionGrantRepository.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
         var permissions = EffectivePermissions.For(role, grants)

@@ -12,7 +12,10 @@ import { map, startWith, switchMap } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CustomerAddressFormControls } from '../../interfaces/customer-address.interface';
-import { STATE_OPTIONS } from '../../utils/customer-address-form.util';
+import {
+  formatAddressLine,
+  STATE_OPTIONS,
+} from '../../utils/customer-address-form.util';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
 import { TextareaFieldComponent } from '@app/shared/components/form-fields/textarea-field/textarea-field.component';
@@ -53,13 +56,7 @@ export class CustomerAddressFormComponent {
 
   protected readonly summary = computed(() => {
     const values = this.values();
-    if (!values) {
-      return '';
-    }
-
-    const street = [values.street, values.number].filter(Boolean).join(', ');
-    const place = [values.city, values.state].filter(Boolean).join(' - ');
-    return [street, place].filter(Boolean).join(' · ');
+    return values ? formatAddressLine(values) : '';
   });
 
   // Persisted addresses can't be deleted, only deactivated on the API.

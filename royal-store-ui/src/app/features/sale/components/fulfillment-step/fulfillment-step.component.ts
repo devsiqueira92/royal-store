@@ -1,37 +1,34 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
-  output,
 } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import {
-  FulfillmentMode,
-  StoreBranch,
-} from '../../interfaces/checkout.interface';
-import { PaymentOption } from '../../interfaces/payment.interface';
-
-const MODE_OPTIONS: PaymentOption<FulfillmentMode>[] = [
-  { label: 'sale.checkout.fulfillment.delivery', value: 'delivery' },
-  { label: 'sale.checkout.fulfillment.pickup', value: 'pickup' },
-];
+import { FulfillmentFormControls } from '../../interfaces/checkout.interface';
+import { CustomerAddress } from '@app/features/customer/interfaces/customer-address.interface';
+import { formatAddressLine } from '@app/features/customer/utils/customer-address-form.util';
+import { Options } from '@app/shared/interceptors/options.interface';
+import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
+import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
 
 @Component({
   selector: 'app-fulfillment-step',
-  imports: [ReactiveFormsModule, TranslatePipe, SelectButtonModule],
+  imports: [TranslatePipe, InputFieldComponent, SelectFieldComponent],
   templateUrl: './fulfillment-step.component.html',
   styleUrl: './fulfillment-step.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FulfillmentStepComponent {
-  mode = input.required<FormControl<FulfillmentMode>>();
-  branches = input.required<StoreBranch[]>();
-  selectedBranchId = input<string | null>(null);
-  isPickup = input<boolean>(false);
+  fulfillmentForm = input.required<FormGroup<FulfillmentFormControls>>();
+  hasCustomer = input<boolean>(false);
+  addresses = input<CustomerAddress[]>([]);
 
-  branchSelected = output<string>();
-
-  protected readonly modeOptions = MODE_OPTIONS;
+  protected readonly addressOptions = computed<Options[]>(() =>
+    this.addresses().map(address => ({
+      code: address.id,
+      description: formatAddressLine(address),
+    })),
+  );
 }

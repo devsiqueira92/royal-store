@@ -46,7 +46,7 @@ public sealed class CashShiftRepository : ICashShiftRepository
             .Select(s => new CashShiftWithMovementTotals(
                 s.Id,
                 s.UserId,
-                _context.Sellers.Where(se => se.UserId != null && se.UserId == s.UserId).Select(se => se.FullName).FirstOrDefault()
+                _context.Profiles.Where(p => p.UserId == s.UserId).Select(p => p.FullName).FirstOrDefault()
                     ?? _context.Users.Where(u => u.Id == s.UserId).Select(u => u.UserName).FirstOrDefault(),
                 s.StartingCash,
                 s.OpenedAt,
@@ -65,13 +65,13 @@ public sealed class CashShiftRepository : ICashShiftRepository
         if (shift is null)
             return null;
 
-        // Same rule as GetAllWithMovementTotalsAsync: seller full name, else login name. UserId is
+        // Same rule as GetAllWithMovementTotalsAsync: profile full name, else login name. UserId is
         // checked first, so the lookups never compare against null.
         var operatorName = shift.UserId is null
             ? null
-            : await _context.Sellers
-                  .Where(se => se.UserId == shift.UserId)
-                  .Select(se => se.FullName)
+            : await _context.Profiles
+                  .Where(p => p.UserId == shift.UserId)
+                  .Select(p => p.FullName)
                   .FirstOrDefaultAsync(ct)
               ?? await _context.Users
                   .Where(u => u.Id == shift.UserId)
