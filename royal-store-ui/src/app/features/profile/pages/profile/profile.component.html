@@ -10,7 +10,6 @@
 
       <div>
         <h1 class="profile__name">{{ seller.fullName }}</h1>
-        <p class="profile__tenant">{{ seller.tenantName }}</p>
       </div>
 
       <span
@@ -32,11 +31,6 @@
       <div class="profile__field">
         <span class="profile__label">{{ 'profile.fields.phone' | translate }}</span>
         <span class="profile__value">{{ seller.phone ?? '—' }}</span>
-      </div>
-
-      <div class="profile__field">
-        <span class="profile__label">{{ 'profile.fields.tenant' | translate }}</span>
-        <span class="profile__value">{{ seller.tenantName }}</span>
       </div>
 
       <div class="profile__field">

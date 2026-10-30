@@ -8,6 +8,7 @@ using RoyalStore.Application.Users.Services;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Identity;
+using RoyalStore.Domain.Profiles;
 using RoyalStore.Domain.Sellers;
 
 namespace RoyalStore.Application.Users.Commands.CreateUser;
@@ -19,6 +20,7 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
     private readonly ITenantContext _tenantContext;
     private readonly ISecurityAuditService _auditService;
     private readonly ISellerRepository _sellerRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateUserCommandHandler(
@@ -27,6 +29,7 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         ITenantContext tenantContext,
         ISecurityAuditService auditService,
         ISellerRepository sellerRepository,
+        IProfileRepository profileRepository,
         IUnitOfWork unitOfWork)
     {
         _identityService = identityService;
@@ -34,6 +37,7 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
         _tenantContext = tenantContext;
         _auditService = auditService;
         _sellerRepository = sellerRepository;
+        _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -75,12 +79,17 @@ public sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand
             if (!roleResult.IsSuccess)
                 return roleResult.Error;
 
-            var fullName = $"{request.FirstName} {request.LastName}";
-            var sellerResult = Seller.CreateForOnboarding(tenantId, fullName, userResult.Value.Id);
+            var sellerResult = Seller.Create(tenantId, userResult.Value.Id);
             if (!sellerResult.IsSuccess)
                 return sellerResult.Error;
 
+            var fullName = $"{request.FirstName} {request.LastName}";
+            var profileResult = Profile.CreateForOnboarding(tenantId, fullName, userResult.Value.Id);
+            if (!profileResult.IsSuccess)
+                return profileResult.Error;
+
             await _sellerRepository.AddAsync(sellerResult.Value, ct);
+            await _profileRepository.AddAsync(profileResult.Value, ct);
             await _unitOfWork.SaveChangesAsync(ct);
 
             await _auditService.RecordAsync(

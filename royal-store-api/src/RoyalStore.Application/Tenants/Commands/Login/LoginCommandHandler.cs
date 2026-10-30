@@ -12,18 +12,18 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<T
 {
     private readonly IIdentityService _identityService;
     private readonly ITokenService _tokenService;
-    private readonly ISellerRepository _sellerRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IPermissionGrantRepository _permissionGrantRepository;
 
     public LoginCommandHandler(
         IIdentityService identityService,
         ITokenService tokenService,
-        ISellerRepository sellerRepository,
+        IProfileRepository profileRepository,
         IPermissionGrantRepository permissionGrantRepository)
     {
         _identityService = identityService;
         _tokenService = tokenService;
-        _sellerRepository = sellerRepository;
+        _profileRepository = profileRepository;
         _permissionGrantRepository = permissionGrantRepository;
     }
 
@@ -48,7 +48,7 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<T
                 "Please verify your email before logging in.");
 
         var onboardingCompleted = role != Role.Seller
-            || (await _sellerRepository.GetByUserIdAsync(user.Id, cancellationToken))?.OnboardingCompletedAt is not null;
+            || (await _profileRepository.GetByUserIdAsync(user.Id, cancellationToken))?.IsComplete is true;
 
         var grants = await _permissionGrantRepository.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
         var permissions = EffectivePermissions.For(role, grants)

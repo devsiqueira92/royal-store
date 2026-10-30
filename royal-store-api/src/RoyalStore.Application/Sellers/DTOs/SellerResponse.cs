@@ -1,3 +1,4 @@
+using RoyalStore.Domain.Profiles;
 using RoyalStore.Domain.Sellers;
 
 namespace RoyalStore.Application.Sellers.DTOs;
@@ -15,7 +16,8 @@ public record SellerResponse(
     string? Role = null,
     IReadOnlyList<string>? Permissions = null)
 {
-    public static SellerResponse From(Seller seller) =>
-        new(seller.Id, seller.TenantId, seller.FullName, seller.Phone, seller.Cpf, seller.Email,
-            seller.IsActive, seller.UserId, seller.OnboardingCompletedAt);
+    public static SellerResponse From(Seller seller, Profile? profile) =>
+        new(seller.Id, seller.TenantId,
+            profile?.FullName ?? string.Empty, profile?.Phone, profile?.Cpf, profile?.Email,
+            seller.IsActive, seller.UserId, profile?.CompletedAt);
 }

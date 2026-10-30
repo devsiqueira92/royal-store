@@ -615,7 +615,6 @@
     "fields": {
       "email": "Email",
       "phone": "Phone",
-      "tenant": "Store",
       "memberSince": "Member since"
     }
   }

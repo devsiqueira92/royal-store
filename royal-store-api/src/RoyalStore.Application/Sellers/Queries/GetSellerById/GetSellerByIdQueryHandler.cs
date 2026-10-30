@@ -4,6 +4,7 @@ using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Sellers.DTOs;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Permissions;
+using RoyalStore.Domain.Profiles;
 
 namespace RoyalStore.Application.Sellers.Queries.GetSellerById;
 
@@ -11,15 +12,18 @@ public sealed class GetSellerByIdQueryHandler
     : IRequestHandler<GetSellerByIdQuery, Result<SellerResponse>>
 {
     private readonly ISellerRepository _sellerRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IIdentityService _identityService;
     private readonly IPermissionGrantRepository _permissionGrantRepository;
 
     public GetSellerByIdQueryHandler(
         ISellerRepository sellerRepository,
+        IProfileRepository profileRepository,
         IIdentityService identityService,
         IPermissionGrantRepository permissionGrantRepository)
     {
         _sellerRepository = sellerRepository;
+        _profileRepository = profileRepository;
         _identityService = identityService;
         _permissionGrantRepository = permissionGrantRepository;
     }
@@ -32,11 +36,14 @@ public sealed class GetSellerByIdQueryHandler
         if (seller is null)
             return Error.NotFound("seller.not_found", "Seller not found.");
 
+        Profile? profile = null;
         string? role = null;
         IReadOnlyList<string> permissions = [];
 
         if (!string.IsNullOrWhiteSpace(seller.UserId))
         {
+            profile = await _profileRepository.GetByUserIdAsync(seller.UserId, cancellationToken);
+
             var user = await _identityService.FindByIdAsync(seller.UserId);
             if (user is not null)
             {
@@ -52,6 +59,6 @@ public sealed class GetSellerByIdQueryHandler
                 .ToArray();
         }
 
-        return SellerResponse.From(seller) with { Role = role, Permissions = permissions };
+        return SellerResponse.From(seller, profile) with { Role = role, Permissions = permissions };
     }
 }

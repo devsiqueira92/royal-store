@@ -38,16 +38,6 @@ public sealed class SellerRepository : ISellerRepository
         return await query.ToListAsync(ct);
     }
 
-    public async Task<bool> ExistsByCpfAsync(string cpf, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Sellers.AnyAsync(
-            s => s.Cpf == cpf && (excludeId == null || s.Id != excludeId),
-            ct);
-
-    public async Task<bool> ExistsByEmailAsync(string email, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Sellers.AnyAsync(
-            s => s.Email == email && (excludeId == null || s.Id != excludeId),
-            ct);
-
     public Task UpdateAsync(Seller seller, CancellationToken ct = default)
     {
         _context.Sellers.Update(seller);

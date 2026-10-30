@@ -2,6 +2,7 @@ using MediatR;
 using RoyalStore.API.Extensions;
 using RoyalStore.Application.Sellers.Commands.CompleteOnboarding;
 using RoyalStore.Application.Sellers.Commands.DeactivateSeller;
+using RoyalStore.Application.Sellers.Commands.UpdateMyProfile;
 using RoyalStore.Application.Sellers.Commands.UpdateSeller;
 using RoyalStore.Application.Sellers.Queries.GetCurrentSeller;
 using RoyalStore.Application.Sellers.Queries.GetSellerById;
@@ -18,6 +19,7 @@ public sealed class SellerEndpoints : IEndpointDefinition
         var routes = app.MapGroup("api/sellers").WithTags("Sellers");
 
         routes.MapGet("me", GetCurrentSeller).RequireAuthorization();
+        routes.MapPut("me", UpdateMyProfile).RequireAuthorization();
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.AdminOrManager);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.AdminOrManager);
         routes.MapPut("onboarding", Onboard).RequireAuthorization(PolicyNames.SellerOnboarding);
@@ -29,6 +31,15 @@ public sealed class SellerEndpoints : IEndpointDefinition
     private static async Task<IResult> GetCurrentSeller(IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new GetCurrentSellerQuery(), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> UpdateMyProfile(
+        IMediator mediator,
+        UpdateMyProfileCommand command,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(command, ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

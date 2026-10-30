@@ -6,5 +6,4 @@ export interface CurrentSeller {
   isActive: boolean;
   // ISO 8601 date-time (DateTimeOffset on the API).
   createdAt: string;
-  tenantName: string;
 }

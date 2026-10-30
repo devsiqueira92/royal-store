@@ -10,6 +10,7 @@ using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Permissions;
+using RoyalStore.Domain.Profiles;
 using RoyalStore.Domain.Security;
 using RoyalStore.Domain.Sales;
 using RoyalStore.Domain.Sellers;
@@ -33,6 +34,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<SaleItem> SaleItems { get; set; } = null!;
     public DbSet<SalePayment> SalePayments { get; set; } = null!;
     public DbSet<Seller> Sellers { get; set; } = null!;
+    public DbSet<Profile> Profiles { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
     public DbSet<CustomerAddress> CustomerAddresses { get; set; } = null!;
     public DbSet<LoyaltyTier> LoyaltyTiers { get; set; } = null!;
@@ -97,6 +99,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
 
         modelBuilder.Entity<Seller>()
             .HasQueryFilter(s => s.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Profile>()
+            .HasQueryFilter(p => p.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<UserPermissionGrant>()
             .HasQueryFilter(g => g.TenantId == _tenantContext.TenantId);

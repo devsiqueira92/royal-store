@@ -15,21 +15,6 @@ public sealed class SellerConfiguration : IEntityTypeConfiguration<Seller>
 
         builder.Property(s => s.TenantId).IsRequired();
 
-        builder.Property(s => s.FullName)
-            .HasMaxLength(150)
-            .IsRequired();
-
-        builder.Property(s => s.Phone)
-            .HasMaxLength(20);
-
-        builder.Property(s => s.Cpf)
-            .HasMaxLength(11);
-
-        builder.Property(s => s.Email)
-            .HasMaxLength(256);
-
-        builder.Property(s => s.OnboardingCompletedAt);
-
         builder.Property(s => s.IsActive).IsRequired();
 
         builder.Property(s => s.UserId).HasMaxLength(450);
@@ -43,14 +28,6 @@ public sealed class SellerConfiguration : IEntityTypeConfiguration<Seller>
             .WithMany()
             .HasForeignKey(s => s.UserId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        builder.HasIndex(s => new { s.TenantId, s.Cpf })
-            .IsUnique()
-            .HasFilter("[Cpf] IS NOT NULL");
-
-        builder.HasIndex(s => new { s.TenantId, s.Email })
-            .IsUnique()
-            .HasFilter("[Email] IS NOT NULL");
 
         builder.HasIndex(s => s.TenantId);
     }
