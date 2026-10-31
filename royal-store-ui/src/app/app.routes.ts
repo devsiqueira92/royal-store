@@ -79,6 +79,13 @@ export const routes: Routes = [
             m => m.SUPPLIER_ROUTES,
           ),
       },
+      {
+        path: 'tax-profile-templates',
+        loadChildren: () =>
+          import('./features/tax-profile-template/tax-profile-template.routes').then(
+            m => m.TAX_PROFILE_TEMPLATE_ROUTES,
+          ),
+      },
       //   {
       //     path: '',
       //     redirectTo: 'dashboard',

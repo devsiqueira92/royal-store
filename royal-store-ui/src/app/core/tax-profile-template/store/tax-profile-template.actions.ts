@@ -29,5 +29,7 @@ export const TaxProfileTemplateActions = createActionGroup({
     'Deactivate Template Success': props<{ id: string }>(),
     'Deactivate Template Failure': props<{ error: string }>(),
     'Clear Templates Error': emptyProps(),
+    'Select Template': props<{ id: string }>(),
+    'Clear Selected Template': emptyProps(),
   },
 });

@@ -96,6 +96,11 @@ export class SidebarMenuComponent {
             icon: 'pi pi-truck',
             routerLink: '/suppliers',
           },
+          {
+            label: 'Perfis fiscais',
+            icon: 'pi pi-receipt',
+            routerLink: '/tax-profile-templates',
+          },
         ],
       },
     ];

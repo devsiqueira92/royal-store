@@ -1,0 +1,84 @@
+<section class="tax-profile-templates-page">
+  <header class="tax-profile-templates-page__header">
+    <div>
+      <h1 class="tax-profile-templates-page__title">
+        {{ 'taxProfileTemplate.title' | translate }}
+      </h1>
+      <p class="tax-profile-templates-page__subtitle">
+        {{ 'taxProfileTemplate.subtitle' | translate }}
+      </p>
+    </div>
+    <p-button
+      [label]="'taxProfileTemplate.newTemplate' | translate"
+      icon="pi pi-plus"
+      (onClick)="createTemplate()"
+    />
+  </header>
+
+  <div class="tax-profile-templates-page__panel">
+    <p-table [value]="templates()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'taxProfileTemplate.columns.name' | translate }}</th>
+          <th>{{ 'taxProfileTemplate.columns.targetItemType' | translate }}</th>
+          <th>{{ 'taxProfileTemplate.columns.defaultCfop' | translate }}</th>
+          <th>{{ 'taxProfileTemplate.columns.isDefault' | translate }}</th>
+          <th>{{ 'taxProfileTemplate.columns.status' | translate }}</th>
+          <th class="tax-profile-templates-page__action-col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-template>
+        <tr>
+          <td>
+            <span class="tax-profile-template-cell__name">{{ template.name }}</span>
+          </td>
+          <td>
+            <p-tag
+              [value]="targetItemTypeLabel(template.targetItemType) | translate"
+              severity="info"
+            />
+          </td>
+          <td>{{ template.defaultCfop ?? '—' }}</td>
+          <td>
+            @if (template.isDefault) {
+              <p-tag [value]="'taxProfileTemplate.yes' | translate" severity="success" />
+            } @else {
+              <span>—</span>
+            }
+          </td>
+          <td>
+            <p-tag
+              [value]="(template.isActive ? 'taxProfileTemplate.status.active' : 'taxProfileTemplate.status.inactive') | translate"
+              [severity]="template.isActive ? 'success' : 'danger'"
+            />
+          </td>
+          <td class="tax-profile-templates-page__actions">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'taxProfileTemplate.viewDetails' | translate"
+              (onClick)="editTemplate(template)"
+            />
+            @if (template.isActive) {
+              <p-button
+                icon="pi pi-ban"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                [attr.aria-label]="'taxProfileTemplate.form.deactivate' | translate"
+                (onClick)="deactivateTemplate(template, $event)"
+              />
+            }
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">{{ 'taxProfileTemplate.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

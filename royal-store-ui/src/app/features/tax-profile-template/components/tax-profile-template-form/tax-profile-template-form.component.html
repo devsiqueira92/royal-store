@@ -1,0 +1,107 @@
+<form class="tax-profile-template-form" [formGroup]="formGroup">
+  <app-form-layout title="taxProfileTemplate.form.section.details" [index]="1" [collapsedPanel]="false">
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="taxProfileTemplate.form.name"
+      placeholder="taxProfileTemplate.form.namePlaceholder"
+    ></app-input-field>
+
+    <app-select-field
+      controlName="targetItemType"
+      [parentForm]="formGroup"
+      label="taxProfileTemplate.form.targetItemType"
+      [options]="targetItemTypeOptions"
+    ></app-select-field>
+
+    <app-textarea-field
+      controlName="description"
+      [parentForm]="formGroup"
+      label="taxProfileTemplate.form.description"
+      placeholder="taxProfileTemplate.form.descriptionPlaceholder"
+    ></app-textarea-field>
+
+    @if (!isCreateMode()) {
+      <div class="tax-profile-template-form__field">
+        <span class="tax-profile-template-form__label">{{ 'taxProfileTemplate.form.status' | translate }}</span>
+        <div class="tax-profile-template-form__status">
+          <p-tag
+            [value]="(isActive() ? 'taxProfileTemplate.status.active' : 'taxProfileTemplate.status.inactive') | translate"
+            [severity]="isActive() ? 'success' : 'danger'"
+          />
+          @if (isActive()) {
+            <p-button
+              [label]="'taxProfileTemplate.form.deactivate' | translate"
+              [text]="true"
+              severity="danger"
+              (onClick)="onDeactivate($event)"
+            />
+          }
+        </div>
+      </div>
+    }
+  </app-form-layout>
+
+  <app-form-layout
+    title="taxProfileTemplate.form.section.tax"
+    headerDetails="taxProfileTemplate.form.section.taxHint"
+    [index]="2"
+    [collapsedPanel]="false"
+  >
+    <div class="form__row form__row--2">
+      <app-input-field
+        controlName="defaultCfop"
+        [parentForm]="formGroup"
+        label="taxProfileTemplate.form.defaultCfop"
+        placeholder="taxProfileTemplate.form.defaultCfopPlaceholder"
+      ></app-input-field>
+
+      <app-input-field
+        controlName="icmsCst"
+        [parentForm]="formGroup"
+        label="taxProfileTemplate.form.icmsCst"
+        placeholder="taxProfileTemplate.form.icmsCstPlaceholder"
+      ></app-input-field>
+    </div>
+
+    <div class="form__row form__row--2">
+      <app-input-field
+        controlName="pisCofinsCst"
+        [parentForm]="formGroup"
+        label="taxProfileTemplate.form.pisCofinsCst"
+        placeholder="taxProfileTemplate.form.pisCofinsCstPlaceholder"
+      ></app-input-field>
+
+      <app-input-field
+        controlName="ivaCst"
+        [parentForm]="formGroup"
+        label="taxProfileTemplate.form.ivaCst"
+        placeholder="taxProfileTemplate.form.ivaCstPlaceholder"
+      ></app-input-field>
+    </div>
+
+    <app-toggle-field
+      [parentForm]="formGroup"
+      controlName="isSelectiveTax"
+      titleKey="taxProfileTemplate.form.isSelectiveTax"
+      subtitleKey="taxProfileTemplate.form.isSelectiveTaxHint"
+    ></app-toggle-field>
+
+    <app-toggle-field
+      [parentForm]="formGroup"
+      controlName="isDefault"
+      titleKey="taxProfileTemplate.form.isDefault"
+      subtitleKey="taxProfileTemplate.form.isDefaultHint"
+    ></app-toggle-field>
+  </app-form-layout>
+
+  <div class="tax-profile-template-form__footer">
+    <app-button label="taxProfileTemplate.form.cancel" severity="secondary" (onClick)="onClose()"></app-button>
+
+    <app-button
+      [label]="isCreateMode() ? 'taxProfileTemplate.form.createSubmit' : 'taxProfileTemplate.form.submit'"
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

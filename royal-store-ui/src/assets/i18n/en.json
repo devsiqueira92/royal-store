@@ -659,5 +659,62 @@
       "submit": "Save supplier",
       "createSubmit": "Create supplier"
     }
+  },
+  "taxProfileTemplate": {
+    "title": "Tax profile templates",
+    "subtitle": "Reusable CFOP and CST rules for products and services.",
+    "empty": "No tax profile templates found.",
+    "newTemplate": "New template",
+    "viewDetails": "Edit template",
+    "yes": "Yes",
+    "deactivateConfirm": "Deactivate the tax profile template \"{{name}}\"? This cannot be undone.",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "targetItemType": {
+      "product": "Product",
+      "service": "Service"
+    },
+    "columns": {
+      "name": "Name",
+      "targetItemType": "Applies to",
+      "defaultCfop": "Default CFOP",
+      "isDefault": "Default",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Edit template",
+      "create": "New template",
+      "subtitle": "Tax profile template details",
+      "createSubtitle": "Register a new tax profile template",
+      "section": {
+        "details": "Template details",
+        "tax": "Tax codes",
+        "taxHint": "CFOP and CST codes applied to products or services using this template"
+      },
+      "name": "Name",
+      "namePlaceholder": "e.g. Standard ICMS",
+      "description": "Description",
+      "descriptionPlaceholder": "Internal notes about when to use this template",
+      "targetItemType": "Applies to",
+      "defaultCfop": "Default CFOP",
+      "defaultCfopPlaceholder": "e.g. 5102",
+      "icmsCst": "ICMS CST",
+      "icmsCstPlaceholder": "e.g. 00",
+      "pisCofinsCst": "PIS/COFINS CST",
+      "pisCofinsCstPlaceholder": "e.g. 01",
+      "ivaCst": "IVA CST",
+      "ivaCstPlaceholder": "e.g. 000",
+      "isSelectiveTax": "Selective Tax (Imposto Seletivo)",
+      "isSelectiveTaxHint": "Applies to goods deemed harmful to health or the environment",
+      "isDefault": "Default template",
+      "isDefaultHint": "Pre-selected when creating a new item of this type",
+      "status": "Status",
+      "deactivate": "Deactivate",
+      "cancel": "Cancel",
+      "submit": "Save template",
+      "createSubmit": "Create template"
+    }
   }
 }

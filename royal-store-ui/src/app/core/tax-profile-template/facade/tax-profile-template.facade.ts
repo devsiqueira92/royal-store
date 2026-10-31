@@ -10,6 +10,7 @@ import {
   selectTemplates,
   selectIsLoading,
   selectError,
+  selectSelectedTemplate,
 } from '../store/tax-profile-template.selectors';
 
 @Injectable({
@@ -21,6 +22,7 @@ export class TaxProfileTemplateFacade {
   templates$ = this.store.select(selectTemplates);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
+  selectedTemplate$ = this.store.select(selectSelectedTemplate);
 
   loadTemplates(itemType?: TaxProfileTemplateTargetItemType): void {
     this.store.dispatch(TaxProfileTemplateActions.loadTemplates({ itemType }));
@@ -38,5 +40,15 @@ export class TaxProfileTemplateFacade {
 
   deactivateTemplate(id: string): void {
     this.store.dispatch(TaxProfileTemplateActions.deactivateTemplate({ id }));
+  }
+
+  // Every template is already loaded in the list — selecting by id is a
+  // local lookup, not a fetch (the API has no GetById endpoint).
+  selectTemplate(id: string): void {
+    this.store.dispatch(TaxProfileTemplateActions.selectTemplate({ id }));
+  }
+
+  clearSelectedTemplate(): void {
+    this.store.dispatch(TaxProfileTemplateActions.clearSelectedTemplate());
   }
 }

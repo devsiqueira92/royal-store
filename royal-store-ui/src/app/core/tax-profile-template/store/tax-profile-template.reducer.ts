@@ -6,12 +6,14 @@ export interface TaxProfileTemplateState {
   templates: TaxProfileTemplate[];
   isLoading: boolean;
   error: string | null;
+  selectedTemplateId: string | null;
 }
 
 export const initialTaxProfileTemplateState: TaxProfileTemplateState = {
   templates: [],
   isLoading: false,
   error: null,
+  selectedTemplateId: null,
 };
 
 export const taxProfileTemplateFeature = createFeature({
@@ -111,5 +113,19 @@ export const taxProfileTemplateFeature = createFeature({
       ...state,
       error: null,
     })),
+    on(
+      TaxProfileTemplateActions.selectTemplate,
+      (state, { id }): TaxProfileTemplateState => ({
+        ...state,
+        selectedTemplateId: id,
+      }),
+    ),
+    on(
+      TaxProfileTemplateActions.clearSelectedTemplate,
+      (state): TaxProfileTemplateState => ({
+        ...state,
+        selectedTemplateId: null,
+      }),
+    ),
   ),
 });
