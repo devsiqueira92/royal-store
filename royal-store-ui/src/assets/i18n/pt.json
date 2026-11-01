@@ -198,6 +198,22 @@
       },
       "cancel": "Cancelar",
       "submit": "Salvar produto"
+    },
+    "labelPrint": {
+      "back": "Voltar para produtos",
+      "title": "Imprimir etiquetas",
+      "subtitle": "Pré-visualize e imprima uma folha de etiquetas de produtos",
+      "fieldsLegend": "Campos exibidos em cada etiqueta",
+      "field": {
+        "name": "Nome do produto",
+        "price": "Preço",
+        "barcode": "Código de barras"
+      },
+      "summary": "{{count}} etiquetas · {{pages}} páginas",
+      "zoomOut": "Diminuir zoom",
+      "zoomIn": "Aumentar zoom",
+      "print": "Imprimir",
+      "empty": "Nenhum produto para imprimir"
     }
   },
   "category": {

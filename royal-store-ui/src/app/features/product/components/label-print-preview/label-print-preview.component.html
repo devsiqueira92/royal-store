@@ -1,0 +1,89 @@
+<div class="label-print">
+  <div class="label-print__toolbar">
+    <div class="label-print__fields">
+      <span class="label-print__fields-legend">
+        {{ 'product.labelPrint.fieldsLegend' | translate }}
+      </span>
+
+      @for (field of availableFields; track field.key) {
+        <label class="label-print__field-toggle">
+          <input
+            type="checkbox"
+            [checked]="isFieldActive(field.key)"
+            (change)="toggleField(field.key)"
+          />
+          {{ field.labelKey | translate }}
+        </label>
+      }
+    </div>
+
+    <div class="label-print__actions">
+      <span class="label-print__summary">
+        {{
+          'product.labelPrint.summary'
+            | translate: { count: products().length, pages: pages().length }
+        }}
+      </span>
+
+      <div class="label-print__zoom">
+        <button
+          type="button"
+          [attr.aria-label]="'product.labelPrint.zoomOut' | translate"
+          (click)="zoomOut()"
+        >
+          <i class="pi pi-minus"></i>
+        </button>
+        <span class="label-print__zoom-value">{{ zoomPercent() }}%</span>
+        <button
+          type="button"
+          [attr.aria-label]="'product.labelPrint.zoomIn' | translate"
+          (click)="zoomIn()"
+        >
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+
+      <app-button
+        label="product.labelPrint.print"
+        icon="pi pi-print"
+        (onClick)="print()"
+      ></app-button>
+    </div>
+  </div>
+
+  @if (products().length === 0) {
+    <div class="label-print__empty">
+      {{ 'product.labelPrint.empty' | translate }}
+    </div>
+  } @else {
+    <div class="label-print__viewport">
+      <div
+        class="label-print-sheets"
+        [style.transform]="'scale(' + zoom() + ')'"
+      >
+        @for (page of pages(); track $index) {
+          <div class="label-sheet">
+            @for (product of page; track product.id) {
+              <div class="label-cell">
+                @if (isFieldActive('name')) {
+                  <span class="label-cell__name">{{ product.name }}</span>
+                }
+                @if (isFieldActive('barcode')) {
+                  <app-label-barcode
+                    class="label-cell__barcode"
+                    [value]="product.barcode"
+                  ></app-label-barcode>
+                }
+                @if (isFieldActive('price')) {
+                  <span class="label-cell__price">{{
+                    product.price | currency: 'BRL'
+                  }}</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

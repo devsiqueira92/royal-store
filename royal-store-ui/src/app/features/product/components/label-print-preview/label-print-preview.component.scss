@@ -1,0 +1,152 @@
+:host {
+  display: block;
+
+  .label-print__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.625rem;
+    background: light-dark(var(--p-surface-50), var(--p-surface-800));
+  }
+
+  .label-print__fields {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.875rem;
+  }
+
+  .label-print__fields-legend {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .label-print__field-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: light-dark(var(--p-surface-700), var(--p-surface-100));
+    cursor: pointer;
+  }
+
+  .label-print__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .label-print__summary {
+    font-size: 0.8125rem;
+    color: light-dark(var(--p-surface-500), var(--p-surface-400));
+  }
+
+  .label-print__zoom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      border: 1px solid
+        light-dark(var(--p-surface-200), var(--p-surface-700));
+      border-radius: 0.375rem;
+      background: light-dark(var(--p-surface-0), var(--p-surface-900));
+      color: light-dark(var(--p-surface-700), var(--p-surface-100));
+      cursor: pointer;
+
+      &:hover {
+        background: light-dark(var(--p-surface-100), var(--p-surface-700));
+      }
+    }
+  }
+
+  .label-print__zoom-value {
+    min-width: 2.5rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: light-dark(var(--p-surface-500), var(--p-surface-400));
+  }
+
+  .label-print__empty {
+    padding: 2rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .label-print__viewport {
+    overflow: auto;
+    padding: 1rem;
+    border-radius: 0.625rem;
+    background: light-dark(var(--p-surface-100), var(--p-surface-900));
+  }
+
+  .label-print-sheets {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 1rem;
+    transform-origin: top left;
+  }
+
+  // Physical sheet spec (Letter) — keep in sync with the constants at the
+  // top of label-print-preview.component.ts.
+  .label-sheet {
+    width: 216mm;
+    height: 279mm;
+    box-sizing: border-box;
+    padding-top: 12.7mm;
+    padding-left: 14.5mm;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    display: grid;
+    grid-template-columns: repeat(4, 44.4mm);
+    grid-auto-rows: 12.7mm;
+    column-gap: 3.1mm;
+    row-gap: 0mm;
+    align-content: start;
+  }
+
+  .label-cell {
+    width: 44.4mm;
+    height: 12.7mm;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3mm;
+    padding: 0.4mm 1.2mm;
+    color: #000;
+  }
+
+  .label-cell__name {
+    font-size: 2.5mm;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .label-cell__barcode {
+    flex: 0 0 auto;
+  }
+
+  .label-cell__price {
+    font-size: 3mm;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+}

@@ -13,11 +13,20 @@
         }}
       </p>
     </div>
-    <p-button
-      [label]="'product.newProduct' | translate"
-      icon="pi pi-plus"
-      (onClick)="createProduct()"
-    />
+    <div class="products-page__header-actions">
+      <p-button
+        [label]="'product.labelPrint.title' | translate"
+        icon="pi pi-tag"
+        severity="secondary"
+        [outlined]="true"
+        routerLink="labels"
+      />
+      <p-button
+        [label]="'product.newProduct' | translate"
+        icon="pi pi-plus"
+        (onClick)="createProduct()"
+      />
+    </div>
   </header>
 
   <div class="products-page__stats">
@@ -71,6 +80,15 @@
         optionValue="value"
         [ngModel]="categoryFilter()"
         (ngModelChange)="categoryFilter.set($event)"
+      />
+
+      <p-select
+        class="products-page__filter"
+        [options]="supplierOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="supplierFilter()"
+        (ngModelChange)="supplierFilter.set($event)"
       />
 
       <p-select

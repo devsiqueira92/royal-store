@@ -198,6 +198,22 @@
       },
       "cancel": "Cancel",
       "submit": "Save product"
+    },
+    "labelPrint": {
+      "back": "Back to products",
+      "title": "Print labels",
+      "subtitle": "Preview and print a sheet of product labels",
+      "fieldsLegend": "Fields shown on each label",
+      "field": {
+        "name": "Product name",
+        "price": "Price",
+        "barcode": "Barcode"
+      },
+      "summary": "{{count}} labels · {{pages}} pages",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "print": "Print",
+      "empty": "No products to print"
     }
   },
   "category": {

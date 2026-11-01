@@ -28,3 +28,41 @@
 .p-drawer-left {
   width: 15rem !important;
 }
+
+// Label sheet printing (see LabelPrintPreviewComponent): when printing,
+// hide the rest of the app chrome and print only the physical sheet(s)
+// being previewed, each sized exactly to the page with no browser margins.
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .label-print-sheets,
+  .label-print-sheets * {
+    visibility: visible;
+  }
+
+  .label-print-sheets {
+    // `fixed`, not `absolute`: it escapes the preview viewport's
+    // `overflow: auto` clipping regardless of where that ancestor sits in
+    // the tree, and positions relative to the printed page itself.
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: none !important;
+  }
+
+  .label-sheet {
+    box-shadow: none !important;
+    page-break-after: always;
+
+    &:last-child {
+      page-break-after: auto;
+    }
+  }
+
+  @page {
+    size: 216mm 279mm;
+    margin: 0;
+  }
+}

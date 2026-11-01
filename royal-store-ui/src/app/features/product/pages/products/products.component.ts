@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
@@ -42,6 +43,7 @@ const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
 
 @Component({
   imports: [
+    RouterLink,
     TableModule,
     ButtonModule,
     InputTextModule,
@@ -73,6 +75,7 @@ export class ProductsComponent implements OnInit {
 
   protected readonly searchTerm = signal('');
   protected readonly categoryFilter = signal<string | null>(null);
+  protected readonly supplierFilter = signal<string | null>(null);
   protected readonly statusFilter = signal<StockStatus | null>(null);
   protected readonly selectedProducts = signal<Product[]>([]);
 
@@ -97,6 +100,23 @@ export class ProductsComponent implements OnInit {
         .map(([value, label]) => ({ label, value }));
 
       return [{ label: 'All categories', value: null }, ...options];
+    },
+  );
+
+  protected readonly supplierOptions = computed<SelectOption<string | null>[]>(
+    () => {
+      const seen = new Map<string, string>();
+      for (const product of this.products()) {
+        if (product.supplierId && !seen.has(product.supplierId)) {
+          seen.set(product.supplierId, product.supplierName ?? '');
+        }
+      }
+
+      const options = [...seen.entries()]
+        .sort(([, a], [, b]) => a.localeCompare(b))
+        .map(([value, label]) => ({ label, value }));
+
+      return [{ label: 'All suppliers', value: null }, ...options];
     },
   );
 
@@ -127,6 +147,7 @@ export class ProductsComponent implements OnInit {
   protected readonly filteredProducts = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const categoryId = this.categoryFilter();
+    const supplierId = this.supplierFilter();
     const status = this.statusFilter();
 
     return this.products().filter(product => {
@@ -137,9 +158,10 @@ export class ProductsComponent implements OnInit {
           variant.sku?.toLowerCase().includes(term),
         );
       const matchesCategory = !categoryId || product.categoryId === categoryId;
+      const matchesSupplier = !supplierId || product.supplierId === supplierId;
       const matchesStatus = !status || this.getStockStatus(product) === status;
 
-      return matchesTerm && matchesCategory && matchesStatus;
+      return matchesTerm && matchesCategory && matchesSupplier && matchesStatus;
     });
   });
 
