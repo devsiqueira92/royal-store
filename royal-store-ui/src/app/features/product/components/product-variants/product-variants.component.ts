@@ -232,11 +232,9 @@ export class ProductVariantsComponent {
   ): FormGroup<ProductVariantFormControls> {
     return new FormGroup<ProductVariantFormControls>({
       id: new FormControl(source?.id ?? null),
-      size: new FormControl(source?.size ?? null, [Validators.maxLength(50)]),
+      size: new FormControl(source?.size ?? 'osfa', [Validators.required]),
       color: new FormControl(source?.color ?? null, [Validators.maxLength(50)]),
-      optionName: new FormControl(source?.optionName ?? null, [
-        Validators.maxLength(50),
-      ]),
+      optionName: new FormControl(source?.optionName ?? null),
       sku: new FormControl(source?.sku ?? null, [Validators.maxLength(50)]),
       barcode: new FormControl(source?.barcode ?? null, [
         Validators.maxLength(14),
@@ -249,7 +247,7 @@ export class ProductVariantsComponent {
       stockQuantity: new FormControl(source?.stockQuantity ?? null, [
         Validators.min(0),
       ]),
-      minStockQuantity: new FormControl(source?.minStockQuantity ?? null, [
+      minStockQuantity: new FormControl(source?.minStockQuantity ?? 0, [
         Validators.min(0),
       ]),
     });

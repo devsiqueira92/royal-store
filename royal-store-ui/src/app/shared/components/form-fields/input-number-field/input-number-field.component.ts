@@ -40,10 +40,11 @@ export class InputNumberFieldComponent {
   controlName = input.required<string>();
   label = input<string>();
   id = input<string>();
-  mode = input<string>('currency');
+  mode = input<'currency' | 'percent'>('currency');
   min = input<number>();
   step = input<number>();
   prefix = input<string>('R$');
+  suffix = input<string>('');
 
   blurred = output<void>();
 
@@ -53,6 +54,15 @@ export class InputNumberFieldComponent {
   formatCurrency(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement) return;
+
+    if (this.mode() === 'percent') {
+      const value = parseFloat(inputElement.value.replace(',', '.'));
+      this.parentForm().controls[this.controlName()].setValue(
+        Number.isNaN(value) ? null : value,
+        { emitModelToViewChange: false },
+      );
+      return;
+    }
 
     const numericString = inputElement.value.replace(/\D/g, '');
     const cents = parseInt(numericString || '0', 10);

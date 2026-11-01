@@ -19,28 +19,6 @@
     placeholder="product.form.descriptionPlaceholder"
   ></app-textarea-field>
 
-  <div class="form__row form__row--2">
-    <app-input-number-field
-      controlName="basePrice"
-      [parentForm]="formGroup()"
-      label="product.form.price"
-      type="number"
-      [min]="0"
-      [step]="0.01"
-      (blurred)="onBasePriceBlur()"
-    ></app-input-number-field>
-
-    <app-input-number-field
-      controlName="baseCostPrice"
-      [parentForm]="formGroup()"
-      label="product.form.cost"
-      type="number"
-      [min]="0"
-      [step]="0.01"
-      (blurred)="onBaseCostPriceBlur()"
-    ></app-input-number-field>
-  </div>
-
   <div class="form__row form__row--3">
     <app-category-select-field
       [parentForm]="formGroup()"
@@ -74,10 +52,6 @@
     [filter]="true"
   ></app-select-field>
 
-  <app-image-upload-field
-    (filesChange)="onPhotoFilesChange($event)"
-  ></app-image-upload-field>
-
   <span class="product-form-label">
     {{ 'product.form.stock' | translate }}
   </span>
@@ -95,4 +69,7 @@
         </span>
       } -->
   </div>
+  <app-image-upload-field
+    (filesChange)="onPhotoFilesChange($event)"
+  ></app-image-upload-field>
 </app-form-layout>

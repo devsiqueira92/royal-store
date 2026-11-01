@@ -26,7 +26,7 @@ export class App {
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
   protected readonly shouldPushContent = computed(() => this.canPushContent());
   constructor() {
-    this.translate.addLangs(['en']);
+    this.translate.addLangs(['pt', 'en']);
 
     this.originOptionFacade.loadOriginOptions();
   }

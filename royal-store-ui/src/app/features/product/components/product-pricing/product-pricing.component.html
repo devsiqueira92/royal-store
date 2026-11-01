@@ -1,0 +1,110 @@
+<app-form-layout
+  title="product.form.section.pricing"
+  headerDetails="product.form.section.pricingHint"
+  icon="pi-dollar"
+  [collapsedPanel]="false"
+>
+  <app-input-number-field
+    controlName="productCost"
+    [parentForm]="localFormGroup"
+    label="product.form.productCost"
+    [min]="0"
+    [step]="0.01"
+    (blurred)="onProductCostBlur()"
+  ></app-input-number-field>
+
+  <span class="cost-composition__label">
+    {{ 'product.form.costComposition' | translate }}
+    <span class="cost-composition__hint">
+      {{ 'product.form.costCompositionHint' | translate }}
+    </span>
+  </span>
+
+  <div class="cost-composition">
+    @for (
+      costItemGroup of costItemGroups();
+      track costItemGroup;
+      let i = $index
+    ) {
+      <div class="cost-composition__row" [formGroup]="costItemGroup">
+        <span class="cost-composition__index">{{
+          i + 1 | number: '2.0-0'
+        }}</span>
+
+        <input
+          class="cost-composition__description"
+          type="text"
+          formControlName="description"
+          [placeholder]="'product.form.costItemDescriptionPlaceholder' | translate"
+          (blur)="onCostItemBlur()"
+        />
+
+        <span class="cost-composition__value">
+          <span class="cost-composition__value-prefix">R$</span>
+          <input
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.01"
+            formControlName="value"
+            (input)="onCostItemInput()"
+            (blur)="onCostItemBlur()"
+          />
+        </span>
+
+        <button
+          type="button"
+          class="cost-composition__remove"
+          [attr.aria-label]="'product.form.removeCostItem' | translate"
+          (click)="removeCostItem(i)"
+        >
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+    }
+
+    <button
+      type="button"
+      class="cost-composition__add"
+      (click)="addCostItem()"
+    >
+      <i class="pi pi-plus"></i>
+      {{ 'product.form.addCost' | translate }}
+    </button>
+  </div>
+
+  <app-input-number-field
+    controlName="baseCostPrice"
+    [parentForm]="formGroup()"
+    label="product.form.cost"
+  ></app-input-number-field>
+
+  <div class="form__row form__row--2">
+    <app-input-number-field
+      controlName="profitMarginPercent"
+      [parentForm]="localFormGroup"
+      label="product.form.profitMarginPercent"
+      mode="percent"
+      prefix=""
+      suffix="%"
+      [min]="-100"
+      [step]="1"
+      (blurred)="onProfitMarginBlur()"
+    ></app-input-number-field>
+
+    <app-input-number-field
+      controlName="basePrice"
+      [parentForm]="formGroup()"
+      label="product.form.price"
+      [min]="0"
+      [step]="0.01"
+      (blurred)="onBasePriceBlur()"
+    ></app-input-number-field>
+  </div>
+
+  <app-input-number-field
+    controlName="profitAmount"
+    [parentForm]="localFormGroup"
+    label="product.form.profit"
+  ></app-input-number-field>
+</app-form-layout>

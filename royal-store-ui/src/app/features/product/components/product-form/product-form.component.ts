@@ -25,6 +25,7 @@ import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-
 import { ProductFacade } from '../../facade/product.facade';
 import { ItemTypeSelectorComponent } from '../item-type-selector/item-type-selector.component';
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
+import { ProductPricingComponent } from '../product-pricing/product-pricing.component';
 import { ProductTaxesComponent } from '../product-taxes/product-taxes.component';
 import { ProductFooterComponent } from '../product-footer/product-footer.component';
 import { ProductVariantsComponent } from '../product-variants/product-variants.component';
@@ -43,6 +44,7 @@ import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/ta
     ToggleFieldComponent,
     ItemTypeSelectorComponent,
     ProductDetailComponent,
+    ProductPricingComponent,
     ProductTaxesComponent,
     ProductFooterComponent,
     ProductVariantsComponent,
@@ -265,7 +267,7 @@ export class ProductFormComponent {
 
       stockTrack: new FormControl(true),
       taxProfileTemplateId: new FormControl(null, [Validators.required]),
-      ncm: new FormControl(null, [Validators.maxLength(10)]),
+      ncm: new FormControl('71132000', [Validators.maxLength(10)]),
       origin: new FormControl('0', [Validators.required]),
       nbs: new FormControl({ value: null, disabled: true }),
       issCode: new FormControl({ value: null, disabled: true }),

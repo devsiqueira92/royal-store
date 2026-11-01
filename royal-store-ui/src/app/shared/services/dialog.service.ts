@@ -28,7 +28,7 @@ export class DialogManagerService {
     const ref = this.dialogService.open(component, {
       modal: true,
       closeOnEscape: true,
-      closable: true,
+      closable: false,
       width: '600px',
       height: '775px',
       baseZIndex: 100,

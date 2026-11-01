@@ -37,7 +37,7 @@ export class DetailsSidebarComponent {
       return '70%';
     }
 
-    return '750px';
+    return '950px';
   });
 
   constructor() {

@@ -20,7 +20,7 @@ import { DeviceService } from '@app/core/layout/services/device.service';
   templateUrl: './details-sidebar.component.html',
   styleUrl: './details-sidebar.component.scss',
 })
-export class DetailsSidebarComponent {
+export class DetailsSidebarComponents {
   private deviceService = inject(DeviceService);
   protected layoutService = inject(DetailsSidebarService);
 

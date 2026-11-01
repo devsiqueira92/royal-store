@@ -5,6 +5,7 @@
   [modal]="true"
   [style]="{ width: drawerWidth() }"
   [closable]="false"
+  [dismissible]="false"
 >
   <ng-template #header>
     @if (layoutService.contentToRender(); as content) {

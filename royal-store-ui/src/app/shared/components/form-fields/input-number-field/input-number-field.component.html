@@ -1,6 +1,8 @@
 <form [formGroup]="parentForm()" class="mb-4 form-field">
   <p-inputgroup>
-    <p-inputgroup-addon>{{ prefix() }} </p-inputgroup-addon>
+    @if (prefix()) {
+      <p-inputgroup-addon>{{ prefix() }} </p-inputgroup-addon>
+    }
     <p-floatlabel variant="on">
       <input
         class="w-100"
@@ -29,6 +31,9 @@
         }
       </label>
     </p-floatlabel>
+    @if (suffix()) {
+      <p-inputgroup-addon>{{ suffix() }}</p-inputgroup-addon>
+    }
   </p-inputgroup>
 
   <app-form-error

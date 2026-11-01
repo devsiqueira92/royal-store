@@ -85,8 +85,12 @@
       "close": "Close",
       "section": {
         "details": "Basic information",
+        "detailsHint": "Name, description, category and images",
+        "pricing": "Pricing",
+        "pricingHint": "Cost composition, price and margin",
         "taxes": "Taxes",
-        "variants": "Variants"
+        "variants": "Variants",
+        "logisticsHint": "Weight and dimensions used for shipping"
       },
       "itemType": {
         "label": "Item type",
@@ -158,6 +162,14 @@
       "barcodeInvalid": "EAN-13 · invalid check digit",
       "price": "Price",
       "cost": "Cost price",
+      "productCost": "Product cost",
+      "costComposition": "Cost composition",
+      "costCompositionHint": "Each line adds to the cost price",
+      "costItemDescriptionPlaceholder": "e.g. Packaging",
+      "addCost": "Add cost",
+      "removeCostItem": "Remove cost line",
+      "profitMarginPercent": "Profit margin (%)",
+      "profit": "Profit",
       "promoPrice": "Promo price",
       "stockQty": "Stock qty",
       "minStock": "Min stock",
@@ -167,6 +179,7 @@
       "width": "Width",
       "height": "Height",
       "length": "Length",
+      "stock": "Stock",
       "trackStock": "Track stock",
       "trackStockHint": "Deducted on every sale",
       "margin": "margin {{percent}}%",

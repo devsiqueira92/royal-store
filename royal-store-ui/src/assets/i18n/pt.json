@@ -1,0 +1,733 @@
+{
+  "yes": "Sim",
+  "no": "Não",
+  "or": "ou",
+  "auth": {
+    "title": "Entrar no Royal Store",
+    "subtitle": "Gerencie pagamentos, repasses e sua loja.",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "storeName": "Nome da loja",
+    "document": "Número do documento",
+    "documentType": "Tipo de documento",
+    "newToRoyalStore": "Novo no Royal Store?",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "register": {
+      "title": "Crie sua conta Royal Store",
+      "subtitle": "Configure sua loja e comece a vender em minutos."
+    },
+    "verifyEmail": {
+      "title": "Quase lá — confira sua caixa de entrada",
+      "description": "Enviamos um link de verificação para confirmar que é realmente você. Seu login fica bloqueado até você ativar a conta.",
+      "wrongAddress": "Endereço errado?",
+      "editEmail": "Editar e-mail",
+      "spamNotice": "Não encontrou? Verifique a pasta de Spam ou Promoções — e-mails de verificação às vezes caem lá.",
+      "resendEmail": "Reenviar e-mail",
+      "resendCooldown": "Você pode reenviar em {{seconds}}s",
+      "openGmail": "Abrir Gmail",
+      "verifying": "Verificando seu e-mail...",
+      "successTitle": "E-mail verificado",
+      "successDescription": "Sua conta agora está ativa. Você já pode entrar.",
+      "errorTitle": "Falha na verificação",
+      "errorDescription": "Este link de verificação é inválido ou expirou.",
+      "goToLogin": "Ir para o login"
+    },
+    "button": {
+      "forgotPassword": "Esqueceu a senha?",
+      "signIn": "Entrar",
+      "createAccount": "Criar conta"
+    }
+  },
+  "formValidation": {
+    "required": "Este campo é obrigatório.",
+    "email": "Informe um endereço de e-mail válido.",
+    "minlength": "O valor é muito curto.",
+    "maxlength": "O valor é muito longo.",
+    "pattern": "Formato inválido.",
+    "passwordMismatch": "As senhas não coincidem."
+  },
+  "product": {
+    "title": "Produtos",
+    "subtitle": "{{count}} itens em {{categories}} categorias",
+    "newProduct": "Novo produto",
+    "empty": "Nenhum produto encontrado.",
+    "edit": "Editar produto",
+    "stats": {
+      "totalProducts": "Total de produtos",
+      "inventoryValue": "Valor do estoque",
+      "lowStock": "Estoque baixo",
+      "outOfStock": "Sem estoque"
+    },
+    "filters": {
+      "searchPlaceholder": "Filtrar produtos...",
+      "results": "{{count}} resultados"
+    },
+    "status": {
+      "inStock": "Em estoque",
+      "lowStock": "Estoque baixo",
+      "outOfStock": "Sem estoque"
+    },
+    "columns": {
+      "imageUrl": "Imagem",
+      "name": "Nome",
+      "product": "Produto",
+      "categoryName": "Categoria",
+      "price": "Preço",
+      "stockQuantity": "Estoque",
+      "status": "Status",
+      "isActive": "Ativo"
+    },
+    "form": {
+      "title": "Novo produto",
+      "edit": "Editar produto",
+      "subtitle": "Detalhes do produto, classificação fiscal e variantes",
+      "close": "Fechar",
+      "section": {
+        "details": "Informações básicas",
+        "detailsHint": "Nome, descrição, categoria e imagens",
+        "pricing": "Preços",
+        "pricingHint": "Composição de custo, preço e margem",
+        "taxes": "Impostos",
+        "variants": "Variantes",
+        "logisticsHint": "Peso e dimensões usados no envio"
+      },
+      "itemType": {
+        "label": "Tipo de item",
+        "physical": "Produto físico",
+        "physicalHint": "Estoque, envio e NCM",
+        "service": "Serviço",
+        "serviceHint": "NBS, ISS — sem estoque"
+      },
+      "tax": {
+        "intro": "Escolha um perfil fiscal — aplicamos as regras de CFOP e CST para você.",
+        "profileTemplate": "Modelo de perfil fiscal",
+        "origin": "Origem",
+        "nbs": "NBS",
+        "issCode": "Código ISS",
+        "advanced": "Configurações fiscais avançadas",
+        "advancedHint": "Códigos CFOP e CST — gerenciados pelo seu perfil fiscal",
+        "fromProfile": "Do perfil",
+        "override": "Substituir regras do perfil fiscal",
+        "overrideHint": "Apenas se o seu contador pediu códigos personalizados",
+        "cest": "CEST",
+        "defaultCfop": "CFOP padrão",
+        "icmsCst": "CST do ICMS",
+        "pisCofinsCst": "CST do PIS/COFINS",
+        "ivaCst": "CST do IVA",
+        "selective": "Imposto Seletivo",
+        "selectiveHint": "Aplica-se a produtos considerados nocivos à saúde ou ao meio ambiente"
+      },
+      "images": "Imagens",
+      "imagesHint": "{{count}} imagens · clique em uma miniatura para definir a capa",
+      "cover": "Capa",
+      "addImage": "adicionar",
+      "name": "Nome do produto",
+      "namePlaceholder": "ex.: Vestido Envelope de Linho",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Tecido, caimento, instruções de cuidado...",
+      "category": "Categoria",
+      "categoryPlaceholder": "Selecione uma categoria",
+      "unitOfMeasure": "Unidade de medida",
+      "supplier": "Fornecedor",
+      "supplierPlaceholder": "Selecione um fornecedor",
+      "ncm": "NCM",
+      "ncmHint": "código fiscal",
+      "cest": "CEST",
+      "optional": "opcional",
+      "active": "Ativo",
+      "activeHint": "Visível no PDV e no catálogo",
+      "unlockLogistics": "Mostrar campos de estoque e logística desta variante",
+      "lockLogistics": "Ocultar campos de estoque e logística desta variante",
+      "addVariant": "Adicionar variante",
+      "addAnotherVariant": "Adicionar outra variante",
+      "variantsHint": "Cada variante possui seu próprio SKU, código de barras, preço, estoque e dados de envio.",
+      "variantsHintService": "Cada variante possui seu próprio SKU, código de barras e preço.",
+      "serviceNote": "Serviços não possuem dados de estoque ou envio.",
+      "variantFallback": "Nova variante",
+      "duplicateVariant": "Duplicar variante",
+      "removeVariant": "Remover variante",
+      "size": "Tamanho",
+      "sizePlaceholder": "ex.: M",
+      "color": "Cor",
+      "colorPlaceholder": "Buscar uma cor",
+      "optionName": "Nome da opção",
+      "optionNamePlaceholder": "ex.: Expresso, Padrão, Sessão de 1 hora",
+      "sku": "SKU",
+      "skuPlaceholder": "MAR-0000",
+      "barcode": "Código de barras",
+      "barcodePlaceholder": "Escaneie ou digite",
+      "generate": "Gerar",
+      "barcodeValid": "EAN-13 · dígito verificador válido",
+      "barcodeInvalid": "EAN-13 · dígito verificador inválido",
+      "price": "Preço",
+      "cost": "Preço de custo",
+      "productCost": "Custo do produto",
+      "costComposition": "Composição de custo",
+      "costCompositionHint": "Cada linha soma ao preço de custo",
+      "costItemDescriptionPlaceholder": "ex.: Embalagem",
+      "addCost": "Adicionar custo",
+      "removeCostItem": "Remover linha de custo",
+      "profitMarginPercent": "Margem de lucro (%)",
+      "profit": "Lucro",
+      "promoPrice": "Preço promocional",
+      "stockQty": "Qtd. em estoque",
+      "minStock": "Estoque mínimo",
+      "logistics": "Logística",
+      "netWeight": "Peso líq.",
+      "grossWeight": "Peso bruto",
+      "width": "Largura",
+      "height": "Altura",
+      "length": "Comprimento",
+      "stock": "Estoque",
+      "trackStock": "Controlar estoque",
+      "trackStockHint": "Deduzido em cada venda",
+      "margin": "margem {{percent}}%",
+      "variant": {
+        "status": {
+          "inStock": "{{count}} em estoque",
+          "lowStock": "Baixo · {{count}}",
+          "outOfStock": "Sem estoque",
+          "untracked": "Não controlado"
+        }
+      },
+      "summary": {
+        "variants": "{{count}} variantes",
+        "units": "{{count}} unidades",
+        "priceRange": "Faixa de preço"
+      },
+      "cancel": "Cancelar",
+      "submit": "Salvar produto"
+    }
+  },
+  "category": {
+    "title": "Categorias",
+    "subtitle": "Organize seu catálogo em coleções.",
+    "empty": "Nenhuma categoria encontrada.",
+    "loading": "Carregando categorias...",
+    "form": {
+      "title": "Nova categoria",
+      "name": "Nome",
+      "namePlaceholder": "ex.: Malhas",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Descrição curta (opcional)",
+      "colorTag": "Cor de identificação",
+      "submit": "Criar categoria"
+    },
+    "card": {
+      "product": "{{count}} produto",
+      "products": "{{count}} produtos",
+      "edit": "Editar categoria"
+    }
+  },
+  "seller": {
+    "title": "Vendedores",
+    "subtitle": "Pessoas que podem entrar e operar o caixa.",
+    "empty": "Nenhum vendedor encontrado.",
+    "newSeller": "Novo vendedor",
+    "viewDetails": "Ver detalhes",
+    "toggleActive": "Ativar ou desativar vendedor",
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "columns": {
+      "fullName": "Nome completo",
+      "seller": "Vendedor",
+      "role": "Função",
+      "email": "E-mail",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Editar vendedor",
+      "create": "Novo vendedor",
+      "subtitle": "Conceder acesso ao caixa",
+      "createSubtitle": "Criar uma conta de caixa",
+      "section": {
+        "details": "Dados do vendedor",
+        "permissions": "Permissões"
+      },
+      "fullName": "Nome completo",
+      "fullNamePlaceholder": "ex.: Sofia Reyes",
+      "firstName": "Nome",
+      "firstNamePlaceholder": "ex.: Sofia",
+      "lastName": "Sobrenome",
+      "lastNamePlaceholder": "ex.: Reyes",
+      "email": "E-mail",
+      "emailPlaceholder": "nome@marlowe.co",
+      "role": "Função",
+      "roles": {
+        "seller": "Vendedor",
+        "manager": "Gerente",
+        "stock": "Estoque"
+      },
+      "noPermissions": "Nenhuma permissão disponível.",
+      "cancel": "Cancelar",
+      "submit": "Salvar vendedor",
+      "createSubmit": "Criar usuário"
+    }
+  },
+  "sale": {
+    "pos": {
+      "title": "Ponto de Venda",
+      "subtitle": "Toque em um item para adicioná-lo à venda.",
+      "allCategories": "Todas",
+      "soldOut": "Esgotado",
+      "addItem": "Adicionar à venda",
+      "empty": "Nenhum produto encontrado."
+    },
+    "stats": {
+      "todaySales": "Hoje · Vendas",
+      "orders": "Pedidos"
+    },
+    "current": {
+      "title": "Venda atual",
+      "clear": "Limpar",
+      "soldBy": "Vendido por",
+      "empty": "Ainda não há itens. Toque em um produto para começar.",
+      "removeItem": "Remover item",
+      "subtotal": "Subtotal",
+      "discount": "Desconto",
+      "tax": "Imposto ({{rate}}%)",
+      "total": "Total",
+      "charge": "Cobrar",
+      "chargeSuccess": "Venda concluída com sucesso.",
+      "payment": {
+        "cash": "Dinheiro",
+        "card": "Cartão",
+        "debit": "Débito",
+        "credit": "Crédito",
+        "pix": "Pix",
+        "brand": "Bandeira",
+        "brandPlaceholder": "Selecione a bandeira",
+        "type": "Tipo",
+        "terms": "Parcelas",
+        "singleCharge": "Cobrança única"
+      }
+    },
+    "checkout": {
+      "eyebrow": "Finalizar pedido",
+      "back": "← Voltar",
+      "cancel": "Cancelar",
+      "next": "Continuar",
+      "confirm": "Confirmar pedido",
+      "steps": {
+        "customer": "Cliente",
+        "payment": "Pagamento",
+        "fulfillment": "Entrega"
+      },
+      "customer": {
+        "title": "Selecionar cliente",
+        "anonymous": "Sem cliente / Venda balcão",
+        "anonymousHint": "Pedido sem registro de cliente",
+        "searchPlaceholder": "Buscar por nome ou telefone...",
+        "notFound": "Nenhum cliente corresponde a essa busca.",
+        "tier": {
+          "standard": "Padrão",
+          "silver": "Prata",
+          "gold": "Ouro",
+          "vip": "VIP"
+        }
+      },
+      "payment": {
+        "title": "Forma de pagamento",
+        "method": "Forma de pagamento",
+        "loyaltyTitle": "Desconto de fidelidade",
+        "loyaltyHint": "{{rate}} aplicado automaticamente para este cliente",
+        "cashback": "Cashback disponível",
+        "cashbackHint": "Ative para usar neste pedido"
+      },
+      "fulfillment": {
+        "title": "Entrega",
+        "customerHint": "Escolha um dos endereços do cliente.",
+        "manualHint": "Nenhum cliente selecionado: preencha o endereço de entrega, se houver.",
+        "customerAddress": "Endereço do cliente",
+        "zipCode": "CEP",
+        "street": "Rua",
+        "number": "Número",
+        "city": "Cidade",
+        "zipCodeNotFound": "Não foi possível encontrar o CEP informado."
+      },
+      "summary": {
+        "total": "Total",
+        "breakdown": "Detalhamento",
+        "discountTotal": "Desconto total",
+        "saleDiscount": "Desconto da venda",
+        "loyaltyDiscount": "Fidelidade",
+        "cashback": "Cashback",
+        "tax": "Impostos (aprox.)",
+        "subtotal": "Subtotal",
+        "paymentDiscount": "Forma de pagamento"
+      }
+    }
+  },
+  "enum": {
+    "sizes": {
+      "osfa": "Tamanho único",
+      "xs": "XS",
+      "s": "S",
+      "m": "M",
+      "l": "L",
+      "xl": "XL",
+      "xxl": "XXL",
+      "xxxl": "XXXL"
+    },
+    "colorFamilies": {
+      "blue": "Azul",
+      "red": "Vermelho",
+      "green": "Verde",
+      "yellow": "Amarelo",
+      "purple": "Roxo",
+      "pink": "Rosa",
+      "orange": "Laranja",
+      "neutral": "Neutro"
+    }
+  },
+  "customer": {
+    "title": "Clientes",
+    "subtitle": "Pessoas que compram, seu nível de fidelidade e cashback.",
+    "empty": "Nenhum cliente encontrado.",
+    "newCustomer": "Novo cliente",
+    "viewDetails": "Ver detalhes",
+    "toggleActive": "Ativar ou desativar cliente",
+    "columns": {
+      "customer": "Cliente",
+      "document": "Documento",
+      "phone": "Telefone",
+      "tier": "Nível de fidelidade",
+      "cashback": "Cashback",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Editar cliente",
+      "create": "Novo cliente",
+      "subtitle": "Dados do cliente e cashback",
+      "createSubtitle": "Cadastrar um novo cliente",
+      "section": {
+        "details": "Dados do cliente",
+        "addresses": "Endereços",
+        "cashback": "Histórico de cashback"
+      },
+      "name": "Nome",
+      "namePlaceholder": "ex.: Ana Carolina Souza",
+      "document": "Documento (CPF/CNPJ)",
+      "documentPlaceholder": "Somente números",
+      "phone": "Telefone",
+      "phonePlaceholder": "ex.: 11987650001",
+      "tier": "Nível de fidelidade",
+      "tierPlaceholder": "Nível padrão quando deixado em branco",
+      "cancel": "Cancelar",
+      "submit": "Salvar cliente",
+      "createSubmit": "Criar cliente"
+    },
+    "address": {
+      "empty": "Ainda não há endereços.",
+      "add": "Adicionar endereço",
+      "fallback": "Novo endereço",
+      "remove": "Remover endereço",
+      "default": "Padrão",
+      "inactive": "Inativo",
+      "defaultDelivery": "Endereço de entrega padrão",
+      "zipCode": "CEP",
+      "zipCodeNotFound": "Não foi possível encontrar o CEP informado.",
+      "street": "Rua",
+      "number": "Número",
+      "neighborhood": "Bairro",
+      "city": "Cidade",
+      "state": "Estado",
+      "complement": "Complemento",
+      "additionalInfo": "Referência / observações de entrega"
+    },
+    "cashback": {
+      "balance": "Saldo",
+      "available": "Disponível agora",
+      "earnedAt": "Ganho em",
+      "granted": "Concedido",
+      "remaining": "Restante",
+      "expiresAt": "Expira em",
+      "state": "Situação",
+      "empty": "Nenhum cashback ganho ainda.",
+      "states": {
+        "available": "Disponível",
+        "used": "Utilizado"
+      }
+    }
+  },
+  "paymentMethod": {
+    "title": "Formas de pagamento",
+    "subtitle": "Descontos e disponibilidade de cada forma de pagamento.",
+    "empty": "Nenhuma forma de pagamento encontrada.",
+    "viewDetails": "Ver detalhes",
+    "toggleActive": "Ativar ou desativar forma de pagamento",
+    "columns": {
+      "method": "Forma",
+      "fiscalCode": "Código fiscal",
+      "discount": "Desconto",
+      "status": "Status"
+    },
+    "form": {
+      "title": "Forma de pagamento",
+      "subtitle": "Editar desconto e disponibilidade",
+      "section": {
+        "details": "Detalhes"
+      },
+      "method": "Forma",
+      "fiscalCode": "Código fiscal",
+      "status": "Status",
+      "discount": "Desconto",
+      "cancel": "Cancelar",
+      "submit": "Salvar desconto"
+    }
+  },
+  "cashShift": {
+    "eyebrow": "Turno de caixa",
+    "closeShift": "Fechar turno",
+    "page": {
+      "title": "Turno de caixa",
+      "subtitle": "Abra a gaveta, registre suplementos e sangrias e, depois, confira e feche.",
+      "shiftOpen": "Turno aberto",
+      "shiftClosed": "Turno fechado"
+    },
+    "status": {
+      "open": "Aberto",
+      "closed": "Fechado"
+    },
+    "list": {
+      "title": "Turnos de caixa",
+      "subtitle": "Todos os turnos abertos na loja, com suas vendas e movimentações de caixa.",
+      "empty": "Nenhum turno de caixa encontrado.",
+      "viewDetails": "Ver detalhes do turno",
+      "salesCount": "{{count}} vendas",
+      "columns": {
+        "operator": "Operador",
+        "openedAt": "Aberto em",
+        "closedAt": "Fechado em",
+        "status": "Status",
+        "openingBalance": "Saldo inicial",
+        "totalSales": "Total de vendas",
+        "cashSales": "Dinheiro",
+        "cardSales": "Cartão",
+        "supplements": "Suplementos",
+        "withdrawals": "Sangrias",
+        "movements": "Movimentações"
+      }
+    },
+    "chip": {
+      "label": "Turno de caixa",
+      "openSince": "Aberto · desde {{time}}"
+    },
+    "open": {
+      "title": "Abra um turno de caixa para continuar",
+      "subtitle": "Conte o dinheiro na gaveta antes de começar a vender.",
+      "openingBalance": "Valor inicial",
+      "hint": "Você não poderá usar o caixa até que um turno esteja aberto.",
+      "submit": "Abrir turno"
+    },
+    "close": {
+      "title": "Fechar turno",
+      "subtitle": "Conte a gaveta e declare o que está fisicamente nela.",
+      "openingBalance": "Saldo inicial",
+      "cashSales": "Vendas em dinheiro",
+      "supplements": "Suplementos",
+      "sangrias": "Sangrias",
+      "expected": "Esperado na gaveta",
+      "actualEndingCash": "Dinheiro final real",
+      "matches": "Confere",
+      "balanced": "Equilibrado",
+      "over": "Sobra",
+      "short": "Falta",
+      "balancedHint": "A gaveta corresponde exatamente ao valor esperado.",
+      "hint": "A diferença é registrada no relatório do turno e mantida na trilha de auditoria.",
+      "closingNote": "Observação de fechamento",
+      "closingNotePlaceholder": "Opcional — explique uma diferença",
+      "submit": "Fechar turno com"
+    },
+    "manage": {
+      "title": "Turno de caixa",
+      "subtitle": "Revise o turno e registre movimentações de caixa fora de uma venda.",
+      "close": "Fechar",
+      "status": "Status",
+      "openedAt": "Aberto em",
+      "closedAt": "Fechado em",
+      "openingBalance": "Saldo inicial"
+    },
+    "movement": {
+      "addMoney": "Adicionar dinheiro",
+      "removeMoney": "Retirar dinheiro",
+      "caption": {
+        "in": "Suplemento",
+        "out": "Sangria"
+      },
+      "title": "Movimentação de caixa",
+      "subtitle": "Dinheiro colocado ou retirado da gaveta fora de uma venda.",
+      "amount": "Valor",
+      "reason": "Motivo",
+      "reasonPlaceholder": "ex.: Reforço de fundo de troco",
+      "submitAdd": "Adicionar à gaveta",
+      "submitRemove": "Retirar da gaveta",
+      "addedSuccess": "R$ {{amount}} adicionados à gaveta.",
+      "removedSuccess": "R$ {{amount}} retirados da gaveta.",
+      "quickReason": {
+        "changeFund": "Reforço de fundo de troco",
+        "ownerContribution": "Aporte do proprietário",
+        "reimbursement": "Reembolso devolvido",
+        "bankDeposit": "Depósito bancário",
+        "safeTransfer": "Transferência para o cofre",
+        "refund": "Reembolso ao cliente"
+      }
+    },
+    "movements": {
+      "title": "Movimentações",
+      "count": "{{count}} lançamentos",
+      "empty": "Nenhuma movimentação registrada ainda.",
+      "type": {
+        "sale": "Venda em dinheiro",
+        "supplement": "Suplemento — adicionado",
+        "withdrawal": "Sangria — retirado"
+      }
+    }
+  },
+  "loyalty": {
+    "title": "Níveis de fidelidade",
+    "subtitle": "Taxa de cashback e validade para cada nível de cliente.",
+    "empty": "Nenhum nível de fidelidade encontrado.",
+    "newTier": "Novo nível",
+    "viewDetails": "Ver detalhes",
+    "toggleActive": "Ativar ou desativar nível",
+    "deleteConfirm": "Excluir o nível \"{{name}}\"?",
+    "daysValue": "{{days}} dias",
+    "columns": {
+      "name": "Nível",
+      "cashbackPercentage": "Cashback",
+      "cashbackValidityDays": "Validade",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Editar nível",
+      "create": "Novo nível",
+      "subtitle": "Taxa de cashback e validade",
+      "createSubtitle": "Cadastrar um novo nível de fidelidade",
+      "section": {
+        "details": "Dados do nível"
+      },
+      "name": "Nome",
+      "namePlaceholder": "ex.: Ouro",
+      "cashbackPercentage": "Cashback (%)",
+      "cashbackValidityDays": "Validade (dias)",
+      "status": "Status",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "submit": "Salvar nível",
+      "createSubmit": "Criar nível"
+    }
+  },
+  "profile": {
+    "empty": "Não foi possível carregar seu perfil.",
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "fields": {
+      "email": "E-mail",
+      "phone": "Telefone",
+      "memberSince": "Membro desde"
+    }
+  },
+  "supplier": {
+    "title": "Fornecedores",
+    "subtitle": "De quem cada produto é comprado.",
+    "empty": "Nenhum fornecedor encontrado.",
+    "newSupplier": "Novo fornecedor",
+    "viewDetails": "Editar fornecedor",
+    "toggleActive": "Ativar ou desativar fornecedor",
+    "columns": {
+      "name": "Nome",
+      "cnpj": "CNPJ",
+      "phone": "Telefone",
+      "city": "Cidade",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Editar fornecedor",
+      "create": "Novo fornecedor",
+      "subtitle": "Dados do fornecedor",
+      "createSubtitle": "Cadastrar um novo fornecedor",
+      "section": {
+        "details": "Dados do fornecedor"
+      },
+      "name": "Nome",
+      "namePlaceholder": "ex.: Acme Distribuidora",
+      "cnpj": "CNPJ",
+      "cnpjPlaceholder": "Somente números",
+      "phone": "Telefone",
+      "phonePlaceholder": "ex.: 11987650000",
+      "address": "Endereço",
+      "addressPlaceholder": "Rua, número",
+      "city": "Cidade",
+      "cityPlaceholder": "ex.: São Paulo",
+      "zipCode": "CEP",
+      "zipCodePlaceholder": "ex.: 01000000",
+      "status": "Status",
+      "cancel": "Cancelar",
+      "submit": "Salvar fornecedor",
+      "createSubmit": "Criar fornecedor"
+    }
+  },
+  "taxProfileTemplate": {
+    "title": "Modelos de perfil fiscal",
+    "subtitle": "Regras reutilizáveis de CFOP e CST para produtos e serviços.",
+    "empty": "Nenhum modelo de perfil fiscal encontrado.",
+    "newTemplate": "Novo modelo",
+    "viewDetails": "Editar modelo",
+    "yes": "Sim",
+    "deactivateConfirm": "Desativar o modelo de perfil fiscal \"{{name}}\"? Esta ação não pode ser desfeita.",
+    "status": {
+      "active": "Ativo",
+      "inactive": "Inativo"
+    },
+    "targetItemType": {
+      "product": "Produto",
+      "service": "Serviço"
+    },
+    "columns": {
+      "name": "Nome",
+      "targetItemType": "Aplica-se a",
+      "defaultCfop": "CFOP padrão",
+      "isDefault": "Padrão",
+      "status": "Status"
+    },
+    "form": {
+      "edit": "Editar modelo",
+      "create": "Novo modelo",
+      "subtitle": "Dados do modelo de perfil fiscal",
+      "createSubtitle": "Cadastrar um novo modelo de perfil fiscal",
+      "section": {
+        "details": "Dados do modelo",
+        "tax": "Códigos fiscais",
+        "taxHint": "Códigos CFOP e CST aplicados a produtos ou serviços que usam este modelo"
+      },
+      "name": "Nome",
+      "namePlaceholder": "ex.: ICMS padrão",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Notas internas sobre quando usar este modelo",
+      "targetItemType": "Aplica-se a",
+      "defaultCfop": "CFOP padrão",
+      "defaultCfopPlaceholder": "ex.: 5102",
+      "icmsCst": "CST do ICMS",
+      "icmsCstPlaceholder": "ex.: 00",
+      "pisCofinsCst": "CST do PIS/COFINS",
+      "pisCofinsCstPlaceholder": "ex.: 01",
+      "ivaCst": "CST do IVA",
+      "ivaCstPlaceholder": "ex.: 000",
+      "isSelectiveTax": "Imposto Seletivo",
+      "isSelectiveTaxHint": "Aplica-se a produtos considerados nocivos à saúde ou ao meio ambiente",
+      "isDefault": "Modelo padrão",
+      "isDefaultHint": "Pré-selecionado ao criar um novo item deste tipo",
+      "status": "Status",
+      "deactivate": "Desativar",
+      "cancel": "Cancelar",
+      "submit": "Salvar modelo",
+      "createSubmit": "Criar modelo"
+    }
+  }
+}
