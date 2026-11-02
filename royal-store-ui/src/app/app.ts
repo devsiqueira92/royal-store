@@ -18,7 +18,6 @@ import { CashShiftFacade } from './features/cash-shift/facade/cash-shift.facade'
 export class App {
   private readonly layoutService = inject(LayoutService);
   private readonly deviceService = inject(DeviceService);
-  private readonly originOptionFacade = inject(OriginOptionFacade);
   private translate = inject(TranslateService);
 
   protected readonly title = signal('royal-store-ui');
@@ -27,8 +26,6 @@ export class App {
   protected readonly shouldPushContent = computed(() => this.canPushContent());
   constructor() {
     this.translate.addLangs(['pt', 'en']);
-
-    this.originOptionFacade.loadOriginOptions();
   }
 
   private canPushContent() {

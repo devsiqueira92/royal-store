@@ -2,6 +2,11 @@
   "yes": "Sim",
   "no": "No",
   "or": "or",
+  "layout": {
+    "header": {
+      "darkMode": "Toggle dark mode"
+    }
+  },
   "auth": {
     "title": "Sign in to Royal Store",
     "subtitle": "Manage payments, payouts, and your store.",

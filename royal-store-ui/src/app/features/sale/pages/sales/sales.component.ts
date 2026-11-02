@@ -38,8 +38,6 @@ import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open
 // Mocked until auth/session and reporting are wired.
 const MOCK_SELLER_NAME = 'Maya Chen';
 const MOCK_SALE_REF = '#A-1042';
-const MOCK_TODAY_SALES = 3248;
-const MOCK_TODAY_ORDERS = 41;
 
 @Component({
   imports: [

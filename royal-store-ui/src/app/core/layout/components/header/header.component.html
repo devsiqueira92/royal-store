@@ -23,6 +23,16 @@
             </button>
           </li>
         }
+        <li class="mx-4 d-flex align-items-center">
+          <i class="pi pi-sun" style="font-size: 1rem"></i>
+          <app-switch
+            class="mx-2"
+            [checked]="isDarkMode()"
+            [ariaLabel]="'layout.header.darkMode' | translate"
+            (changed)="toggleDarkMode($event)"
+          />
+          <i class="pi pi-moon" style="font-size: 1rem"></i>
+        </li>
         <li class="mx-4">
           <a class="cursor-pointer">
             <i class="pi pi-bell" style="font-size: 1.2rem"></i>

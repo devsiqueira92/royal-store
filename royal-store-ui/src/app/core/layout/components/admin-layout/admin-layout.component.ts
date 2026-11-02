@@ -13,6 +13,7 @@ import { DetailsSidebarComponent } from '../details-sidebar/details-sidebar.comp
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
 import { SupplierFacade } from '@app/features/supplier/facade/supplier.facade';
 import { AsyncPipe } from '@angular/common';
+import { OriginOptionFacade } from '@app/core/origin-option/facade/origin-option.facade';
 
 @Component({
   selector: 'app-admin-layout',
@@ -32,6 +33,7 @@ export class AdminLayoutComponent {
   private readonly deviceService = inject(DeviceService);
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly supplierFacade = inject(SupplierFacade);
+  private readonly originOptionFacade = inject(OriginOptionFacade);
 
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
   protected readonly shouldPushContent = computed(() => this.canPushContent());
@@ -43,6 +45,7 @@ export class AdminLayoutComponent {
     // needs suppliers — today just the product form's dropdown — shares the
     // same fetch instead of re-requesting it per component instance.
     this.supplierFacade.loadSuppliers();
+    this.originOptionFacade.loadOriginOptions();
   }
 
   private canPushContent() {

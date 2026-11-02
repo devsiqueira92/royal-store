@@ -8,25 +8,36 @@ import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LayoutService } from '../../services/layout.service';
+import { ThemeService } from '../../services/theme.service';
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
 import { CashShift } from '@app/features/cash-shift/interfaces/cash-shift.interface';
 import { DialogManagerService } from '@app/shared/services/dialog.service';
 import { CashShiftComponent } from '@app/shared/components/modal/cash-shift/cash-shift.component';
+import { SwitchComponent } from '@app/shared/components/switch/switch.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-header',
-  imports: [MenubarModule, AvatarModule, ButtonModule, MenuModule, TranslatePipe],
+  imports: [
+    MenubarModule,
+    AvatarModule,
+    ButtonModule,
+    MenuModule,
+    TranslatePipe,
+    SwitchComponent,
+  ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent {
   private layoutService = inject(LayoutService);
+  private readonly themeService = inject(ThemeService);
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly dialogManagerService = inject(DialogManagerService);
   private readonly router = inject(Router);
 
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
+  protected readonly isDarkMode = this.themeService.isDarkMode;
   protected readonly cashShift = toSignal(this.cashShiftFacade.current$, {
     initialValue: null as CashShift | null,
   });
@@ -66,6 +77,10 @@ export class HeaderComponent {
 
   updateVisibility(isVisible: boolean) {
     this.layoutService.setSidebarState(isVisible);
+  }
+
+  protected toggleDarkMode(isDark: boolean): void {
+    this.themeService.setDarkMode(isDark);
   }
 
   protected formatOpenedAt(openedAt: string): string {

@@ -2,6 +2,11 @@
   "yes": "Sim",
   "no": "Não",
   "or": "ou",
+  "layout": {
+    "header": {
+      "darkMode": "Alternar modo escuro"
+    }
+  },
   "auth": {
     "title": "Entrar no Royal Store",
     "subtitle": "Gerencie pagamentos, repasses e sua loja.",
