@@ -7,6 +7,32 @@ import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../../../shared/services/notification.service';
 import { AuthActions } from './auth.actions';
 
+export const logout = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) => {
+    return actions$.pipe(
+      ofType(AuthActions.logout),
+      switchMap(() => authService.logout().pipe(catchError(() => of(null)))),
+    );
+  },
+  {
+    functional: true,
+    dispatch: false,
+  },
+);
+
+export const logoutRedirect = createEffect(
+  (actions$ = inject(Actions), router = inject(Router)) => {
+    return actions$.pipe(
+      ofType(AuthActions.logout),
+      tap(() => router.navigate(['/auth/login'])),
+    );
+  },
+  {
+    functional: true,
+    dispatch: false,
+  },
+);
+
 const EMAIL_NOT_VERIFIED_CODE = 'auth.email_not_verified';
 
 export const checkAuthProfile = createEffect(

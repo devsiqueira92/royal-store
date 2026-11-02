@@ -23,6 +23,16 @@ export class AuthService {
     return this.http.get<User>(`${this.apiUrl}/session`);
   }
 
+  refreshSession(): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/refresh`, {});
+  }
+
+  logout(): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.apiUrl}/logout`, {}, {
+      context: new HttpContext().set(BYPASS_GLOBAL_ERROR, true),
+    });
+  }
+
   register(request: RegisterRequest): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/register`, request, {
       context: new HttpContext().set(BYPASS_GLOBAL_ERROR, true),

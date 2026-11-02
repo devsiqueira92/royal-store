@@ -9,6 +9,7 @@ import { MenuModule } from 'primeng/menu';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LayoutService } from '../../services/layout.service';
 import { ThemeService } from '../../services/theme.service';
+import { AuthFacade } from '@app/core/auth/facade/auth.facade';
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
 import { CashShift } from '@app/features/cash-shift/interfaces/cash-shift.interface';
 import { DialogManagerService } from '@app/shared/services/dialog.service';
@@ -32,6 +33,7 @@ import { SwitchComponent } from '@app/shared/components/switch/switch.component'
 export class HeaderComponent {
   private layoutService = inject(LayoutService);
   private readonly themeService = inject(ThemeService);
+  private readonly authFacade = inject(AuthFacade);
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly dialogManagerService = inject(DialogManagerService);
   private readonly router = inject(Router);
@@ -67,7 +69,7 @@ export class HeaderComponent {
             label: 'Logout',
             icon: 'pi pi-sign-out',
             command: () => {
-              console.log('Logout');
+              this.authFacade.logout();
             },
           },
         ],
