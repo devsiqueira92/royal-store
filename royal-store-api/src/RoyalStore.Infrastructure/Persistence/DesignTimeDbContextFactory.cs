@@ -9,8 +9,8 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Roy
     public RoyalStoreContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<RoyalStoreContext>();
-        optionsBuilder.UseSqlServer(
-            "Server=localhost\\SQLEXPRESS;Database=RoyalStore;Trusted_Connection=True;TrustServerCertificate=True;");
+        optionsBuilder.UseNpgsql(
+            "Host=localhost;Port=5432;Database=royalstore_db;Username=postgres;Password=sua_senha_local_aqui;");
 
         return new RoyalStoreContext(optionsBuilder.Options, new NullTenantContext());
     }

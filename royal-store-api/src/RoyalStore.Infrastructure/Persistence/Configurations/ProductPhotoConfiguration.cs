@@ -28,7 +28,7 @@ public sealed class ProductPhotoConfiguration : IEntityTypeConfiguration<Product
 
         builder.HasIndex(p => new { p.ProductId, p.IsCover })
             .IsUnique()
-            .HasFilter("[IsCover] = 1");
+            .HasFilter("\"IsCover\" = true");
 
         builder.HasIndex(p => p.TenantId);
     }

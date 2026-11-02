@@ -43,14 +43,14 @@ public sealed class IbptTaxConfiguration : IEntityTypeConfiguration<IbptTax>
             .HasDefaultValue(true);
 
         // Persistence-only normalized search columns (accent- and punctuation-insensitive).
-        // Populated by the schema-bound scalar function created in the AddIbptTaxes migration.
+        // Populated by the fn_normalize_search_text function created in the InitialCreate migration.
         builder.Property<string>("NormalizedCode")
             .HasMaxLength(4000)
-            .HasComputedColumnSql("[dbo].[fn_NormalizeSearchText]([Code])", stored: true);
+            .HasComputedColumnSql("fn_normalize_search_text(\"Code\")", stored: true);
 
         builder.Property<string>("NormalizedText")
             .HasMaxLength(4000)
-            .HasComputedColumnSql("[dbo].[fn_NormalizeSearchText]([Description])", stored: true);
+            .HasComputedColumnSql("fn_normalize_search_text(\"Description\")", stored: true);
 
         builder.HasIndex("NormalizedCode");
         builder.HasIndex("NormalizedText");

@@ -42,7 +42,7 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
 
         builder.HasIndex(s => new { s.TenantId, s.Cnpj })
             .IsUnique()
-            .HasFilter("[Cnpj] IS NOT NULL");
+            .HasFilter("\"Cnpj\" IS NOT NULL");
 
         builder.HasIndex(s => s.TenantId);
     }

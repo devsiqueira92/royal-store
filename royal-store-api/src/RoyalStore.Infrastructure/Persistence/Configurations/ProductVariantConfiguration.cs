@@ -40,7 +40,7 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
 
         builder.HasIndex(v => new { v.TenantId, v.Sku })
             .IsUnique()
-            .HasFilter("[Sku] IS NOT NULL");
+            .HasFilter("\"Sku\" IS NOT NULL");
 
         builder.HasIndex(v => v.ProductId);
     }

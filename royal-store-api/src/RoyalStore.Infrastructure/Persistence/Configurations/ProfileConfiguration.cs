@@ -46,11 +46,11 @@ public sealed class ProfileConfiguration : IEntityTypeConfiguration<Profile>
 
         builder.HasIndex(p => new { p.TenantId, p.Cpf })
             .IsUnique()
-            .HasFilter("[Cpf] IS NOT NULL");
+            .HasFilter("\"Cpf\" IS NOT NULL");
 
         builder.HasIndex(p => new { p.TenantId, p.Email })
             .IsUnique()
-            .HasFilter("[Email] IS NOT NULL");
+            .HasFilter("\"Email\" IS NOT NULL");
 
         builder.HasIndex(p => p.TenantId);
     }

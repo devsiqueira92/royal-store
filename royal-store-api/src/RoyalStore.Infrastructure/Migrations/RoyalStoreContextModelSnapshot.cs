@@ -2,9 +2,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RoyalStore.Infrastructure.Persistence;
 
 #nullable disable
@@ -12,42 +11,39 @@ using RoyalStore.Infrastructure.Persistence;
 namespace RoyalStore.Infrastructure.Migrations
 {
     [DbContext(typeof(RoyalStoreContext))]
-    [Migration("20261017223138_AddCustomerAddresses")]
-    partial class AddCustomerAddresses
+    partial class RoyalStoreContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "10.0.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -56,19 +52,19 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -81,19 +77,19 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -105,17 +101,17 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -127,10 +123,10 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -142,16 +138,16 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -162,42 +158,42 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Color")
                         .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)");
+                        .HasColumnType("character varying(35)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -211,37 +207,37 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -255,123 +251,128 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("BaseCostPrice")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal>("BasePrice")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Cest")
                         .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
+                        .HasColumnType("character varying(7)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("DefaultCfop")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("IcmsCst")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool?>("IsSelectiveTax")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("IssCode")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("IvaCst")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("character varying(120)");
 
                     b.Property<string>("Nbs")
                         .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
+                        .HasColumnType("character varying(9)");
 
                     b.Property<string>("Ncm")
                         .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasColumnType("character varying(8)");
 
                     b.Property<int>("Origin")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<bool>("OverrideTaxProfile")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.Property<string>("PisCofinsCst")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("StockTrack")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("SupplierId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("TaxProfileTemplateId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0);
 
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
                         .HasMaxLength(36)
-                        .HasColumnType("nvarchar(36)");
+                        .HasColumnType("character varying(36)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("SupplierId");
 
                     b.HasIndex("TaxProfileTemplateId");
 
@@ -387,37 +388,37 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<bool>("IsCover")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
+                        .HasColumnType("character varying(2048)");
 
                     b.HasKey("Id");
 
@@ -425,7 +426,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("ProductId", "IsCover")
                         .IsUnique()
-                        .HasFilter("[IsCover] = 1");
+                        .HasFilter("\"IsCover\" = true");
 
                     b.ToTable("ProductPhotos", (string)null);
                 });
@@ -434,49 +435,49 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Barcode")
                         .HasMaxLength(14)
-                        .HasColumnType("nvarchar(14)");
+                        .HasColumnType("character varying(14)");
 
                     b.Property<string>("Color")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal?>("CostPrice")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal?>("MinStockQuantity")
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                        .HasColumnType("numeric(18,3)");
 
                     b.Property<string>("OptionName")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal?>("Price")
                         .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Size")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Sku")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal?>("StockQuantity")
                         .HasPrecision(18, 3)
-                        .HasColumnType("decimal(18,3)");
+                        .HasColumnType("numeric(18,3)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -484,7 +485,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "Sku")
                         .IsUnique()
-                        .HasFilter("[Sku] IS NOT NULL");
+                        .HasFilter("\"Sku\" IS NOT NULL");
 
                     b.ToTable("ProductVariants", (string)null);
                 });
@@ -493,69 +494,69 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("DefaultCfop")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("IcmsCst")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
                     b.Property<bool>("IsDefault")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.Property<bool>("IsSelectiveTax")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.Property<string>("IvaCst")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("PisCofinsCst")
                         .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)");
+                        .HasColumnType("character varying(4)");
 
                     b.Property<int>("TargetItemType")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -568,40 +569,40 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -615,57 +616,57 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Document")
                         .IsRequired()
                         .HasMaxLength(14)
-                        .HasColumnType("nvarchar(14)");
+                        .HasColumnType("character varying(14)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
                     b.Property<Guid>("LoyaltyTierId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("TermsAccepted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -683,71 +684,71 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("AdditionalInfo")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<string>("City")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Complement")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
                     b.Property<bool>("IsDefaultDelivery")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.Property<string>("Neighborhood")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Number")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("State")
                         .HasMaxLength(2)
-                        .HasColumnType("nvarchar(2)");
+                        .HasColumnType("character varying(2)");
 
                     b.Property<string>("Street")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("ZipCode")
                         .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasColumnType("character varying(8)");
 
                     b.HasKey("Id");
 
@@ -762,17 +763,17 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<DateOnly>("EffectiveEnd")
                         .HasColumnType("date");
@@ -782,7 +783,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<string>("Exception")
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("character varying(10)");
 
                     b.Property<decimal>("FederalRate")
                         .ValueGeneratedOnAdd()
@@ -796,12 +797,12 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
+                        .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
                     b.Property<string>("Key")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<decimal>("MunicipalRate")
                         .ValueGeneratedOnAdd()
@@ -816,18 +817,18 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<string>("NormalizedCode")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasComputedColumnSql("[dbo].[fn_NormalizeSearchText]([Code])", true);
+                        .HasColumnType("character varying(4000)")
+                        .HasComputedColumnSql("fn_normalize_search_text(\"Code\")", true);
 
                     b.Property<string>("NormalizedText")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)")
-                        .HasComputedColumnSql("[dbo].[fn_NormalizeSearchText]([Description])", true);
+                        .HasColumnType("character varying(4000)")
+                        .HasComputedColumnSql("fn_normalize_search_text(\"Description\")", true);
 
                     b.Property<string>("Source")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<decimal>("StateRate")
                         .ValueGeneratedOnAdd()
@@ -835,11 +836,11 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Version")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -856,34 +857,34 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<bool>("IsConsumed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -896,34 +897,34 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<bool>("WasSuccessful")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -936,34 +937,34 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<bool>("IsConsumed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -975,60 +976,60 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("RoyalStore.Domain.Identity.UserEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("RequiresPasswordChange")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
@@ -1037,8 +1038,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -1047,16 +1047,16 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("EarnedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("GrantedAmount")
                         .HasColumnType("decimal(18,2)");
@@ -1065,17 +1065,17 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("SaleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("State")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -1088,22 +1088,22 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("CashbackEntryId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("SaleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1120,35 +1120,35 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<Guid>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("SaleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1162,40 +1162,40 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("Active")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<decimal>("CashbackPercentage")
                         .HasColumnType("decimal(5,2)");
 
                     b.Property<int>("CashbackValidityDays")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1209,43 +1209,43 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("Active")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<int>("Discount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("PaymentType")
                         .IsRequired()
                         .HasMaxLength(2)
-                        .HasColumnType("nchar(2)")
+                        .HasColumnType("character(2)")
                         .IsFixedLength();
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1259,36 +1259,36 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Permission")
                         .IsRequired()
                         .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
+                        .HasColumnType("character varying(64)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1302,37 +1302,105 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("UserPermissionGrants", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Profiles.Profile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Cpf")
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "Cpf")
+                        .IsUnique()
+                        .HasFilter("\"Cpf\" IS NOT NULL");
+
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique()
+                        .HasFilter("\"Email\" IS NOT NULL");
+
+                    b.ToTable("Profiles", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashMovement", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("CashShiftId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
+                        .HasColumnType("character varying(250)");
 
                     b.Property<DateTime>("MovedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("SyncedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1349,49 +1417,49 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal?>("ActualEndingCash")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("ClosedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<decimal?>("ExpectedEndingCash")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("OpenedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("StartingCash")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -1406,14 +1474,14 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("BranchId")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid?>("CashShiftId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("CashbackApplied")
                         .ValueGeneratedOnAdd()
@@ -1431,15 +1499,15 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<Guid?>("CustomerId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("DiscountAmount")
                         .ValueGeneratedOnAdd()
@@ -1447,18 +1515,18 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<string>("ExternalInvoiceId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("FiscalErrorMessage")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("FiscalStatus")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0);
 
                     b.Property<int>("FulfillmentMode")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("LoyaltyDiscountApplied")
                         .ValueGeneratedOnAdd()
@@ -1471,10 +1539,10 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<string>("ReceiptPrintUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("SoldAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Subtotal")
                         .ValueGeneratedOnAdd()
@@ -1482,7 +1550,7 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<DateTime>("SyncedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("TaxAmount")
                         .ValueGeneratedOnAdd()
@@ -1490,22 +1558,22 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasDefaultValue(0m);
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1524,7 +1592,7 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("CostPrice")
                         .ValueGeneratedOnAdd()
@@ -1538,24 +1606,24 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<string>("ProductCode")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,4)");
 
                     b.Property<Guid>("SaleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
@@ -1564,7 +1632,7 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("VariantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1583,22 +1651,22 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("FiscalType")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("PaymentId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("SaleId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -1615,44 +1683,44 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("EventType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("FailureReason")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("ObfuscatedIdentifier")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTimeOffset>("OccurredAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1665,53 +1733,33 @@ namespace RoyalStore.Infrastructure.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Cpf")
-                        .HasMaxLength(11)
-                        .HasColumnType("nvarchar(11)");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("OnboardingCompletedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1719,54 +1767,110 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.HasIndex("TenantId", "Cpf")
-                        .IsUnique()
-                        .HasFilter("[Cpf] IS NOT NULL");
-
-                    b.HasIndex("TenantId", "Email")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
-
                     b.ToTable("Sellers", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Suppliers.Supplier", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Cnpj")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("ZipCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Cnpj")
+                        .IsUnique()
+                        .HasFilter("\"Cnpj\" IS NOT NULL");
+
+                    b.ToTable("Suppliers", (string)null);
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Tenants.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.Property<string>("Document")
                         .IsRequired()
                         .HasMaxLength(14)
-                        .HasColumnType("nvarchar(14)");
+                        .HasColumnType("character varying(14)");
 
                     b.Property<int>("DocumentType")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("StoreName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
@@ -1835,6 +1939,11 @@ namespace RoyalStore.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("RoyalStore.Domain.Suppliers.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("RoyalStore.Domain.Catalog.TaxProfileTemplate", "TaxProfileTemplate")
                         .WithMany("Products")
                         .HasForeignKey("TaxProfileTemplateId")
@@ -1844,31 +1953,31 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Catalog.ProductMeasure", "Measure", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<decimal?>("GrossWeight")
                                 .HasPrecision(9, 3)
-                                .HasColumnType("decimal(9,3)")
+                                .HasColumnType("numeric(9,3)")
                                 .HasColumnName("GrossWeight");
 
                             b1.Property<decimal?>("Height")
                                 .HasPrecision(9, 2)
-                                .HasColumnType("decimal(9,2)")
+                                .HasColumnType("numeric(9,2)")
                                 .HasColumnName("Height");
 
                             b1.Property<decimal?>("Length")
                                 .HasPrecision(9, 2)
-                                .HasColumnType("decimal(9,2)")
+                                .HasColumnType("numeric(9,2)")
                                 .HasColumnName("Length");
 
                             b1.Property<decimal?>("NetWeight")
                                 .HasPrecision(9, 3)
-                                .HasColumnType("decimal(9,3)")
+                                .HasColumnType("numeric(9,3)")
                                 .HasColumnName("NetWeight");
 
                             b1.Property<decimal?>("Width")
                                 .HasPrecision(9, 2)
-                                .HasColumnType("decimal(9,2)")
+                                .HasColumnType("numeric(9,2)")
                                 .HasColumnName("Width");
 
                             b1.HasKey("ProductId");
@@ -1883,6 +1992,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Navigation("Measure")
                         .IsRequired();
+
+                    b.Navigation("Supplier");
 
                     b.Navigation("TaxProfileTemplate");
                 });
@@ -1943,6 +2054,15 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Profiles.Profile", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Identity.UserEntity", null)
+                        .WithOne()
+                        .HasForeignKey("RoyalStore.Domain.Profiles.Profile", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Sales.CashMovement", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Sales.CashShift", null)
@@ -1980,26 +2100,26 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Sales.SaleAddress", "Address", b1 =>
                         {
                             b1.Property<Guid>("SaleId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("City")
                                 .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)")
+                                .HasColumnType("character varying(100)")
                                 .HasColumnName("AddressCity");
 
                             b1.Property<string>("Number")
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
+                                .HasColumnType("character varying(20)")
                                 .HasColumnName("AddressNumber");
 
                             b1.Property<string>("Street")
                                 .HasMaxLength(200)
-                                .HasColumnType("nvarchar(200)")
+                                .HasColumnType("character varying(200)")
                                 .HasColumnName("AddressStreet");
 
                             b1.Property<string>("ZipCode")
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
+                                .HasColumnType("character varying(20)")
                                 .HasColumnName("AddressZipCode");
 
                             b1.HasKey("SaleId");
@@ -2013,18 +2133,18 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Sales.SaleCustomerSnapshot", "CustomerSnapshot", b1 =>
                         {
                             b1.Property<Guid>("SaleId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("LoyaltyTierName")
                                 .IsRequired()
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("CustomerLoyaltyTierName");
 
                             b1.Property<string>("Name")
                                 .IsRequired()
                                 .HasMaxLength(150)
-                                .HasColumnType("nvarchar(150)")
+                                .HasColumnType("character varying(150)")
                                 .HasColumnName("CustomerName");
 
                             b1.HasKey("SaleId");
@@ -2064,38 +2184,38 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Sales.SaleItemCatalogSnapshot", "Catalog", b1 =>
                         {
                             b1.Property<Guid>("SaleItemId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("OptionName")
                                 .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)")
+                                .HasColumnType("character varying(100)")
                                 .HasColumnName("OptionName");
 
                             b1.Property<string>("Sku")
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("Sku");
 
                             b1.Property<string>("UnitMeasure")
                                 .IsRequired()
                                 .HasMaxLength(36)
-                                .HasColumnType("nvarchar(36)")
+                                .HasColumnType("character varying(36)")
                                 .HasColumnName("UnitMeasure");
 
                             b1.Property<string>("VariantColor")
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("VariantColor");
 
                             b1.Property<string>("VariantLabel")
                                 .IsRequired()
                                 .HasMaxLength(200)
-                                .HasColumnType("nvarchar(200)")
+                                .HasColumnType("character varying(200)")
                                 .HasColumnName("VariantLabel");
 
                             b1.Property<string>("VariantSize")
                                 .HasMaxLength(50)
-                                .HasColumnType("nvarchar(50)")
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("VariantSize");
 
                             b1.HasKey("SaleItemId");
@@ -2109,58 +2229,58 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Sales.SaleItemFiscalSnapshot", "Fiscal", b1 =>
                         {
                             b1.Property<Guid>("SaleItemId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Cest")
                                 .HasMaxLength(7)
-                                .HasColumnType("nvarchar(7)")
+                                .HasColumnType("character varying(7)")
                                 .HasColumnName("Cest");
 
                             b1.Property<string>("Cfop")
                                 .HasMaxLength(10)
-                                .HasColumnType("nvarchar(10)")
+                                .HasColumnType("character varying(10)")
                                 .HasColumnName("Cfop");
 
                             b1.Property<string>("IcmsCst")
                                 .HasMaxLength(10)
-                                .HasColumnType("nvarchar(10)")
+                                .HasColumnType("character varying(10)")
                                 .HasColumnName("IcmsCst");
 
                             b1.Property<bool>("IsSelectiveTax")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("bit")
+                                .HasColumnType("boolean")
                                 .HasDefaultValue(false)
                                 .HasColumnName("IsSelectiveTax");
 
                             b1.Property<string>("IssCode")
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
+                                .HasColumnType("character varying(20)")
                                 .HasColumnName("IssCode");
 
                             b1.Property<string>("IvaCst")
                                 .HasMaxLength(10)
-                                .HasColumnType("nvarchar(10)")
+                                .HasColumnType("character varying(10)")
                                 .HasColumnName("IvaCst");
 
                             b1.Property<string>("Nbs")
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
+                                .HasColumnType("character varying(20)")
                                 .HasColumnName("Nbs");
 
                             b1.Property<string>("Ncm")
                                 .HasMaxLength(8)
-                                .HasColumnType("nvarchar(8)")
+                                .HasColumnType("character varying(8)")
                                 .HasColumnName("Ncm");
 
                             b1.Property<string>("Origin")
                                 .IsRequired()
                                 .HasMaxLength(10)
-                                .HasColumnType("nvarchar(10)")
+                                .HasColumnType("character varying(10)")
                                 .HasColumnName("Origin");
 
                             b1.Property<string>("PisCofinsCst")
                                 .HasMaxLength(10)
-                                .HasColumnType("nvarchar(10)")
+                                .HasColumnType("character varying(10)")
                                 .HasColumnName("PisCofinsCst");
 
                             b1.HasKey("SaleItemId");
@@ -2174,7 +2294,7 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Sales.SaleItemTaxRates", "TaxRates", b1 =>
                         {
                             b1.Property<Guid>("SaleItemId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<decimal?>("FederalRate")
                                 .HasColumnType("decimal(7,4)")
@@ -2231,20 +2351,20 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.OwnsOne("RoyalStore.Domain.Sales.PaymentCardDetails", "Card", b1 =>
                         {
                             b1.Property<Guid>("SalePaymentId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Flag")
                                 .HasMaxLength(30)
-                                .HasColumnType("nvarchar(30)")
+                                .HasColumnType("character varying(30)")
                                 .HasColumnName("CardFlag");
 
                             b1.Property<int?>("Installments")
-                                .HasColumnType("int")
+                                .HasColumnType("integer")
                                 .HasColumnName("Installments");
 
                             b1.Property<string>("Type")
                                 .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
+                                .HasColumnType("character varying(20)")
                                 .HasColumnName("PaymentType");
 
                             b1.HasKey("SalePaymentId");
