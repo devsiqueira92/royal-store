@@ -4,6 +4,7 @@ import { productAdapter, productFeature } from './product.reducer';
 export const {
   selectProductState,
   selectSelectedProduct,
+  selectSelectedLabelProducts,
   selectIsLoading,
   selectError,
 } = productFeature;

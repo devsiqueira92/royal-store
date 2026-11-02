@@ -5,7 +5,7 @@ import { LabelProduct } from '../../interfaces/label-print.interface';
  * wiring it to a real product list. Repeated past the base catalog so the
  * default preview spans more than one physical page (> 80 labels).
  */
-const BASE_MOCK_PRODUCTS: Omit<LabelProduct, 'id' | 'barcode'>[] = [
+const BASE_MOCK_PRODUCTS: Omit<LabelProduct, 'id' | 'barcode' | 'sku'>[] = [
   { name: 'Camiseta Básica Branca P', price: 39.9 },
   { name: 'Camiseta Básica Preta M', price: 39.9 },
   { name: 'Calça Jeans Slim Azul 42', price: 129.9 },
@@ -24,6 +24,10 @@ function toBarcode(index: number): string {
   return `789${(1000000000 + index).toString().slice(-10)}`;
 }
 
+function toSku(index: number): string {
+  return `SKU-${index.toString().padStart(5, '0')}`;
+}
+
 export const MOCK_LABEL_PRODUCTS: LabelProduct[] = Array.from(
   { length: 90 },
   (_, index) => {
@@ -33,6 +37,7 @@ export const MOCK_LABEL_PRODUCTS: LabelProduct[] = Array.from(
       name: base.name,
       price: base.price,
       barcode: toBarcode(index + 1),
+      sku: toSku(index + 1),
     };
   },
 );

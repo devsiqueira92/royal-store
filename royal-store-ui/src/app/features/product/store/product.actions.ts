@@ -38,5 +38,7 @@ export const ProductActions = createActionGroup({
     'Remove Product Variant Success': props<{ variantId: string }>(),
     'Remove Product Variant Failure': props<{ error: string }>(),
     'Clear Selected Product': emptyProps(),
+    'Set Selected Label Products': props<{ products: Product[] }>(),
+    'Clear Selected Label Products': emptyProps(),
   },
 });

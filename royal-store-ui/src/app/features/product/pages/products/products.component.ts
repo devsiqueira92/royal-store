@@ -77,7 +77,10 @@ export class ProductsComponent implements OnInit {
   protected readonly categoryFilter = signal<string | null>(null);
   protected readonly supplierFilter = signal<string | null>(null);
   protected readonly statusFilter = signal<StockStatus | null>(null);
-  protected readonly selectedProducts = signal<Product[]>([]);
+  protected readonly selectedProducts = toSignal(
+    this.productFacade.selectedLabelProducts$,
+    { initialValue: [] as Product[] },
+  );
 
   protected readonly statusOptions: SelectOption<StockStatus | null>[] = [
     { label: 'Status', value: null },
@@ -183,6 +186,10 @@ export class ProductsComponent implements OnInit {
       title: 'product.form.edit',
       subtitle: 'product.form.subtitle',
     });
+  }
+
+  protected onSelectionChange(products: Product[]): void {
+    this.productFacade.setSelectedLabelProducts(products);
   }
 
   protected updateStatus(product: Product) {

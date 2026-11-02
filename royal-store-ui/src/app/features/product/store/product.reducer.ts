@@ -5,6 +5,7 @@ import { ProductActions } from './product.actions';
 import { ServiceActions } from './service.actions';
 export interface ProductState extends EntityState<Product> {
   selectedProduct: Product | null;
+  selectedLabelProducts: Product[];
   isLoading: boolean;
   error: string | null;
 }
@@ -15,6 +16,7 @@ export const productAdapter: EntityAdapter<Product> =
 export const initialProductState: ProductState = productAdapter.getInitialState(
   {
     selectedProduct: null,
+    selectedLabelProducts: [],
     isLoading: false,
     error: null,
   },
@@ -223,5 +225,21 @@ export const productFeature = createFeature({
       ...state,
       selectedProduct: null,
     })),
+
+    on(
+      ProductActions.setSelectedLabelProducts,
+      (state, { products }): ProductState => ({
+        ...state,
+        selectedLabelProducts: products,
+      }),
+    ),
+
+    on(
+      ProductActions.clearSelectedLabelProducts,
+      (state): ProductState => ({
+        ...state,
+        selectedLabelProducts: [],
+      }),
+    ),
   ),
 });

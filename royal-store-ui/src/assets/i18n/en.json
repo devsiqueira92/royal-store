@@ -207,7 +207,8 @@
       "field": {
         "name": "Product name",
         "price": "Price",
-        "barcode": "Barcode"
+        "barcode": "Barcode",
+        "sku": "SKU code"
       },
       "summary": "{{count}} labels · {{pages}} pages",
       "zoomOut": "Zoom out",

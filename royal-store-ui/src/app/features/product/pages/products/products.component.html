@@ -19,6 +19,7 @@
         icon="pi pi-tag"
         severity="secondary"
         [outlined]="true"
+        [disabled]="selectedProducts().length === 0"
         routerLink="labels"
       />
       <p-button
@@ -112,7 +113,7 @@
       [value]="filteredProducts()"
       [loading]="isLoading()"
       [selection]="selectedProducts()"
-      (selectionChange)="selectedProducts.set($event)"
+      (selectionChange)="onSelectionChange($event)"
       dataKey="id"
     >
       <ng-template #header>

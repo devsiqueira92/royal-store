@@ -112,7 +112,7 @@
     background: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
     display: grid;
-    grid-template-columns: repeat(4, 44.4mm);
+    grid-template-columns: repeat(6, 28.6mm);
     grid-auto-rows: 12.7mm;
     column-gap: 3.1mm;
     row-gap: 0mm;
@@ -120,20 +120,20 @@
   }
 
   .label-cell {
-    width: 44.4mm;
+    width: 28.6mm;
     height: 12.7mm;
     box-sizing: border-box;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 0.3mm;
-    padding: 0.4mm 1.2mm;
+    gap: 0.2mm;
+    padding: 0.4mm 0.9mm;
     color: #000;
   }
 
   .label-cell__name {
-    font-size: 2.5mm;
+    font-size: 2mm;
     line-height: 1.15;
     white-space: nowrap;
     overflow: hidden;
@@ -145,8 +145,17 @@
   }
 
   .label-cell__price {
-    font-size: 3mm;
+    font-size: 2.4mm;
     font-weight: 700;
     line-height: 1.1;
+  }
+
+  .label-cell__sku {
+    font-size: 1.6mm;
+    line-height: 1.1;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }

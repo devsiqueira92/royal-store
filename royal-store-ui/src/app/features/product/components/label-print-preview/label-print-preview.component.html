@@ -68,16 +68,19 @@
                 @if (isFieldActive('name')) {
                   <span class="label-cell__name">{{ product.name }}</span>
                 }
+                @if (isFieldActive('price')) {
+                  <span class="label-cell__price">{{
+                    product.price | currency: 'BRL'
+                  }}</span>
+                }
                 @if (isFieldActive('barcode')) {
                   <app-label-barcode
                     class="label-cell__barcode"
                     [value]="product.barcode"
                   ></app-label-barcode>
                 }
-                @if (isFieldActive('price')) {
-                  <span class="label-cell__price">{{
-                    product.price | currency: 'BRL'
-                  }}</span>
+                @if (isFieldActive('sku')) {
+                  <span class="label-cell__sku">{{ product.sku }}</span>
                 }
               </div>
             }

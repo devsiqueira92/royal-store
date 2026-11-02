@@ -22,7 +22,7 @@ const PAGE_HEIGHT_MM = 279;
 const MARGIN_TOP_MM = 12.7;
 const LABEL_HEIGHT_MM = 12.7;
 const ROW_GAP_MM = 0;
-const COLUMNS = 4;
+const COLUMNS = 6;
 
 const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 1.5;
@@ -37,7 +37,7 @@ const ZOOM_STEP = 0.1;
 })
 export class LabelPrintPreviewComponent {
   products = input<LabelProduct[]>(MOCK_LABEL_PRODUCTS);
-  fields = input<LabelFieldKey[]>(['name', 'barcode', 'price']);
+  fields = input<LabelFieldKey[]>(['name', 'price', 'barcode', 'sku']);
 
   protected readonly availableFields = LABEL_FIELD_DEFINITIONS;
 

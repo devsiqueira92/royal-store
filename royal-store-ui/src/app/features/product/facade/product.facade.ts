@@ -3,10 +3,12 @@ import { Store } from '@ngrx/store';
 import { CreateProductRequest } from '../interfaces/create-product-request.interface';
 import { UpdateProductRequest } from '../interfaces/update-product-request.interface';
 import { GetProductsParams } from '../interfaces/get-products-params.interface';
+import { Product } from '../interfaces/product.interface';
 import { ProductActions } from '../store/product.actions';
 import {
   selectAllProducts,
   selectSelectedProduct,
+  selectSelectedLabelProducts,
   selectIsLoading,
   selectError,
   productVariants,
@@ -20,6 +22,7 @@ export class ProductFacade {
 
   products$ = this.store.select(selectAllProducts);
   selectedProduct$ = this.store.select(selectSelectedProduct);
+  selectedLabelProducts$ = this.store.select(selectSelectedLabelProducts);
   productVariants$ = this.store.select(productVariants);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
@@ -54,5 +57,13 @@ export class ProductFacade {
 
   clearSelectedProduct(): void {
     this.store.dispatch(ProductActions.clearSelectedProduct());
+  }
+
+  setSelectedLabelProducts(products: Product[]): void {
+    this.store.dispatch(ProductActions.setSelectedLabelProducts({ products }));
+  }
+
+  clearSelectedLabelProducts(): void {
+    this.store.dispatch(ProductActions.clearSelectedLabelProducts());
   }
 }
