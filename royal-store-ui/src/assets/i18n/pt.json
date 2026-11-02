@@ -310,7 +310,7 @@
       "removeItem": "Remover item",
       "subtotal": "Subtotal",
       "discount": "Desconto",
-      "tax": "Imposto ({{rate}}%)",
+      "tax": "Imposto est. ({{rate}}%)",
       "total": "Total",
       "charge": "Cobrar",
       "chargeSuccess": "Venda concluída com sucesso.",

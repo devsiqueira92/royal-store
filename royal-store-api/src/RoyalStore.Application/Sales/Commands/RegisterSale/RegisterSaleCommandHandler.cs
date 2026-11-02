@@ -145,7 +145,9 @@ public sealed class RegisterSaleCommandHandler
             ? tenderLines.Sum(p => Math.Round(baseAmount * (p.Line.Amount / tenderAmountSum) * (p.CatalogPayment.Discount / 100m), 2))
             : 0m;
 
-        var amountDue = Math.Max(baseAmount - loyaltyDiscount - paymentDiscount + taxAmount, 0m);
+        // Tax is informational only (displayed alongside the total, never folded into it) — the
+        // amount actually owed and settled by payments excludes it.
+        var amountDue = Math.Max(baseAmount - loyaltyDiscount - paymentDiscount, 0m);
 
         // Redeemed before Sale.Create because CashbackApplied feeds the earning-base calculation
         // below (a sale never earns cashback on the amount it just redeemed) and CashbackRemaining

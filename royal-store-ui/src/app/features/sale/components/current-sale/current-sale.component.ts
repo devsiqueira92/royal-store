@@ -100,7 +100,7 @@ export class CurrentSaleComponent {
     return net > 0 ? (this.tax() / net) * 100 : 0;
   });
 
-  protected readonly total = computed(() => this.netSubtotal() + this.tax());
+  protected readonly total = computed(() => this.netSubtotal());
 
   protected onQuantityChange(variantId: string, quantity: number): void {
     this.quantityChange.emit({ variantId, quantity });

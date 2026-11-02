@@ -58,6 +58,6 @@ export function buildCheckoutTotals(
     cashbackApplied,
     discountTotal,
     tax,
-    total: round(subtotal - discountTotal + tax),
+    total: round(subtotal - discountTotal),
   };
 }
