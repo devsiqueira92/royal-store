@@ -43,7 +43,7 @@ public sealed class UpdateMyProfileCommandHandler
 
         if (profile is not null)
         {
-            var updateResult = profile.UpdateProfile(command.FullName, command.Phone);
+            var updateResult = profile.UpdateProfile(command.FullName, command.Phone, command.Email);
             if (!updateResult.IsSuccess)
                 return updateResult.Error;
 

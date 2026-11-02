@@ -653,6 +653,20 @@
       "email": "Email",
       "phone": "Phone",
       "memberSince": "Member since"
+    },
+    "form": {
+      "section": {
+        "details": "Personal details"
+      },
+      "fullName": "Full name",
+      "fullNamePlaceholder": "e.g. Jane Doe",
+      "email": "Email",
+      "emailPlaceholder": "e.g. jane@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "e.g. 11987650000",
+      "submit": "Save changes",
+      "updateSuccessSummary": "Profile updated",
+      "updateSuccessDetail": "Your profile details have been saved."
     }
   },
   "supplier": {

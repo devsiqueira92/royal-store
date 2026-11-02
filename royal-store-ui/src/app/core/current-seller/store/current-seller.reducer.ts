@@ -6,12 +6,14 @@ import { AuthActions } from '@app/core/auth/store/auth.actions';
 export interface CurrentSellerState {
   currentSeller: CurrentSeller | null;
   isLoading: boolean;
+  isSaving: boolean;
   error: string | null;
 }
 
 export const initialCurrentSellerState: CurrentSellerState = {
   currentSeller: null,
   isLoading: false,
+  isSaving: false,
   error: null,
 };
 
@@ -37,6 +39,27 @@ export const currentSellerFeature = createFeature({
       (state, { error }): CurrentSellerState => ({
         ...state,
         isLoading: false,
+        error,
+      }),
+    ),
+    on(CurrentSellerActions.updateMyProfile, (state): CurrentSellerState => ({
+      ...state,
+      isSaving: true,
+      error: null,
+    })),
+    on(
+      CurrentSellerActions.updateMyProfileSuccess,
+      (state, { currentSeller }): CurrentSellerState => ({
+        ...state,
+        currentSeller,
+        isSaving: false,
+      }),
+    ),
+    on(
+      CurrentSellerActions.updateMyProfileFailure,
+      (state, { error }): CurrentSellerState => ({
+        ...state,
+        isSaving: false,
         error,
       }),
     ),

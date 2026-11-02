@@ -7,6 +7,7 @@ using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Payments;
+using RoyalStore.Domain.Profiles;
 using RoyalStore.Domain.Tenants;
 using System.Text;
 
@@ -19,6 +20,7 @@ public sealed class RegisterTenantCommandHandler
     private readonly ITenantRepository _tenantRepository;
     private readonly ILoyaltyTierRepository _loyaltyTierRepository;
     private readonly IPaymentRepository _paymentRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
 
@@ -27,6 +29,7 @@ public sealed class RegisterTenantCommandHandler
         ITenantRepository tenantRepository,
         ILoyaltyTierRepository loyaltyTierRepository,
         IPaymentRepository paymentRepository,
+        IProfileRepository profileRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService)
     {
@@ -34,6 +37,7 @@ public sealed class RegisterTenantCommandHandler
         _tenantRepository = tenantRepository;
         _loyaltyTierRepository = loyaltyTierRepository;
         _paymentRepository = paymentRepository;
+        _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
     }
@@ -82,6 +86,12 @@ public sealed class RegisterTenantCommandHandler
 
                 await _tenantRepository.AddAsync(tenant, ct);
 
+                var profileResult = Profile.CreateStub(tenant.Id, createdUser.Id);
+                if (!profileResult.IsSuccess)
+                    return (Result<RegistrationResponse>)profileResult.Error;
+
+                await _profileRepository.AddAsync(profileResult.Value, ct);
+
                 // Every tenant starts with the four loyalty tiers (FR-010) — seeded here, in the same
                 // transaction, so a tenant never exists without them (research.md Decision 9).
                 await _loyaltyTierRepository.AddRangeAsync(LoyaltyTier.SeedDefaults(tenant.Id), ct);
@@ -107,33 +117,6 @@ public sealed class RegisterTenantCommandHandler
             command.Email, capturedUserId!, capturedEncodedToken!, cancellationToken);
 
         return transactionResult;
-    }
-
-    private Task<Result<RegistrationResponse>> CreateTransaction(UserEntity user, RegisterTenantCommand command, Tenant tenant, string? capturedEncodedToken, string? capturedUserId, CancellationToken cancellationToken)
-    {
-        return _unitOfWork.ExecuteInTransactionAsync(
-            async ct =>
-            {
-                var createResult = await _identityService.CreateAsync(user, command.Password);
-                if (!createResult.IsSuccess)
-                    return (Result<RegistrationResponse>)createResult.Error;
-
-                var createdUser = createResult.Value;
-
-                var roleResult = await _identityService.AddToRoleAsync(createdUser, "Admin");
-                if (!roleResult.IsSuccess)
-                    return (Result<RegistrationResponse>)roleResult.Error;
-
-                await _tenantRepository.AddAsync(tenant, ct);
-                await _unitOfWork.SaveChangesAsync(ct);
-
-                var token = await _identityService.GenerateEmailConfirmationTokenAsync(createdUser);
-                capturedEncodedToken = Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                capturedUserId = createdUser.Id;
-
-                return Result<RegistrationResponse>.Success(new RegistrationResponse(tenant.Id, command.Email));
-            },
-            cancellationToken);
     }
 
     private static string Base64UrlEncode(byte[] bytes)

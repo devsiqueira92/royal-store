@@ -59,10 +59,6 @@ export class HeaderComponent {
             },
           },
           {
-            label: 'Configurações',
-            icon: 'pi pi-cog',
-          },
-          {
             separator: true,
           },
           {
@@ -86,7 +82,10 @@ export class HeaderComponent {
   }
 
   protected formatOpenedAt(openedAt: string): string {
-    return new Date(openedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return new Date(openedAt).toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+    });
   }
 
   protected openManageCashShift(): void {

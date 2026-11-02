@@ -653,6 +653,20 @@
       "email": "E-mail",
       "phone": "Telefone",
       "memberSince": "Membro desde"
+    },
+    "form": {
+      "section": {
+        "details": "Dados pessoais"
+      },
+      "fullName": "Nome completo",
+      "fullNamePlaceholder": "ex.: Maria da Silva",
+      "email": "E-mail",
+      "emailPlaceholder": "ex.: maria@exemplo.com",
+      "phone": "Telefone",
+      "phonePlaceholder": "ex.: 11987650000",
+      "submit": "Salvar alterações",
+      "updateSuccessSummary": "Perfil atualizado",
+      "updateSuccessDetail": "Seus dados de perfil foram salvos."
     }
   },
   "supplier": {

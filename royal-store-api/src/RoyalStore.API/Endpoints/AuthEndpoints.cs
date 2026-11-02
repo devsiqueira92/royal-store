@@ -159,6 +159,7 @@ public sealed class AuthEndpoints : IEndpointDefinition
         var tenantId = user.FindFirstValue("tenantId");
         var role = user.FindFirstValue(ClaimTypes.Role);
         var onboardingStatus = user.FindFirstValue("onboardingStatus");
+        var isProfileComplete = user.FindFirstValue("isProfileComplete") == "true";
         var permissions = user.FindAll("permission")
             .Select(c => c.Value)
             .OrderBy(x => x, StringComparer.Ordinal)
@@ -170,6 +171,7 @@ public sealed class AuthEndpoints : IEndpointDefinition
             TenantId = tenantId,
             Role = role,
             OnboardingStatus = onboardingStatus,
+            IsProfileComplete = isProfileComplete,
             Permissions = permissions,
         });
     }
