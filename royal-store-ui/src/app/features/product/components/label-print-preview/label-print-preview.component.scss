@@ -133,9 +133,11 @@
 
   .label-cell__name {
     font-size: 1.4mm;
+    font-weight: 700;
     line-height: 1.15;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
   }
 
   .label-cell__barcode {
@@ -144,8 +146,9 @@
 
   .label-cell__price {
     font-size: 1.75mm;
-    font-weight: 700;
+
     line-height: 1.1;
+    text-align: center;
   }
 
   .label-cell__sku {

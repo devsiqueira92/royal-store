@@ -68,7 +68,14 @@
       "searchPlaceholder": "Filtrar produtos...",
       "results": "{{count}} resultados"
     },
+    "category": {
+      "all": "Todas as categorias"
+    },
+    "supplier": {
+      "all": "Todos os fornecedores"
+    },
     "status": {
+      "title": "Status",
       "inStock": "Em estoque",
       "lowStock": "Estoque baixo",
       "outOfStock": "Sem estoque"
@@ -209,6 +216,7 @@
       "title": "Imprimir etiquetas",
       "subtitle": "Pré-visualize e imprima uma folha de etiquetas de produtos",
       "fieldsLegend": "Campos exibidos em cada etiqueta",
+      "code": "Código",
       "field": {
         "name": "Nome do produto",
         "price": "Preço",
@@ -336,8 +344,10 @@
       "steps": {
         "customer": "Cliente",
         "payment": "Pagamento",
-        "fulfillment": "Entrega"
+        "fulfillment": "Entrega",
+        "receipt": "Recibo"
       },
+      "registerError": "Não foi possível concluir a venda. Tente novamente.",
       "customer": {
         "title": "Selecionar cliente",
         "anonymous": "Sem cliente / Venda balcão",
@@ -380,6 +390,25 @@
         "tax": "Impostos (aprox.)",
         "subtotal": "Subtotal",
         "paymentDiscount": "Forma de pagamento"
+      },
+      "receipt": {
+        "title": "Cupom fiscal",
+        "storeName": "Royal Store",
+        "storeDocument": "CNPJ: 00.000.000/0001-00",
+        "storeAddress": "Av. Exemplo, 123 - Centro",
+        "saleRef": "Venda",
+        "issuedAt": "Emitido em",
+        "customer": "Cliente",
+        "anonymousCustomer": "Consumidor não identificado",
+        "subtotal": "Subtotal",
+        "discount": "Desconto",
+        "total": "Total a pagar",
+        "taxNotice": "Val. aprox. dos tributos (Lei 12.741/2012): {{amount}} ({{percent}}%)",
+        "payment": "Forma de pagamento",
+        "thanks": "Obrigado pela preferência!",
+        "comeBack": "Volte sempre!",
+        "print": "Imprimir",
+        "close": "Fechar"
       }
     }
   },

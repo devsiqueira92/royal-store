@@ -66,3 +66,44 @@
     margin: 0;
   }
 }
+
+// Fiscal receipt printing (see FiscalReceiptPreviewComponent): isolate the cupom and print
+// it on its own named page sized for an 80mm thermal roll — named so it doesn't clobber the
+// label sheet's own @page rule above, since @page applies globally once declared.
+@media print {
+  // The dialog renders inline in the page it was opened from (PrimeNG's default
+  // `overlayAppendTo: 'self'`), so the receipt sits deep inside the normal flow of
+  // whatever page is behind it (e.g. the full product grid). `visibility: hidden`
+  // alone doesn't collapse that flow's height, so the browser still paginates across
+  // it — producing extra blank pages around the one page that actually has content.
+  // Zeroing out html/body here removes that flow from the printable area entirely;
+  // the receipt still renders because `position: fixed` escapes it regardless.
+  html:has(.fiscal-receipt),
+  body:has(.fiscal-receipt) {
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body:has(.fiscal-receipt) * {
+    // visibility: hidden;
+  }
+
+  .fiscal-receipt,
+  .fiscal-receipt * {
+    visibility: visible;
+  }
+
+  .fiscal-receipt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 80mm;
+    box-shadow: none !important;
+    page: fiscal-receipt;
+  }
+}
+
+@page fiscal-receipt {
+  size: 80mm auto;
+  margin: 0;
+}

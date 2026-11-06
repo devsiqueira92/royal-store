@@ -4,6 +4,7 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   output,
@@ -36,14 +37,17 @@ import {
 } from '../../interfaces/checkout.interface';
 import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
 import { Customer } from '../../interfaces/customer.interface';
+import { FiscalReceiptData } from '../../interfaces/fiscal-receipt.interface';
 import { PaymentEntry, PaymentState } from '../../interfaces/payment.interface';
 import {
   CASHBACK_FISCAL_TYPE,
   resolveFiscalType,
 } from '../../interfaces/payment-method-option.const';
+import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
 import { CustomerFacade } from '@app/features/customer/facade/customer.facade';
 import { CustomerAddress } from '@app/features/customer/interfaces/customer-address.interface';
 import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
+import { SaleFacade } from '../../facade/sale.facade';
 import {
   CheckoutStep,
   CheckoutStepsComponent,
@@ -52,6 +56,7 @@ import { CheckoutSummaryComponent } from '../checkout-summary/checkout-summary.c
 import { CustomerStepComponent } from '../customer-step/customer-step.component';
 import { PaymentStepComponent } from '../payment-step/payment-step.component';
 import { FulfillmentStepComponent } from '../fulfillment-step/fulfillment-step.component';
+import { FiscalReceiptPreviewComponent } from '../fiscal-receipt-preview/fiscal-receipt-preview.component';
 import { ViaCepService } from '@app/shared/services/via-cep.service';
 import { NotificationService } from '@app/shared/services/notification.service';
 
@@ -71,7 +76,14 @@ const STEPS: CheckoutStep[] = [
     label: 'sale.checkout.steps.fulfillment',
     title: 'sale.checkout.fulfillment.title',
   },
+  {
+    index: 4,
+    label: 'sale.checkout.steps.receipt',
+    title: 'sale.checkout.receipt.title',
+  },
 ];
+
+const RECEIPT_STEP = 4;
 
 const onlyDigits = (value: string): string => value.replace(/\D/g, '');
 
@@ -123,6 +135,7 @@ function matches(customer: Customer, term: string): boolean {
     CustomerStepComponent,
     PaymentStepComponent,
     FulfillmentStepComponent,
+    FiscalReceiptPreviewComponent,
   ],
   templateUrl: './checkout-dialog.component.html',
   styleUrl: './checkout-dialog.component.scss',
@@ -133,6 +146,7 @@ export class CheckoutDialogComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly customerFacade = inject(CustomerFacade);
   private readonly paymentMethodFacade = inject(PaymentMethodFacade);
+  private readonly saleFacade = inject(SaleFacade);
   private readonly viaCepService = inject(ViaCepService);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
@@ -140,6 +154,7 @@ export class CheckoutDialogComponent implements OnInit {
   subtotal = input<number>(0);
   saleDiscount = input<number>(0);
   tax = input<number>(0);
+  items = input<SaleLineItem[]>([]);
 
   closed = output<void>();
   confirmed = output<CheckoutResult>();
@@ -148,6 +163,36 @@ export class CheckoutDialogComponent implements OnInit {
   protected readonly step = signal(1);
   protected readonly open = signal(true);
   protected readonly payment = signal<PaymentState | null>(null);
+
+  // Set only while a confirmed sale is in flight, so the effect below knows an
+  // in-progress registration is one it started (and not a stale result from
+  // a previous dialog instance that never got cleared from the store).
+  protected readonly awaitingResult = signal(false);
+  private readonly receiptSnapshot = signal<
+    Omit<FiscalReceiptData, 'saleId' | 'issuedAt'> | null
+  >(null);
+
+  protected readonly isRegisteringSale = toSignal(
+    this.saleFacade.isRegisteringSale$,
+    { initialValue: false },
+  );
+  private readonly registerResult = toSignal(
+    this.saleFacade.lastRegisterSaleResult$,
+    { initialValue: null },
+  );
+  private readonly registerError = toSignal(this.saleFacade.error$, {
+    initialValue: null,
+  });
+
+  protected readonly receiptData = computed<FiscalReceiptData | null>(() => {
+    const snapshot = this.receiptSnapshot();
+    const result = this.registerResult();
+    if (!snapshot || !result) {
+      return null;
+    }
+
+    return { ...snapshot, saleId: result.saleId, issuedAt: new Date() };
+  });
 
   /** Looked up only to attach a cashback line to the charge payload when it's redeemed. */
   protected readonly methods = toSignal(
@@ -247,6 +292,30 @@ export class CheckoutDialogComponent implements OnInit {
         return this.isAddressValid();
     }
   });
+
+  constructor() {
+    // Reacts only to the registration *this* confirm() started — a dialog that never
+    // confirmed ignores whatever is already sitting in the store from a previous sale.
+    effect(() => {
+      if (!this.awaitingResult() || this.isRegisteringSale()) {
+        return;
+      }
+
+      if (this.registerResult()) {
+        this.awaitingResult.set(false);
+        this.step.set(RECEIPT_STEP);
+        return;
+      }
+
+      const error = this.registerError();
+      if (error) {
+        this.awaitingResult.set(false);
+        this.notificationService.error({
+          detail: this.translateService.instant('sale.checkout.registerError'),
+        });
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.customerFacade.loadCustomers();
@@ -358,12 +427,14 @@ export class CheckoutDialogComponent implements OnInit {
 
   protected next(): void {
     if (this.canAdvance()) {
-      this.step.update(step => Math.min(step + 1, STEPS.length));
+      // Capped before the receipt step: that one is only ever reached once the sale the
+      // user confirms on step 3 actually registers, never by stepping forward manually.
+      this.step.update(step => Math.min(step + 1, RECEIPT_STEP - 1));
     }
   }
 
   protected close(): void {
-    if (!this.open()) {
+    if (!this.open() || this.awaitingResult()) {
       return;
     }
 
@@ -373,7 +444,7 @@ export class CheckoutDialogComponent implements OnInit {
 
   protected confirm(): void {
     const payment = this.payment();
-    if (!payment?.valid || !this.canAdvance()) {
+    if (!payment?.valid || !this.canAdvance() || this.awaitingResult()) {
       return;
     }
 
@@ -407,6 +478,17 @@ export class CheckoutDialogComponent implements OnInit {
       }
     }
 
+    // Snapshotted now, not read live from the receipt step: the cart and selection this
+    // was built from may already have changed (or cleared) by the time registration
+    // finishes and the parent reacts to the success.
+    this.receiptSnapshot.set({
+      items: this.items(),
+      totals,
+      paymentLabel: this.resolvePaymentLabel(payment),
+      customerName: this.selectedCustomer()?.name ?? null,
+    });
+    this.awaitingResult.set(true);
+
     this.confirmed.emit({
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
@@ -420,5 +502,16 @@ export class CheckoutDialogComponent implements OnInit {
       payments,
       totals,
     });
+  }
+
+  private resolvePaymentLabel(payment: PaymentState): string {
+    const { methodId, card } = payment.details;
+    const name =
+      this.methods().find(method => method.id === methodId)?.paymentMethod ??
+      '';
+
+    return card && card.installments > 1
+      ? `${name} (${card.installments}x)`
+      : name;
   }
 }

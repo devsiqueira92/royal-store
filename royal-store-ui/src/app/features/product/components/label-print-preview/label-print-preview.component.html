@@ -80,7 +80,10 @@
                   ></app-label-barcode>
                 }
                 @if (isFieldActive('sku')) {
-                  <span class="label-cell__sku">{{ product.sku }}</span>
+                  <span class="label-cell__sku">
+                    {{ 'product.labelPrint.code' | translate }}
+                    {{ product.sku }}</span
+                  >
                 }
               </div>
             }

@@ -98,7 +98,9 @@ export class SalesComponent implements OnInit {
         this.notificationService.success({
           detail: this.translateService.instant('sale.current.chargeSuccess'),
         });
-        this.saleFacade.clearRegisterSaleResult();
+        // Left uncleared on purpose: the checkout dialog's own receipt step reads this
+        // same result reactively to know the sale it just confirmed has registered, and
+        // clearing it here could race that read against this very subscription.
       });
 
     this.formGroup

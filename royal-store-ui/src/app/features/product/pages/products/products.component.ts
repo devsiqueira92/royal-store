@@ -17,7 +17,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProductFacade } from '../../facade/product.facade';
 import { Product, ProductVariant } from '../../interfaces/product.interface';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
@@ -62,6 +62,7 @@ const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
 })
 export class ProductsComponent implements OnInit {
   private productFacade = inject(ProductFacade);
+  private readonly translateService = inject(TranslateService);
   private readonly detailsSidebarService = inject(DetailsSidebarService);
 
   protected readonly defaultCategoryColor = DEFAULT_CATEGORY_COLOR;
@@ -83,10 +84,22 @@ export class ProductsComponent implements OnInit {
   );
 
   protected readonly statusOptions: SelectOption<StockStatus | null>[] = [
-    { label: 'Status', value: null },
-    { label: 'In stock', value: 'inStock' },
-    { label: 'Low stock', value: 'lowStock' },
-    { label: 'Out of stock', value: 'outOfStock' },
+    {
+      label: this.translateService.instant('product.status.title'),
+      value: null,
+    },
+    {
+      label: this.translateService.instant('product.status.inStock'),
+      value: 'inStock',
+    },
+    {
+      label: this.translateService.instant('product.status.lowStock'),
+      value: 'lowStock',
+    },
+    {
+      label: this.translateService.instant('product.status.outOfStock'),
+      value: 'outOfStock',
+    },
   ];
 
   protected readonly categoryOptions = computed<SelectOption<string | null>[]>(
@@ -102,7 +115,13 @@ export class ProductsComponent implements OnInit {
         .sort(([, a], [, b]) => a.localeCompare(b))
         .map(([value, label]) => ({ label, value }));
 
-      return [{ label: 'All categories', value: null }, ...options];
+      return [
+        {
+          label: this.translateService.instant('product.category.all'),
+          value: null,
+        },
+        ...options,
+      ];
     },
   );
 
@@ -119,7 +138,13 @@ export class ProductsComponent implements OnInit {
         .sort(([, a], [, b]) => a.localeCompare(b))
         .map(([value, label]) => ({ label, value }));
 
-      return [{ label: 'All suppliers', value: null }, ...options];
+      return [
+        {
+          label: this.translateService.instant('product.supplier.all'),
+          value: null,
+        },
+        ...options,
+      ];
     },
   );
 

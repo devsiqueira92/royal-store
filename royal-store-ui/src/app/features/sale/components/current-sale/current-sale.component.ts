@@ -107,7 +107,8 @@ export class CurrentSaleComponent {
   }
 
   protected onConfirmed(result: CheckoutResult): void {
-    this.checkoutOpen.set(false);
+    // The dialog stays open: it now shows its own receipt step once the sale this emits
+    // registers, and closes itself from there.
     this.charge.emit(result);
   }
 
