@@ -5,6 +5,7 @@ export const {
   selectProductState,
   selectSelectedProduct,
   selectSelectedLabelProducts,
+  selectSummary,
   selectIsLoading,
   selectError,
 } = productFeature;

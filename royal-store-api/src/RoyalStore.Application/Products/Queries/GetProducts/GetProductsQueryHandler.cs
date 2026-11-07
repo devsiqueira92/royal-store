@@ -1,5 +1,6 @@
 using MediatR;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Common;
 using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Common;
 
@@ -19,7 +20,11 @@ public sealed class GetProductsQueryHandler
         GetProductsQuery request,
         CancellationToken cancellationToken)
     {
-        var products = await _productRepository.GetAllAsync(request.IsActive, request.CategoryId, cancellationToken);
+        var term = TextSearchNormalizer.Normalize(request.Search);
+
+        var products = await _productRepository.GetAllAsync(
+            request.IsActive, request.CategoryId, request.StockStatus, request.SupplierId,
+            term.Length == 0 ? null : term, cancellationToken);
         IReadOnlyList<ProductResponse> response = products.Select(ProductResponse.From).ToList();
         return Result<IReadOnlyList<ProductResponse>>.Success(response);
     }

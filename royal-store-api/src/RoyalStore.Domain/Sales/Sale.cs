@@ -141,13 +141,14 @@ public sealed class Sale : Entity, IAuditableEntity
         if (address is null)
             return Error.Validation("sale.address_required", "Sale address must be provided; use SaleAddress.Empty for none.");
 
-        // Server-authoritative invariant (research.md Decision 8): every discount and the tax amount
-        // are computed independently server-side; this only confirms they add up to the total that
-        // gets persisted and sent downstream to fiscal document generation.
+        // Server-authoritative invariant (research.md Decision 8): every discount is computed
+        // independently server-side; this only confirms they add up to the total that gets persisted
+        // and sent downstream to fiscal document generation. Tax is informational only — displayed
+        // alongside the total, never folded into it.
         if (Math.Abs(subtotal - discountAmount - loyaltyDiscountApplied - paymentDiscountApplied
-                     - cashbackApplied + taxAmount - totalAmount) > ReconciliationTolerance)
+                     - cashbackApplied - totalAmount) > ReconciliationTolerance)
             return Error.Validation("sale.totals_do_not_reconcile",
-                "Subtotal less every discount less cashback plus tax must equal the total.");
+                "Subtotal less every discount less cashback must equal the total.");
 
         return new Sale(id, tenantId, cashShiftId, userId, customerId, subtotal, discountAmount,
             loyaltyDiscountApplied, paymentDiscountApplied, taxAmount, totalAmount, cashbackApplied,

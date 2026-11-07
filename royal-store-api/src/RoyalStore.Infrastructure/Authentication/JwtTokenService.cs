@@ -22,6 +22,7 @@ public sealed class JwtTokenService : ITokenService
         UserEntity user,
         string role,
         bool onboardingCompleted,
+        bool isProfileComplete,
         IReadOnlyCollection<string> permissions)
     {
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));
@@ -35,6 +36,7 @@ public sealed class JwtTokenService : ITokenService
             new(ClaimTypes.Role, role),
             new("tenantId", user.TenantId.ToString()),
             new("onboardingStatus", onboardingCompleted ? "completed" : "pending"),
+            new("isProfileComplete", isProfileComplete ? "true" : "false", ClaimValueTypes.Boolean),
         };
 
         claims.AddRange(permissions.Select(p => new Claim("permission", p)));

@@ -33,6 +33,15 @@
   color: light-dark(var(--p-red-600), var(--p-red-400));
 }
 
+.summary__row--tax {
+  font-style: italic;
+}
+
+.summary__value--info {
+  font-weight: 500;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
 .summary__discount-controls {
   display: flex;
   align-items: center;

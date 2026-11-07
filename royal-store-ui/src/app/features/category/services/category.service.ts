@@ -24,6 +24,10 @@ export class CategoryService {
     return this.http.patch<void>(`${this.apiUrl}/${id}/disable`, {});
   }
 
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
   getAll(): Observable<Category[]> {
     return this.http.get<Category[]>(this.apiUrl);
   }

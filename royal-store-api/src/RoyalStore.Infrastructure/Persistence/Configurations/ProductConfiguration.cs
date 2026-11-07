@@ -123,5 +123,18 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasIndex(p => new { p.TenantId, p.CategoryId });
 
         builder.HasIndex(p => new { p.TenantId, p.Sku }).IsUnique();
+
+        // Persistence-only normalized search columns (accent- and punctuation-insensitive).
+        // Populated by the fn_normalize_search_text function created in the InitialCreate migration.
+        builder.Property<string>("NormalizedName")
+            .HasMaxLength(4000)
+            .HasComputedColumnSql("fn_normalize_search_text(\"Name\")", stored: true);
+
+        builder.Property<string>("NormalizedSku")
+            .HasMaxLength(4000)
+            .HasComputedColumnSql("fn_normalize_search_text(\"Sku\")", stored: true);
+
+        builder.HasIndex("NormalizedName");
+        builder.HasIndex("NormalizedSku");
     }
 }

@@ -1,11 +1,15 @@
 <div class="summary">
   <div class="summary__row">
-    <span class="summary__label">{{ 'sale.current.subtotal' | translate }}</span>
+    <span class="summary__label">{{
+      'sale.current.subtotal' | translate
+    }}</span>
     <span class="summary__value">{{ subtotal() | currency }}</span>
   </div>
 
   <div class="summary__row summary__row--discount">
-    <span class="summary__label">{{ 'sale.current.discount' | translate }}</span>
+    <span class="summary__label">{{
+      'sale.current.discount' | translate
+    }}</span>
     <div class="summary__discount-controls">
       <p-selectbutton
         [options]="modeOptions"
@@ -27,15 +31,16 @@
       −{{ discountAmount() | currency }}
     </span>
   </div>
-
-  <div class="summary__row">
+  <div class="summary__row summary__row--tax">
     <span class="summary__label">
       {{
         'sale.current.tax'
           | translate: { rate: (taxPercent() | number: '1.0-2') }
       }}
     </span>
-    <span class="summary__value">{{ tax() | currency }}</span>
+    <span class="summary__value summary__value--info">{{
+      tax() | currency
+    }}</span>
   </div>
 
   <div class="summary__row summary__row--total">

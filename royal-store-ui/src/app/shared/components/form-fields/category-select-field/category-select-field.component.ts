@@ -78,6 +78,7 @@ export class CategorySelectFieldComponent {
   openCategoryModal() {
     this.dialogService.open(CreateCategoryComponent, {
       header: this.translateService.instant('category.form.title'),
+      closable: true,
     });
   }
 }

@@ -3,6 +3,10 @@ import { Product } from '../interfaces/product.interface';
 import { CreateProductRequest } from '../interfaces/create-product-request.interface';
 import { UpdateProductRequest } from '../interfaces/update-product-request.interface';
 import { GetProductsParams } from '../interfaces/get-products-params.interface';
+import {
+  GetProductsSummaryParams,
+  ProductsSummary,
+} from '../interfaces/products-summary.interface';
 
 export const ProductActions = createActionGroup({
   source: 'Product',
@@ -10,6 +14,9 @@ export const ProductActions = createActionGroup({
     'Load Products': props<{ params?: GetProductsParams }>(),
     'Load Products Success': props<{ products: Product[] }>(),
     'Load Products Failure': props<{ error: string }>(),
+    'Load Products Summary': props<{ params?: GetProductsSummaryParams }>(),
+    'Load Products Summary Success': props<{ summary: ProductsSummary }>(),
+    'Load Products Summary Failure': props<{ error: string }>(),
     'Load Product': props<{ id: string }>(),
     'Load Product Success': props<{ product: Product }>(),
     'Load Product Failure': props<{ error: string }>(),

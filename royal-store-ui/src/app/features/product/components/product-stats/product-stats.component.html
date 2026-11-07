@@ -1,0 +1,47 @@
+<div class="products-page__stats">
+  <div class="stat-card">
+    <span class="stat-card__label">{{
+      'product.stats.totalProducts' | translate
+    }}</span>
+    <span class="stat-card__value">{{ stats().totalProducts }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-card__label">{{
+      'product.stats.inventoryValue' | translate
+    }}</span>
+    <span class="stat-card__value">{{ stats().inventoryValueLabel }}</span>
+  </div>
+  <button
+    type="button"
+    class="stat-card stat-card--clickable stat-card--success"
+    [class.stat-card--active]="activeStatus() === 'inStock'"
+    (click)="toggleStatus('inStock')"
+  >
+    <span class="stat-card__label">{{ 'product.status.inStock' | translate }}</span>
+    <span class="stat-card__value stat-card__value--success">{{
+      stats().inStockCount
+    }}</span>
+  </button>
+  <button
+    type="button"
+    class="stat-card stat-card--clickable stat-card--warn"
+    [class.stat-card--active]="activeStatus() === 'lowStock'"
+    (click)="toggleStatus('lowStock')"
+  >
+    <span class="stat-card__label">{{ 'product.status.lowStock' | translate }}</span>
+    <span class="stat-card__value stat-card__value--warn">{{
+      stats().lowStockCount
+    }}</span>
+  </button>
+  <button
+    type="button"
+    class="stat-card stat-card--clickable stat-card--danger"
+    [class.stat-card--active]="activeStatus() === 'outOfStock'"
+    (click)="toggleStatus('outOfStock')"
+  >
+    <span class="stat-card__label">{{ 'product.status.outOfStock' | translate }}</span>
+    <span class="stat-card__value stat-card__value--danger">{{
+      stats().outOfStockCount
+    }}</span>
+  </button>
+</div>

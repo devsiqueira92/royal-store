@@ -43,5 +43,14 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
             .HasFilter("\"Sku\" IS NOT NULL");
 
         builder.HasIndex(v => v.ProductId);
+
+        // Persistence-only normalized search column (accent- and punctuation-insensitive).
+        // Populated by the fn_normalize_search_text function created in the InitialCreate migration.
+        // A null Sku normalizes to an empty string (fn_normalize_search_text coalesces to ''), not null.
+        builder.Property<string>("NormalizedSku")
+            .HasMaxLength(4000)
+            .HasComputedColumnSql("fn_normalize_search_text(\"Sku\")", stored: true);
+
+        builder.HasIndex("NormalizedSku");
     }
 }

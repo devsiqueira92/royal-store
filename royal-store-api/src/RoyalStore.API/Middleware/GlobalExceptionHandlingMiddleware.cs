@@ -35,7 +35,7 @@ public sealed class GlobalExceptionHandlingMiddleware(
         }
         catch (Exception ex)
         {
-            logger.LogError(
+      logger.LogError(
                 ex,
                 "Unhandled exception for request {Method} {Path} | TraceId: {TraceId}",
                 context.Request.Method,

@@ -31,6 +31,17 @@ public sealed class Profile : Entity, IAuditableEntity
         UserId = userId;
     }
 
+    public static Result<Profile> CreateStub(Guid tenantId, string userId)
+    {
+        if (tenantId == Guid.Empty)
+            return Error.Validation("profile.tenant_required", "Tenant identifier is required.");
+
+        if (string.IsNullOrWhiteSpace(userId))
+            return Error.Validation("profile.user_required", "User identifier is required.");
+
+        return new Profile(Guid.NewGuid(), tenantId, string.Empty, userId);
+    }
+
     public static Result<Profile> CreateForOnboarding(Guid tenantId, string fullName, string userId)
     {
         if (tenantId == Guid.Empty)
@@ -124,7 +135,7 @@ public sealed class Profile : Entity, IAuditableEntity
         return Result.Success();
     }
 
-    public Result UpdateProfile(string fullName, string? phone)
+    public Result UpdateProfile(string fullName, string? phone, string? email)
     {
         if (string.IsNullOrWhiteSpace(fullName))
             return Result.Failure(Error.Validation("profile.full_name_required", "Full name is required."));
@@ -144,8 +155,18 @@ public sealed class Profile : Entity, IAuditableEntity
             phone = null;
         }
 
+        if(!string.IsNullOrWhiteSpace(email))
+        {
+            email = email.Trim().ToLowerInvariant();
+        }
+        else
+        {
+            email = null;
+        }
+
         FullName = fullName;
         Phone = phone;
+        Email = email;
 
         // Defensive: this method should only ever run against a row that already exists,
         // but stamp completion if somehow missing so IsComplete never regresses.

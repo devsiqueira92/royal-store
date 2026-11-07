@@ -107,6 +107,23 @@ public sealed class ProductVariant : Entity
     }
 
     /// <summary>
+    /// Debits a sold quantity from stock. A null <see cref="StockQuantity"/> means this variant
+    /// doesn't track stock (owner product has <c>StockTrack = false</c>), so it's a no-op success.
+    /// </summary>
+    public Result DecreaseStock(decimal quantity)
+    {
+        if (!StockQuantity.HasValue)
+            return Result.Success();
+
+        if (StockQuantity.Value < quantity)
+            return Result.Failure(Error.Conflict("variant.insufficient_stock",
+                $"Insufficient stock for variant '{Id}'. Available: {StockQuantity.Value}, requested: {quantity}."));
+
+        StockQuantity -= quantity;
+        return Result.Success();
+    }
+
+    /// <summary>
     /// Human-readable composition of the variant's distinguishing attributes, used on receipts and
     /// snapshotted onto a sale line. Falls back to the product name when the variant has none.
     /// </summary>

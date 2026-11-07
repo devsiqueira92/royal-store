@@ -60,6 +60,7 @@
       [subtotal]="subtotal()"
       [saleDiscount]="discountAmount()"
       [tax]="tax()"
+      [items]="items()"
       (closed)="checkoutOpen.set(false)"
       (confirmed)="onConfirmed($event)"
     />

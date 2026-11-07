@@ -68,7 +68,14 @@
       "searchPlaceholder": "Filter products...",
       "results": "{{count}} results"
     },
+    "category": {
+      "all": "All categories"
+    },
+    "supplier": {
+      "all": "All suppliers"
+    },
     "status": {
+      "title": "Status",
       "inStock": "In stock",
       "lowStock": "Low stock",
       "outOfStock": "Out of stock"
@@ -209,6 +216,7 @@
       "title": "Print labels",
       "subtitle": "Preview and print a sheet of product labels",
       "fieldsLegend": "Fields shown on each label",
+      "code": "Code",
       "field": {
         "name": "Product name",
         "price": "Price",
@@ -227,6 +235,7 @@
     "subtitle": "Organize your catalog into collections.",
     "empty": "No categories found.",
     "loading": "Loading categories...",
+    "deleteConfirm": "Delete the category \"{{name}}\"?",
     "form": {
       "title": "New category",
       "name": "Name",
@@ -234,12 +243,15 @@
       "description": "Description",
       "descriptionPlaceholder": "Short description (optional)",
       "colorTag": "Color tag",
-      "submit": "Create category"
+      "submit": "Create category",
+      "delete": "Delete",
+      "cancel": "Cancel"
     },
     "card": {
       "product": "{{count}} product",
       "products": "{{count}} products",
-      "edit": "Edit category"
+      "edit": "Edit category",
+      "delete": "Delete category"
     }
   },
   "seller": {
@@ -310,7 +322,7 @@
       "removeItem": "Remove item",
       "subtotal": "Subtotal",
       "discount": "Discount",
-      "tax": "Tax ({{rate}}%)",
+      "tax": "Est. tax ({{rate}}%)",
       "total": "Total",
       "charge": "Charge",
       "chargeSuccess": "Sale completed successfully.",
@@ -336,8 +348,10 @@
       "steps": {
         "customer": "Customer",
         "payment": "Payment",
-        "fulfillment": "Fulfillment"
+        "fulfillment": "Fulfillment",
+        "receipt": "Receipt"
       },
+      "registerError": "We couldn't complete the sale. Please try again.",
       "customer": {
         "title": "Select customer",
         "anonymous": "No customer / Walk-in",
@@ -380,6 +394,25 @@
         "tax": "Taxes (approx.)",
         "subtotal": "Subtotal",
         "paymentDiscount": "Payment method"
+      },
+      "receipt": {
+        "title": "Fiscal receipt",
+        "storeName": "Royal Store",
+        "storeDocument": "CNPJ: 00.000.000/0001-00",
+        "storeAddress": "Av. Example, 123 - Centro",
+        "saleRef": "Sale",
+        "issuedAt": "Issued at",
+        "customer": "Customer",
+        "anonymousCustomer": "Walk-in customer",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total to pay",
+        "taxNotice": "Approx. tax burden (Law 12,741/2012): {{amount}} ({{percent}}%)",
+        "payment": "Payment method",
+        "thanks": "Thank you for shopping with us!",
+        "comeBack": "Come back soon!",
+        "print": "Print",
+        "close": "Close"
       }
     }
   },
@@ -653,6 +686,20 @@
       "email": "Email",
       "phone": "Phone",
       "memberSince": "Member since"
+    },
+    "form": {
+      "section": {
+        "details": "Personal details"
+      },
+      "fullName": "Full name",
+      "fullNamePlaceholder": "e.g. Jane Doe",
+      "email": "Email",
+      "emailPlaceholder": "e.g. jane@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "e.g. 11987650000",
+      "submit": "Save changes",
+      "updateSuccessSummary": "Profile updated",
+      "updateSuccessDetail": "Your profile details have been saved."
     }
   },
   "supplier": {

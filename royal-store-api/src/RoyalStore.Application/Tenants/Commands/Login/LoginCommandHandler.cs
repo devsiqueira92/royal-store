@@ -47,14 +47,16 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<T
             return Error.Unauthorized("auth.email_not_verified",
                 "Please verify your email before logging in.");
 
-        var onboardingCompleted = role != Role.Seller
-            || (await _profileRepository.GetByUserIdAsync(user.Id, cancellationToken))?.IsComplete is true;
+        var profile = await _profileRepository.GetByUserIdAsync(user.Id, cancellationToken);
+
+        var onboardingCompleted = role != Role.Seller || profile?.IsComplete is true;
+        var isProfileComplete = profile?.IsComplete is true;
 
         var grants = await _permissionGrantRepository.GetPermissionsByUserIdAsync(user.Id, cancellationToken);
         var permissions = EffectivePermissions.For(role, grants)
             .Select(PermissionCatalog.NameOf)
             .ToArray();
 
-        return _tokenService.GenerateToken(user, role, onboardingCompleted, permissions);
+        return _tokenService.GenerateToken(user, role, onboardingCompleted, isProfileComplete, permissions);
     }
 }

@@ -48,7 +48,7 @@
   }
 
   .cost-composition__description {
-    flex: 1;
+    // flex: 1;
     min-width: 0;
     border: none;
     background: transparent;
@@ -130,8 +130,7 @@
     gap: 0.375rem;
     padding: 0.625rem 0.875rem;
     border: none;
-    border-top: 1px solid
-      light-dark(var(--p-surface-100), var(--p-surface-700));
+    border-top: 1px solid light-dark(var(--p-surface-100), var(--p-surface-700));
     background: transparent;
     text-align: left;
     font-size: 0.8125rem;

@@ -315,6 +315,18 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasMaxLength(8)
                         .HasColumnType("character varying(8)");
 
+                    b.Property<string>("NormalizedName")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasComputedColumnSql("fn_normalize_search_text(\"Name\")", true);
+
+                    b.Property<string>("NormalizedSku")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasComputedColumnSql("fn_normalize_search_text(\"Sku\")", true);
+
                     b.Property<int>("Origin")
                         .HasColumnType("integer");
 
@@ -371,6 +383,10 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("NormalizedName");
+
+                    b.HasIndex("NormalizedSku");
 
                     b.HasIndex("SupplierId");
 
@@ -453,6 +469,12 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)");
 
+                    b.Property<string>("NormalizedSku")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasComputedColumnSql("fn_normalize_search_text(\"Sku\")", true);
+
                     b.Property<string>("OptionName")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -480,6 +502,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedSku");
 
                     b.HasIndex("ProductId");
 

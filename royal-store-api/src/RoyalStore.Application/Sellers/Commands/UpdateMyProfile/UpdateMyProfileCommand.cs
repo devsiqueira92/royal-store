@@ -6,4 +6,5 @@ namespace RoyalStore.Application.Sellers.Commands.UpdateMyProfile;
 
 public record UpdateMyProfileCommand(
     string FullName,
-    string? Phone) : IRequest<Result<CurrentSellerResponse>>;
+    string? Phone,
+    string? Email) : IRequest<Result<CurrentSellerResponse>>;

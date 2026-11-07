@@ -6,6 +6,20 @@ export interface ProductCategoryOption {
   color?: string;
 }
 
+export type StockStatus = 'inStock' | 'lowStock' | 'outOfStock';
+
+/** Maps the UI's StockStatus to the backend StockStatus enum (API/RoyalStore.Domain/Catalog/StockStatus.cs). */
+export const STOCK_STATUS_API_VALUE: Record<StockStatus, number> = {
+  inStock: 0,
+  lowStock: 1,
+  outOfStock: 2,
+};
+
+export interface SelectOption<T> {
+  label: string;
+  value: T;
+}
+
 /** 0 = Physical product, 1 = Service */
 export type ItemType = 0 | 1;
 

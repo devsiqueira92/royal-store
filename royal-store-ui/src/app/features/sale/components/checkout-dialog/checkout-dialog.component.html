@@ -44,41 +44,52 @@
       [hasCustomer]="!!customerId()"
       [addresses]="customerAddresses()"
     />
+
+    @if (step() === 4 && receiptData(); as receipt) {
+      <app-fiscal-receipt-preview
+        [data]="receipt"
+        (closed)="close()"
+      />
+    }
   </div>
 
   <ng-template #footer>
-    <div class="checkout-dialog__footer">
-      <app-checkout-summary [totals]="totals()" />
+    @if (step() !== 4) {
+      <div class="checkout-dialog__footer">
+        <app-checkout-summary [totals]="totals()" />
 
-      <div class="checkout-dialog__actions">
-        <p-button
-          severity="secondary"
-          [outlined]="true"
-          [label]="
-            (step() === 1 ? 'sale.checkout.cancel' : 'sale.checkout.back')
-              | translate
-          "
-          (onClick)="step() === 1 ? close() : back()"
-        />
+        <div class="checkout-dialog__actions">
+          <p-button
+            severity="secondary"
+            [outlined]="true"
+            [label]="
+              (step() === 1 ? 'sale.checkout.cancel' : 'sale.checkout.back')
+                | translate
+            "
+            [disabled]="awaitingResult()"
+            (onClick)="step() === 1 ? close() : back()"
+          />
 
-        @if (step() === steps.length) {
-          <p-button
-            icon="pi pi-check"
-            iconPos="right"
-            [label]="'sale.checkout.confirm' | translate"
-            [disabled]="!canAdvance()"
-            (onClick)="confirm()"
-          />
-        } @else {
-          <p-button
-            icon="pi pi-arrow-right"
-            iconPos="right"
-            [label]="'sale.checkout.next' | translate"
-            [disabled]="!canAdvance()"
-            (onClick)="next()"
-          />
-        }
+          @if (step() === 3) {
+            <p-button
+              icon="pi pi-check"
+              iconPos="right"
+              [label]="'sale.checkout.confirm' | translate"
+              [loading]="awaitingResult()"
+              [disabled]="!canAdvance()"
+              (onClick)="confirm()"
+            />
+          } @else {
+            <p-button
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              [label]="'sale.checkout.next' | translate"
+              [disabled]="!canAdvance()"
+              (onClick)="next()"
+            />
+          }
+        </div>
       </div>
-    </div>
+    }
   </ng-template>
 </p-dialog>

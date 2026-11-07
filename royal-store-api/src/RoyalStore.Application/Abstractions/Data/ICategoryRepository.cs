@@ -10,4 +10,6 @@ public interface ICategoryRepository
     Task<bool> ExistsByNameAsync(string name, Guid? excludeId, CancellationToken ct = default);
     Task UpdateAsync(Category category, CancellationToken ct = default);
     Task<IReadOnlyList<Category>> GetForCatalogAsync(DateTimeOffset? since, CancellationToken ct = default);
+    Task<bool> HasProductsAsync(Guid categoryId, CancellationToken ct = default);
+    Task DeleteAsync(Category category, CancellationToken ct = default);
 }

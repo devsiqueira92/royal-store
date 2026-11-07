@@ -1,5 +1,6 @@
 import {
   loadProducts,
+  loadProductsSummary,
   loadProduct,
   createProduct,
   saveProductEdit,
@@ -11,6 +12,7 @@ import { createService, saveServiceEdit } from './service.effects';
 
 export const productStore = {
   loadProducts,
+  loadProductsSummary,
   loadProduct,
   createProduct,
   saveProductEdit,

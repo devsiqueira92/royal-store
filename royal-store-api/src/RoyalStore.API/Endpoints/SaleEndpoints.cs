@@ -21,7 +21,7 @@ public sealed class SaleEndpoints : IEndpointDefinition
             .RequireAuthorization(PolicyNames.Permission(Permission.SalesRefund));
     }
 
-    private static async Task<IResult> RegisterSale(
+    private static async Task<IResult> RegisterSale (
         RegisterSaleCommand command,
         IMediator mediator,
         CancellationToken ct)

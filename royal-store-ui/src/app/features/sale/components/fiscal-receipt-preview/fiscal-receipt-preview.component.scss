@@ -1,0 +1,108 @@
+:host {
+  display: block;
+}
+
+.fiscal-receipt-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+// Sized to an 80mm thermal roll — matches the physical page set for printing
+// in custom.scss (`@page fiscal-receipt`), so the preview is WYSIWYG.
+.fiscal-receipt {
+  width: 80mm;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 4mm 3mm;
+  background: #fff;
+  color: #000;
+  font-family: var(--app-font-mono);
+  font-size: 2.6mm;
+  line-height: 1.4;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
+}
+
+.fiscal-receipt__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5mm;
+  text-align: center;
+}
+
+.fiscal-receipt__header strong {
+  font-size: 3mm;
+  letter-spacing: 0.02em;
+}
+
+.fiscal-receipt__rule {
+  margin: 1.5mm 0;
+  border-top: 1px solid #000;
+}
+
+.fiscal-receipt__rule--dashed {
+  border-top-style: dashed;
+}
+
+.fiscal-receipt__meta,
+.fiscal-receipt__totals,
+.fiscal-receipt__payment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6mm;
+}
+
+.fiscal-receipt__meta-row,
+.fiscal-receipt__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 2mm;
+}
+
+.fiscal-receipt__row--total {
+  font-weight: 700;
+  font-size: 3mm;
+}
+
+.fiscal-receipt__items {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5mm;
+}
+
+.fiscal-receipt__item-name {
+  display: block;
+  text-transform: uppercase;
+}
+
+.fiscal-receipt__item-line {
+  display: flex;
+  justify-content: space-between;
+}
+
+.fiscal-receipt__tax {
+  margin: 0;
+  text-align: center;
+  font-size: 2.3mm;
+}
+
+.fiscal-receipt__section-label {
+  font-weight: 700;
+}
+
+.fiscal-receipt__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5mm;
+  margin-top: 1.5mm;
+  text-align: center;
+}
+
+.fiscal-receipt__actions {
+  display: flex;
+  gap: 0.5rem;
+}

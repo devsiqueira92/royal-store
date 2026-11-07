@@ -9,5 +9,6 @@ public interface ITokenService
         UserEntity user,
         string role,
         bool onboardingCompleted,
+        bool isProfileComplete,
         IReadOnlyCollection<string> permissions);
 }

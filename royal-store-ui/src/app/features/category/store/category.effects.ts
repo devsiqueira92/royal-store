@@ -119,3 +119,26 @@ export const disableCategory = createEffect(
     functional: true,
   },
 );
+
+export const deleteCategory = createEffect(
+  (actions$ = inject(Actions), categoryService = inject(CategoryService)) => {
+    return actions$.pipe(
+      ofType(CategoryActions.deleteCategory),
+      switchMap(({ id }) =>
+        categoryService.delete(id).pipe(
+          map(() => CategoryActions.deleteCategorySuccess({ id })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              CategoryActions.deleteCategoryFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);

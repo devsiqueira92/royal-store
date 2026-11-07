@@ -22,22 +22,50 @@
       >
     </header>
 
-    <div class="profile__card">
-      <div class="profile__field">
-        <span class="profile__label">{{ 'profile.fields.email' | translate }}</span>
-        <span class="profile__value">{{ seller.email ?? '—' }}</span>
-      </div>
+    <form class="profile__form" [formGroup]="formGroup">
+      <app-form-layout
+        title="profile.form.section.details"
+        [index]="1"
+        [collapsedPanel]="false"
+      >
+        <app-input-field
+          controlName="fullName"
+          [parentForm]="formGroup"
+          label="profile.form.fullName"
+          placeholder="profile.form.fullNamePlaceholder"
+        ></app-input-field>
 
-      <div class="profile__field">
-        <span class="profile__label">{{ 'profile.fields.phone' | translate }}</span>
-        <span class="profile__value">{{ seller.phone ?? '—' }}</span>
-      </div>
+        <app-input-field
+          controlName="email"
+          [parentForm]="formGroup"
+          label="profile.form.email"
+          placeholder="profile.form.emailPlaceholder"
+          type="email"
+        ></app-input-field>
 
-      <div class="profile__field">
-        <span class="profile__label">{{ 'profile.fields.memberSince' | translate }}</span>
-        <span class="profile__value">{{ seller.createdAt | date: 'MMM d, y' }}</span>
+        <app-input-field
+          controlName="phone"
+          [parentForm]="formGroup"
+          label="profile.form.phone"
+          placeholder="profile.form.phonePlaceholder"
+        ></app-input-field>
+
+        <div class="profile__field">
+          <span class="profile__label">{{
+            'profile.fields.memberSince' | translate
+          }}</span>
+          <span class="profile__value">{{ seller.createdAt | date: 'MMM d, y' }}</span>
+        </div>
+      </app-form-layout>
+
+      <div class="profile__footer">
+        <app-button
+          label="profile.form.submit"
+          [disabled]="formGroup.invalid || isSaving()"
+          (onClick)="onSubmit()"
+        ></app-button>
       </div>
-    </div>
+    </form>
   </section>
 } @else if (!isLoading()) {
   <p class="profile__empty">{{ 'profile.empty' | translate }}</p>

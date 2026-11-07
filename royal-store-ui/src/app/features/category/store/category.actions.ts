@@ -20,6 +20,9 @@ export const CategoryActions = createActionGroup({
     'Disable Category': props<{ id: string }>(),
     'Disable Category Success': props<{ id: string }>(),
     'Disable Category Failure': props<{ error: string }>(),
+    'Delete Category': props<{ id: string }>(),
+    'Delete Category Success': props<{ id: string }>(),
+    'Delete Category Failure': props<{ error: string }>(),
     'Clear Selected Category': emptyProps(),
   },
 });
