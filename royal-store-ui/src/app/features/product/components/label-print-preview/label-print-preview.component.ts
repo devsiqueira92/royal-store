@@ -20,7 +20,7 @@ import { MOCK_LABEL_PRODUCTS } from './label-print-preview.mock';
 // label-print-preview.component.scss, which can't read these constants).
 const PAGE_HEIGHT_MM = 279;
 const MARGIN_TOP_MM = 12.7;
-const LABEL_HEIGHT_MM = 12.7;
+const LABEL_HEIGHT_MM = 18;
 const ROW_GAP_MM = 0;
 const COLUMNS = 6;
 

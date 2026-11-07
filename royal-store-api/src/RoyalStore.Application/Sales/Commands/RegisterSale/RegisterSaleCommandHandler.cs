@@ -246,6 +246,13 @@ public sealed class RegisterSaleCommandHandler
             return Error.Conflict("cashshift.concurrent_update",
                 "The cash shift was changed by another operation. Refresh and try again.");
         }
+        catch (DbUpdateConcurrencyException ex) when (ex.Entries.Any(e => e.Entity is Product))
+        {
+            // Another sale (or a stock edit) committed against the same product between our load
+            // and save. Nothing here is saved, so the operator can safely refresh and resubmit.
+            return Error.Conflict("sale.stock_concurrent_update",
+                "Stock for one of the sold items changed concurrently. Refresh and try again.");
+        }
         catch (DbUpdateConcurrencyException)
         {
             // Another terminal consumed the same cashback entry first. The whole sale rolls back with
@@ -303,6 +310,12 @@ public sealed class RegisterSaleCommandHandler
             var itemResult = SaleItemEnricher.Enrich(line, tenantId, saleId, product, variant, ibptTax);
             if (itemResult.IsFailure)
                 return itemResult.Error;
+
+            // Debited on the same tracked instance GetForCheckoutAsync returned, so the decrement
+            // rides along with the sale's own SaveChangesAsync below — no separate round trip.
+            var stockResult = product.DecreaseVariantStock(variant.Id, line.Quantity);
+            if (stockResult.IsFailure)
+                return stockResult.Error;
 
             items.Add(itemResult.Value);
             subtotal += itemResult.Value.TotalPrice;

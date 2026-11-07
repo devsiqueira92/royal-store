@@ -235,6 +235,7 @@
     "subtitle": "Organize seu catálogo em coleções.",
     "empty": "Nenhuma categoria encontrada.",
     "loading": "Carregando categorias...",
+    "deleteConfirm": "Excluir a categoria \"{{name}}\"?",
     "form": {
       "title": "Nova categoria",
       "name": "Nome",
@@ -242,12 +243,15 @@
       "description": "Descrição",
       "descriptionPlaceholder": "Descrição curta (opcional)",
       "colorTag": "Cor de identificação",
-      "submit": "Criar categoria"
+      "submit": "Criar categoria",
+      "delete": "Excluir",
+      "cancel": "Cancelar"
     },
     "card": {
       "product": "{{count}} produto",
       "products": "{{count}} produtos",
-      "edit": "Editar categoria"
+      "edit": "Editar categoria",
+      "delete": "Excluir categoria"
     }
   },
   "seller": {

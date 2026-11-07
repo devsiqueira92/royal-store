@@ -1,0 +1,94 @@
+<p-table
+  [value]="products()"
+  [loading]="loading()"
+  [selection]="selectedProducts()"
+  (selectionChange)="onSelectionChange($event)"
+  dataKey="id"
+>
+  <ng-template #header>
+    <tr>
+      <th class="products-page__checkbox-col">
+        <p-tableHeaderCheckbox />
+      </th>
+      <th>{{ 'product.columns.product' | translate }}</th>
+      <th>{{ 'product.columns.categoryName' | translate }}</th>
+      <th>{{ 'product.columns.price' | translate }}</th>
+      <th>{{ 'product.columns.stockQuantity' | translate }}</th>
+      <th>{{ 'product.columns.status' | translate }}</th>
+      <th>{{ 'product.columns.isActive' | translate }}</th>
+      <th class="products-page__action-col"></th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-product>
+    <tr>
+      <td>
+        <p-tableCheckbox [value]="product" />
+      </td>
+      <td>
+        <div class="product-cell">
+          <div class="product-cell__thumb">
+            @if (product.coverPhotoUrl) {
+              <img [src]="product.coverPhotoUrl" [alt]="product.name" />
+            }
+          </div>
+          <div class="product-cell__info">
+            <span class="product-cell__name">{{ product.name }}</span>
+            @if (getVariantSummary(product); as summary) {
+              <span class="product-cell__sku">{{ summary }}</span>
+            }
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="category-cell">
+          <span
+            class="category-cell__dot"
+            [style.background]="product.categoryColor || defaultCategoryColor"
+          ></span>
+          {{ product.categoryName }}
+        </div>
+      </td>
+      <td>
+        @if (getPriceRange(product); as range) {
+          @if (range.min === range.max) {
+            {{ range.min | currency }}
+          } @else {
+            {{ range.min | currency }} – {{ range.max | currency }}
+          }
+        } @else {
+          —
+        }
+      </td>
+      <td>{{ getTotalStock(product) }}</td>
+      <td>
+        <p-tag
+          [value]="getStatusLabelKey(product) | translate"
+          [severity]="getStatusSeverity(product)"
+        />
+      </td>
+
+      <td>
+        <app-switch
+          [checked]="product.isActive"
+          inputId="isActive"
+          (changed)="updateStatus(product)"
+        />
+      </td>
+      <td>
+        <p-button
+          icon="pi pi-pencil"
+          [rounded]="true"
+          [text]="true"
+          severity="secondary"
+          [attr.aria-label]="'product.edit' | translate"
+          (onClick)="editProduct(product)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="7">{{ 'product.empty' | translate }}</td>
+    </tr>
+  </ng-template>
+</p-table>

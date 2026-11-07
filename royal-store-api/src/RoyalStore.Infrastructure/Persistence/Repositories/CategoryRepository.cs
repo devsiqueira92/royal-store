@@ -43,4 +43,13 @@ public sealed class CategoryRepository : ICategoryRepository
             : query.Where(c => c.IsActive);
         return await query.ToListAsync(ct);
     }
+
+    public async Task<bool> HasProductsAsync(Guid categoryId, CancellationToken ct = default) =>
+        await _context.Products.AnyAsync(p => p.CategoryId == categoryId, ct);
+
+    public Task DeleteAsync(Category category, CancellationToken ct = default)
+    {
+        _context.Categories.Remove(category);
+        return Task.CompletedTask;
+    }
 }

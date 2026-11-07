@@ -43,10 +43,14 @@
   }
 
   .label-print-sheets {
-    // `fixed`, not `absolute`: it escapes the preview viewport's
-    // `overflow: auto` clipping regardless of where that ancestor sits in
-    // the tree, and positions relative to the printed page itself.
-    position: fixed;
+    // `absolute`, not `fixed`: a `fixed` box is excluded from page
+    // fragmentation in paged media — its content past the first page is
+    // dropped instead of flowing onto further pages, so a multi-sheet
+    // print would always stop at page 1. `absolute` still paginates
+    // correctly; it just needs the preview viewport's `overflow: auto`
+    // neutralized separately (see LabelPrintPreviewComponent's own print
+    // styles) since, unlike `fixed`, it doesn't escape an ancestor's clip.
+    position: absolute;
     top: 0;
     left: 0;
     transform: none !important;

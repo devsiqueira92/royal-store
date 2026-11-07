@@ -101,6 +101,23 @@ export const categoryFeature = createFeature({
       isLoading: false,
       error,
     })),
+    on(CategoryActions.deleteCategory, (state): CategoryState => ({
+      ...state,
+      isLoading: true,
+      error: null,
+    })),
+    on(CategoryActions.deleteCategorySuccess, (state, { id }): CategoryState => ({
+      ...state,
+      categories: state.categories.filter(c => c.id !== id),
+      selectedCategory:
+        state.selectedCategory?.id === id ? null : state.selectedCategory,
+      isLoading: false,
+    })),
+    on(CategoryActions.deleteCategoryFailure, (state, { error }): CategoryState => ({
+      ...state,
+      isLoading: false,
+      error,
+    })),
     on(CategoryActions.clearSelectedCategory, (state): CategoryState => ({
       ...state,
       selectedCategory: null,

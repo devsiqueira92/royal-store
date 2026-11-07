@@ -1,6 +1,7 @@
 using MediatR;
 using RoyalStore.API.Extensions;
 using RoyalStore.Application.Categories.Commands.CreateCategory;
+using RoyalStore.Application.Categories.Commands.DeleteCategory;
 using RoyalStore.Application.Categories.Commands.DisableCategory;
 using RoyalStore.Application.Categories.Queries.GetCategories;
 using RoyalStore.Application.Categories.Queries.GetCategoryById;
@@ -20,6 +21,7 @@ public sealed class CategoryEndpoints : IEndpointDefinition
         routes.MapPost("", Create);
         routes.MapPut("{id:guid}", Update);
         routes.MapPatch("{id:guid}/disable", Disable);
+        routes.MapDelete("{id:guid}", Delete);
         routes.MapGet("", GetAll);
         routes.MapGet("{id:guid}", GetById);
     }
@@ -46,6 +48,12 @@ public sealed class CategoryEndpoints : IEndpointDefinition
     private static async Task<IResult> Disable(Guid id, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new DisableCategoryCommand(id), ct);
+        return result.ToHttpResult(() => TypedResults.NoContent());
+    }
+
+    private static async Task<IResult> Delete(Guid id, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new DeleteCategoryCommand(id), ct);
         return result.ToHttpResult(() => TypedResults.NoContent());
     }
 

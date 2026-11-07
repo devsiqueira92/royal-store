@@ -40,6 +40,10 @@ export class CategoryFacade {
     this.store.dispatch(CategoryActions.disableCategory({ id }));
   }
 
+  deleteCategory(id: string): void {
+    this.store.dispatch(CategoryActions.deleteCategory({ id }));
+  }
+
   clearSelectedCategory(): void {
     this.store.dispatch(CategoryActions.clearSelectedCategory());
   }

@@ -28,6 +28,29 @@ export const loadProducts = createEffect(
   },
 );
 
+export const loadProductsSummary = createEffect(
+  (actions$ = inject(Actions), productService = inject(ProductService)) => {
+    return actions$.pipe(
+      ofType(ProductActions.loadProductsSummary),
+      switchMap(({ params }) =>
+        productService.getSummary(params).pipe(
+          map(summary => ProductActions.loadProductsSummarySuccess({ summary })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              ProductActions.loadProductsSummaryFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const loadProduct = createEffect(
   (actions$ = inject(Actions), productService = inject(ProductService)) => {
     return actions$.pipe(

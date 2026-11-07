@@ -6,6 +6,11 @@ import { Product } from '../interfaces/product.interface';
 import { CreateProductRequest } from '../interfaces/create-product-request.interface';
 import { UpdateProductRequest } from '../interfaces/update-product-request.interface';
 import { GetProductsParams } from '../interfaces/get-products-params.interface';
+import { STOCK_STATUS_API_VALUE } from '../interfaces/product.interface';
+import {
+  GetProductsSummaryParams,
+  ProductsSummary,
+} from '../interfaces/products-summary.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -42,8 +47,36 @@ export class ProductService {
     if (params?.categoryId !== undefined) {
       httpParams = httpParams.set('categoryId', params.categoryId);
     }
+    if (params?.stockStatus !== undefined) {
+      httpParams = httpParams.set(
+        'stockStatus',
+        STOCK_STATUS_API_VALUE[params.stockStatus],
+      );
+    }
+    if (params?.supplierId !== undefined) {
+      httpParams = httpParams.set('supplierId', params.supplierId);
+    }
+    if (params?.search !== undefined) {
+      httpParams = httpParams.set('search', params.search);
+    }
 
     return this.http.get<Product[]>(this.apiUrl, { params: httpParams });
+  }
+
+  getSummary(
+    params?: GetProductsSummaryParams,
+  ): Observable<ProductsSummary> {
+    let httpParams = new HttpParams();
+    if (params?.categoryId !== undefined) {
+      httpParams = httpParams.set('categoryId', params.categoryId);
+    }
+    if (params?.supplierId !== undefined) {
+      httpParams = httpParams.set('supplierId', params.supplierId);
+    }
+
+    return this.http.get<ProductsSummary>(`${this.apiUrl}/summary`, {
+      params: httpParams,
+    });
   }
 
   getById(id: string): Observable<Product> {

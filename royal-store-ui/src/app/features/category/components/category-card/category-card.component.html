@@ -7,13 +7,23 @@
         {{ countLabelKey() | translate: { count: category().productCount } }}
       </p>
     </div>
-    <button
-      type="button"
-      class="category-card__edit"
-      [attr.aria-label]="'category.card.edit' | translate"
-      (click)="loadDetails(category().id)"
-    >
-      <i class="pi pi-pencil"></i>
-    </button>
+    <div class="category-card__actions">
+      <button
+        type="button"
+        class="category-card__edit"
+        [attr.aria-label]="'category.card.edit' | translate"
+        (click)="loadDetails(category().id)"
+      >
+        <i class="pi pi-pencil"></i>
+      </button>
+      <button
+        type="button"
+        class="category-card__delete"
+        [attr.aria-label]="'category.card.delete' | translate"
+        (click)="deleteCategory($event)"
+      >
+        <i class="pi pi-trash"></i>
+      </button>
+    </div>
   </div>
 </article>

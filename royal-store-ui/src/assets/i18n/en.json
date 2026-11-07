@@ -235,6 +235,7 @@
     "subtitle": "Organize your catalog into collections.",
     "empty": "No categories found.",
     "loading": "Loading categories...",
+    "deleteConfirm": "Delete the category \"{{name}}\"?",
     "form": {
       "title": "New category",
       "name": "Name",
@@ -242,12 +243,15 @@
       "description": "Description",
       "descriptionPlaceholder": "Short description (optional)",
       "colorTag": "Color tag",
-      "submit": "Create category"
+      "submit": "Create category",
+      "delete": "Delete",
+      "cancel": "Cancel"
     },
     "card": {
       "product": "{{count}} product",
       "products": "{{count}} products",
-      "edit": "Edit category"
+      "edit": "Edit category",
+      "delete": "Delete category"
     }
   },
   "seller": {

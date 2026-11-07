@@ -551,6 +551,22 @@ public sealed class Product : Entity, IAuditableEntity
         return updateResult;
     }
 
+    /// <summary>Debits a sold quantity from one of this product's variants (RegisterSale). Mutations
+    /// to a variant's stock go through the owning aggregate so the Version bump that guards against
+    /// concurrent oversell is never forgotten at a call site.</summary>
+    public Result DecreaseVariantStock(Guid variantId, decimal quantity)
+    {
+        var variant = Variants.FirstOrDefault(v => v.Id == variantId);
+        if (variant is null)
+            return Result.Failure(Error.NotFound("variant.not_found", "Variant not found for this product."));
+
+        var result = variant.DecreaseStock(quantity);
+        if (result.IsSuccess)
+            Version++;
+
+        return result;
+    }
+
     public Result<ProductPhoto> AddPhoto(Guid tenantId, string url)
     {
         if (string.IsNullOrWhiteSpace(url))
@@ -615,6 +631,32 @@ public sealed class Product : Entity, IAuditableEntity
             TaxProfileTemplate.PisCofinsCst,
             TaxProfileTemplate.IvaCst,
             TaxProfileTemplate.IsSelectiveTax);
+    }
+
+    /// <summary>
+    /// Classifies this product's stock health from its variants. A product that doesn't track
+    /// stock, or has no variants, is always <see cref="StockStatus.InStock"/>. Otherwise it takes
+    /// the most critical status across all variants (<see cref="StockStatus.OutOfStock"/> beats
+    /// <see cref="StockStatus.LowStock"/> beats <see cref="StockStatus.InStock"/>); a variant with a
+    /// null <see cref="ProductVariant.StockQuantity"/> is untracked and never makes the product
+    /// low/out of stock. This is the source-of-truth rule for the <c>stockStatus</c> query filter
+    /// on <c>GET /api/products</c>, which must express the same logic as an EF-translatable LINQ
+    /// predicate in <c>ProductRepository.GetAllAsync</c> instead of calling this method, because EF
+    /// Core cannot translate an arbitrary method call into SQL. Keep both in sync.
+    /// </summary>
+    public StockStatus GetStockStatus()
+    {
+        if (!StockTrack || Variants.Count == 0)
+            return StockStatus.InStock;
+
+        if (Variants.Any(v => v.StockQuantity is <= 0))
+            return StockStatus.OutOfStock;
+
+        if (Variants.Any(v => v.StockQuantity.HasValue && v.MinStockQuantity.HasValue
+            && v.StockQuantity.Value <= v.MinStockQuantity.Value))
+            return StockStatus.LowStock;
+
+        return StockStatus.InStock;
     }
 
     private bool HasDuplicateVariant(Guid excludeVariantId, string? size, string? color, string? optionName) =>

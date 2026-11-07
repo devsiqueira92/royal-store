@@ -12,6 +12,8 @@ using RoyalStore.Application.Products.Commands.SetProductCoverPhoto;
 using RoyalStore.Application.Products.Commands.UpdateProductVariant;
 using RoyalStore.Application.Products.Queries.GetProductById;
 using RoyalStore.Application.Products.Queries.GetProducts;
+using RoyalStore.Application.Products.Queries.GetProductsSummary;
+using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Const;
 
 namespace RoyalStore.API.Endpoints;
@@ -29,6 +31,7 @@ public sealed class ProductEndpoints : IEndpointDefinition
         routes.MapPatch("{id:guid}/disable", Disable);
         routes.MapPatch("{id:guid}/enable", Enable);
         routes.MapGet("", GetAll);
+        routes.MapGet("summary", GetSummary);
         routes.MapGet("{id:guid}", GetById);
 
         routes.MapPost("{id:guid}/variants", AddVariant);
@@ -74,16 +77,30 @@ public sealed class ProductEndpoints : IEndpointDefinition
     private static async Task<IResult> GetAll(
         bool? isActive,
         Guid? categoryId,
+        StockStatus? stockStatus,
+        Guid? supplierId,
+        string? search,
         IMediator mediator,
         CancellationToken ct)
     {
-        var result = await mediator.Send(new GetProductsQuery(isActive, categoryId), ct);
+        var result = await mediator.Send(
+            new GetProductsQuery(isActive, categoryId, stockStatus, supplierId, search), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
     private static async Task<IResult> GetById(Guid id, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new GetProductByIdQuery(id), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> GetSummary(
+        Guid? categoryId,
+        Guid? supplierId,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetProductsSummaryQuery(categoryId, supplierId), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

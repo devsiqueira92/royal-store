@@ -111,16 +111,16 @@
     background: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
     display: grid;
-    grid-template-columns: repeat(6, 28.6mm);
-    grid-auto-rows: 12.7mm;
+    grid-template-columns: repeat(6, 30mm);
+    grid-auto-rows: 18mm;
     column-gap: 3.1mm;
     row-gap: 0mm;
     align-content: start;
   }
 
   .label-cell {
-    width: 28.6mm;
-    height: 12.7mm;
+    width: 30mm;
+    height: 18mm;
     box-sizing: border-box;
     overflow: hidden;
     display: flex;
@@ -132,31 +132,57 @@
   }
 
   .label-cell__name {
-    font-size: 1.4mm;
-    font-weight: 700;
-    line-height: 1.15;
+    font-size: 2.3mm;
+    font-weight: 600;
+    line-height: 1.1;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+    margin-bottom: 0.5mm;
   }
 
   .label-cell__barcode {
     flex: 0 0 auto;
+    margin-bottom: 0.25mm;
   }
 
   .label-cell__price {
-    font-size: 1.75mm;
-
-    line-height: 1.1;
+    font-size: 2.25mm;
+    margin-bottom: 0.75mm;
+    line-height: 1.15;
     text-align: center;
   }
 
   .label-cell__sku {
-    font-size: 1.35mm;
-    line-height: 1.1;
+    font-size: 2mm;
+    line-height: 1;
     color: #333;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  // This viewport's `overflow: auto` would clip the sheets once they're
+  // repositioned (see the `.label-print-sheets` print rule in custom.scss)
+  // — neutralize it here, plus the live zoom transform and this component's
+  // own toolbar/empty-state chrome, none of which belong on paper.
+  @media print {
+    .label-print__toolbar,
+    .label-print__empty {
+      display: none !important;
+    }
+
+    .label-print__viewport {
+      overflow: visible;
+      padding: 0;
+      border-radius: 0;
+      background: none;
+    }
+
+    .label-print-sheets {
+      display: block;
+      gap: 0;
+      transform: none !important;
+    }
   }
 }

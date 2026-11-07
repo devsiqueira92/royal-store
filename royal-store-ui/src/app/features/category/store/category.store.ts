@@ -4,6 +4,7 @@ import {
   createCategory,
   updateCategory,
   disableCategory,
+  deleteCategory,
 } from './category.effects';
 
 export const categoryStore = {
@@ -12,4 +13,5 @@ export const categoryStore = {
   createCategory,
   updateCategory,
   disableCategory,
+  deleteCategory,
 };

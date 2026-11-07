@@ -1,11 +1,13 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { EntityState, EntityAdapter, createEntityAdapter } from '@ngrx/entity';
 import { Product } from '../interfaces/product.interface';
+import { ProductsSummary } from '../interfaces/products-summary.interface';
 import { ProductActions } from './product.actions';
 import { ServiceActions } from './service.actions';
 export interface ProductState extends EntityState<Product> {
   selectedProduct: Product | null;
   selectedLabelProducts: Product[];
+  summary: ProductsSummary | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -17,6 +19,7 @@ export const initialProductState: ProductState = productAdapter.getInitialState(
   {
     selectedProduct: null,
     selectedLabelProducts: [],
+    summary: null,
     isLoading: false,
     error: null,
   },
@@ -48,6 +51,25 @@ export const productFeature = createFeature({
       (state, { error }): ProductState => ({
         ...state,
         isLoading: false,
+        error,
+      }),
+    ),
+
+    // Summary is a lightweight counters widget — it doesn't share the list's
+    // isLoading flag, so refetching it never flips the table into a loading
+    // state.
+    on(
+      ProductActions.loadProductsSummarySuccess,
+      (state, { summary }): ProductState => ({
+        ...state,
+        summary,
+      }),
+    ),
+
+    on(
+      ProductActions.loadProductsSummaryFailure,
+      (state, { error }): ProductState => ({
+        ...state,
         error,
       }),
     ),

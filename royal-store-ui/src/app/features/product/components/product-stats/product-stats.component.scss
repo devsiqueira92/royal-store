@@ -1,0 +1,81 @@
+.products-page__stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.875rem;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.125rem;
+  border-radius: 0.75rem;
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  font-family: inherit;
+  text-align: left;
+}
+
+.stat-card--clickable {
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.stat-card--clickable:hover {
+  border-color: light-dark(var(--p-surface-300), var(--p-surface-600));
+}
+
+.stat-card--active.stat-card--success {
+  border-color: light-dark(var(--p-green-400), var(--p-green-600));
+  background: light-dark(var(--p-green-50), color-mix(in srgb, var(--p-green-900) 35%, var(--p-surface-900)));
+}
+
+.stat-card--active.stat-card--warn {
+  border-color: light-dark(var(--p-orange-400), var(--p-orange-600));
+  background: light-dark(var(--p-orange-50), color-mix(in srgb, var(--p-orange-900) 35%, var(--p-surface-900)));
+}
+
+.stat-card--active.stat-card--danger {
+  border-color: light-dark(var(--p-red-400), var(--p-red-600));
+  background: light-dark(var(--p-red-50), color-mix(in srgb, var(--p-red-900) 35%, var(--p-surface-900)));
+}
+
+.stat-card__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.stat-card__value {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.stat-card__value--success {
+  color: light-dark(var(--p-green-600), var(--p-green-400));
+}
+
+.stat-card__value--warn {
+  color: light-dark(var(--p-orange-600), var(--p-orange-400));
+}
+
+.stat-card__value--danger {
+  color: light-dark(var(--p-red-600), var(--p-red-400));
+}
+
+@media (max-width: 61.25rem) {
+  .products-page__stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 40rem) {
+  .products-page__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
