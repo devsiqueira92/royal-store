@@ -1,0 +1,78 @@
+name: Deploy frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "royal-store-ui/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: royal-store-ui
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: royal-store-ui/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # environment.ts is gitignored (machine/deploy-specific apiUrl), so it's generated
+      # here instead of committed. Not a secret: it's the public API origin the browser
+      # calls directly, so it's fine hardcoded in the workflow.
+      - name: Generate environment.ts
+        run: |
+          cat > src/environments/environment.ts <<'EOF'
+          export const environment = {
+            production: true,
+            apiUrl: 'https://royalstore-ebawhybwh4e5bvfx.westus3-01.azurewebsites.net',
+          };
+          EOF
+
+      - name: Build
+        run: npx ng build --configuration production --base-href "/royal-store/"
+
+      # GitHub Pages has no server-side rewrites, so a direct hit or refresh on a deep
+      # route (e.g. /products/123) 404s. Serving index.html as 404.html hands the request
+      # back to Angular Router, which then resolves the route client-side.
+      - name: SPA fallback for deep links
+        run: cp dist/royal-store-ui/browser/index.html dist/royal-store-ui/browser/404.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: royal-store-ui/dist/royal-store-ui/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
