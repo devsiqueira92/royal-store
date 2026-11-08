@@ -2,8 +2,9 @@
   <div class="fiscal-receipt">
     <header class="fiscal-receipt__header">
       <strong>{{ 'sale.checkout.receipt.storeName' | translate }}</strong>
-      <span>{{ 'sale.checkout.receipt.storeDocument' | translate }}</span>
-      <span>{{ 'sale.checkout.receipt.storeAddress' | translate }}</span>
+      <!-- TODO: Buscar informações a partir do backend -->
+      <!-- <span>{{ 'sale.checkout.receipt.storeDocument' | translate }}</span>
+      <span>{{ 'sale.checkout.receipt.storeAddress' | translate }}</span> -->
     </header>
 
     <div class="fiscal-receipt__rule"></div>
@@ -23,7 +24,8 @@
       <div class="fiscal-receipt__meta-row">
         <span>{{ 'sale.checkout.receipt.customer' | translate }}</span>
         <span>{{
-          data().customerName ?? ('sale.checkout.receipt.anonymousCustomer' | translate)
+          data().customerName ??
+            ('sale.checkout.receipt.anonymousCustomer' | translate)
         }}</span>
       </div>
     </div>
@@ -34,7 +36,8 @@
       @for (item of data().items; track item.variantId) {
         <div class="fiscal-receipt__item">
           <span class="fiscal-receipt__item-name">
-            {{ item.name }}{{ item.variantLabel ? ' — ' + item.variantLabel : '' }}
+            {{ item.name
+            }}{{ item.variantLabel ? ' — ' + item.variantLabel : '' }}
           </span>
           <div class="fiscal-receipt__item-line">
             <span>{{ item.quantity }} x {{ item.unitPrice | currency }}</span>
@@ -68,10 +71,11 @@
     <p class="fiscal-receipt__tax">
       {{
         'sale.checkout.receipt.taxNotice'
-          | translate: {
-              amount: (data().totals.tax | currency),
-              percent: (taxPercent() | number: '1.2-2')
-            }
+          | translate
+            : {
+                amount: (data().totals.tax | currency),
+                percent: (taxPercent() | number: '1.2-2'),
+              }
       }}
     </p>
 
