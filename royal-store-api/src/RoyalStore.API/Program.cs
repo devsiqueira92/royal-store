@@ -3,8 +3,11 @@ using RoyalStore.API.Extensions;
 using RoyalStore.API.Middleware;
 using RoyalStore.Infrastructure;
 using RoyalStore.Infrastructure.Seed;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.ConfigureSerilog();
 
 builder.Services.AddOpenApi();
 
@@ -14,6 +17,8 @@ builder.Services.InstallServicesFromAssemblies(
     typeof(RoyalStore.Application.AssemblyReference).Assembly);
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
@@ -30,6 +35,7 @@ app.UseRateLimiter();
 await DatabaseSeeder.SeedRolesAsync(app.Services);
 
 app.UseAuthentication();
+app.UseMiddleware<LogEnrichmentMiddleware>();
 app.UseMiddleware<AuthorizationAuditMiddleware>();
 app.UseAuthorization();
 
