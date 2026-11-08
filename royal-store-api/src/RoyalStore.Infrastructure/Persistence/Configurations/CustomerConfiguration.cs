@@ -18,13 +18,16 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasMaxLength(150)
             .IsRequired();
 
-        // Stored normalised to digits only, so a CPF is 11 characters and a CNPJ 14.
+        // Stored normalised to digits only, so a CPF is 11 characters and a CNPJ 14. Optional: a
+        // customer can be registered without one.
         builder.Property(e => e.Document)
-            .HasMaxLength(14)
-            .IsRequired();
+            .HasMaxLength(14);
 
         builder.Property(e => e.Phone)
             .HasMaxLength(20);
+
+        builder.Property(e => e.BirthDate)
+            .HasColumnType("date");
 
         builder.Property(e => e.TermsAccepted)
             .HasDefaultValue(false)

@@ -25,6 +25,13 @@
       placeholder="customer.form.phonePlaceholder"
     ></app-input-field>
 
+    <app-input-field
+      controlName="birthDate"
+      type="date"
+      [parentForm]="formGroup"
+      label="customer.form.birthDate"
+    ></app-input-field>
+
     <app-select-field
       controlName="loyaltyTierId"
       [parentForm]="formGroup"

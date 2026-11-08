@@ -10,9 +10,6 @@ public sealed class CreateCustomerValidator : AbstractValidator<CreateCustomerCo
             .NotEmpty().WithMessage("Customer name is required.")
             .MaximumLength(150).WithMessage("Customer name must not exceed 150 characters.");
 
-        RuleFor(x => x.Document)
-            .NotEmpty().WithMessage("Document is required.");
-
         RuleFor(x => x.Phone)
             .MaximumLength(20).WithMessage("Phone must not exceed 20 characters.")
             .When(x => x.Phone is not null);

@@ -49,7 +49,7 @@ public sealed class UpdateCustomerCommandHandler
         if (addressChanges.IsFailure)
             return addressChanges.Error;
 
-        var updateResult = customer.Update(command.Name, command.Phone);
+        var updateResult = customer.Update(command.Name, command.Phone, command.BirthDate);
         if (updateResult.IsFailure)
             return updateResult.Error;
 
