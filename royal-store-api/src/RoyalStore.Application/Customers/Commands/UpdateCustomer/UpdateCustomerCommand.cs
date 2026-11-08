@@ -11,4 +11,5 @@ public record UpdateCustomerCommand(
     string Name,
     string? Phone,
     Guid? LoyaltyTierId,
+    DateOnly? BirthDate = null,
     IReadOnlyList<CustomerAddressChangeRequest>? Addresses = null) : IRequest<Result<CustomerResponse>>;

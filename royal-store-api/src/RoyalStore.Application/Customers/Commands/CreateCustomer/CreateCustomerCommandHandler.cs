@@ -40,13 +40,16 @@ public sealed class CreateCustomerCommandHandler
     {
         var tenantId = _tenantContext.TenantId;
 
-        // Formatting-insensitive duplicate check (FR-003/FR-004): compare normalized digits, the same
-        // form the document is ultimately stored in.
-        var normalizedDocument = DocumentValidator.Normalize(command.Document);
-        var documentExists = await _customerRepository.ExistsByDocumentAsync(normalizedDocument, null, cancellationToken);
-        if (documentExists)
-            return Error.Conflict("customer.document_conflict",
-                $"A customer with document '{command.Document}' is already registered.");
+        // Document is optional (FR-003/FR-004 duplicate check only applies when one is given).
+        // Formatting-insensitive: compared as normalized digits, the same form it's stored in.
+        if (!string.IsNullOrWhiteSpace(command.Document))
+        {
+            var normalizedDocument = DocumentValidator.Normalize(command.Document);
+            var documentExists = await _customerRepository.ExistsByDocumentAsync(normalizedDocument, null, cancellationToken);
+            if (documentExists)
+                return Error.Conflict("customer.document_conflict",
+                    $"A customer with document '{command.Document}' is already registered.");
+        }
 
         // Optional address list, saved with the customer or not at all (046 FR-002). Validated before
         // the tier lookup so a bad field fails fast.
@@ -62,7 +65,8 @@ public sealed class CreateCustomerCommandHandler
             return Error.Validation("customer.tier_not_found", "Loyalty tier not found.");
 
         var customerResult = Customer.Create(
-            tenantId, command.Name, command.Document, command.Phone, termsAccepted: false, tier.Id);
+            tenantId, command.Name, command.Document, command.Phone, termsAccepted: false, tier.Id,
+            command.BirthDate);
         if (customerResult.IsFailure)
             return customerResult.Error;
 

@@ -52,14 +52,13 @@ public sealed class AuthEndpoints : IEndpointDefinition
         IMediator mediator,
         LoginCommand command,
         HttpContext httpContext,
-        IWebHostEnvironment environment,
         IOptions<AuthCookieOptions> authCookieOptions,
         CancellationToken ct)
     {
         var result = await mediator.Send(command, ct);
         return result.ToHttpResult(token =>
         {
-            httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, environment, authCookieOptions.Value);
+            httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, authCookieOptions.Value);
             httpContext.Response.SetLoggedInCookie(token.ExpiresAt, authCookieOptions.Value);
             return TypedResults.Ok(new { Message = "Login successful." });
         });
@@ -126,14 +125,13 @@ public sealed class AuthEndpoints : IEndpointDefinition
     private static async Task<IResult> Refresh(
         IMediator mediator,
         HttpContext httpContext,
-        IWebHostEnvironment environment,
         IOptions<AuthCookieOptions> authCookieOptions,
         CancellationToken ct)
     {
         var result = await mediator.Send(new RefreshTokenCommand(), ct);
         return result.ToHttpResult(token =>
         {
-            httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, environment, authCookieOptions.Value);
+            httpContext.Response.SetAuthCookie(token.Token, token.ExpiresAt, authCookieOptions.Value);
             httpContext.Response.SetLoggedInCookie(token.ExpiresAt, authCookieOptions.Value);
             return TypedResults.Ok(new { Message = "Token refreshed." });
         });
@@ -141,10 +139,9 @@ public sealed class AuthEndpoints : IEndpointDefinition
 
     private static IResult Logout(
         HttpContext httpContext,
-        IWebHostEnvironment environment,
         IOptions<AuthCookieOptions> authCookieOptions)
     {
-        httpContext.Response.ClearAuthCookie(environment, authCookieOptions.Value);
+        httpContext.Response.ClearAuthCookie(authCookieOptions.Value);
         httpContext.Response.ClearLoggedInCookie(authCookieOptions.Value);
         return TypedResults.Ok(new { Message = "Logged out successfully." });
     }

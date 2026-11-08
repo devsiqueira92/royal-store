@@ -16,8 +16,9 @@ public sealed class Customer : Entity, IAuditableEntity
 
     public Guid TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
-    public string Document { get; private set; } = string.Empty;
+    public string? Document { get; private set; }
     public string? Phone { get; private set; }
+    public DateOnly? BirthDate { get; private set; }
     public bool TermsAccepted { get; private set; }
     public Guid LoyaltyTierId { get; private set; }
     public bool IsActive { get; private set; }
@@ -41,50 +42,53 @@ public sealed class Customer : Entity, IAuditableEntity
 
     private Customer() : base(Guid.NewGuid()) { }
 
-    private Customer(Guid id, Guid tenantId, string name, string document, string? phone,
-        bool termsAccepted, Guid loyaltyTierId)
+    private Customer(Guid id, Guid tenantId, string name, string? document, string? phone,
+        DateOnly? birthDate, bool termsAccepted, Guid loyaltyTierId)
         : base(id)
     {
         TenantId = tenantId;
         Name = name;
         Document = document;
         Phone = phone;
+        BirthDate = birthDate;
         TermsAccepted = termsAccepted;
         LoyaltyTierId = loyaltyTierId;
         IsActive = true;
     }
 
-    public static Result<Customer> Create(Guid tenantId, string name, string document,
-        string? phone, bool termsAccepted, Guid loyaltyTierId)
+    public static Result<Customer> Create(Guid tenantId, string name, string? document,
+        string? phone, bool termsAccepted, Guid loyaltyTierId, DateOnly? birthDate = null)
     {
         if (tenantId == Guid.Empty)
             return Error.Validation("customer.tenant_required", "Tenant identifier is required.");
 
-        var validation = ValidateNameAndPhone(name, phone);
+        var validation = ValidateNameAndPhoneAndBirthDate(name, phone, birthDate);
         if (validation.IsFailure)
             return validation.Error;
 
-        if (string.IsNullOrWhiteSpace(document))
-            return Error.Validation("customer.document_required", "Document is required.");
-
-        if (!DocumentValidator.IsValid(document))
+        // Document is optional: a customer can be registered without one. When provided, it must
+        // still be a valid CPF or CNPJ.
+        if (!string.IsNullOrWhiteSpace(document) && !DocumentValidator.IsValid(document))
             return Error.Validation("customer.document_invalid", "Document must be a valid CPF or CNPJ.");
 
         if (loyaltyTierId == Guid.Empty)
             return Error.Validation("customer.loyalty_tier_required", "Loyalty tier is required.");
 
-        return new Customer(Guid.NewGuid(), tenantId, name.Trim(),
-            DocumentValidator.Normalize(document), NormalizePhone(phone), termsAccepted, loyaltyTierId);
+        var normalizedDocument = string.IsNullOrWhiteSpace(document) ? null : DocumentValidator.Normalize(document);
+
+        return new Customer(Guid.NewGuid(), tenantId, name.Trim(), normalizedDocument,
+            NormalizePhone(phone), birthDate, termsAccepted, loyaltyTierId);
     }
 
-    public Result Update(string name, string? phone)
+    public Result Update(string name, string? phone, DateOnly? birthDate = null)
     {
-        var validation = ValidateNameAndPhone(name, phone);
+        var validation = ValidateNameAndPhoneAndBirthDate(name, phone, birthDate);
         if (validation.IsFailure)
             return validation;
 
         Name = name.Trim();
         Phone = NormalizePhone(phone);
+        BirthDate = birthDate;
         return Result.Success();
     }
 
@@ -273,7 +277,7 @@ public sealed class Customer : Entity, IAuditableEntity
             : address;
     }
 
-    private static Result ValidateNameAndPhone(string name, string? phone)
+    private static Result ValidateNameAndPhoneAndBirthDate(string name, string? phone, DateOnly? birthDate)
     {
         if (string.IsNullOrWhiteSpace(name))
             return Result.Failure(Error.Validation("customer.name_required", "Name is required."));
@@ -288,6 +292,10 @@ public sealed class Customer : Entity, IAuditableEntity
                 return Result.Failure(Error.Validation("customer.phone_invalid",
                     "Phone must contain digits only and must not exceed 20 characters."));
         }
+
+        if (birthDate is { } date && date > DateOnly.FromDateTime(DateTimeOffset.UtcNow.Date))
+            return Result.Failure(Error.Validation("customer.birth_date_future",
+                "Birth date cannot be in the future."));
 
         return Result.Success();
     }

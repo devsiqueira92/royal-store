@@ -7,8 +7,9 @@ import {
 export interface Customer {
   id: string;
   name: string;
-  document: string;
+  document?: string | null;
   phone?: string | null;
+  birthDate?: string | null;
   loyaltyTierId: string;
   loyaltyTierName: string;
   loyaltyTierCashbackPercentage: number;
@@ -24,6 +25,7 @@ export interface CustomerFormControls {
   name: FormControl<string | null>;
   document: FormControl<string | null>;
   phone: FormControl<string | null>;
+  birthDate: FormControl<string | null>;
   loyaltyTierId: FormControl<string | null>;
   addresses: FormArray<FormGroup<CustomerAddressFormControls>>;
 }

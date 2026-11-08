@@ -642,6 +642,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -651,7 +654,6 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(450)");
 
                     b.Property<string>("Document")
-                        .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("character varying(14)");
 

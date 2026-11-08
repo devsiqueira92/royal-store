@@ -113,15 +113,16 @@ export class CustomerFormComponent {
       return;
     }
 
-    const { name, document, phone, loyaltyTierId } =
+    const { name, document, phone, birthDate, loyaltyTierId } =
       this.formGroup.getRawValue();
     const addresses = this.formGroup.controls.addresses;
 
     if (this.isCreateMode()) {
       this.customerFacade.createCustomer({
         name: (name ?? '').trim(),
-        document: (document ?? '').trim(),
+        document: document?.trim() || null,
         phone: phone?.trim() || null,
+        birthDate: birthDate || null,
         loyaltyTierId,
         addresses: toCustomerAddressRequests(addresses),
       });
@@ -134,6 +135,7 @@ export class CustomerFormComponent {
       this.customerFacade.updateCustomer(customer.id, {
         name: (name ?? '').trim(),
         phone: phone?.trim() || null,
+        birthDate: birthDate || null,
         loyaltyTierId,
         addresses: toCustomerAddressChangeRequests(addresses),
       });
@@ -149,6 +151,7 @@ export class CustomerFormComponent {
       name: null,
       document: null,
       phone: null,
+      birthDate: null,
       loyaltyTierId: null,
     });
     this.setAddresses([]);
@@ -162,6 +165,7 @@ export class CustomerFormComponent {
       name: customer?.name ?? null,
       document: customer?.document ?? null,
       phone: customer?.phone ?? null,
+      birthDate: customer?.birthDate ?? null,
       loyaltyTierId: customer?.loyaltyTierId ?? null,
     });
     this.setAddresses(customer?.addresses ?? []);
@@ -184,8 +188,9 @@ export class CustomerFormComponent {
         Validators.required,
         Validators.maxLength(150),
       ]),
-      document: new FormControl(null, [Validators.required]),
+      document: new FormControl(null),
       phone: new FormControl(null, [Validators.maxLength(20)]),
+      birthDate: new FormControl(null),
       loyaltyTierId: new FormControl(null),
       addresses: new FormArray<FormGroup<CustomerAddressFormControls>>([]),
     });

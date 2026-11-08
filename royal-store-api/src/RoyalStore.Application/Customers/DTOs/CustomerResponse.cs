@@ -9,7 +9,9 @@ namespace RoyalStore.Application.Customers.DTOs;
 public record CustomerResponse(
     Guid Id,
     string Name,
+    string? Document,
     string? Phone,
+    DateOnly? BirthDate,
     Guid LoyaltyTierId,
     string LoyaltyTierName,
     decimal LoyaltyTierCashbackPercentage,
@@ -23,7 +25,9 @@ public record CustomerResponse(
         new(
             customer.Id,
             customer.Name,
+            customer.Document,
             customer.Phone,
+            customer.BirthDate,
             customer.LoyaltyTierId,
             tier.Name,
             tier.CashbackPercentage,
