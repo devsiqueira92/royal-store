@@ -42,6 +42,7 @@ jobs:
       # calls directly, so it's fine hardcoded in the workflow.
       - name: Generate environment.ts
         run: |
+          mkdir -p src/environments
           cat > src/environments/environment.ts <<'EOF'
           export const environment = {
             production: true,
