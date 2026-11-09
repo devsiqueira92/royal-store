@@ -1,13 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslateService } from '@ngx-translate/core';
-import { map, shareReplay } from 'rxjs';
-import {
-  ColorFamilyGroup,
-  ColorPaletteResponse,
-  ColorShadeOption,
-} from '@app/shared/interfaces/color-palette.interface';
+import { COLOR_PALETTE } from '@app/shared/constants/color-palette.constant';
+import { ColorFamilyGroup, ColorShadeOption } from '@app/shared/interfaces/color-palette.interface';
 import {
   buildColorFamilyGroups,
   buildColorLookup,
@@ -15,30 +9,17 @@ import {
 
 @Injectable({ providedIn: 'root' })
 export class ColorPaletteService {
-  private readonly http = inject(HttpClient);
   private readonly translate = inject(TranslateService);
 
-  // Mock endpoint for now; swap for `${environment.apiUrl}/api/color-palettes` once the backend exists.
-  private readonly url = '/assets/mock/color-palette.json';
+  readonly families: ColorFamilyGroup[] = buildColorFamilyGroups(COLOR_PALETTE, this.translate);
 
-  private readonly families$ = this.http.get<ColorPaletteResponse>(this.url).pipe(
-    map(response => buildColorFamilyGroups(response, this.translate)),
-    shareReplay(1),
-  );
-
-  readonly families = toSignal(this.families$, {
-    initialValue: [] as ColorFamilyGroup[],
-  });
-
-  readonly lookup = toSignal(this.families$.pipe(map(buildColorLookup)), {
-    initialValue: new Map<string, ColorShadeOption>(),
-  });
+  private readonly lookup: Map<string, ColorShadeOption> = buildColorLookup(this.families);
 
   getHex(value: string | null | undefined): string | undefined {
-    return value ? this.lookup().get(value)?.hex : undefined;
+    return value ? this.lookup.get(value)?.hex : undefined;
   }
 
   getLabel(value: string | null | undefined): string | undefined {
-    return value ? this.lookup().get(value)?.label : undefined;
+    return value ? this.lookup.get(value)?.label : undefined;
   }
 }

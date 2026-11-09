@@ -36,20 +36,13 @@ export const logoutRedirect = createEffect(
 const EMAIL_NOT_VERIFIED_CODE = 'auth.email_not_verified';
 
 export const checkAuthProfile = createEffect(
-  (
-    actions$ = inject(Actions),
-    authService = inject(AuthService),
-    router = inject(Router),
-  ) => {
+  (actions$ = inject(Actions), authService = inject(AuthService)) => {
     return actions$.pipe(
       ofType(AuthActions.checkAuthProfile),
       switchMap(() =>
         authService.getUserProfile().pipe(
           map(user => AuthActions.checkAuthProfileSuccess({ user })),
-          catchError(() => {
-            router.navigate(['/auth/login']);
-            return of(AuthActions.checkAuthProfileFailure());
-          }),
+          catchError(() => of(AuthActions.checkAuthProfileFailure())),
         ),
       ),
     );

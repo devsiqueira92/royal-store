@@ -20,7 +20,9 @@ export class AuthService {
   private readonly apiUrl = `${environment.apiUrl}/api/auth`;
 
   getUserProfile(): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/session`);
+    return this.http.get<User>(`${this.apiUrl}/session`, {
+      context: new HttpContext().set(BYPASS_GLOBAL_ERROR, true),
+    });
   }
 
   refreshSession(): Observable<MessageResponse> {

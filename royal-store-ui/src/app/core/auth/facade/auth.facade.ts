@@ -5,6 +5,7 @@ import { RegisterRequest } from '../interfaces/register-request.interface';
 import { AuthActions } from '../store/auth.actions';
 import {
   selectIsAuthenticated,
+  selectIsAuthChecked,
   selectIsLoading,
   selectError,
   selectUser,
@@ -20,6 +21,7 @@ export class AuthFacade {
   private store = inject(Store);
 
   isAuthenticated$ = this.store.select(selectIsAuthenticated);
+  isAuthChecked$ = this.store.select(selectIsAuthChecked);
   user$ = this.store.select(selectUser);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);

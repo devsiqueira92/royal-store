@@ -6,6 +6,11 @@ export type VerifyEmailStatus = 'idle' | 'verifying' | 'success' | 'error';
 
 export interface AuthState {
   isAuthenticated: boolean;
+  // Whether the bootstrap session check (checkAuthProfile) has resolved yet.
+  // The real session lives in an httpOnly cookie scoped to the API's own
+  // domain, so the frontend (a different origin) can't read it directly and
+  // must ask the API via `/session` instead of guessing from document.cookie.
+  isAuthChecked: boolean;
   user: User | null;
   isLoading: boolean;
   error: string | null;
@@ -14,12 +19,9 @@ export interface AuthState {
   isResendingConfirmation: boolean;
 }
 
-function hasLoggedInCookie(): boolean {
-  return document.cookie.split('; ').includes('is_logged_in=true');
-}
-
 export const initialAuthState: AuthState = {
-  isAuthenticated: hasLoggedInCookie(),
+  isAuthenticated: false,
+  isAuthChecked: false,
   user: null,
   isLoading: false,
   error: null,
@@ -39,12 +41,14 @@ export const authFeature = createFeature({
     on(AuthActions.checkAuthProfileSuccess, (state, { user }): AuthState => ({
       ...state,
       isAuthenticated: true,
+      isAuthChecked: true,
       user,
       isLoading: false,
     })),
     on(AuthActions.checkAuthProfileFailure, (): AuthState => ({
       ...initialAuthState,
       isAuthenticated: false,
+      isAuthChecked: true,
     })),
     on(AuthActions.login, (state): AuthState => ({
       ...state,
@@ -54,6 +58,7 @@ export const authFeature = createFeature({
     on(AuthActions.loginSuccess, (state): AuthState => ({
       ...state,
       isAuthenticated: true,
+      isAuthChecked: true,
       isLoading: false,
       error: null,
     })),
@@ -116,6 +121,7 @@ export const authFeature = createFeature({
     on(AuthActions.logout, (): AuthState => ({
       ...initialAuthState,
       isAuthenticated: false,
+      isAuthChecked: true,
     })),
   ),
 });

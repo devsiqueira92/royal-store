@@ -1,5 +1,7 @@
 import {
   ApplicationConfig,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
   LOCALE_ID,
@@ -17,8 +19,9 @@ import localeEn from '@angular/common/locales/en';
 import { errorInterceptor } from './shared/interceptors/error.interceptor';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { provideStore } from '@ngrx/store';
+import { provideStore, Store } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
+import { AuthActions } from './core/auth/store/auth.actions';
 import { authFeature } from './core/auth/store/auth.reducer';
 import { authStore } from './core/auth/store/auth.store';
 import { authInterceptor } from './core/auth/interceptor/auth.interceptor';
@@ -117,6 +120,9 @@ export const appConfig: ApplicationConfig = {
       currentSellerStore,
       supplierStore,
     ),
+    provideAppInitializer(() => {
+      inject(Store).dispatch(AuthActions.checkAuthProfile());
+    }),
     { provide: LOCALE_ID, useValue: 'en-US' },
     DialogService,
     DynamicDialogRef,
