@@ -64,7 +64,19 @@ public sealed class ForgotPasswordCommandHandler(
         var encodedEmail = Base64UrlEncode(Encoding.UTF8.GetBytes(command.Email));
         var resetUrl = $"{_options.ClientAppBaseUrl}/reset-password?token={encodedToken}&email={encodedEmail}";
 
-        await emailService.SendPasswordResetAsync(command.Email, resetUrl, cancellationToken);
+        try
+        {
+            await emailService.SendPasswordResetAsync(command.Email, resetUrl, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await securityAuditService.RecordAsync(
+                "reset.email_send_failed",
+                user.TenantId,
+                ex.Message,
+                ObfuscateEmail(command.Email),
+                cancellationToken);
+        }
 
         var requestResult = PasswordResetRequest.Create(user.Id, user.TenantId);
         if (!requestResult.IsSuccess)
