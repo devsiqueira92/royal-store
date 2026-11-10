@@ -38,6 +38,28 @@
       "errorDescription": "This verification link is invalid or expired.",
       "goToLogin": "Go to login"
     },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter the email linked to your account and we'll send you a link to reset your password.",
+      "submit": "Send reset link",
+      "backToLogin": "Back to login",
+      "successTitle": "Check your email",
+      "successDescription": "If an account exists for {{email}}, we've sent a link to reset your password.",
+      "goToLogin": "Go to login",
+      "tryAnotherEmail": "Try another email"
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "subtitle": "Choose a new password for your account.",
+      "newPassword": "New password",
+      "submit": "Reset password",
+      "successTitle": "Password reset",
+      "successDescription": "Your password has been reset. You can now sign in.",
+      "goToLogin": "Go to login",
+      "errorTitle": "Link expired",
+      "errorDescription": "This reset link is invalid or has expired. Please request a new one.",
+      "requestNewLink": "Request a new link"
+    },
     "button": {
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",

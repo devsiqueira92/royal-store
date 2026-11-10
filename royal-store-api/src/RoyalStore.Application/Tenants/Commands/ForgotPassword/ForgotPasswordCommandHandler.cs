@@ -62,7 +62,7 @@ public sealed class ForgotPasswordCommandHandler(
         var token = await identityService.GeneratePasswordResetTokenAsync(user);
         var encodedToken = Base64UrlEncode(Encoding.UTF8.GetBytes(token));
         var encodedEmail = Base64UrlEncode(Encoding.UTF8.GetBytes(command.Email));
-        var resetUrl = $"{_options.ClientAppBaseUrl}/reset-password?token={encodedToken}&email={encodedEmail}";
+        var resetUrl = $"{_options.ClientAppBaseUrl}/auth/reset-password?token={encodedToken}&email={encodedEmail}";
 
         try
         {

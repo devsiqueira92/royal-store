@@ -8,7 +8,6 @@ import { ToastModule } from 'primeng/toast';
 import { OriginOptionFacade } from './core/origin-option/facade/origin-option.facade';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { CashShiftFacade } from './features/cash-shift/facade/cash-shift.facade';
-import { SessionRenewalService } from './core/auth/services/session-renewal.service';
 
 @Component({
   selector: 'app-root',
@@ -20,9 +19,6 @@ export class App {
   private readonly layoutService = inject(LayoutService);
   private readonly deviceService = inject(DeviceService);
   private translate = inject(TranslateService);
-  // Injecting it starts the silent-renewal activity listeners for the app's
-  // whole lifetime; nothing else here reads from it.
-  private readonly sessionRenewalService = inject(SessionRenewalService);
 
   protected readonly title = signal('royal-store-ui');
 
