@@ -38,6 +38,28 @@
       "errorDescription": "Este link de verificação é inválido ou expirou.",
       "goToLogin": "Ir para o login"
     },
+    "forgotPassword": {
+      "title": "Redefina sua senha",
+      "subtitle": "Informe o e-mail da sua conta e enviaremos um link para redefinir sua senha.",
+      "submit": "Enviar link de redefinição",
+      "backToLogin": "Voltar para o login",
+      "successTitle": "Verifique seu e-mail",
+      "successDescription": "Se existir uma conta para {{email}}, enviamos um link para redefinir sua senha.",
+      "goToLogin": "Ir para o login",
+      "tryAnotherEmail": "Tentar outro e-mail"
+    },
+    "resetPassword": {
+      "title": "Defina uma nova senha",
+      "subtitle": "Escolha uma nova senha para sua conta.",
+      "newPassword": "Nova senha",
+      "submit": "Redefinir senha",
+      "successTitle": "Senha redefinida",
+      "successDescription": "Sua senha foi redefinida. Agora você já pode entrar.",
+      "goToLogin": "Ir para o login",
+      "errorTitle": "Link expirado",
+      "errorDescription": "Este link de redefinição é inválido ou expirou. Solicite um novo.",
+      "requestNewLink": "Solicitar novo link"
+    },
     "button": {
       "forgotPassword": "Esqueceu a senha?",
       "signIn": "Entrar",

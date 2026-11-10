@@ -3,6 +3,8 @@ import { User } from '../interfaces/user.interface';
 import { AuthActions } from './auth.actions';
 
 export type VerifyEmailStatus = 'idle' | 'verifying' | 'success' | 'error';
+export type ForgotPasswordStatus = 'idle' | 'sending' | 'sent' | 'error';
+export type ResetPasswordStatus = 'idle' | 'submitting' | 'success' | 'error';
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -17,6 +19,10 @@ export interface AuthState {
   verificationEmail: string | null;
   verifyEmailStatus: VerifyEmailStatus;
   isResendingConfirmation: boolean;
+  forgotPasswordStatus: ForgotPasswordStatus;
+  forgotPasswordError: string | null;
+  resetPasswordStatus: ResetPasswordStatus;
+  resetPasswordError: string | null;
 }
 
 export const initialAuthState: AuthState = {
@@ -28,6 +34,10 @@ export const initialAuthState: AuthState = {
   verificationEmail: null,
   verifyEmailStatus: 'idle',
   isResendingConfirmation: false,
+  forgotPasswordStatus: 'idle',
+  forgotPasswordError: null,
+  resetPasswordStatus: 'idle',
+  resetPasswordError: null,
 };
 
 export const authFeature = createFeature({
@@ -117,6 +127,44 @@ export const authFeature = createFeature({
     on(AuthActions.resendConfirmationEmailFailure, (state): AuthState => ({
       ...state,
       isResendingConfirmation: false,
+    })),
+    on(AuthActions.forgotPassword, (state): AuthState => ({
+      ...state,
+      forgotPasswordStatus: 'sending',
+      forgotPasswordError: null,
+    })),
+    on(AuthActions.forgotPasswordSuccess, (state): AuthState => ({
+      ...state,
+      forgotPasswordStatus: 'sent',
+    })),
+    on(AuthActions.forgotPasswordFailure, (state, { error }): AuthState => ({
+      ...state,
+      forgotPasswordStatus: 'error',
+      forgotPasswordError: error,
+    })),
+    on(AuthActions.resetForgotPasswordState, (state): AuthState => ({
+      ...state,
+      forgotPasswordStatus: 'idle',
+      forgotPasswordError: null,
+    })),
+    on(AuthActions.resetPassword, (state): AuthState => ({
+      ...state,
+      resetPasswordStatus: 'submitting',
+      resetPasswordError: null,
+    })),
+    on(AuthActions.resetPasswordSuccess, (state): AuthState => ({
+      ...state,
+      resetPasswordStatus: 'success',
+    })),
+    on(AuthActions.resetPasswordFailure, (state, { error }): AuthState => ({
+      ...state,
+      resetPasswordStatus: 'error',
+      resetPasswordError: error,
+    })),
+    on(AuthActions.clearResetPasswordStatus, (state): AuthState => ({
+      ...state,
+      resetPasswordStatus: 'idle',
+      resetPasswordError: null,
     })),
     on(AuthActions.logout, (): AuthState => ({
       ...initialAuthState,

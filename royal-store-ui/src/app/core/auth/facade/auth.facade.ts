@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { LoginRequest } from '../interfaces/login-request.interface';
 import { RegisterRequest } from '../interfaces/register-request.interface';
+import { ResetPasswordRequest } from '../interfaces/reset-password-request.interface';
 import { AuthActions } from '../store/auth.actions';
 import {
   selectIsAuthenticated,
@@ -12,6 +13,10 @@ import {
   selectVerificationEmail,
   selectVerifyEmailStatus,
   selectIsResendingConfirmation,
+  selectForgotPasswordStatus,
+  selectForgotPasswordError,
+  selectResetPasswordStatus,
+  selectResetPasswordError,
 } from '../store/auth.selectors';
 
 @Injectable({
@@ -28,6 +33,10 @@ export class AuthFacade {
   verificationEmail$ = this.store.select(selectVerificationEmail);
   verifyEmailStatus$ = this.store.select(selectVerifyEmailStatus);
   isResendingConfirmation$ = this.store.select(selectIsResendingConfirmation);
+  forgotPasswordStatus$ = this.store.select(selectForgotPasswordStatus);
+  forgotPasswordError$ = this.store.select(selectForgotPasswordError);
+  resetPasswordStatus$ = this.store.select(selectResetPasswordStatus);
+  resetPasswordError$ = this.store.select(selectResetPasswordError);
 
   checkProfile(): void {
     this.store.dispatch(AuthActions.checkAuthProfile());
@@ -47,6 +56,22 @@ export class AuthFacade {
 
   resendConfirmationEmail(email: string): void {
     this.store.dispatch(AuthActions.resendConfirmationEmail({ email }));
+  }
+
+  forgotPassword(email: string): void {
+    this.store.dispatch(AuthActions.forgotPassword({ email }));
+  }
+
+  resetForgotPasswordState(): void {
+    this.store.dispatch(AuthActions.resetForgotPasswordState());
+  }
+
+  resetPassword(request: ResetPasswordRequest): void {
+    this.store.dispatch(AuthActions.resetPassword({ request }));
+  }
+
+  clearResetPasswordStatus(): void {
+    this.store.dispatch(AuthActions.clearResetPasswordStatus());
   }
 
   logout(): void {

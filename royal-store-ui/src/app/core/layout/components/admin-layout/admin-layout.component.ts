@@ -15,6 +15,7 @@ import { SupplierFacade } from '@app/features/supplier/facade/supplier.facade';
 import { AsyncPipe } from '@angular/common';
 import { OriginOptionFacade } from '@app/core/origin-option/facade/origin-option.facade';
 import { CurrentSellerFacade } from '@app/core/current-seller/facade/current-seller.facade';
+import { SessionRenewalService } from '@app/core/auth/services/session-renewal.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -40,6 +41,9 @@ export class AdminLayoutComponent {
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
   protected readonly shouldPushContent = computed(() => this.canPushContent());
   protected readonly loaded$ = this.cashShiftFacade.currentLoaded$;
+  // Injecting it starts the silent-renewal activity listeners for the app's
+  // whole lifetime; nothing else here reads from it.
+  private readonly sessionRenewalService = inject(SessionRenewalService);
 
   constructor() {
     this.cashShiftFacade.loadCurrent();

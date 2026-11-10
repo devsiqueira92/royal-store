@@ -205,6 +205,52 @@ export const resendConfirmationEmail = createEffect(
   },
 );
 
+export const forgotPassword = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) => {
+    return actions$.pipe(
+      ofType(AuthActions.forgotPassword),
+      switchMap(({ email }) =>
+        authService.forgotPassword({ email }).pipe(
+          map(() => AuthActions.forgotPasswordSuccess()),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              AuthActions.forgotPasswordFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
+export const resetPassword = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) => {
+    return actions$.pipe(
+      ofType(AuthActions.resetPassword),
+      switchMap(({ request }) =>
+        authService.resetPassword(request).pipe(
+          map(() => AuthActions.resetPasswordSuccess()),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              AuthActions.resetPasswordFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const resendConfirmationEmailNotify = createEffect(
   (
     actions$ = inject(Actions),

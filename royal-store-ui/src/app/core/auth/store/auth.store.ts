@@ -11,6 +11,8 @@ import {
   resendConfirmationEmail,
   resendConfirmationEmailNotify,
   verifyEmail,
+  forgotPassword,
+  resetPassword,
 } from './auth.effects';
 
 export const authStore = {
@@ -26,4 +28,6 @@ export const authStore = {
   resendConfirmationEmail,
   resendConfirmationEmailNotify,
   verifyEmail,
+  forgotPassword,
+  resetPassword,
 };

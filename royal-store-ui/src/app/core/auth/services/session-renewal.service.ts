@@ -72,10 +72,7 @@ export class SessionRenewalService {
       return;
     }
 
-    this.intervalId = setInterval(
-      () => this.checkSession(),
-      CHECK_INTERVAL_MS,
-    );
+    this.intervalId = setInterval(() => this.checkSession(), CHECK_INTERVAL_MS);
   }
 
   private stopChecks(): void {
