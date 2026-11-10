@@ -2,6 +2,7 @@ using MediatR;
 using RoyalStore.Application.Abstractions.Authentication;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Email;
+using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Identity;
@@ -9,6 +10,7 @@ using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Profiles;
 using RoyalStore.Domain.Tenants;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace RoyalStore.Application.Tenants.Commands.RegisterTenant;
@@ -23,6 +25,7 @@ public sealed class RegisterTenantCommandHandler
     private readonly IProfileRepository _profileRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
+    private readonly ISecurityAuditService _securityAuditService;
 
     public RegisterTenantCommandHandler(
         IIdentityService identityService,
@@ -31,7 +34,8 @@ public sealed class RegisterTenantCommandHandler
         IPaymentRepository paymentRepository,
         IProfileRepository profileRepository,
         IUnitOfWork unitOfWork,
-        IEmailService emailService)
+        IEmailService emailService,
+        ISecurityAuditService securityAuditService)
     {
         _identityService = identityService;
         _tenantRepository = tenantRepository;
@@ -40,6 +44,7 @@ public sealed class RegisterTenantCommandHandler
         _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
+        _securityAuditService = securityAuditService;
     }
 
     public async Task<Result<RegistrationResponse>> Handle(
@@ -113,8 +118,20 @@ public sealed class RegisterTenantCommandHandler
         if (!transactionResult.IsSuccess)
             return transactionResult.Error;
 
-        await _emailService.SendEmailVerificationAsync(
-            command.Email, capturedUserId!, capturedEncodedToken!, cancellationToken);
+        try
+        {
+            await _emailService.SendEmailVerificationAsync(
+                command.Email, capturedUserId!, capturedEncodedToken!, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await _securityAuditService.RecordAsync(
+                "registration.email_send_failed",
+                tenant.Id,
+                ex.Message,
+                ObfuscateEmail(command.Email),
+                cancellationToken);
+        }
 
         return transactionResult;
     }
@@ -125,5 +142,11 @@ public sealed class RegisterTenantCommandHandler
             .Replace('+', '-')
             .Replace('/', '_')
             .TrimEnd('=');
+    }
+
+    private static string ObfuscateEmail(string email)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(email.ToLowerInvariant()));
+        return Convert.ToHexString(hash)[..12];
     }
 }

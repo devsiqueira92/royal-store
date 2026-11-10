@@ -125,7 +125,19 @@ public sealed class ChangePendingEmailCommandHandler(
         var token = await identityService.GenerateEmailConfirmationTokenAsync(user);
         var encodedToken = Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-        await emailService.SendEmailVerificationAsync(command.NewEmail, user.Id, encodedToken, cancellationToken);
+        try
+        {
+            await emailService.SendEmailVerificationAsync(command.NewEmail, user.Id, encodedToken, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            await securityAuditService.RecordAsync(
+                "email_change.email_send_failed",
+                user.TenantId,
+                ex.Message,
+                ObfuscateEmail(command.NewEmail),
+                cancellationToken);
+        }
 
         var requestResult = EmailChangeRequest.Create(user.Id, user.TenantId, wasSuccessful: true);
         if (!requestResult.IsSuccess)

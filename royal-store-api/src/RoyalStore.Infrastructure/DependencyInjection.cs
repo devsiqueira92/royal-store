@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
 using RoyalStore.Application.Abstractions;
 using RoyalStore.Application.Abstractions.Authentication;
 using RoyalStore.Application.Abstractions.Catalog;
@@ -164,7 +165,22 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<ITenantRepository, TenantRepository>();
-        services.AddScoped<IEmailService, ConsoleEmailService>();
+
+        var resendSection = configuration.GetSection("Resend");
+        if (resendSection.GetValue<bool>("SendRealEmails"))
+        {
+            services.AddOptions<ResendOptions>()
+                .BindConfiguration("Resend")
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            services.AddResend(o => o.ApiToken = resendSection["ApiKey"] ?? string.Empty);
+            services.AddScoped<IEmailService, ResendEmailService>();
+        }
+        else
+        {
+            services.AddScoped<IEmailService, ConsoleEmailService>();
+        }
         services.AddScoped<IPasswordResetRepository, PasswordResetRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<ISecurityAuditService, SecurityAuditService>();
