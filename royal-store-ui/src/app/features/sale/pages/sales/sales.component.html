@@ -17,13 +17,16 @@
       (selectedIdChange)="onCategoryChange($event)"
     ></app-category-filter>
 
-    <form [formGroup]="formGroup">
-      <app-input-field
-        [parentForm]="formGroup"
-        controlName="barcode"
-        label="scan"
-      ></app-input-field>
-    </form>
+    <p-iconfield class="pos__search">
+      <p-inputicon class="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="setSearchTerm($event)"
+        [placeholder]="'sale.pos.searchPlaceholder' | translate"
+      />
+    </p-iconfield>
 
     <div class="pos__grid" [class.pos__grid--loading]="isLoading()">
       @for (product of products(); track product.variantId) {
@@ -40,8 +43,6 @@
   <app-current-sale
     class="pos__sale"
     [items]="items()"
-    [sellerName]="sellerName"
-    [saleRef]="saleRef"
     (quantityChange)="changeQuantity($event.variantId, $event.quantity)"
     (removeItem)="removeItem($event)"
     (clear)="clearSale()"

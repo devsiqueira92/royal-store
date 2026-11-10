@@ -9,6 +9,9 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 import { SaleFacade } from '../../facade/sale.facade';
 import { CategoryFacade } from '@app/features/category/facade/category.facade';
 import { Category } from '@app/features/category/interfaces/category.interface';
@@ -20,24 +23,12 @@ import { SalesStatsComponent } from '../../components/sales-stats/sales-stats.co
 import { CategoryFilterComponent } from '../../components/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { CurrentSaleComponent } from '../../components/current-sale/current-sale.component';
-import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { NotificationService } from '@app/shared/services/notification.service';
 import { DialogManagerService } from '@app/shared/services/dialog.service';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import {
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  filter,
-  take,
-  tap,
-} from 'rxjs';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { combineLatest, filter, take, tap } from 'rxjs';
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
 import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open-cash-shift/open-cash-shift.component';
-
-// Mocked until auth/session and reporting are wired.
-const MOCK_SELLER_NAME = 'Maya Chen';
-const MOCK_SALE_REF = '#A-1042';
 
 @Component({
   imports: [
@@ -47,8 +38,11 @@ const MOCK_SALE_REF = '#A-1042';
     CategoryFilterComponent,
     ProductCardComponent,
     CurrentSaleComponent,
-    InputFieldComponent,
     ReactiveFormsModule,
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
   ],
   templateUrl: './sales.component.html',
   styleUrl: './sales.component.scss',
@@ -63,14 +57,12 @@ export class SalesComponent implements OnInit {
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly dialogManagerService = inject(DialogManagerService);
 
-  protected readonly sellerName = MOCK_SELLER_NAME;
-  protected readonly saleRef = MOCK_SALE_REF;
-
-  protected readonly formGroup = new FormGroup({
-    barcode: new FormControl<string | null>(null),
+  protected readonly products = toSignal(this.saleFacade.filteredPosProducts$, {
+    initialValue: [] as PosProduct[],
   });
 
-  protected readonly products = toSignal(this.saleFacade.posProducts$, {
+  // still resolves while the operator has unrelated text typed into the search box.
+  private readonly allProducts = toSignal(this.saleFacade.posProducts$, {
     initialValue: [] as PosProduct[],
   });
   protected readonly isLoading = toSignal(this.saleFacade.isLoadingProducts$, {
@@ -82,6 +74,7 @@ export class SalesComponent implements OnInit {
 
   protected readonly selectedCategoryId = signal<string | null>(null);
   protected readonly items = signal<SaleLineItem[]>([]);
+  protected readonly searchTerm = this.saleFacade.searchTerm;
 
   ngOnInit(): void {
     this.categoryFacade.loadCategories();
@@ -102,28 +95,15 @@ export class SalesComponent implements OnInit {
         // same result reactively to know the sale it just confirmed has registered, and
         // clearing it here could race that read against this very subscription.
       });
-
-    this.formGroup
-      .get('barcode')
-      ?.valueChanges.pipe(
-        takeUntilDestroyed(this.destroyRef),
-        filter(code => !!code?.trim() && code.trim().length > 4),
-        debounceTime(300),
-        distinctUntilChanged(),
-        tap(code => {
-          const foundProduct = this.findProduct(code?.trim() ?? '');
-          if (foundProduct) {
-            this.addProduct(foundProduct);
-            this.formGroup.get('barcode')?.reset();
-          }
-        }),
-      )
-      .subscribe();
   }
 
   protected onCategoryChange(categoryId: string | null): void {
     this.selectedCategoryId.set(categoryId);
     this.saleFacade.loadPosProducts(categoryId ?? undefined);
+  }
+
+  protected setSearchTerm(term: string): void {
+    this.saleFacade.setSearchTerm(term);
   }
 
   protected addProduct(product: PosProduct): void {
@@ -182,7 +162,7 @@ export class SalesComponent implements OnInit {
 
   private findProduct(code: string) {
     if (!code) return;
-    return this.products().find(p => p.barcode === code);
+    return this.allProducts().find(p => p.barcode === code);
   }
 
   private loadCashShift(): void {

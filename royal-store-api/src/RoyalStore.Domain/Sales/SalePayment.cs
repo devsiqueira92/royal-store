@@ -69,10 +69,6 @@ public sealed class SalePayment : Entity
             if (card.Installments < 1)
                 return Result.Failure(Error.Validation("salepayment.installments_invalid",
                     "Installment count must be at least one."));
-
-            if (card.Type != "credit")
-                return Result.Failure(Error.Validation("sale.installments_not_applicable",
-                    "Installments apply to credit-card payments only."));
         }
 
         if (card.Type is { Length: > 20 })

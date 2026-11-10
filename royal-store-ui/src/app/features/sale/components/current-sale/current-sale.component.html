@@ -5,10 +5,7 @@
         {{ 'sale.current.title' | translate }}
       </h2>
       <p class="current-sale__meta">
-        {{ 'sale.current.soldBy' | translate }} {{ sellerName() }}
-        @if (saleRef()) {
-          · {{ saleRef() }}
-        }
+        {{ 'sale.current.soldBy' | translate }} {{ currentSeller()?.fullName }}
       </p>
     </div>
     <button

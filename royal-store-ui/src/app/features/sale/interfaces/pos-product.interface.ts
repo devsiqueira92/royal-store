@@ -6,6 +6,7 @@ export interface PosProduct {
   categoryColor?: string;
   variantColor?: string;
   barcode?: string;
+  sku: string;
   price: number;
   coverImage?: string;
   variantSize?: string;

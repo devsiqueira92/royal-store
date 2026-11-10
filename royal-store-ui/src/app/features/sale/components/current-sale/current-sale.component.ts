@@ -22,6 +22,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
 import { DialogManagerService } from '@app/shared/services/dialog.service';
 import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open-cash-shift/open-cash-shift.component';
+import { CurrentSellerFacade } from '@app/core/current-seller/facade/current-seller.facade';
 
 @Component({
   selector: 'app-current-sale',
@@ -40,9 +41,14 @@ import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open
 export class CurrentSaleComponent {
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly dialogManagerService = inject(DialogManagerService);
+  private readonly currentSellerFacade = inject(CurrentSellerFacade);
+
+  protected readonly currentSeller = toSignal(
+    this.currentSellerFacade.currentSeller$,
+    { initialValue: null },
+  );
+
   items = input<SaleLineItem[]>([]);
-  sellerName = input<string>('');
-  saleRef = input<string>('');
 
   quantityChange = output<{ variantId: string; quantity: number }>();
   removeItem = output<string>();

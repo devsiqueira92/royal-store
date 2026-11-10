@@ -308,6 +308,7 @@
       "allCategories": "All",
       "soldOut": "Sold out",
       "addItem": "Add to sale",
+      "searchPlaceholder": "Search products",
       "empty": "No products found."
     },
     "stats": {

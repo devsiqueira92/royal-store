@@ -308,6 +308,7 @@
       "allCategories": "Todas",
       "soldOut": "Esgotado",
       "addItem": "Adicionar à venda",
+      "searchPlaceholder": "Buscar produtos",
       "empty": "Nenhum produto encontrado."
     },
     "stats": {
