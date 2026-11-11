@@ -8,7 +8,7 @@
     }
   },
   "auth": {
-    "title": "Sign in to Royal Store",
+    "title": "Sign in to Axius Store",
     "subtitle": "Manage payments, payouts, and your store.",
     "email": "Email",
     "password": "Password",
@@ -16,10 +16,10 @@
     "storeName": "Store name",
     "document": "Document number",
     "documentType": "Document type",
-    "newToRoyalStore": "New to Royal Store?",
+    "newToRoyalStore": "New to Axius Store?",
     "alreadyHaveAccount": "Already have an account?",
     "register": {
-      "title": "Create your Royal Store account",
+      "title": "Create your Axius Store account",
       "subtitle": "Set up your store and start selling in minutes."
     },
     "verifyEmail": {
@@ -349,6 +349,7 @@
       "total": "Total",
       "charge": "Charge",
       "chargeSuccess": "Sale completed successfully.",
+      "stockLimitReached": "Only {{count}} {{name}} in stock",
       "payment": {
         "cash": "Cash",
         "card": "Card",
@@ -420,7 +421,7 @@
       },
       "receipt": {
         "title": "Fiscal receipt",
-        "storeName": "Royal Store",
+        "storeName": "Axius Store",
         "storeDocument": "CNPJ: 00.000.000/0001-00",
         "storeAddress": "Av. Example, 123 - Centro",
         "saleRef": "Sale",

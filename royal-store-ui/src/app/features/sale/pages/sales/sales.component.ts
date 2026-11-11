@@ -91,6 +91,9 @@ export class SalesComponent implements OnInit {
         this.notificationService.success({
           detail: this.translateService.instant('sale.current.chargeSuccess'),
         });
+        // Refetch so stock debited by this sale — including any variant that just sold
+        // out — is reflected before the operator can add it to the next sale.
+        this.saleFacade.loadPosProducts(this.selectedCategoryId() ?? undefined);
         // Left uncleared on purpose: the checkout dialog's own receipt step reads this
         // same result reactively to know the sale it just confirmed has registered, and
         // clearing it here could race that read against this very subscription.
@@ -111,14 +114,26 @@ export class SalesComponent implements OnInit {
       return;
     }
 
+    const maxQuantity = this.maxQuantity(product);
+
     this.items.update(items => {
       const existing = items.find(item => item.variantId === product.variantId);
       if (existing) {
+        if (existing.quantity >= maxQuantity) {
+          this.notifyStockLimit(product.productName, maxQuantity);
+          return items;
+        }
+
         return items.map(item =>
           item.variantId === product.variantId
             ? { ...item, quantity: item.quantity + 1 }
             : item,
         );
+      }
+
+      if (maxQuantity < 1) {
+        this.notifyStockLimit(product.productName, maxQuantity);
+        return items;
       }
 
       return [
@@ -147,9 +162,19 @@ export class SalesComponent implements OnInit {
   }
 
   protected changeQuantity(variantId: string, quantity: number): void {
+    const product = this.allProducts().find(p => p.variantId === variantId);
+    const maxQuantity = product ? this.maxQuantity(product) : Infinity;
+    const clampedQuantity = Math.min(quantity, maxQuantity);
+
+    if (clampedQuantity < quantity && product) {
+      this.notifyStockLimit(product.productName, maxQuantity);
+    }
+
     this.items.update(items =>
       items.map(item =>
-        item.variantId === variantId ? { ...item, quantity } : item,
+        item.variantId === variantId
+          ? { ...item, quantity: clampedQuantity }
+          : item,
       ),
     );
   }
@@ -163,6 +188,20 @@ export class SalesComponent implements OnInit {
   private findProduct(code: string) {
     if (!code) return;
     return this.allProducts().find(p => p.barcode === code);
+  }
+
+  // Untracked products (isStockTracked = false) have no ceiling to enforce.
+  private maxQuantity(product: PosProduct): number {
+    return product.isStockTracked ? product.stockQuantity : Infinity;
+  }
+
+  private notifyStockLimit(productName: string, stockQuantity: number): void {
+    this.notificationService.warn({
+      detail: this.translateService.instant('sale.current.stockLimitReached', {
+        name: productName,
+        count: stockQuantity,
+      }),
+    });
   }
 
   private loadCashShift(): void {

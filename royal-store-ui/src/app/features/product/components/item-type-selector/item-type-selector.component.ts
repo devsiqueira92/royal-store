@@ -25,11 +25,11 @@ const OPTIONS: ItemTypeOption[] = [
     titleKey: 'product.form.itemType.physical',
     subtitleKey: 'product.form.itemType.physicalHint',
   },
-  {
-    value: 1,
-    titleKey: 'product.form.itemType.service',
-    subtitleKey: 'product.form.itemType.serviceHint',
-  },
+  // {
+  //   value: 1,
+  //   titleKey: 'product.form.itemType.service',
+  //   subtitleKey: 'product.form.itemType.serviceHint',
+  // },
 ];
 
 @Component({

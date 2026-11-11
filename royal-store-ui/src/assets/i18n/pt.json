@@ -8,7 +8,7 @@
     }
   },
   "auth": {
-    "title": "Entrar no Royal Store",
+    "title": "Entrar no Axius Store",
     "subtitle": "Gerencie pagamentos, repasses e sua loja.",
     "email": "E-mail",
     "password": "Senha",
@@ -16,10 +16,10 @@
     "storeName": "Nome da loja",
     "document": "Número do documento",
     "documentType": "Tipo de documento",
-    "newToRoyalStore": "Novo no Royal Store?",
+    "newToRoyalStore": "Novo no Axius Store?",
     "alreadyHaveAccount": "Já tem uma conta?",
     "register": {
-      "title": "Crie sua conta Royal Store",
+      "title": "Crie sua conta Axius Store",
       "subtitle": "Configure sua loja e comece a vender em minutos."
     },
     "verifyEmail": {
@@ -349,6 +349,7 @@
       "total": "Total",
       "charge": "Cobrar",
       "chargeSuccess": "Venda concluída com sucesso.",
+      "stockLimitReached": "Apenas {{count}} {{name}} em estoque",
       "payment": {
         "cash": "Dinheiro",
         "card": "Cartão",
