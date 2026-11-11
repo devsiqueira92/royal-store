@@ -363,6 +363,7 @@
       "subtitle": "Reference {{reference}}",
       "back": "← Back to history",
       "notFound": "Sale not found.",
+      "printReceipt": "Print receipt",
       "groups": {
         "totals": "Totals",
         "parties": "Seller & customer",
@@ -516,7 +517,8 @@
         "thanks": "Thank you for shopping with us!",
         "comeBack": "Come back soon!",
         "print": "Print",
-        "close": "Close"
+        "close": "Close",
+        "loadError": "Could not load the receipt."
       }
     }
   },

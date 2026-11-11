@@ -59,3 +59,8 @@
 .sale-details__not-found {
   color: light-dark(var(--p-surface-400), var(--p-surface-500));
 }
+
+.sale-details__receipt-dialog ::ng-deep .p-dialog-content {
+  display: flex;
+  justify-content: center;
+}

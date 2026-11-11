@@ -17,6 +17,8 @@ import {
   selectIsLoadingSales,
   selectSaleDetails,
   selectIsLoadingSaleDetails,
+  selectSaleReceipt,
+  selectIsLoadingSaleReceipt,
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
 } from '../store/sale.selectors';
@@ -36,6 +38,8 @@ export class SaleFacade {
   isLoadingSales$ = this.store.select(selectIsLoadingSales);
   saleDetails$ = this.store.select(selectSaleDetails);
   isLoadingSaleDetails$ = this.store.select(selectIsLoadingSaleDetails);
+  saleReceipt$ = this.store.select(selectSaleReceipt);
+  isLoadingSaleReceipt$ = this.store.select(selectIsLoadingSaleReceipt);
   isRegisteringSale$ = this.store.select(selectIsRegisteringSale);
   lastRegisterSaleResult$ = this.store.select(selectLastRegisterSaleResult);
 
@@ -149,6 +153,14 @@ export class SaleFacade {
 
   clearSaleDetails(): void {
     this.store.dispatch(SaleActions.clearSaleDetails());
+  }
+
+  loadSaleReceipt(saleId: string): void {
+    this.store.dispatch(SaleActions.loadSaleReceipt({ saleId }));
+  }
+
+  clearSaleReceipt(): void {
+    this.store.dispatch(SaleActions.clearSaleReceipt());
   }
 
   registerSale(request: RegisterSaleRequest): void {

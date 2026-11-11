@@ -106,3 +106,15 @@
   display: flex;
   gap: 0.5rem;
 }
+
+.fiscal-receipt--status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20mm;
+  text-align: center;
+
+  i {
+    font-size: 1.5rem;
+  }
+}

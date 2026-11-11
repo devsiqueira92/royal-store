@@ -3,6 +3,7 @@ import {
   loadPosProducts,
   loadSales,
   loadSaleDetails,
+  loadSaleReceipt,
   registerSale,
   refreshCashShiftAfterSale,
 } from './sale.effects';
@@ -12,6 +13,7 @@ export const saleStore = {
   loadPosProducts,
   loadSales,
   loadSaleDetails,
+  loadSaleReceipt,
   registerSale,
   refreshCashShiftAfterSale,
 };

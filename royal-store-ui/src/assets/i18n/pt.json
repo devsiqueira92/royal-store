@@ -363,6 +363,7 @@
       "subtitle": "Referência {{reference}}",
       "back": "← Voltar ao histórico",
       "notFound": "Venda não encontrada.",
+      "printReceipt": "Imprimir cupom",
       "groups": {
         "totals": "Totais",
         "parties": "Vendedor e cliente",
@@ -516,7 +517,8 @@
         "thanks": "Obrigado pela preferência!",
         "comeBack": "Volte sempre!",
         "print": "Imprimir",
-        "close": "Fechar"
+        "close": "Fechar",
+        "loadError": "Não foi possível carregar o cupom não fiscal."
       }
     }
   },

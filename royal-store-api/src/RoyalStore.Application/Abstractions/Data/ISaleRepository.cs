@@ -1,3 +1,4 @@
+using RoyalStore.Application.Sales.DTOs;
 using RoyalStore.Application.Sales.Queries.GetSalesList;
 using RoyalStore.Domain.Sales;
 
@@ -15,6 +16,12 @@ public interface ISaleRepository
     /// display name, already resolved with the same profile-first, login-name-fallback rule used
     /// elsewhere. <c>null</c> when no such sale exists for the current tenant.</summary>
     Task<SaleWithSellerName?> GetDetailsByIdAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>The sale, its store name, and its items/payments already resolved into
+    /// <see cref="ReceiptItemResponse"/>/<see cref="ReceiptPaymentResponse"/> DTOs (approximate tax
+    /// burden computed, payment method names resolved) — everything needed to print the sale's customer
+    /// receipt. <c>null</c> when no such sale exists for the current tenant.</summary>
+    Task<SaleReceiptData?> GetReceiptByIdAsync(Guid id, CancellationToken ct = default);
 
     Task UpdateAsync(Sale sale, CancellationToken ct = default);
     Task<ShiftSalesTotals> GetShiftSalesTotalsAsync(Guid cashShiftId, CancellationToken ct = default);

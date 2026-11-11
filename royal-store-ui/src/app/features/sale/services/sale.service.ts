@@ -10,6 +10,7 @@ import { RegisterSaleResponse } from '../interfaces/register-sale-response.inter
 import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { GetSalesListParams } from '../interfaces/get-sales-list-params.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
+import { SaleReceipt } from '../interfaces/sale-receipt.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -58,5 +59,9 @@ export class SaleService {
 
   getById(id: string): Observable<SaleDetails> {
     return this.http.get<SaleDetails>(`${this.apiUrl}/${id}`);
+  }
+
+  getReceipt(id: string): Observable<SaleReceipt> {
+    return this.http.get<SaleReceipt>(`${this.apiUrl}/${id}/receipt`);
   }
 }

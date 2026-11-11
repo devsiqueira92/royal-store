@@ -14,6 +14,13 @@
           }}
         </p>
       </div>
+
+      <app-button
+        icon="pi pi-print"
+        label="sale.details.printReceipt"
+        severity="secondary"
+        (onClick)="showReceiptPreview.set(true)"
+      ></app-button>
     </header>
 
     <section class="sale-details__group">
@@ -51,3 +58,20 @@
     </p>
   </section>
 }
+
+<p-dialog
+  styleClass="sale-details__receipt-dialog"
+  [visible]="showReceiptPreview()"
+  [modal]="true"
+  [draggable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: '28rem', maxWidth: '95vw' }"
+  (visibleChange)="$event || closeReceiptPreview()"
+>
+  @if (sale(); as data) {
+    <app-fiscal-receipt-preview
+      [saleId]="data.id"
+      (closed)="closeReceiptPreview()"
+    />
+  }
+</p-dialog>

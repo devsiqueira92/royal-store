@@ -132,3 +132,26 @@ export const loadSaleDetails = createEffect(
     functional: true,
   },
 );
+
+export const loadSaleReceipt = createEffect(
+  (actions$ = inject(Actions), saleService = inject(SaleService)) => {
+    return actions$.pipe(
+      ofType(SaleActions.loadSaleReceipt),
+      switchMap(({ saleId }) =>
+        saleService.getReceipt(saleId).pipe(
+          map(saleReceipt => SaleActions.loadSaleReceiptSuccess({ saleReceipt })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              SaleActions.loadSaleReceiptFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);

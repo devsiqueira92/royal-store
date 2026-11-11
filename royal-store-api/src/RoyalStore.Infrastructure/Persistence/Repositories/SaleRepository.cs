@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Sales.DTOs;
 using RoyalStore.Application.Sales.Queries.GetSalesList;
 using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Sales;
@@ -63,6 +64,54 @@ public sealed class SaleRepository : ISaleRepository
                   .FirstOrDefaultAsync(ct);
 
         return new SaleWithSellerName(sale, sellerName);
+    }
+
+    // Same Include-the-aggregate shape as GetDetailsByIdAsync (059 research Decision 1), extended with
+    // two follow-up lookups: the tenant's own store name, and a batched dictionary of every distinct
+    // payment method name referenced by the sale's payments — one query regardless of split-tender size
+    // (059 research Decisions 2/3), rather than a correlated subquery per payment line. The raw
+    // SaleItem/SalePayment entities are resolved into ReceiptItemResponse/ReceiptPaymentResponse DTOs
+    // right here, in Infrastructure, so no Domain entity crosses back into the Application layer's
+    // response-shaping code.
+    public async Task<SaleReceiptData?> GetReceiptByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var sale = await _context.Sales
+            .AsNoTracking()
+            .Include(s => s.Items)
+            .Include(s => s.Payments)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+        if (sale is null)
+            return null;
+
+        var storeName = await _context.Tenants
+            .Where(t => t.Id == sale.TenantId)
+            .Select(t => t.StoreName)
+            .FirstOrDefaultAsync(ct);
+
+        var items = sale.Items
+            .Select(i =>
+            {
+                var rates = i.TaxRates;
+                var taxPercentage = (rates.NationalRate ?? 0) + (rates.FederalRate ?? 0)
+                    + (rates.ImportedFederalRate ?? 0) + (rates.StateRate ?? 0) + (rates.MunicipalRate ?? 0);
+
+                return new ReceiptItemResponse(i.ProductName, i.Quantity, i.UnitPrice, i.TotalPrice, i.Catalog.Sku,
+                    taxPercentage, i.TotalPrice * taxPercentage / 100m);
+            })
+            .ToList();
+
+        var paymentIds = sale.Payments.Select(p => p.PaymentId).Distinct().ToList();
+        var paymentMethodNames = await _context.Payments
+            .AsNoTracking()
+            .Where(p => paymentIds.Contains(p.Id))
+            .Select(p => new { p.Id, p.PaymentMethod })
+            .ToDictionaryAsync(x => x.Id, x => x.PaymentMethod, ct);
+
+        var payments = sale.Payments
+            .Select(p => new ReceiptPaymentResponse(paymentMethodNames.GetValueOrDefault(p.PaymentId, string.Empty), p.Amount))
+            .ToList();
+
+        return new SaleReceiptData(sale, storeName, items, payments);
     }
 
     public Task UpdateAsync(Sale sale, CancellationToken ct = default)

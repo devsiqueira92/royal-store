@@ -1,14 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonComponent } from '@app/shared/components/button/button.component';
 import { SaleFacade } from '../../facade/sale.facade';
 import { SaleDetails } from '../../interfaces/sale-details.interface';
 import { SaleTotalsComponent } from '../../components/sale-totals/sale-totals.component';
 import { SalePartiesComponent } from '../../components/sale-parties/sale-parties.component';
 import { SaleItemsComponent } from '../../components/sale-items/sale-items.component';
 import { SaleFiscalComponent } from '../../components/sale-fiscal/sale-fiscal.component';
+import { FiscalReceiptPreviewComponent } from '../../components/fiscal-receipt-preview/fiscal-receipt-preview.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -16,10 +26,13 @@ import { SaleFiscalComponent } from '../../components/sale-fiscal/sale-fiscal.co
   imports: [
     RouterLink,
     TranslatePipe,
+    DialogModule,
+    ButtonComponent,
     SaleTotalsComponent,
     SalePartiesComponent,
     SaleItemsComponent,
     SaleFiscalComponent,
+    FiscalReceiptPreviewComponent,
   ],
   templateUrl: './sale-details.component.html',
   styleUrl: './sale-details.component.scss',
@@ -27,6 +40,8 @@ import { SaleFiscalComponent } from '../../components/sale-fiscal/sale-fiscal.co
 export class SaleDetailsComponent {
   private readonly saleFacade = inject(SaleFacade);
   private readonly route = inject(ActivatedRoute);
+
+  protected readonly showReceiptPreview = signal(false);
 
   // paramMap instead of snapshot: the component is reused when navigating between ids.
   private readonly routeSaleId = toSignal(
@@ -59,5 +74,9 @@ export class SaleDetailsComponent {
         this.saleFacade.loadSaleDetails(routeSaleId);
       }
     });
+  }
+
+  protected closeReceiptPreview(): void {
+    this.showReceiptPreview.set(false);
   }
 }

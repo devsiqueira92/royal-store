@@ -4,6 +4,7 @@ import { PosProduct } from '../interfaces/pos-product.interface';
 import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
 import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
+import { SaleReceipt } from '../interfaces/sale-receipt.interface';
 import { SaleActions } from './sale.actions';
 
 export interface SaleState {
@@ -15,6 +16,8 @@ export interface SaleState {
   isLoadingSales: boolean;
   saleDetails: SaleDetails | null;
   isLoadingSaleDetails: boolean;
+  saleReceipt: SaleReceipt | null;
+  isLoadingSaleReceipt: boolean;
   isRegisteringSale: boolean;
   lastRegisterSaleResult: RegisterSaleResponse | null;
   error: string | null;
@@ -29,6 +32,8 @@ export const initialSaleState: SaleState = {
   isLoadingSales: false,
   saleDetails: null,
   isLoadingSaleDetails: false,
+  saleReceipt: null,
+  isLoadingSaleReceipt: false,
   isRegisteringSale: false,
   lastRegisterSaleResult: null,
   error: null,
@@ -106,6 +111,26 @@ export const saleFeature = createFeature({
     on(SaleActions.clearSaleDetails, (state): SaleState => ({
       ...state,
       saleDetails: null,
+    })),
+    on(SaleActions.loadSaleReceipt, (state): SaleState => ({
+      ...state,
+      saleReceipt: null,
+      isLoadingSaleReceipt: true,
+      error: null,
+    })),
+    on(SaleActions.loadSaleReceiptSuccess, (state, { saleReceipt }): SaleState => ({
+      ...state,
+      saleReceipt,
+      isLoadingSaleReceipt: false,
+    })),
+    on(SaleActions.loadSaleReceiptFailure, (state, { error }): SaleState => ({
+      ...state,
+      isLoadingSaleReceipt: false,
+      error,
+    })),
+    on(SaleActions.clearSaleReceipt, (state): SaleState => ({
+      ...state,
+      saleReceipt: null,
     })),
     on(SaleActions.registerSale, (state): SaleState => ({
       ...state,

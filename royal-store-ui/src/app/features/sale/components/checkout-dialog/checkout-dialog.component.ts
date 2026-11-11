@@ -37,7 +37,6 @@ import {
 } from '../../interfaces/checkout.interface';
 import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
 import { Customer } from '../../interfaces/customer.interface';
-import { FiscalReceiptData } from '../../interfaces/fiscal-receipt.interface';
 import { PaymentEntry, PaymentState } from '../../interfaces/payment.interface';
 import {
   CASHBACK_FISCAL_TYPE,
@@ -168,9 +167,6 @@ export class CheckoutDialogComponent implements OnInit {
   // in-progress registration is one it started (and not a stale result from
   // a previous dialog instance that never got cleared from the store).
   protected readonly awaitingResult = signal(false);
-  private readonly receiptSnapshot = signal<
-    Omit<FiscalReceiptData, 'saleId' | 'issuedAt'> | null
-  >(null);
 
   protected readonly isRegisteringSale = toSignal(
     this.saleFacade.isRegisteringSale$,
@@ -184,15 +180,9 @@ export class CheckoutDialogComponent implements OnInit {
     initialValue: null,
   });
 
-  protected readonly receiptData = computed<FiscalReceiptData | null>(() => {
-    const snapshot = this.receiptSnapshot();
-    const result = this.registerResult();
-    if (!snapshot || !result) {
-      return null;
-    }
-
-    return { ...snapshot, saleId: result.saleId, issuedAt: new Date() };
-  });
+  protected readonly receiptSaleId = computed(
+    () => this.registerResult()?.saleId ?? null,
+  );
 
   /** Looked up only to attach a cashback line to the charge payload when it's redeemed. */
   protected readonly methods = toSignal(
@@ -478,15 +468,6 @@ export class CheckoutDialogComponent implements OnInit {
       }
     }
 
-    // Snapshotted now, not read live from the receipt step: the cart and selection this
-    // was built from may already have changed (or cleared) by the time registration
-    // finishes and the parent reacts to the success.
-    this.receiptSnapshot.set({
-      items: this.items(),
-      totals,
-      paymentLabel: this.resolvePaymentLabel(payment),
-      customerName: this.selectedCustomer()?.name ?? null,
-    });
     this.awaitingResult.set(true);
 
     this.confirmed.emit({
@@ -505,16 +486,5 @@ export class CheckoutDialogComponent implements OnInit {
       payments,
       totals,
     });
-  }
-
-  private resolvePaymentLabel(payment: PaymentState): string {
-    const { methodId, card } = payment.details;
-    const name =
-      this.methods().find(method => method.id === methodId)?.paymentMethod ??
-      '';
-
-    return card && card.installments > 1
-      ? `${name} (${card.installments}x)`
-      : name;
   }
 }

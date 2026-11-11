@@ -45,9 +45,9 @@
       [addresses]="customerAddresses()"
     />
 
-    @if (step() === 4 && receiptData(); as receipt) {
+    @if (step() === 4 && receiptSaleId(); as saleId) {
       <app-fiscal-receipt-preview
-        [data]="receipt"
+        [saleId]="saleId"
         (closed)="close()"
       />
     }

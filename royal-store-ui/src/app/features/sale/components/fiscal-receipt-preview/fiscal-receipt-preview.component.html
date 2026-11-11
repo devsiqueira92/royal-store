@@ -1,103 +1,113 @@
 <div class="fiscal-receipt-wrapper">
-  <div class="fiscal-receipt">
-    <header class="fiscal-receipt__header">
-      <strong>{{ 'sale.checkout.receipt.storeName' | translate }}</strong>
-      <!-- TODO: Buscar informações a partir do backend -->
-      <!-- <span>{{ 'sale.checkout.receipt.storeDocument' | translate }}</span>
-      <span>{{ 'sale.checkout.receipt.storeAddress' | translate }}</span> -->
-    </header>
-
-    <div class="fiscal-receipt__rule"></div>
-
-    <div class="fiscal-receipt__meta">
-      <strong class="fiscal-receipt__section-label">{{
-        'sale.checkout.receipt.title' | translate
-      }}</strong>
-      <div class="fiscal-receipt__meta-row">
-        <span>{{ 'sale.checkout.receipt.saleRef' | translate }}</span>
-        <span>#{{ shortSaleId() }}</span>
-      </div>
-      <div class="fiscal-receipt__meta-row">
-        <span>{{ 'sale.checkout.receipt.issuedAt' | translate }}</span>
-        <span>{{ data().issuedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-      </div>
-      <div class="fiscal-receipt__meta-row">
-        <span>{{ 'sale.checkout.receipt.customer' | translate }}</span>
-        <span>{{
-          data().customerName ??
-            ('sale.checkout.receipt.anonymousCustomer' | translate)
-        }}</span>
-      </div>
+  @if (isLoading()) {
+    <div class="fiscal-receipt fiscal-receipt--status">
+      <i class="pi pi-spin pi-spinner"></i>
     </div>
+  } @else if (receipt(); as receipt) {
+    <div class="fiscal-receipt">
+      <header class="fiscal-receipt__header">
+        <strong>{{
+          receipt.storeName ?? ('sale.checkout.receipt.storeName' | translate)
+        }}</strong>
+      </header>
 
-    <div class="fiscal-receipt__rule"></div>
+      <div class="fiscal-receipt__rule"></div>
 
-    <div class="fiscal-receipt__items">
-      @for (item of data().items; track item.variantId) {
-        <div class="fiscal-receipt__item">
-          <span class="fiscal-receipt__item-name">
-            {{ item.name
-            }}{{ item.variantLabel ? ' — ' + item.variantLabel : '' }}
-          </span>
-          <div class="fiscal-receipt__item-line">
-            <span>{{ item.quantity }} x {{ item.unitPrice | currency }}</span>
-            <span>{{ item.unitPrice * item.quantity | currency }}</span>
+      <div class="fiscal-receipt__meta">
+        <strong class="fiscal-receipt__section-label">{{
+          'sale.checkout.receipt.title' | translate
+        }}</strong>
+        <div class="fiscal-receipt__meta-row">
+          <span>{{ 'sale.checkout.receipt.saleRef' | translate }}</span>
+          <span>#{{ receipt.receiptCode.toUpperCase() }}</span>
+        </div>
+        <div class="fiscal-receipt__meta-row">
+          <span>{{ 'sale.checkout.receipt.issuedAt' | translate }}</span>
+          <span>{{ receipt.soldAt }}</span>
+        </div>
+        <div class="fiscal-receipt__meta-row">
+          <span>{{ 'sale.checkout.receipt.customer' | translate }}</span>
+          <span>{{
+            receipt.customerName ??
+              ('sale.checkout.receipt.anonymousCustomer' | translate)
+          }}</span>
+        </div>
+      </div>
+
+      <div class="fiscal-receipt__rule"></div>
+
+      <div class="fiscal-receipt__items">
+        @for (item of receipt.items; track $index) {
+          <div class="fiscal-receipt__item">
+            <span class="fiscal-receipt__item-name">
+              {{ item.productName }}{{ item.sku ? ' — ' + item.sku : '' }}
+            </span>
+            <div class="fiscal-receipt__item-line">
+              <span>{{ item.quantity }} x {{ item.unitPrice | currency }}</span>
+              <span>{{ item.totalPrice | currency }}</span>
+            </div>
           </div>
-        </div>
-      }
-    </div>
-
-    <div class="fiscal-receipt__rule"></div>
-
-    <div class="fiscal-receipt__totals">
-      <div class="fiscal-receipt__row">
-        <span>{{ 'sale.checkout.receipt.subtotal' | translate }}</span>
-        <span>{{ data().totals.subtotal | currency }}</span>
+        }
       </div>
-      @if (data().totals.discountTotal > 0) {
+
+      <div class="fiscal-receipt__rule"></div>
+
+      <div class="fiscal-receipt__totals">
         <div class="fiscal-receipt__row">
-          <span>{{ 'sale.checkout.receipt.discount' | translate }}</span>
-          <span>−{{ data().totals.discountTotal | currency }}</span>
+          <span>{{ 'sale.checkout.receipt.subtotal' | translate }}</span>
+          <span>{{ receipt.subtotal | currency }}</span>
         </div>
-      }
-      <div class="fiscal-receipt__row fiscal-receipt__row--total">
-        <span>{{ 'sale.checkout.receipt.total' | translate }}</span>
-        <span>{{ data().totals.total | currency }}</span>
+        @if (receipt.discountAmount > 0) {
+          <div class="fiscal-receipt__row">
+            <span>{{ 'sale.checkout.receipt.discount' | translate }}</span>
+            <span>−{{ receipt.discountAmount | currency }}</span>
+          </div>
+        }
+        <div class="fiscal-receipt__row fiscal-receipt__row--total">
+          <span>{{ 'sale.checkout.receipt.total' | translate }}</span>
+          <span>{{ receipt.totalAmount | currency }}</span>
+        </div>
       </div>
-    </div>
 
-    <div class="fiscal-receipt__rule fiscal-receipt__rule--dashed"></div>
+      <div class="fiscal-receipt__rule fiscal-receipt__rule--dashed"></div>
 
-    <p class="fiscal-receipt__tax">
-      {{
-        'sale.checkout.receipt.taxNotice'
-          | translate
-            : {
-                amount: (data().totals.tax | currency),
-                percent: (taxPercent() | number: '1.2-2'),
-              }
-      }}
-    </p>
+      <p class="fiscal-receipt__tax">
+        {{
+          'sale.checkout.receipt.taxNotice'
+            | translate
+              : {
+                  amount: (receipt.taxAmount | currency),
+                  percent: (taxPercent() | number: '1.2-2'),
+                }
+        }}
+      </p>
 
-    <div class="fiscal-receipt__rule fiscal-receipt__rule--dashed"></div>
+      <div class="fiscal-receipt__rule fiscal-receipt__rule--dashed"></div>
 
-    <div class="fiscal-receipt__payment">
-      <span class="fiscal-receipt__section-label">{{
-        'sale.checkout.receipt.payment' | translate
-      }}</span>
-      <div class="fiscal-receipt__row">
-        <span>{{ data().paymentLabel }}</span>
-        <span>{{ data().totals.total | currency }}</span>
+      <div class="fiscal-receipt__payment">
+        <span class="fiscal-receipt__section-label">{{
+          'sale.checkout.receipt.payment' | translate
+        }}</span>
+        @for (payment of receipt.payments; track $index) {
+          <div class="fiscal-receipt__row">
+            <span>{{ payment.paymentMethod }}</span>
+            <span>{{ payment.amount | currency }}</span>
+          </div>
+        }
       </div>
+
+      <div class="fiscal-receipt__rule"></div>
+
+      <footer class="fiscal-receipt__footer">
+        <span>{{ 'sale.checkout.receipt.thanks' | translate }}</span>
+        <span>{{ 'sale.checkout.receipt.comeBack' | translate }}</span>
+      </footer>
     </div>
-
-    <div class="fiscal-receipt__rule"></div>
-
-    <footer class="fiscal-receipt__footer">
-      <span>{{ 'sale.checkout.receipt.thanks' | translate }}</span>
-      <span>{{ 'sale.checkout.receipt.comeBack' | translate }}</span>
-    </footer>
-  </div>
+  } @else if (failed()) {
+    <div class="fiscal-receipt fiscal-receipt--status">
+      <p>{{ 'sale.checkout.receipt.loadError' | translate }}</p>
+    </div>
+  }
 
   <div class="fiscal-receipt__actions">
     <app-button
@@ -105,10 +115,12 @@
       severity="secondary"
       (onClick)="closed.emit()"
     ></app-button>
-    <app-button
-      label="sale.checkout.receipt.print"
-      icon="pi pi-print"
-      (onClick)="print()"
-    ></app-button>
+    @if (receipt()) {
+      <app-button
+        label="sale.checkout.receipt.print"
+        icon="pi pi-print"
+        (onClick)="print()"
+      ></app-button>
+    }
   </div>
 </div>

@@ -5,6 +5,7 @@ using RoyalStore.Application.Loyalty.Commands.ReverseSaleCashback;
 using RoyalStore.Application.Sales.Commands.RegisterSale;
 using RoyalStore.Application.Sales.Queries.GetPosProducts;
 using RoyalStore.Application.Sales.Queries.GetSaleDetails;
+using RoyalStore.Application.Sales.Queries.GetSaleReceipt;
 using RoyalStore.Application.Sales.Queries.GetSalesList;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Permissions;
@@ -23,11 +24,19 @@ public sealed class SaleEndpoints : IEndpointDefinition
 
         routes.MapPost("{id:guid}/cashback/reversal", ReverseCashback)
             .RequireAuthorization(PolicyNames.Permission(Permission.SalesRefund));
+
+        routes.MapGet("{id:guid}/receipt", GetReceipt).RequireAuthorization(PolicyNames.Permission(Permission.SalesCreate));
     }
 
     private static async Task<IResult> GetById(Guid id, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new GetSaleDetailsQuery(id), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> GetReceipt(Guid id, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetSaleReceiptQuery(id), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
