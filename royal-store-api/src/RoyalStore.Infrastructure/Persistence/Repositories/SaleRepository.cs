@@ -111,7 +111,12 @@ public sealed class SaleRepository : ISaleRepository
             .Select(p => new ReceiptPaymentResponse(paymentMethodNames.GetValueOrDefault(p.PaymentId, string.Empty), p.Amount))
             .ToList();
 
-        return new SaleReceiptData(sale, storeName, items, payments);
+        // Sale.DiscountAmount only holds the manual, cashier-entered discount — the receipt's
+        // total needs every discount actually applied, so loyalty and payment-method discounts
+        // are folded in here (cashback is settlement, not a discount, so it stays out).
+        var totalDiscount = sale.DiscountAmount + sale.LoyaltyDiscountApplied + sale.PaymentDiscountApplied;
+
+        return new SaleReceiptData(sale, storeName, totalDiscount, items, payments);
     }
 
     public Task UpdateAsync(Sale sale, CancellationToken ct = default)

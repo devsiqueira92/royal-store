@@ -23,6 +23,7 @@ public sealed class GetSaleReceiptQueryHandler
         if (result is null)
             return Error.NotFound("sale.not_found", "Sale not found.");
 
-        return SaleReceiptResponse.From(result.Sale, result.StoreName, result.Items, result.Payments);
+        return SaleReceiptResponse.From(
+            result.Sale, result.StoreName, result.DiscountAmount, result.Items, result.Payments);
     }
 }
