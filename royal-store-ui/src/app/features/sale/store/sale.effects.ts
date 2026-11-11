@@ -86,3 +86,26 @@ export const loadPosProducts = createEffect(
     functional: true,
   },
 );
+
+export const loadSales = createEffect(
+  (actions$ = inject(Actions), saleService = inject(SaleService)) => {
+    return actions$.pipe(
+      ofType(SaleActions.loadSales),
+      switchMap(({ params }) =>
+        saleService.getAll(params).pipe(
+          map(sales => SaleActions.loadSalesSuccess({ sales })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              SaleActions.loadSalesFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);

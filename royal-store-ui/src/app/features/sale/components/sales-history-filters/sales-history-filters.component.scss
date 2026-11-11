@@ -1,0 +1,27 @@
+.sales-history-page__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem;
+  border-bottom: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}
+
+.sales-history-page__search {
+  flex: 1 1 14rem;
+}
+
+.sales-history-page__search input {
+  width: 100%;
+}
+
+.sales-history-page__filter {
+  flex: 0 0 auto;
+  min-width: 9rem;
+}
+
+@media (max-width: 40rem) {
+  .sales-history-page__toolbar {
+    flex-wrap: wrap;
+  }
+}

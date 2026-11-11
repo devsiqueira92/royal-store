@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Sales.Queries.GetSalesList;
 using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Sales;
 using RoyalStore.Infrastructure.Persistence;
@@ -110,5 +111,70 @@ public sealed class SaleRepository : ISaleRepository
                 PaymentTotal(s.ShiftId, CreditCode),
                 PaymentTotal(s.ShiftId, DebitCode),
                 s.Count));
+    }
+
+    // Seller name resolved with the same profile-first, login-name-fallback rule
+    // CashShiftRepository.GetAllWithMovementTotalsAsync already uses for "which store user did this" —
+    // both lookups are already-null-safe against a null UserId (057 research Decision 2).
+    public async Task<IReadOnlyList<SaleWithNamesProjection>> GetAllAsync(
+        string? normalizedSellerName = null,
+        string? normalizedCustomerName = null,
+        DateOnly? soldFrom = null,
+        DateOnly? soldTo = null,
+        FulfillmentMode? fulfillmentMode = null,
+        CancellationToken ct = default)
+    {
+        var query = _context.Sales.AsNoTracking().AsQueryable();
+
+        // Day-range bounds on SoldAt, inclusive on both ends (057 research Decision 4). SoldAt is
+        // stored as "timestamp with time zone"; Npgsql requires Kind=Utc, never Unspecified (the
+        // Kind DateOnly.ToDateTime produces by default).
+        if (soldFrom.HasValue)
+        {
+            var from = DateTime.SpecifyKind(soldFrom.Value.ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+            query = query.Where(s => s.SoldAt >= from);
+        }
+
+        if (soldTo.HasValue)
+        {
+            var to = DateTime.SpecifyKind(soldTo.Value.AddDays(1).ToDateTime(TimeOnly.MinValue), DateTimeKind.Utc);
+            query = query.Where(s => s.SoldAt < to);
+        }
+
+        if (fulfillmentMode.HasValue)
+            query = query.Where(s => s.FulfillmentMode == fulfillmentMode.Value);
+
+        // Accent-/case-insensitive match via the existing fn_normalize_search_text function, mapped
+        // as a DbFunction rather than a new computed column (057 research Decision 3).
+        if (!string.IsNullOrEmpty(normalizedCustomerName))
+            query = query.Where(s => s.CustomerSnapshot != null
+                && RoyalStoreContext.NormalizeSearchText(s.CustomerSnapshot.Name).Contains(normalizedCustomerName));
+
+        // Filtered directly against Sale (the same correlated sub-select used again in the final
+        // Select below) rather than against the projected SaleWithNamesProjection record: EF cannot
+        // translate a Where that reads SellerName back off a freshly constructed record — it throws
+        // "could not be translated" at runtime despite compiling, because the record's SellerName
+        // field is itself a correlated sub-select, not a plain column.
+        if (!string.IsNullOrEmpty(normalizedSellerName))
+            query = query.Where(s => RoyalStoreContext.NormalizeSearchText(
+                    _context.Profiles.Where(p => p.UserId == s.UserId).Select(p => p.FullName).FirstOrDefault()
+                        ?? _context.Users.Where(u => u.Id == s.UserId).Select(u => u.UserName).FirstOrDefault())
+                .Contains(normalizedSellerName));
+
+        // Order on the entity's own column before projecting — Select/Where preserve ordering, but
+        // EF cannot translate OrderByDescending(p => p.SoldAt) once SoldAt is read back off a freshly
+        // constructed SaleWithNamesProjection, same issue as the seller-name filter above.
+        return await query
+            .OrderByDescending(s => s.SoldAt)
+            .Select(s => new SaleWithNamesProjection(
+                s.Id,
+                _context.Profiles.Where(p => p.UserId == s.UserId).Select(p => p.FullName).FirstOrDefault()
+                    ?? _context.Users.Where(u => u.Id == s.UserId).Select(u => u.UserName).FirstOrDefault(),
+                s.Subtotal,
+                s.DiscountAmount,
+                s.CustomerSnapshot != null ? s.CustomerSnapshot.Name : null,
+                s.SoldAt,
+                s.FulfillmentMode))
+            .ToListAsync(ct);
     }
 }

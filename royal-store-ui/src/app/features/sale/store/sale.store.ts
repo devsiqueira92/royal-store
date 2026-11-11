@@ -1,6 +1,7 @@
 import {
   syncSales,
   loadPosProducts,
+  loadSales,
   registerSale,
   refreshCashShiftAfterSale,
 } from './sale.effects';
@@ -8,6 +9,7 @@ import {
 export const saleStore = {
   syncSales,
   loadPosProducts,
+  loadSales,
   registerSale,
   refreshCashShiftAfterSale,
 };

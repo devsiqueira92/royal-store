@@ -7,6 +7,8 @@ import { SyncSalesResponse } from '../interfaces/sync-sales-response.interface';
 import { PosProduct } from '../interfaces/pos-product.interface';
 import { RegisterSaleRequest } from '../interfaces/register-sale-request.interface';
 import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
+import { SaleListItem } from '../interfaces/sale-list-item.interface';
+import { GetSalesListParams } from '../interfaces/get-sales-list-params.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -30,5 +32,26 @@ export class SaleService {
     }
 
     return this.http.get<PosProduct[]>(`${this.apiUrl}/products`, { params });
+  }
+
+  getAll(params?: GetSalesListParams): Observable<SaleListItem[]> {
+    let httpParams = new HttpParams();
+    if (params?.sellerName) {
+      httpParams = httpParams.set('seller-name', params.sellerName);
+    }
+    if (params?.customerName) {
+      httpParams = httpParams.set('customer-name', params.customerName);
+    }
+    if (params?.soldFrom) {
+      httpParams = httpParams.set('sold-from', params.soldFrom);
+    }
+    if (params?.soldTo) {
+      httpParams = httpParams.set('sold-to', params.soldTo);
+    }
+    if (params?.fulfillmentMode) {
+      httpParams = httpParams.set('fulfillment-mode', params.fulfillmentMode);
+    }
+
+    return this.http.get<SaleListItem[]>(this.apiUrl, { params: httpParams });
   }
 }

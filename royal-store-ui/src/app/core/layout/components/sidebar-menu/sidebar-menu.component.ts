@@ -53,6 +53,11 @@ export class SidebarMenuComponent {
             icon: 'pi pi-dollar',
             routerLink: '/sales',
           },
+          {
+            label: 'Histórico de vendas',
+            icon: 'pi pi-history',
+            routerLink: '/sales/history',
+          },
 
           {
             label: 'Cash Shift',
