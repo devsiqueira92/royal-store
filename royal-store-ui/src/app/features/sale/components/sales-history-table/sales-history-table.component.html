@@ -17,7 +17,7 @@
     </tr>
   </ng-template>
   <ng-template #body let-sale>
-    <tr>
+    <tr class="sales-history-table__row" (click)="openDetails(sale)">
       <td class="sales-history-table__mono">
         {{ sale.soldAt | date: dateFormat }}
       </td>

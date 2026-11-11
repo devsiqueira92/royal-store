@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.sale-items__amount-col {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sale-items__mono {
+  font-family: var(--app-font-mono);
+  font-size: 0.8125rem;
+}
+
+.sale-items__total {
+  font-weight: 700;
+}

@@ -358,6 +358,61 @@
         "total": "Total"
       }
     },
+    "details": {
+      "title": "Detalhes da venda",
+      "subtitle": "Referência {{reference}}",
+      "back": "← Voltar ao histórico",
+      "notFound": "Venda não encontrada.",
+      "groups": {
+        "totals": "Totais",
+        "parties": "Vendedor e cliente",
+        "items": "Itens",
+        "fiscal": "Dados fiscais"
+      },
+      "totals": {
+        "subtotal": "Subtotal",
+        "discountAmount": "Desconto",
+        "loyaltyDiscountApplied": "Desconto fidelidade",
+        "paymentDiscountApplied": "Desconto no pagamento",
+        "taxAmount": "Impostos",
+        "cashbackApplied": "Cashback aplicado",
+        "totalAmount": "Total"
+      },
+      "parties": {
+        "fulfillmentMode": "Modalidade",
+        "sellerName": "Vendedor",
+        "customerName": "Cliente",
+        "customerLoyaltyTierName": "Nível de fidelidade",
+        "soldAt": "Vendido em"
+      },
+      "items": {
+        "columns": {
+          "productName": "Produto",
+          "sku": "SKU",
+          "quantity": "Qtd",
+          "unitPrice": "Preço unitário",
+          "totalPrice": "Total"
+        },
+        "empty": "Nenhum item."
+      },
+      "fiscal": {
+        "columns": {
+          "productName": "Produto",
+          "origin": "Origem",
+          "ncm": "NCM",
+          "cest": "CEST",
+          "cfop": "CFOP",
+          "icmsCst": "CST ICMS",
+          "pisCofinsCst": "CST PIS/COFINS",
+          "ivaCst": "CST IVA",
+          "nationalRate": "Alíquota nacional",
+          "federalRate": "Alíquota federal",
+          "importedFederalRate": "Alíquota federal importado",
+          "stateRate": "Alíquota estadual",
+          "municipalRate": "Alíquota municipal"
+        }
+      }
+    },
     "stats": {
       "todaySales": "Hoje · Vendas",
       "orders": "Pedidos"

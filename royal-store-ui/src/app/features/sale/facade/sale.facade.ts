@@ -15,6 +15,8 @@ import {
   selectIsLoadingProducts,
   selectSales,
   selectIsLoadingSales,
+  selectSaleDetails,
+  selectIsLoadingSaleDetails,
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
 } from '../store/sale.selectors';
@@ -32,6 +34,8 @@ export class SaleFacade {
   isLoadingProducts$ = this.store.select(selectIsLoadingProducts);
   sales$ = this.store.select(selectSales);
   isLoadingSales$ = this.store.select(selectIsLoadingSales);
+  saleDetails$ = this.store.select(selectSaleDetails);
+  isLoadingSaleDetails$ = this.store.select(selectIsLoadingSaleDetails);
   isRegisteringSale$ = this.store.select(selectIsRegisteringSale);
   lastRegisterSaleResult$ = this.store.select(selectLastRegisterSaleResult);
 
@@ -137,6 +141,14 @@ export class SaleFacade {
 
   loadSales(params?: GetSalesListParams): void {
     this.store.dispatch(SaleActions.loadSales({ params }));
+  }
+
+  loadSaleDetails(saleId: string): void {
+    this.store.dispatch(SaleActions.loadSaleDetails({ saleId }));
+  }
+
+  clearSaleDetails(): void {
+    this.store.dispatch(SaleActions.clearSaleDetails());
   }
 
   registerSale(request: RegisterSaleRequest): void {

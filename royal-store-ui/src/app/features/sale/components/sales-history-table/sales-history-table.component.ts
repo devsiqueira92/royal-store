@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -16,6 +17,7 @@ import { SaleListItem } from '../../interfaces/sale-list-item.interface';
 })
 export class SalesHistoryTableComponent {
   private readonly saleFacade = inject(SaleFacade);
+  private readonly router = inject(Router);
 
   protected readonly sales = toSignal(this.saleFacade.sales$, {
     initialValue: [] as SaleListItem[],
@@ -34,5 +36,9 @@ export class SalesHistoryTableComponent {
     fulfillmentMode: string,
   ): 'info' | 'warn' {
     return fulfillmentMode.toLowerCase() === 'pickup' ? 'warn' : 'info';
+  }
+
+  protected openDetails(sale: SaleListItem): void {
+    this.router.navigate(['/sales/history', sale.id]);
   }
 }

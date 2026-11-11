@@ -1,0 +1,64 @@
+<div class="sale-totals">
+  <div class="sale-totals__card">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.subtotal' | translate
+    }}</span>
+    <span class="sale-totals__value">{{
+      totals().subtotal | currency: 'BRL'
+    }}</span>
+  </div>
+
+  <div class="sale-totals__card">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.discountAmount' | translate
+    }}</span>
+    <span class="sale-totals__value">{{
+      totals().discountAmount | currency: 'BRL'
+    }}</span>
+  </div>
+
+  <div class="sale-totals__card">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.loyaltyDiscountApplied' | translate
+    }}</span>
+    <span class="sale-totals__value">{{
+      totals().loyaltyDiscountApplied | currency: 'BRL'
+    }}</span>
+  </div>
+
+  <div class="sale-totals__card">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.paymentDiscountApplied' | translate
+    }}</span>
+    <span class="sale-totals__value">{{
+      totals().paymentDiscountApplied | currency: 'BRL'
+    }}</span>
+  </div>
+
+  <div class="sale-totals__card">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.taxAmount' | translate
+    }}</span>
+    <span class="sale-totals__value">{{
+      totals().taxAmount | currency: 'BRL'
+    }}</span>
+  </div>
+
+  <div class="sale-totals__card">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.cashbackApplied' | translate
+    }}</span>
+    <span class="sale-totals__value">{{
+      totals().cashbackApplied | currency: 'BRL'
+    }}</span>
+  </div>
+
+  <div class="sale-totals__card sale-totals__card--total">
+    <span class="sale-totals__label">{{
+      'sale.details.totals.totalAmount' | translate
+    }}</span>
+    <span class="sale-totals__value sale-totals__value--total">{{
+      totals().totalAmount | currency: 'BRL'
+    }}</span>
+  </div>
+</div>

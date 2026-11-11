@@ -1,0 +1,53 @@
+@if (sale(); as data) {
+  <section class="sale-details">
+    <header class="sale-details__header">
+      <div>
+        <a class="sale-details__back" routerLink="/sales/history">{{
+          'sale.details.back' | translate
+        }}</a>
+        <h1 class="sale-details__title">
+          {{ 'sale.details.title' | translate }}
+        </h1>
+        <p class="sale-details__subtitle">
+          {{
+            'sale.details.subtitle' | translate: { reference: reference() }
+          }}
+        </p>
+      </div>
+    </header>
+
+    <section class="sale-details__group">
+      <h2 class="sale-details__group-title">
+        {{ 'sale.details.groups.totals' | translate }}
+      </h2>
+      <app-sale-totals [totals]="data"></app-sale-totals>
+    </section>
+
+    <section class="sale-details__group">
+      <h2 class="sale-details__group-title">
+        {{ 'sale.details.groups.parties' | translate }}
+      </h2>
+      <app-sale-parties [parties]="data"></app-sale-parties>
+    </section>
+
+    <section class="sale-details__group">
+      <h2 class="sale-details__group-title">
+        {{ 'sale.details.groups.items' | translate }}
+      </h2>
+      <app-sale-items [items]="data.items"></app-sale-items>
+    </section>
+
+    <section class="sale-details__group">
+      <h2 class="sale-details__group-title">
+        {{ 'sale.details.groups.fiscal' | translate }}
+      </h2>
+      <app-sale-fiscal [items]="data.items"></app-sale-fiscal>
+    </section>
+  </section>
+} @else if (!isLoading()) {
+  <section class="sale-details">
+    <p class="sale-details__not-found">
+      {{ 'sale.details.notFound' | translate }}
+    </p>
+  </section>
+}

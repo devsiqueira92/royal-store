@@ -13,6 +13,10 @@ namespace RoyalStore.Application.Sales.Commands.RegisterSale;
 /// </summary>
 public static class SaleItemEnricher
 {
+    /// <summary>CST origins (Tabela B) whose IBPT federal share comes from <c>NationalRate</c>;
+    /// every other origin (1, 2, 6, 7, 8) uses <c>ImportedFederalRate</c> instead.</summary>
+    private static readonly HashSet<string> NationalOrigins = ["0", "3", "4", "5"];
+
     public static Result<SaleItem> Enrich(
         RegisterSaleItem line,
         Guid tenantId,
@@ -45,12 +49,15 @@ public static class SaleItemEnricher
             IssCode: product.IssCode,
             IsSelectiveTax: fiscalProfile.Value.IsSelectiveTax);
 
+        // Only the rate the line's origin actually uses is kept — the other federal column
+        // never applied to this item, so storing it would misrepresent which rate was charged.
+        var isNational = NationalOrigins.Contains(product.Origin);
         var taxRates = ibptTax is null
             ? SaleItemTaxRates.None
             : new SaleItemTaxRates(
-                ibptTax.NationalRate,
+                isNational ? ibptTax.NationalRate : null,
                 ibptTax.FederalRate,
-                ibptTax.ImportedFederalRate,
+                isNational ? null : ibptTax.ImportedFederalRate,
                 ibptTax.StateRate,
                 ibptTax.MunicipalRate);
 

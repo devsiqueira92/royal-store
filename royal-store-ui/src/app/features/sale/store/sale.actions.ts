@@ -6,6 +6,7 @@ import { RegisterSaleRequest } from '../interfaces/register-sale-request.interfa
 import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
 import { GetSalesListParams } from '../interfaces/get-sales-list-params.interface';
 import { SaleListItem } from '../interfaces/sale-list-item.interface';
+import { SaleDetails } from '../interfaces/sale-details.interface';
 
 export const SaleActions = createActionGroup({
   source: 'Sale',
@@ -20,6 +21,10 @@ export const SaleActions = createActionGroup({
     'Load Sales': props<{ params?: GetSalesListParams }>(),
     'Load Sales Success': props<{ sales: SaleListItem[] }>(),
     'Load Sales Failure': props<{ error: string }>(),
+    'Load Sale Details': props<{ saleId: string }>(),
+    'Load Sale Details Success': props<{ saleDetails: SaleDetails }>(),
+    'Load Sale Details Failure': props<{ error: string }>(),
+    'Clear Sale Details': emptyProps(),
     'Register Sale': props<{ request: RegisterSaleRequest }>(),
     'Register Sale Success': props<{ response: RegisterSaleResponse }>(),
     'Register Sale Failure': props<{ error: string }>(),

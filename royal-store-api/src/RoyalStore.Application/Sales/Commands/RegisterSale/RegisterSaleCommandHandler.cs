@@ -325,15 +325,14 @@ public sealed class RegisterSaleCommandHandler
         return (items, subtotal, taxAmount);
     }
 
-    /// <summary>Per-item tax-burden amount: the federal share (national or imported, by origin) plus
-    /// state and municipal rates, applied to the line's total — an exact port of the checkout
-    /// frontend's own <c>lineItemTaxRate</c> formula (research.md Decision 8), so a receipt computed
-    /// by either side agrees.</summary>
+    /// <summary>Per-item tax-burden amount: the federal share (national or imported, whichever
+    /// SaleItemEnricher kept for the line's origin) plus state and municipal rates, applied to the
+    /// line's total — an exact port of the checkout frontend's own <c>lineItemTaxRate</c> formula
+    /// (research.md Decision 8), so a receipt computed by either side agrees.</summary>
     private static decimal ItemTaxAmount(SaleItem item)
     {
-        var isNational = item.Fiscal.Origin == "0";
-        var federalRate = isNational ? item.TaxRates.NationalRate : item.TaxRates.ImportedFederalRate;
-        var rate = (federalRate ?? 0m) + (item.TaxRates.StateRate ?? 0m) + (item.TaxRates.MunicipalRate ?? 0m);
+        var federalRate = item.TaxRates.NationalRate ?? item.TaxRates.ImportedFederalRate ?? 0m;
+        var rate = federalRate + (item.TaxRates.StateRate ?? 0m) + (item.TaxRates.MunicipalRate ?? 0m);
         return Math.Round(item.TotalPrice * rate / 100m, 2);
     }
 

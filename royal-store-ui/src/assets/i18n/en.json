@@ -358,6 +358,61 @@
         "total": "Total"
       }
     },
+    "details": {
+      "title": "Sale details",
+      "subtitle": "Reference {{reference}}",
+      "back": "← Back to history",
+      "notFound": "Sale not found.",
+      "groups": {
+        "totals": "Totals",
+        "parties": "Seller & customer",
+        "items": "Items",
+        "fiscal": "Fiscal data"
+      },
+      "totals": {
+        "subtotal": "Subtotal",
+        "discountAmount": "Discount",
+        "loyaltyDiscountApplied": "Loyalty discount",
+        "paymentDiscountApplied": "Payment discount",
+        "taxAmount": "Taxes",
+        "cashbackApplied": "Cashback applied",
+        "totalAmount": "Total"
+      },
+      "parties": {
+        "fulfillmentMode": "Fulfillment",
+        "sellerName": "Seller",
+        "customerName": "Customer",
+        "customerLoyaltyTierName": "Loyalty tier",
+        "soldAt": "Sold at"
+      },
+      "items": {
+        "columns": {
+          "productName": "Product",
+          "sku": "SKU",
+          "quantity": "Qty",
+          "unitPrice": "Unit price",
+          "totalPrice": "Total"
+        },
+        "empty": "No items."
+      },
+      "fiscal": {
+        "columns": {
+          "productName": "Product",
+          "origin": "Origin",
+          "ncm": "NCM",
+          "cest": "CEST",
+          "cfop": "CFOP",
+          "icmsCst": "ICMS CST",
+          "pisCofinsCst": "PIS/COFINS CST",
+          "ivaCst": "IVA CST",
+          "nationalRate": "National rate",
+          "federalRate": "Federal rate",
+          "importedFederalRate": "Imported federal rate",
+          "stateRate": "State rate",
+          "municipalRate": "Municipal rate"
+        }
+      }
+    },
     "stats": {
       "todaySales": "Today · Sales",
       "orders": "Orders"

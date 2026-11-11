@@ -8,6 +8,8 @@ export const {
   selectIsLoadingProducts,
   selectSales,
   selectIsLoadingSales,
+  selectSaleDetails,
+  selectIsLoadingSaleDetails,
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
 } = saleFeature;

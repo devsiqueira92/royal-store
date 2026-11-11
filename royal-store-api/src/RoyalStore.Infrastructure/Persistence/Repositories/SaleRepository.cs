@@ -38,6 +38,33 @@ public sealed class SaleRepository : ISaleRepository
     public async Task<Sale?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Sales.FindAsync([id], ct);
 
+    // Mirrors CashShiftRepository.GetByIdWithOperatorNameAsync exactly: Include the aggregate's
+    // collection rather than Select-project it, then resolve the display name with a second scalar
+    // query (058 research Decision 1/2) — the Select-projection shape broke three times at runtime
+    // in feature 057's list endpoint.
+    public async Task<SaleWithSellerName?> GetDetailsByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var sale = await _context.Sales
+            .AsNoTracking()
+            .Include(s => s.Items)
+            .FirstOrDefaultAsync(s => s.Id == id, ct);
+        if (sale is null)
+            return null;
+
+        var sellerName = sale.UserId is null
+            ? null
+            : await _context.Profiles
+                  .Where(p => p.UserId == sale.UserId)
+                  .Select(p => p.FullName)
+                  .FirstOrDefaultAsync(ct)
+              ?? await _context.Users
+                  .Where(u => u.Id == sale.UserId)
+                  .Select(u => u.UserName)
+                  .FirstOrDefaultAsync(ct);
+
+        return new SaleWithSellerName(sale, sellerName);
+    }
+
     public Task UpdateAsync(Sale sale, CancellationToken ct = default)
     {
         _context.Sales.Update(sale);

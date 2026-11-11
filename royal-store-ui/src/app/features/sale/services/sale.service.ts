@@ -9,6 +9,7 @@ import { RegisterSaleRequest } from '../interfaces/register-sale-request.interfa
 import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
 import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { GetSalesListParams } from '../interfaces/get-sales-list-params.interface';
+import { SaleDetails } from '../interfaces/sale-details.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -53,5 +54,9 @@ export class SaleService {
     }
 
     return this.http.get<SaleListItem[]>(this.apiUrl, { params: httpParams });
+  }
+
+  getById(id: string): Observable<SaleDetails> {
+    return this.http.get<SaleDetails>(`${this.apiUrl}/${id}`);
   }
 }

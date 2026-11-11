@@ -1,0 +1,50 @@
+<div class="sale-parties">
+  <div class="sale-parties__card">
+    <span class="sale-parties__label">{{
+      'sale.details.parties.fulfillmentMode' | translate
+    }}</span>
+    <p-tag
+      [value]="
+        ('sale.history.fulfillmentMode.' +
+          parties().fulfillmentMode.toLowerCase()) | translate
+      "
+      [severity]="fulfillmentModeSeverity(parties().fulfillmentMode)"
+    />
+  </div>
+
+  <div class="sale-parties__card">
+    <span class="sale-parties__label">{{
+      'sale.details.parties.sellerName' | translate
+    }}</span>
+    <span class="sale-parties__value">{{
+      parties().sellerName || '—'
+    }}</span>
+  </div>
+
+  <div class="sale-parties__card">
+    <span class="sale-parties__label">{{
+      'sale.details.parties.customerName' | translate
+    }}</span>
+    <span class="sale-parties__value">{{
+      parties().customerName || '—'
+    }}</span>
+  </div>
+
+  <div class="sale-parties__card">
+    <span class="sale-parties__label">{{
+      'sale.details.parties.customerLoyaltyTierName' | translate
+    }}</span>
+    <span class="sale-parties__value">{{
+      parties().customerLoyaltyTierName || '—'
+    }}</span>
+  </div>
+
+  <div class="sale-parties__card">
+    <span class="sale-parties__label">{{
+      'sale.details.parties.soldAt' | translate
+    }}</span>
+    <span class="sale-parties__value sale-parties__value--mono">{{
+      parties().soldAt | date: dateFormat
+    }}</span>
+  </div>
+</div>

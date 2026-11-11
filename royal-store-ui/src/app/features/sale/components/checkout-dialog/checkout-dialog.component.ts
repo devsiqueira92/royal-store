@@ -493,8 +493,11 @@ export class CheckoutDialogComponent implements OnInit {
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
       fulfillment: {
-        mode: 'delivery',
-        branchId: null,
+        // TODO: delivery isn't supported yet, so every sale is treated as a pickup for now.
+        // No branch entity exists yet (RegisterSaleFulfillment.BranchId is just an opaque
+        // string), and pickup requires a non-blank one, hence this placeholder.
+        mode: 'pickup',
+        branchId: 'main',
         address: toSaleAddress(
           this.form.controls.fulfillment.controls.address.getRawValue(),
         ),

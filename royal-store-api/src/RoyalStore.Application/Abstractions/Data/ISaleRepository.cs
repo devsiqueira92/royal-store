@@ -10,6 +10,12 @@ public interface ISaleRepository
     Task AddPaymentsAsync(IEnumerable<SalePayment> payments, CancellationToken ct = default);
     Task<HashSet<Guid>> GetExistingIdsAsync(IEnumerable<Guid> ids, CancellationToken ct = default);
     Task<Sale?> GetByIdAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>The full sale aggregate (with its <see cref="Sale.Items"/> loaded) plus the seller's
+    /// display name, already resolved with the same profile-first, login-name-fallback rule used
+    /// elsewhere. <c>null</c> when no such sale exists for the current tenant.</summary>
+    Task<SaleWithSellerName?> GetDetailsByIdAsync(Guid id, CancellationToken ct = default);
+
     Task UpdateAsync(Sale sale, CancellationToken ct = default);
     Task<ShiftSalesTotals> GetShiftSalesTotalsAsync(Guid cashShiftId, CancellationToken ct = default);
 

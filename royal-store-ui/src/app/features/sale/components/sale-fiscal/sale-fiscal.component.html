@@ -1,0 +1,67 @@
+<div class="sale-fiscal__wrapper">
+  <p-table [value]="items()" dataKey="productName">
+    <ng-template #header>
+      <tr>
+        <th>{{ 'sale.details.fiscal.columns.productName' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.origin' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.ncm' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.cest' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.cfop' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.icmsCst' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.pisCofinsCst' | translate }}</th>
+        <th>{{ 'sale.details.fiscal.columns.ivaCst' | translate }}</th>
+        <th class="sale-fiscal__rate-col">
+          {{ 'sale.details.fiscal.columns.nationalRate' | translate }}
+        </th>
+        <th class="sale-fiscal__rate-col">
+          {{ 'sale.details.fiscal.columns.federalRate' | translate }}
+        </th>
+        <th class="sale-fiscal__rate-col">
+          {{ 'sale.details.fiscal.columns.importedFederalRate' | translate }}
+        </th>
+        <th class="sale-fiscal__rate-col">
+          {{ 'sale.details.fiscal.columns.stateRate' | translate }}
+        </th>
+        <th class="sale-fiscal__rate-col">
+          {{ 'sale.details.fiscal.columns.municipalRate' | translate }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-item>
+      <tr>
+        <td>{{ item.productName }}</td>
+        <td>{{ item.origin }}</td>
+        <td>{{ item.ncm || '—' }}</td>
+        <td>{{ item.cest || '—' }}</td>
+        <td>{{ item.cfop || '—' }}</td>
+        <td>{{ item.icmsCst || '—' }}</td>
+        <td>{{ item.pisCofinsCst || '—' }}</td>
+        <td>{{ item.ivaCst || '—' }}</td>
+        <td class="sale-fiscal__rate-col">
+          {{ item.nationalRate !== null ? item.nationalRate + '%' : '—' }}
+        </td>
+        <td class="sale-fiscal__rate-col">
+          {{ item.federalRate !== null ? item.federalRate + '%' : '—' }}
+        </td>
+        <td class="sale-fiscal__rate-col">
+          {{
+            item.importedFederalRate !== null
+              ? item.importedFederalRate + '%'
+              : '—'
+          }}
+        </td>
+        <td class="sale-fiscal__rate-col">
+          {{ item.stateRate !== null ? item.stateRate + '%' : '—' }}
+        </td>
+        <td class="sale-fiscal__rate-col">
+          {{ item.municipalRate !== null ? item.municipalRate + '%' : '—' }}
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="13">{{ 'sale.details.items.empty' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
