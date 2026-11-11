@@ -333,6 +333,31 @@
       "searchPlaceholder": "Buscar produtos",
       "empty": "Nenhum produto encontrado."
     },
+    "history": {
+      "title": "Histórico de vendas",
+      "subtitle": "{{count}} vendas",
+      "empty": "Nenhuma venda encontrada.",
+      "filters": {
+        "sellerNamePlaceholder": "Buscar por vendedor...",
+        "customerNamePlaceholder": "Buscar por cliente...",
+        "soldFrom": "De",
+        "soldTo": "Até"
+      },
+      "fulfillmentMode": {
+        "all": "Todas",
+        "delivery": "Entrega",
+        "pickup": "Retirada"
+      },
+      "columns": {
+        "soldAt": "Data",
+        "seller": "Vendedor",
+        "customer": "Cliente",
+        "fulfillmentMode": "Modalidade",
+        "subtotal": "Subtotal",
+        "discount": "Desconto",
+        "total": "Total"
+      }
+    },
     "stats": {
       "todaySales": "Hoje · Vendas",
       "orders": "Pedidos"

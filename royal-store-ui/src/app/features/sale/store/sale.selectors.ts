@@ -6,6 +6,8 @@ export const {
   selectError,
   selectPosProducts,
   selectIsLoadingProducts,
+  selectSales,
+  selectIsLoadingSales,
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
 } = saleFeature;

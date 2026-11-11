@@ -4,6 +4,7 @@ using RoyalStore.API.Extensions;
 using RoyalStore.Application.Loyalty.Commands.ReverseSaleCashback;
 using RoyalStore.Application.Sales.Commands.RegisterSale;
 using RoyalStore.Application.Sales.Queries.GetPosProducts;
+using RoyalStore.Application.Sales.Queries.GetSalesList;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Permissions;
 
@@ -15,10 +16,25 @@ public sealed class SaleEndpoints : IEndpointDefinition
     {
         var routes = app.MapGroup("api/sales").WithTags("Sales");
         routes.MapPost("", RegisterSale).RequireAuthorization(PolicyNames.Admin);
+        routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.Permission(Permission.ReportsViewFinancials));
         routes.MapGet("products", GetProducts).RequireAuthorization(PolicyNames.Admin);
 
         routes.MapPost("{id:guid}/cashback/reversal", ReverseCashback)
             .RequireAuthorization(PolicyNames.Permission(Permission.SalesRefund));
+    }
+
+    private static async Task<IResult> GetAll(
+        [FromQuery(Name = "seller-name")] string? sellerName,
+        [FromQuery(Name = "customer-name")] string? customerName,
+        [FromQuery(Name = "sold-from")] DateOnly? soldFrom,
+        [FromQuery(Name = "sold-to")] DateOnly? soldTo,
+        [FromQuery(Name = "fulfillment-mode")] string? fulfillmentMode,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(
+            new GetSalesListQuery(sellerName, customerName, soldFrom, soldTo, fulfillmentMode), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
     private static async Task<IResult> RegisterSale (

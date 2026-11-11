@@ -2,6 +2,7 @@ import { createFeature, createReducer, on } from '@ngrx/store';
 import { SyncSalesResponse } from '../interfaces/sync-sales-response.interface';
 import { PosProduct } from '../interfaces/pos-product.interface';
 import { RegisterSaleResponse } from '../interfaces/register-sale-response.interface';
+import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { SaleActions } from './sale.actions';
 
 export interface SaleState {
@@ -9,6 +10,8 @@ export interface SaleState {
   lastSyncResult: SyncSalesResponse | null;
   posProducts: PosProduct[];
   isLoadingProducts: boolean;
+  sales: SaleListItem[];
+  isLoadingSales: boolean;
   isRegisteringSale: boolean;
   lastRegisterSaleResult: RegisterSaleResponse | null;
   error: string | null;
@@ -19,6 +22,8 @@ export const initialSaleState: SaleState = {
   lastSyncResult: null,
   posProducts: [],
   isLoadingProducts: false,
+  sales: [],
+  isLoadingSales: false,
   isRegisteringSale: false,
   lastRegisterSaleResult: null,
   error: null,
@@ -60,6 +65,21 @@ export const saleFeature = createFeature({
     on(SaleActions.loadPosProductsFailure, (state, { error }): SaleState => ({
       ...state,
       isLoadingProducts: false,
+      error,
+    })),
+    on(SaleActions.loadSales, (state): SaleState => ({
+      ...state,
+      isLoadingSales: true,
+      error: null,
+    })),
+    on(SaleActions.loadSalesSuccess, (state, { sales }): SaleState => ({
+      ...state,
+      sales,
+      isLoadingSales: false,
+    })),
+    on(SaleActions.loadSalesFailure, (state, { error }): SaleState => ({
+      ...state,
+      isLoadingSales: false,
       error,
     })),
     on(SaleActions.registerSale, (state): SaleState => ({

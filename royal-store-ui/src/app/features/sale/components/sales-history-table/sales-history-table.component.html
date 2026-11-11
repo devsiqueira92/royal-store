@@ -1,0 +1,53 @@
+<p-table [value]="sales()" [loading]="loading()" dataKey="id">
+  <ng-template #header>
+    <tr>
+      <th>{{ 'sale.history.columns.soldAt' | translate }}</th>
+      <th>{{ 'sale.history.columns.seller' | translate }}</th>
+      <th>{{ 'sale.history.columns.customer' | translate }}</th>
+      <th>{{ 'sale.history.columns.fulfillmentMode' | translate }}</th>
+      <th class="sales-history-table__amount-col">
+        {{ 'sale.history.columns.subtotal' | translate }}
+      </th>
+      <th class="sales-history-table__amount-col">
+        {{ 'sale.history.columns.discount' | translate }}
+      </th>
+      <th class="sales-history-table__amount-col">
+        {{ 'sale.history.columns.total' | translate }}
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-sale>
+    <tr>
+      <td class="sales-history-table__mono">
+        {{ sale.soldAt | date: dateFormat }}
+      </td>
+      <td>{{ sale.sellerName || '—' }}</td>
+      <td>{{ sale.customerName || '—' }}</td>
+      <td>
+        <p-tag
+          [value]="
+            'sale.history.fulfillmentMode.' + sale.fulfillmentMode.toLowerCase()
+              | translate
+          "
+          [severity]="fulfillmentModeSeverity(sale.fulfillmentMode)"
+        />
+      </td>
+      <td class="sales-history-table__amount-col">
+        {{ sale.subtotal | currency: 'BRL' }}
+      </td>
+      <td class="sales-history-table__amount-col">
+        {{ sale.discountAmount | currency: 'BRL' }}
+      </td>
+      <td class="sales-history-table__amount-col">
+        <span class="sales-history-table__total">{{
+          total(sale) | currency: 'BRL'
+        }}</span>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="7">{{ 'sale.history.empty' | translate }}</td>
+    </tr>
+  </ng-template>
+</p-table>

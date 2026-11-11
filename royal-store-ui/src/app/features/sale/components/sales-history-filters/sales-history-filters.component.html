@@ -1,0 +1,50 @@
+<div class="sales-history-page__toolbar">
+  <p-iconfield class="sales-history-page__search">
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      type="text"
+      [ngModel]="sellerNameFilter()"
+      (ngModelChange)="setSellerNameFilter($event)"
+      [placeholder]="'sale.history.filters.sellerNamePlaceholder' | translate"
+    />
+  </p-iconfield>
+
+  <p-iconfield class="sales-history-page__search">
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      type="text"
+      [ngModel]="customerNameFilter()"
+      (ngModelChange)="setCustomerNameFilter($event)"
+      [placeholder]="'sale.history.filters.customerNamePlaceholder' | translate"
+    />
+  </p-iconfield>
+
+  <p-datepicker
+    class="sales-history-page__filter"
+    [ngModel]="soldFromFilter()"
+    (ngModelChange)="setSoldFromFilter($event)"
+    dateFormat="yy-mm-dd"
+    [showIcon]="true"
+    [placeholder]="'sale.history.filters.soldFrom' | translate"
+  />
+
+  <p-datepicker
+    class="sales-history-page__filter"
+    [ngModel]="soldToFilter()"
+    (ngModelChange)="setSoldToFilter($event)"
+    dateFormat="yy-mm-dd"
+    [showIcon]="true"
+    [placeholder]="'sale.history.filters.soldTo' | translate"
+  />
+
+  <p-select
+    class="sales-history-page__filter"
+    [options]="fulfillmentModeOptions()"
+    optionLabel="label"
+    optionValue="value"
+    [ngModel]="fulfillmentModeFilter()"
+    (ngModelChange)="setFulfillmentModeFilter($event)"
+  />
+</div>

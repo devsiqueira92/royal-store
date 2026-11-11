@@ -78,11 +78,20 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
         return result;
     }
 
+    /// <summary>Maps the Postgres function created by the 052-product-filters migration so it can be
+    /// called from LINQ (translated to SQL) without a new migration or computed column (057 research
+    /// Decision 3). Never call this directly — it only exists for EF's expression translation.</summary>
+    [DbFunction("fn_normalize_search_text")]
+    public static string NormalizeSearchText(string? input) =>
+        throw new NotSupportedException("Only for use in LINQ expressions translated to SQL.");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AssemblyReference).Assembly);
+
+        modelBuilder.HasDbFunction(typeof(RoyalStoreContext).GetMethod(nameof(NormalizeSearchText))!);
 
         modelBuilder.Entity<Category>()
             .HasQueryFilter(c => c.TenantId == _tenantContext.TenantId);

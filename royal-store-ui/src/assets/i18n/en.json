@@ -333,6 +333,31 @@
       "searchPlaceholder": "Search products",
       "empty": "No products found."
     },
+    "history": {
+      "title": "Sales history",
+      "subtitle": "{{count}} sales",
+      "empty": "No sales found.",
+      "filters": {
+        "sellerNamePlaceholder": "Search by seller...",
+        "customerNamePlaceholder": "Search by customer...",
+        "soldFrom": "From",
+        "soldTo": "To"
+      },
+      "fulfillmentMode": {
+        "all": "All",
+        "delivery": "Delivery",
+        "pickup": "Pickup"
+      },
+      "columns": {
+        "soldAt": "Date",
+        "seller": "Seller",
+        "customer": "Customer",
+        "fulfillmentMode": "Fulfillment",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "total": "Total"
+      }
+    },
     "stats": {
       "todaySales": "Today · Sales",
       "orders": "Orders"

@@ -1,0 +1,17 @@
+<section class="sales-history-page">
+  <header class="sales-history-page__header">
+    <div>
+      <h1 class="sales-history-page__title">
+        {{ 'sale.history.title' | translate }}
+      </h1>
+      <p class="sales-history-page__subtitle">
+        {{ 'sale.history.subtitle' | translate: { count: totalSales() } }}
+      </p>
+    </div>
+  </header>
+
+  <div class="sales-history-page__panel">
+    <app-sales-history-filters />
+    <app-sales-history-table />
+  </div>
+</section>
