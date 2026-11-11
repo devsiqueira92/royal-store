@@ -10,7 +10,7 @@ public record CurrentSellerResponse(
     DateTimeOffset? CreatedAt,
     bool IsProfileComplete)
 {
-    public static CurrentSellerResponse From(Profile profile) =>
-        new(profile.FullName, profile.Phone, profile.Email, true,
-            profile.CreatedAt, profile.IsComplete);
+    public static CurrentSellerResponse From(Profile? profile) =>
+        new(profile?.FullName, profile?.Phone, profile?.Email, profile != null,
+            profile?.CreatedAt, profile?.IsComplete ?? false);
 }

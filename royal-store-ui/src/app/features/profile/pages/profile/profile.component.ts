@@ -1,7 +1,18 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AvatarModule } from 'primeng/avatar';
 import { CurrentSellerFacade } from '@app/core/current-seller/facade/current-seller.facade';
@@ -55,6 +66,9 @@ export class ProfileComponent implements OnInit {
   }
 
   protected initials(fullName: string): string {
+    if (fullName === null) {
+      return '';
+    }
     return fullName
       .split(' ')
       .filter(Boolean)
