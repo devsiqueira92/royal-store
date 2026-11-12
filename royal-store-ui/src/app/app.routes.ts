@@ -3,6 +3,14 @@ import { AdminLayoutComponent } from './core/layout/components/admin-layout/admi
 import { authGuard } from './core/auth/guards/auth.guard';
 
 export const routes: Routes = [
+  // Public marketing page. `pathMatch: 'full'` keeps it on the root URL only,
+  // so every other path still falls through to the authenticated shell below.
+  {
+    path: 'homepage',
+    pathMatch: 'full',
+    loadChildren: () =>
+      import('./features/landing/landing.routes').then(m => m.LANDING_ROUTES),
+  },
   {
     path: 'auth',
     loadChildren: () =>
@@ -109,5 +117,5 @@ export const routes: Routes = [
   },
 
   // Rota de fallback (404 ou redirecionamento)
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: 'homepage' },
 ];

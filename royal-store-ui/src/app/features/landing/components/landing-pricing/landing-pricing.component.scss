@@ -1,0 +1,282 @@
+:host {
+  display: block;
+}
+
+.pricing {
+  padding: var(--ls-space-7) 0;
+  background: var(--ls-page);
+  scroll-margin-top: 5rem;
+}
+
+.pricing__inner {
+  width: 100%;
+  max-width: var(--ls-container);
+  margin: 0 auto;
+  padding: 0 var(--ls-gutter);
+}
+
+.pricing__head {
+  max-width: 44rem;
+  margin: 0 auto var(--ls-space-6);
+  text-align: center;
+}
+
+.pricing__eyebrow {
+  display: inline-block;
+  color: var(--ls-accent);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pricing__title {
+  margin-top: 0.5rem;
+  color: var(--ls-ink);
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.pricing__subtitle {
+  margin-top: 0.75rem;
+  color: var(--ls-ink-2);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+/* ----------------------------------------------------------------- toggle -- */
+
+.pricing__toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-top: var(--ls-space-4);
+  padding: 0.25rem;
+  border: 1px solid var(--ls-border);
+  border-radius: 999px;
+  background: var(--ls-surface);
+}
+
+.pricing__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ls-ink-2);
+  font-size: 0.9375rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background-color var(--ls-dur-fast) var(--ls-ease),
+    color var(--ls-dur-fast) var(--ls-ease);
+
+  &:hover {
+    color: var(--ls-ink);
+  }
+
+  &--active {
+    background: var(--ls-ink);
+    color: #fff;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}
+
+.pricing__toggle-badge {
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--ls-accent-wash);
+  color: var(--ls-accent);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+/* ------------------------------------------------------------------ plans -- */
+
+.pricing__grid {
+  display: grid;
+  gap: var(--ls-space-3);
+
+  @media (min-width: 60rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+.plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ls-space-5) var(--ls-space-4);
+  border: 1px solid var(--ls-border);
+  border-radius: var(--ls-radius-lg);
+  background: var(--ls-surface);
+  box-shadow: var(--ls-shadow-sm);
+
+  &--highlighted {
+    border-color: var(--ls-accent);
+    box-shadow: var(--ls-shadow);
+
+    @media (min-width: 60rem) {
+      /* Promote the recommended plan without changing the grid rhythm. */
+      transform: scale(1.025);
+      z-index: 1;
+    }
+  }
+}
+
+.plan__ribbon {
+  position: absolute;
+  top: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  background: var(--ls-accent);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.plan__name {
+  color: var(--ls-ink);
+  font-size: 1.125rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.plan__description {
+  margin-top: 0.35rem;
+  min-height: 2.75rem;
+  color: var(--ls-ink-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.plan__price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  /* Keeps the amount row on one baseline across plans, so the CTAs below line
+     up whether the plan shows a number or "custom". */
+  min-height: 2.75rem;
+  margin-top: var(--ls-space-3);
+  color: var(--ls-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.plan__currency {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.plan__amount {
+  font-size: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+
+  &--custom {
+    font-size: 1.875rem;
+  }
+}
+
+.plan__period {
+  color: var(--ls-ink-3);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.plan__billing-note {
+  margin-top: 0.35rem;
+  color: var(--ls-ink-3);
+  font-size: 0.8125rem;
+}
+
+.plan__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  margin-top: var(--ls-space-4);
+  padding: 0 1rem;
+  border: 1px solid var(--ls-border-strong);
+  border-radius: var(--ls-radius-sm);
+  background: var(--ls-surface);
+  color: var(--ls-ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--ls-dur-fast) var(--ls-ease),
+    border-color var(--ls-dur-fast) var(--ls-ease),
+    box-shadow var(--ls-dur-fast) var(--ls-ease);
+
+  &:hover {
+    border-color: var(--ls-accent);
+    background: var(--ls-accent-wash);
+    color: var(--ls-accent);
+  }
+
+  &--primary {
+    border-color: var(--ls-accent);
+    background: var(--ls-accent);
+    color: #fff;
+
+    &:hover {
+      background: var(--ls-accent-hover);
+      color: #fff;
+      box-shadow: var(--ls-shadow-accent);
+    }
+  }
+}
+
+.plan__features {
+  display: grid;
+  gap: 0.55rem;
+  margin: var(--ls-space-4) 0 0;
+  padding: var(--ls-space-4) 0 0;
+  border-top: 1px solid var(--ls-border);
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--ls-ink-2);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  i {
+    margin-top: 0.3rem;
+    color: var(--ls-accent);
+    font-size: 0.6875rem;
+  }
+}
+
+.pricing__guarantee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: var(--ls-space-5);
+  color: var(--ls-ink-3);
+  font-size: 0.875rem;
+  text-align: center;
+
+  i {
+    color: var(--ls-accent);
+  }
+}

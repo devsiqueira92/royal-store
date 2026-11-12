@@ -1,0 +1,63 @@
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <span class="footer__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" focusable="false">
+          <rect x="1.5" y="1.5" width="29" height="29" rx="9" class="footer__mark-bg" />
+          <path
+            d="M10 21.5V13c0-2.2 1.8-4 4-4h4.5c2.2 0 4 1.8 4 4s-1.8 4-4 4H14l8.5 4.5"
+            class="footer__mark-glyph"
+          />
+        </svg>
+      </span>
+      <span class="footer__brand-text">Axius<span class="footer__accent">Store</span></span>
+      <p class="footer__tagline">{{ 'landing.footer.tagline' | translate }}</p>
+
+      <ul class="footer__contact">
+        <li>
+          <i class="pi pi-envelope" aria-hidden="true"></i>
+          contato&#64;axiusstore.com
+        </li>
+        <li>
+          <i class="pi pi-comments" aria-hidden="true"></i>
+          {{ 'landing.footer.supportHours' | translate }}
+        </li>
+      </ul>
+    </div>
+
+    <nav class="footer__nav" [attr.aria-label]="'landing.footer.navLabel' | translate">
+      @for (column of columns(); track column.id) {
+        <div class="footer__column">
+          <h2 class="footer__column-title">{{ column.titleKey | translate }}</h2>
+          <ul>
+            @for (link of column.links; track link.id) {
+              <li>
+                @if (link.route) {
+                  <a [routerLink]="link.route">{{ link.labelKey | translate }}</a>
+                } @else {
+                  <a [href]="'#' + link.anchor" (click)="onAnchorClick($event, link.anchor!)">
+                    {{ link.labelKey | translate }}
+                  </a>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </nav>
+  </div>
+
+  <div class="footer__bottom">
+    <div class="footer__bottom-inner">
+      <span>{{ 'landing.footer.rights' | translate: { year: currentYear() } }}</span>
+      <ul class="footer__legal">
+        <li>
+          <a routerLink="/auth/register">{{ 'landing.footer.terms' | translate }}</a>
+        </li>
+        <li>
+          <a routerLink="/auth/register">{{ 'landing.footer.privacy' | translate }}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</footer>

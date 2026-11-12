@@ -1,0 +1,215 @@
+:host {
+  display: block;
+}
+
+.features {
+  padding: var(--ls-space-7) 0;
+  background: var(--ls-page);
+  scroll-margin-top: 5rem;
+}
+
+.features__inner {
+  width: 100%;
+  max-width: var(--ls-container);
+  margin: 0 auto;
+  padding: 0 var(--ls-gutter);
+}
+
+.features__head {
+  max-width: 44rem;
+  margin-bottom: var(--ls-space-6);
+}
+
+.features__eyebrow {
+  display: inline-block;
+  color: var(--ls-accent);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.features__title {
+  margin-top: 0.5rem;
+  color: var(--ls-ink);
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.features__subtitle {
+  margin-top: 0.75rem;
+  color: var(--ls-ink-2);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------------ bento grid -- */
+
+.features__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--ls-space-3);
+
+  @media (min-width: 40rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 64rem) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(11.5rem, auto);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--ls-space-4);
+  border: 1px solid var(--ls-border);
+  border-radius: var(--ls-radius-lg);
+  background: var(--ls-surface);
+  box-shadow: var(--ls-shadow-sm);
+  transition:
+    transform var(--ls-dur) var(--ls-ease),
+    box-shadow var(--ls-dur) var(--ls-ease),
+    border-color var(--ls-dur) var(--ls-ease);
+
+  &:hover {
+    /* 1.02 lift only: transform-only, so no reflow and no CLS. */
+    transform: scale(1.02);
+    border-color: color-mix(in srgb, var(--ls-accent) 28%, var(--ls-border));
+    box-shadow: var(--ls-shadow);
+  }
+
+  @media (min-width: 40rem) {
+    &--hero,
+    &--wide {
+      grid-column: span 2;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    &--hero {
+      grid-column: span 2;
+      grid-row: span 2;
+      background:
+        radial-gradient(
+          26rem 16rem at 100% 0%,
+          color-mix(in srgb, var(--ls-accent-soft) 9%, transparent),
+          transparent 70%
+        ),
+        var(--ls-surface);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card:hover {
+    transform: none;
+  }
+}
+
+.card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--ls-accent) 18%, var(--ls-border));
+  border-radius: var(--ls-radius-sm);
+  background: var(--ls-accent-wash);
+  color: var(--ls-accent);
+
+  i {
+    font-size: 1.125rem;
+  }
+}
+
+.card__tag {
+  align-self: flex-start;
+  margin-top: var(--ls-space-3);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--ls-accent);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.card__title {
+  margin-top: var(--ls-space-3);
+  color: var(--ls-ink);
+  font-size: 1.0625rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.card--hero .card__title {
+  font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+}
+
+.card__text {
+  margin-top: 0.5rem;
+  color: var(--ls-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 34rem;
+}
+
+.card__bullets {
+  margin: var(--ls-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--ls-ink-2);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  i {
+    margin-top: 0.3rem;
+    color: var(--ls-accent);
+    font-size: 0.6875rem;
+  }
+}
+
+.card__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: var(--ls-space-4);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.55rem;
+    border: 1px solid var(--ls-border);
+    border-radius: 999px;
+    color: var(--ls-ink-3);
+    font-size: 0.75rem;
+  }
+
+  kbd {
+    padding: 0.05rem 0.3rem;
+    border: 1px solid var(--ls-border);
+    border-radius: 4px;
+    background: var(--ls-surface-2);
+    color: var(--ls-ink);
+    font-family: var(--app-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+}

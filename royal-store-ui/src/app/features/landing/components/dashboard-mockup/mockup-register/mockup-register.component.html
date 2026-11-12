@@ -1,0 +1,50 @@
+<div class="pos__scan">
+  <i class="pi pi-barcode" aria-hidden="true"></i>
+  <span class="pos__scan-text">7891234567895</span>
+  <span class="pos__scan-hint">{{ 'landing.mockup.pos.scanHint' | translate }}</span>
+</div>
+
+<div class="pos__grid">
+  <div class="pos__cart">
+    <div class="pos__cart-head">
+      <span>{{ 'landing.mockup.pos.item' | translate }}</span>
+      <span>{{ 'landing.mockup.pos.qty' | translate }}</span>
+      <span>{{ 'landing.mockup.pos.total' | translate }}</span>
+    </div>
+    @for (line of cartLines; track line.id) {
+      <div class="pos__cart-row">
+        <span class="pos__cart-name">{{ line.nameKey | translate }}</span>
+        <span>{{ line.qty }}</span>
+        <span class="pos__cart-price">R$ {{ line.price }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="pos__checkout">
+    <span class="pos__checkout-label">{{ 'landing.mockup.pos.amountDue' | translate }}</span>
+    <strong class="pos__checkout-total">R$ 186,80</strong>
+
+    <div class="pos__methods">
+      <span class="pos__method pos__method--active">
+        <i class="pi pi-bolt" aria-hidden="true"></i> PIX
+      </span>
+      <span class="pos__method">
+        <i class="pi pi-credit-card" aria-hidden="true"></i>
+        {{ 'landing.mockup.payments.card' | translate }}
+      </span>
+      <span class="pos__method">
+        <i class="pi pi-wallet" aria-hidden="true"></i>
+        {{ 'landing.mockup.payments.cash' | translate }}
+      </span>
+    </div>
+
+    <span class="pos__finish">
+      {{ 'landing.mockup.pos.finish' | translate }}
+      <kbd>F2</kbd>
+    </span>
+    <span class="pos__timer">
+      <i class="pi pi-clock" aria-hidden="true"></i>
+      {{ 'landing.mockup.pos.timer' | translate }}
+    </span>
+  </div>
+</div>

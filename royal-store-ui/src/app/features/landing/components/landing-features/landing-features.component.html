@@ -1,0 +1,50 @@
+<section class="features" [id]="sectionId()" tabindex="-1">
+  <div class="features__inner">
+    <header class="features__head" appRevealOnScroll>
+      <span class="features__eyebrow">{{ 'landing.features.eyebrow' | translate }}</span>
+      <h2 class="features__title">{{ 'landing.features.title' | translate }}</h2>
+      <p class="features__subtitle">{{ 'landing.features.subtitle' | translate }}</p>
+    </header>
+
+    <div class="features__grid">
+      @for (feature of features(); track feature.id; let i = $index) {
+        <article
+          class="card"
+          [class.card--hero]="feature.span === 'hero'"
+          [class.card--wide]="feature.span === 'wide'"
+          appRevealOnScroll
+          [revealDelay]="i * 60"
+        >
+          <span class="card__icon" aria-hidden="true">
+            <i [class]="feature.icon"></i>
+          </span>
+
+          @if (feature.tagKey) {
+            <span class="card__tag">{{ feature.tagKey | translate }}</span>
+          }
+
+          <h3 class="card__title">{{ feature.titleKey | translate }}</h3>
+          <p class="card__text">{{ feature.descriptionKey | translate }}</p>
+
+          @if (feature.bulletKeys) {
+            <ul class="card__bullets">
+              @for (bullet of feature.bulletKeys; track bullet) {
+                <li>
+                  <i class="pi pi-check" aria-hidden="true"></i>
+                  {{ bullet | translate }}
+                </li>
+              }
+            </ul>
+
+            <!-- Keyboard-shortcut strip: makes the "no mouse needed" claim concrete. -->
+            <div class="card__keys">
+              <span><kbd>F2</kbd> {{ 'landing.features.pos.keys.finish' | translate }}</span>
+              <span><kbd>F4</kbd> {{ 'landing.features.pos.keys.discount' | translate }}</span>
+              <span><kbd>F8</kbd> {{ 'landing.features.pos.keys.withdraw' | translate }}</span>
+            </div>
+          }
+        </article>
+      }
+    </div>
+  </div>
+</section>

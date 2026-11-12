@@ -1,0 +1,79 @@
+<header class="nav" [class.nav--scrolled]="scrolled()">
+  <div class="nav__inner">
+    <a class="nav__brand" routerLink="/" [attr.aria-label]="'landing.nav.home' | translate">
+      <span class="nav__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" focusable="false">
+          <rect x="1.5" y="1.5" width="29" height="29" rx="9" class="nav__mark-bg" />
+          <path
+            d="M10 21.5V13c0-2.2 1.8-4 4-4h4.5c2.2 0 4 1.8 4 4s-1.8 4-4 4H14l8.5 4.5"
+            class="nav__mark-glyph"
+          />
+        </svg>
+      </span>
+      <span class="nav__brand-text"> Axius<span class="nav__brand-text-accent">Store</span> </span>
+    </a>
+
+    <nav class="nav__links" [attr.aria-label]="'landing.nav.primary' | translate">
+      <ul>
+        @for (link of links(); track link.id) {
+          <li>
+            <a
+              class="nav__link"
+              [class.nav__link--active]="activeSection() === link.id"
+              [href]="'#' + link.id"
+              [attr.aria-current]="activeSection() === link.id ? 'true' : null"
+              (click)="onLinkClick($event, link.id)"
+            >
+              {{ link.labelKey | translate }}
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="nav__actions">
+      <a class="nav__login" routerLink="/auth/login">{{ 'landing.nav.login' | translate }}</a>
+      <a class="nav__cta" routerLink="/auth/register" pRipple>
+        {{ 'landing.nav.trial' | translate }}
+        <i class="pi pi-arrow-right" aria-hidden="true"></i>
+      </a>
+    </div>
+
+    <button
+      type="button"
+      class="nav__burger"
+      [attr.aria-label]="
+        (menuOpen() ? 'landing.nav.closeMenu' : 'landing.nav.openMenu') | translate
+      "
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="landing-mobile-menu"
+      (click)="toggleMenu()"
+    >
+      <i [class]="menuOpen() ? 'pi pi-times' : 'pi pi-bars'" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  @if (menuOpen()) {
+    <div class="nav__mobile" id="landing-mobile-menu">
+      <ul>
+        @for (link of links(); track link.id) {
+          <li>
+            <a [href]="'#' + link.id" (click)="onLinkClick($event, link.id)">
+              {{ link.labelKey | translate }}
+              <i class="pi pi-angle-right" aria-hidden="true"></i>
+            </a>
+          </li>
+        }
+      </ul>
+
+      <div class="nav__mobile-actions">
+        <a class="nav__login nav__login--block" routerLink="/auth/login">
+          {{ 'landing.nav.login' | translate }}
+        </a>
+        <a class="nav__cta nav__cta--block" routerLink="/auth/register">
+          {{ 'landing.nav.trial' | translate }}
+        </a>
+      </div>
+    </div>
+  }
+</header>

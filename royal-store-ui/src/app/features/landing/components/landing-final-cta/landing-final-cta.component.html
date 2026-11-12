@@ -1,0 +1,35 @@
+<section class="final" id="cta-final" tabindex="-1">
+  <div class="final__inner" appRevealOnScroll>
+    <div class="final__card">
+      <span class="final__grain" aria-hidden="true"></span>
+
+      <h2 class="final__title">{{ 'landing.finalCta.title' | translate }}</h2>
+      <p class="final__subtitle">{{ 'landing.finalCta.subtitle' | translate }}</p>
+
+      <div class="final__actions">
+        <a class="final__cta" routerLink="/auth/register" pRipple>
+          {{ 'landing.finalCta.cta' | translate }}
+          <i class="pi pi-arrow-right" aria-hidden="true"></i>
+        </a>
+        <button type="button" class="final__secondary" (click)="viewPlans.emit()">
+          {{ 'landing.finalCta.secondary' | translate }}
+        </button>
+      </div>
+
+      <ul class="final__notes">
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ 'landing.finalCta.note1' | translate }}
+        </li>
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ 'landing.finalCta.note2' | translate }}
+        </li>
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ 'landing.finalCta.note3' | translate }}
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

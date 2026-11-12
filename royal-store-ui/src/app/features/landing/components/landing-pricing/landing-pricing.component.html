@@ -1,0 +1,100 @@
+<section class="pricing" [id]="sectionId()" tabindex="-1">
+  <div class="pricing__inner">
+    <header class="pricing__head" appRevealOnScroll>
+      <span class="pricing__eyebrow">{{ 'landing.pricing.eyebrow' | translate }}</span>
+      <h2 class="pricing__title">{{ 'landing.pricing.title' | translate }}</h2>
+      <p class="pricing__subtitle">{{ 'landing.pricing.subtitle' | translate }}</p>
+
+      <div
+        class="pricing__toggle"
+        role="group"
+        [attr.aria-label]="'landing.pricing.cycleLabel' | translate"
+      >
+        <button
+          type="button"
+          class="pricing__toggle-btn"
+          [class.pricing__toggle-btn--active]="billingCycle() === 'monthly'"
+          [attr.aria-pressed]="billingCycle() === 'monthly'"
+          (click)="billingCycleChange.emit('monthly')"
+        >
+          {{ 'landing.pricing.monthly' | translate }}
+        </button>
+        <button
+          type="button"
+          class="pricing__toggle-btn"
+          [class.pricing__toggle-btn--active]="billingCycle() === 'annual'"
+          [attr.aria-pressed]="billingCycle() === 'annual'"
+          (click)="billingCycleChange.emit('annual')"
+        >
+          {{ 'landing.pricing.annual' | translate }}
+          <span class="pricing__toggle-badge">{{
+            'landing.pricing.annualSaving' | translate
+          }}</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="pricing__grid">
+      @for (plan of plans(); track plan.id; let i = $index) {
+        <article
+          class="plan"
+          [class.plan--highlighted]="plan.highlighted"
+          appRevealOnScroll
+          [revealDelay]="i * 80"
+        >
+          @if (plan.highlighted) {
+            <span class="plan__ribbon">{{ 'landing.pricing.mostPopular' | translate }}</span>
+          }
+
+          <h3 class="plan__name">{{ plan.nameKey | translate }}</h3>
+          <p class="plan__description">{{ plan.descriptionKey | translate }}</p>
+
+          <div class="plan__price">
+            @if (priceOf(plan) !== null) {
+              <span class="plan__currency">{{ 'landing.pricing.currency' | translate }}</span>
+              <span class="plan__amount">{{ priceOf(plan) }}</span>
+              <span class="plan__period">{{ 'landing.pricing.perMonth' | translate }}</span>
+            } @else {
+              <span class="plan__amount plan__amount--custom">
+                {{ 'landing.pricing.custom' | translate }}
+              </span>
+            }
+          </div>
+
+          <span class="plan__billing-note">
+            @if (priceOf(plan) === null) {
+              {{ 'landing.pricing.customNote' | translate }}
+            } @else if (billingCycle() === 'annual') {
+              {{ 'landing.pricing.billedAnnually' | translate }}
+            } @else {
+              {{ 'landing.pricing.billedMonthly' | translate }}
+            }
+          </span>
+
+          <a
+            class="plan__cta"
+            [class.plan__cta--primary]="plan.highlighted"
+            [routerLink]="plan.ctaRoute"
+            pRipple
+          >
+            {{ plan.ctaKey | translate }}
+          </a>
+
+          <ul class="plan__features">
+            @for (feature of plan.featureKeys; track feature) {
+              <li>
+                <i class="pi pi-check" aria-hidden="true"></i>
+                {{ feature | translate }}
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+
+    <p class="pricing__guarantee">
+      <i class="pi pi-shield" aria-hidden="true"></i>
+      {{ 'landing.pricing.guarantee' | translate }}
+    </p>
+  </div>
+</section>

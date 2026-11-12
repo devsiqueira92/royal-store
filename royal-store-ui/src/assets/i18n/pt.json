@@ -905,5 +905,317 @@
       "submit": "Salvar modelo",
       "createSubmit": "Criar modelo"
     }
+  },
+  "landing": {
+    "meta": {
+      "title": "Axius Store — PDV, estoque e financeiro da sua loja em um só lugar"
+    },
+    "nav": {
+      "home": "Axius Store — início",
+      "primary": "Navegação principal",
+      "features": "Funcionalidades",
+      "howItWorks": "Como funciona",
+      "pricing": "Planos",
+      "faq": "Dúvidas",
+      "login": "Entrar",
+      "trial": "Testar grátis",
+      "openMenu": "Abrir menu de navegação",
+      "closeMenu": "Fechar menu de navegação",
+      "skipToContent": "Ir para o conteúdo principal"
+    },
+    "hero": {
+      "badge": "Novo: NF-e e NFC-e emitidas direto do caixa",
+      "titleLead": "Pare de perder vendas e",
+      "titleHighlight": "controle sua loja em um só lugar",
+      "subtitle": "PDV que não trava na fila, estoque que avisa antes de faltar e financeiro que fecha sozinho. O Axius Store junta tudo que sua loja precisa — sem planilha, sem retrabalho, sem susto no fim do mês.",
+      "ctaPrimary": "Começar teste grátis de 14 dias",
+      "ctaPrimaryHint": "Sem cartão de crédito",
+      "ctaSecondary": "Ver demonstração interativa",
+      "trust1": "No ar em 10 minutos",
+      "trust2": "Importamos seu estoque atual",
+      "trust3": "Cancele quando quiser",
+      "mockupAlt": "Prévia do painel do Axius Store: faturamento do dia de R$ 12.480, 184 vendas, ticket médio de R$ 67,80, gráfico de vendas por hora com pico às 18h, alertas de estoque baixo e divisão de pagamentos entre PIX, cartão e dinheiro.",
+      "floatSaleTitle": "Venda finalizada",
+      "floatSaleText": "Cupom emitido em 1,8s",
+      "floatStockTitle": "Estoque atualizado",
+      "floatStockText": "Baixa automática por item"
+    },
+    "stats": {
+      "title": "Números do Axius Store",
+      "stores": {
+        "value": "+2.500",
+        "label": "lojas ativas usando todos os dias"
+      },
+      "uptime": {
+        "value": "99,9%",
+        "label": "de estabilidade no horário comercial"
+      },
+      "hours": {
+        "value": "12h",
+        "label": "economizadas por semana, na média"
+      },
+      "rating": {
+        "value": "4,8/5",
+        "label": "nota média dos lojistas no suporte"
+      }
+    },
+    "features": {
+      "eyebrow": "Tudo integrado",
+      "title": "Uma plataforma, quatro problemas resolvidos",
+      "subtitle": "Caixa, estoque, financeiro e fiscal conversando entre si. Uma venda registrada no PDV já baixa o estoque, entra no fluxo de caixa e vira nota fiscal — sem você digitar nada duas vezes.",
+      "pos": {
+        "tag": "Mais usado",
+        "title": "PDV de frente de caixa feito para fila cheia",
+        "description": "Leitor de código de barras, atalhos de teclado e fechamento em poucos segundos. Funciona em qualquer computador, com mouse ou só com o teclado.",
+        "bullets": {
+          "b1": "Venda concluída em menos de 10 segundos",
+          "b2": "PIX, cartão, dinheiro e pagamento dividido",
+          "b3": "Desconto, troca e devolução com registro de quem fez"
+        },
+        "keys": {
+          "finish": "Finalizar",
+          "discount": "Desconto",
+          "withdraw": "Sangria"
+        }
+      },
+      "inventory": {
+        "title": "Estoque inteligente com alerta antes de faltar",
+        "description": "Defina o mínimo por produto e receba o aviso no painel quando a reposição estiver na hora. Nada de descobrir a falta com o cliente na frente."
+      },
+      "finance": {
+        "title": "Financeiro em tempo real",
+        "description": "Faturamento, margem, a receber e a pagar atualizados a cada venda."
+      },
+      "invoice": {
+        "title": "Nota fiscal sem dor de cabeça",
+        "description": "NF-e e NFC-e com perfis de imposto prontos por tipo de produto."
+      },
+      "loyalty": {
+        "title": "Clientes e fidelidade no mesmo cadastro",
+        "description": "Histórico de compras, pontos e níveis de fidelidade por cliente — pronto para trazer de volta quem já comprou."
+      },
+      "cashShift": {
+        "title": "Abertura e fechamento de caixa com conferência",
+        "description": "Sangria, suprimento e conferência cega por operador. No fim do turno você sabe exatamente quanto deveria ter na gaveta."
+      }
+    },
+    "showcase": {
+      "eyebrow": "Por dentro do sistema",
+      "title": "Veja as telas que sua equipe vai usar todo dia",
+      "subtitle": "Sem vídeo de 20 minutos e sem agendar reunião. Alterne entre as telas e veja como o sistema se comporta na operação real.",
+      "tryIt": "Testar essa tela na minha loja",
+      "pos": {
+        "label": "Frente de caixa",
+        "title": "Frente de caixa: bipe, cobre, entregue",
+        "description": "O operador bipa o produto, escolhe a forma de pagamento e finaliza no F2. O cupom sai, o estoque baixa e o caixa registra — tudo na mesma ação.",
+        "mockupAlt": "Prévia da tela de frente de caixa: código de barras lido, quatro itens no carrinho, total de R$ 186,80, PIX selecionado e atalho F2 para finalizar.",
+        "bullets": {
+          "b1": "Busca por código de barras, nome ou atalho",
+          "b2": "Pagamento dividido em mais de uma forma",
+          "b3": "Funciona com teclado, sem depender do mouse"
+        }
+      },
+      "inventory": {
+        "label": "Gestão de estoque",
+        "title": "Estoque: você sabe o que falta antes do cliente",
+        "description": "Cada produto tem mínimo, saldo atual e situação visível de longe. O sistema sugere a reposição com base no que vendeu nas últimas semanas.",
+        "mockupAlt": "Prévia da tela de estoque: lista de produtos com barra de saldo, quantidade restante e etiquetas de situação crítica, baixa e normal, além de sugestão de reposição.",
+        "bullets": {
+          "b1": "Situação crítica, baixa e normal com ícone e texto",
+          "b2": "Entrada por nota do fornecedor, sem digitar item por item",
+          "b3": "Etiquetas de preço e código de barras para imprimir"
+        }
+      },
+      "finance": {
+        "label": "Dashboard financeiro",
+        "title": "Financeiro: a conta fecha sem planilha",
+        "description": "Receita e despesa na mesma escala, margem real do período e o que entra nos próximos 30 dias. O número que você olha é o número que aconteceu no caixa.",
+        "mockupAlt": "Prévia do dashboard financeiro: faturamento de R$ 148.320 com alta de 12,4%, margem de 31,8%, R$ 23.940 a receber e gráfico de receita contra despesa dos últimos 30 dias.",
+        "bullets": {
+          "b1": "Receita x despesa no mesmo gráfico e na mesma escala",
+          "b2": "Margem por período, produto e forma de pagamento",
+          "b3": "Fechamento de caixa conciliado por operador"
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "Planos",
+      "title": "Preço claro, sem taxa escondida",
+      "subtitle": "Todos os planos incluem os 14 dias de teste, atualizações e suporte humano. Você só paga quando decidir ficar.",
+      "cycleLabel": "Forma de cobrança",
+      "monthly": "Mensal",
+      "annual": "Anual",
+      "annualSaving": "2 meses grátis",
+      "currency": "R$ ",
+      "perMonth": "/mês",
+      "billedAnnually": "cobrado anualmente",
+      "billedMonthly": "cobrado mensalmente",
+      "custom": "Sob consulta",
+      "customNote": "proposta conforme número de lojas",
+      "mostPopular": "Mais escolhido",
+      "guarantee": "14 dias de teste sem cartão. Se cancelar, exportamos seus dados em CSV.",
+      "essential": {
+        "name": "Essencial",
+        "description": "Para quem está saindo da planilha e do caderno.",
+        "features": {
+          "f1": "1 loja e 1 caixa simultâneo",
+          "f2": "PDV completo com código de barras",
+          "f3": "Controle de estoque com alerta de mínimo",
+          "f4": "Relatórios de vendas e fechamento de caixa",
+          "f5": "Suporte por e-mail em até 1 dia útil"
+        },
+        "cta": "Começar com o Essencial"
+      },
+      "professional": {
+        "name": "Profissional",
+        "description": "Para a loja que já vende todo dia e quer margem.",
+        "features": {
+          "f1": "1 loja e até 3 caixas simultâneos",
+          "f2": "Tudo do Essencial, sem limite de produtos",
+          "f3": "NF-e e NFC-e com perfis de imposto",
+          "f4": "Dashboard financeiro e margem por produto",
+          "f5": "Fidelidade, níveis e histórico de clientes",
+          "f6": "Suporte por WhatsApp em horário comercial"
+        },
+        "cta": "Testar o Profissional grátis"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Para rede com várias lojas e time de operação.",
+        "features": {
+          "f1": "Lojas e caixas ilimitados",
+          "f2": "Tudo do Profissional, consolidado por loja",
+          "f3": "Permissões por cargo e auditoria de ações",
+          "f4": "Integração por API e importação assistida",
+          "f5": "Gerente de conta e SLA dedicado"
+        },
+        "cta": "Falar com especialista"
+      }
+    },
+    "faq": {
+      "eyebrow": "Dúvidas frequentes",
+      "title": "O que todo lojista pergunta antes de testar",
+      "subtitle": "Se a sua dúvida não estiver aqui, o suporte responde no WhatsApp em horário comercial — antes de você assinar qualquer coisa.",
+      "migration": {
+        "question": "Vou ter que cadastrar meus produtos um por um?",
+        "answer": "Não. Você envia a sua planilha de produtos (ou o arquivo do sistema atual) e a nossa equipe faz a importação com você, incluindo saldo de estoque, preço de custo e preço de venda. A migração está inclusa em todos os planos e não custa nada a mais."
+      },
+      "trial": {
+        "question": "Como funcionam os 14 dias de teste?",
+        "answer": "Você cria a conta sem informar cartão e usa a plataforma inteira — PDV, estoque, financeiro e emissão de nota. Nada é bloqueado durante o teste. No último dia a gente avisa, e o que você cadastrou continua lá se decidir assinar."
+      },
+      "cancel": {
+        "question": "Se eu cancelar, perco meus dados?",
+        "answer": "Não. O cancelamento é feito pelo próprio painel, sem multa e sem ligação. Antes de encerrar, você exporta produtos, clientes e vendas em CSV. Mantemos os dados disponíveis por 30 dias após o cancelamento, caso você mude de ideia."
+      },
+      "support": {
+        "question": "Que tipo de suporte eu tenho?",
+        "answer": "No Essencial, suporte por e-mail com resposta em até 1 dia útil. No Profissional, WhatsApp em horário comercial com pessoas que conhecem operação de loja. No Enterprise, gerente de conta e SLA definido em contrato. Em todos os planos, a implantação inicial é acompanhada."
+      },
+      "hardware": {
+        "question": "Preciso comprar equipamento novo?",
+        "answer": "Na maioria dos casos, não. O Axius Store roda no navegador em qualquer computador e funciona com os leitores de código de barras e impressoras térmicas mais comuns do mercado. Se tiver dúvida sobre o seu equipamento, mande o modelo que a gente confirma antes de você assinar."
+      },
+      "offline": {
+        "question": "E se a internet cair no meio do movimento?",
+        "answer": "O caixa avisa na hora que a conexão caiu e mostra o status da venda em andamento, para você não cobrar duas vezes nem perder o registro. Quando a conexão volta, a sincronização é feita automaticamente e você confere o que foi enviado."
+      },
+      "invoice": {
+        "question": "A emissão de nota fiscal está inclusa?",
+        "answer": "Sim, nos planos Profissional e Enterprise, com NF-e e NFC-e emitidas direto do caixa. Você configura o perfil de imposto por tipo de produto uma vez e o sistema aplica CFOP e CST a cada venda. O certificado digital A1 fica por sua conta."
+      }
+    },
+    "finalCta": {
+      "title": "Sua próxima venda pode já estar organizada",
+      "subtitle": "Crie a conta, importe seus produtos e rode o caixa hoje mesmo. 14 dias grátis, sem cartão e sem compromisso.",
+      "cta": "Começar teste grátis de 14 dias",
+      "secondary": "Comparar planos",
+      "note1": "Sem cartão de crédito",
+      "note2": "Importação de dados inclusa",
+      "note3": "Cancele quando quiser"
+    },
+    "footer": {
+      "tagline": "Gestão completa para lojas: PDV, estoque, financeiro e fiscal em uma única plataforma.",
+      "supportHours": "Suporte de seg. a sáb., 8h às 20h",
+      "navLabel": "Navegação do rodapé",
+      "rights": "© {{year}} Axius Store. Todos os direitos reservados.",
+      "terms": "Termos de uso",
+      "privacy": "Privacidade",
+      "product": {
+        "title": "Produto",
+        "features": "Funcionalidades",
+        "showcase": "Por dentro do sistema",
+        "pricing": "Planos e preços",
+        "login": "Entrar na minha conta"
+      },
+      "resources": {
+        "title": "Recursos",
+        "faq": "Perguntas frequentes",
+        "migration": "Migração de dados",
+        "register": "Criar conta grátis"
+      },
+      "company": {
+        "title": "Empresa",
+        "about": "Sobre o Axius Store",
+        "contact": "Falar com a gente"
+      }
+    },
+    "mockup": {
+      "window": {
+        "overview": "Visão geral",
+        "pos": "Frente de caixa",
+        "inventory": "Estoque",
+        "finance": "Financeiro"
+      },
+      "products": {
+        "p1": "Camiseta básica branca M",
+        "p2": "Tênis casual preto 40",
+        "p3": "Boné aba curva",
+        "p4": "Meia esportiva par",
+        "p5": "Cinto de couro marrom",
+        "p6": "Chaveiro metálico"
+      },
+      "stock": {
+        "critical": "Crítico",
+        "low": "Baixo",
+        "ok": "Normal"
+      },
+      "payments": {
+        "pix": "PIX",
+        "card": "Cartão",
+        "cash": "Dinheiro"
+      },
+      "pos": {
+        "scanHint": "Produto lido",
+        "item": "Item",
+        "qty": "Qtd",
+        "total": "Total",
+        "amountDue": "Valor a cobrar",
+        "finish": "Finalizar venda",
+        "timer": "Tempo no caixa: 00:08"
+      },
+      "inventory": {
+        "title": "Produtos abaixo do mínimo",
+        "filter": "Situação",
+        "suggestion": "Reposição sugerida para 3 produtos",
+        "suggestionCta": "Gerar pedido"
+      },
+      "finance": {
+        "revenue": "Receita",
+        "expense": "Despesa",
+        "margin": "Margem",
+        "receivable": "A receber",
+        "next30": "próximos 30 dias",
+        "chartTitle": "Receita x despesa — últimos 30 dias"
+      },
+      "overview": {
+        "today": "Faturamento hoje",
+        "sales": "Vendas hoje",
+        "ticket": "Ticket médio",
+        "byHour": "Vendas por hora",
+        "alerts": "Alertas de estoque",
+        "paymentMix": "Formas de pagamento"
+      }
+    }
   }
 }

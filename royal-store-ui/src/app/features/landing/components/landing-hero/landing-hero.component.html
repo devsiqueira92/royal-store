@@ -1,0 +1,66 @@
+<section class="hero" id="hero">
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <div class="hero__inner">
+    <div class="hero__copy" appRevealOnScroll>
+      <span class="hero__badge">
+        <span class="hero__badge-dot" aria-hidden="true"></span>
+        {{ 'landing.hero.badge' | translate }}
+      </span>
+
+      <h1 class="hero__title">
+        {{ 'landing.hero.titleLead' | translate }}
+        <span class="hero__title-accent">{{ 'landing.hero.titleHighlight' | translate }}</span>
+      </h1>
+
+      <p class="hero__subtitle">{{ 'landing.hero.subtitle' | translate }}</p>
+
+      <div class="hero__actions">
+        <a class="hero__cta" routerLink="/auth/register" pRipple>
+          <span class="hero__cta-main">{{ 'landing.hero.ctaPrimary' | translate }}</span>
+          <span class="hero__cta-sub">{{ 'landing.hero.ctaPrimaryHint' | translate }}</span>
+        </a>
+
+        <button type="button" class="hero__cta-secondary" (click)="showDemo.emit()">
+          <i class="pi pi-play-circle" aria-hidden="true"></i>
+          {{ 'landing.hero.ctaSecondary' | translate }}
+        </button>
+      </div>
+
+      <ul class="hero__trust">
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ 'landing.hero.trust1' | translate }}
+        </li>
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ 'landing.hero.trust2' | translate }}
+        </li>
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ 'landing.hero.trust3' | translate }}
+        </li>
+      </ul>
+    </div>
+
+    <div class="hero__visual" appRevealOnScroll [revealDelay]="120">
+      <app-dashboard-mockup variant="overview" [ariaLabel]="'landing.hero.mockupAlt' | translate" />
+
+      <span class="hero__float hero__float--sale">
+        <i class="pi pi-check-circle" aria-hidden="true"></i>
+        <span>
+          <strong>{{ 'landing.hero.floatSaleTitle' | translate }}</strong>
+          {{ 'landing.hero.floatSaleText' | translate }}
+        </span>
+      </span>
+
+      <span class="hero__float hero__float--stock">
+        <i class="pi pi-box" aria-hidden="true"></i>
+        <span>
+          <strong>{{ 'landing.hero.floatStockTitle' | translate }}</strong>
+          {{ 'landing.hero.floatStockText' | translate }}
+        </span>
+      </span>
+    </div>
+  </div>
+</section>

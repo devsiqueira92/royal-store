@@ -1,0 +1,43 @@
+<a class="landing__skip" href="#conteudo">{{ 'landing.nav.skipToContent' | translate }}</a>
+
+<app-landing-navbar
+  [links]="navLinks"
+  [activeSection]="activeSection()"
+  (navigateToSection)="scrollToSection($event)"
+/>
+
+<main class="landing__main" id="conteudo">
+  <app-landing-hero (showDemo)="scrollToSection(sectionIds.showcase)" />
+
+  <app-landing-stats [stats]="stats" />
+
+  <app-landing-features [sectionId]="sectionIds.features" [features]="features" />
+
+  <!--
+    The showcase carries three full product mockups and the PrimeNG tabs code.
+    It is below the fold, so it loads on approach; the placeholder reserves the
+    section height up front so nothing shifts when it arrives.
+  -->
+  @defer (on viewport; prefetch on idle) {
+    <app-landing-showcase [sectionId]="sectionIds.showcase" [tabs]="showcaseTabs" />
+  } @placeholder (minimum 100ms) {
+    <div class="landing__placeholder" [id]="sectionIds.showcase" tabindex="-1"></div>
+  }
+
+  <app-landing-pricing
+    [sectionId]="sectionIds.pricing"
+    [plans]="plans"
+    [billingCycle]="billingCycle()"
+    (billingCycleChange)="setBillingCycle($event)"
+  />
+
+  <app-landing-faq [sectionId]="sectionIds.faq" [faqs]="faqs" />
+
+  <app-landing-final-cta (viewPlans)="scrollToSection(sectionIds.pricing)" />
+</main>
+
+<app-landing-footer
+  [columns]="footerColumns"
+  [currentYear]="currentYear"
+  (navigateToSection)="scrollToSection($event)"
+/>

@@ -1,0 +1,24 @@
+<section class="faq" [id]="sectionId()" tabindex="-1">
+  <div class="faq__inner">
+    <header class="faq__head" appRevealOnScroll>
+      <span class="faq__eyebrow">{{ 'landing.faq.eyebrow' | translate }}</span>
+      <h2 class="faq__title">{{ 'landing.faq.title' | translate }}</h2>
+      <p class="faq__subtitle">{{ 'landing.faq.subtitle' | translate }}</p>
+    </header>
+
+    <div class="faq__list" appRevealOnScroll [revealDelay]="60">
+      <p-accordion [value]="faqs()[0].id">
+        @for (faq of faqs(); track faq.id) {
+          <p-accordion-panel [value]="faq.id">
+            <p-accordion-header>
+              <span class="faq__question">{{ faq.questionKey | translate }}</span>
+            </p-accordion-header>
+            <p-accordion-content>
+              <p class="faq__answer">{{ faq.answerKey | translate }}</p>
+            </p-accordion-content>
+          </p-accordion-panel>
+        }
+      </p-accordion>
+    </div>
+  </div>
+</section>

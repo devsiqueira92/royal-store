@@ -1,0 +1,230 @@
+<!--
+  Simulated product screen. The whole block is a single labelled image for
+  assistive tech (role="img" + aria-label), so the decorative inner nodes are
+  intentionally not individually described.
+-->
+<div class="mock" role="img" [attr.aria-label]="ariaLabel()">
+  <div class="mock__chrome">
+    <span class="mock__url">
+      <i class="pi pi-lock" aria-hidden="true"></i>
+      app.axiusstore.com
+    </span>
+    <span class="mock__window-title">{{ windowTitleKey() | translate }}</span>
+  </div>
+
+  <div class="mock__body">
+    @switch (variant()) {
+      @case ('pos') {
+        <app-mockup-register />
+      }
+
+      @case ('inventory') {
+        <div class="inv">
+          <div class="inv__head">
+            <span class="inv__title">{{ 'landing.mockup.inventory.title' | translate }}</span>
+            <span class="inv__filter">
+              <i class="pi pi-filter" aria-hidden="true"></i>
+              {{ 'landing.mockup.inventory.filter' | translate }}
+            </span>
+          </div>
+
+          @for (alert of stockAlerts; track alert.id) {
+            <div class="inv__row">
+              <span class="inv__name">{{ alert.nameKey | translate }}</span>
+              <span class="inv__meter">
+                <span
+                  class="inv__meter-fill"
+                  [class.inv__meter-fill--critical]="alert.severity === 'danger'"
+                  [class.inv__meter-fill--low]="alert.severity === 'warn'"
+                  [style.width.%]="alert.ratio * 100"
+                ></span>
+              </span>
+              <span class="inv__left">{{ alert.left }} un.</span>
+              <p-tag
+                [severity]="alert.severity"
+                [icon]="alert.icon"
+                [value]="alert.statusKey | translate"
+                styleClass="inv__tag"
+              />
+            </div>
+          }
+
+          <div class="inv__suggestion">
+            <i class="pi pi-sparkles" aria-hidden="true"></i>
+            <span>{{ 'landing.mockup.inventory.suggestion' | translate }}</span>
+            <span class="inv__suggestion-cta">
+              {{ 'landing.mockup.inventory.suggestionCta' | translate }}
+            </span>
+          </div>
+        </div>
+      }
+
+      @case ('finance') {
+        <div class="fin">
+          <div class="fin__kpis">
+            <div class="fin__kpi">
+              <span class="fin__kpi-label">{{ 'landing.mockup.finance.revenue' | translate }}</span>
+              <strong class="fin__kpi-value">R$ 148.320</strong>
+              <span class="fin__kpi-delta fin__kpi-delta--up">
+                <i class="pi pi-arrow-up-right" aria-hidden="true"></i> 12,4%
+              </span>
+            </div>
+            <div class="fin__kpi">
+              <span class="fin__kpi-label">{{ 'landing.mockup.finance.margin' | translate }}</span>
+              <strong class="fin__kpi-value">31,8%</strong>
+              <span class="fin__kpi-delta fin__kpi-delta--up">
+                <i class="pi pi-arrow-up-right" aria-hidden="true"></i> 2,1 p.p.
+              </span>
+            </div>
+            <div class="fin__kpi">
+              <span class="fin__kpi-label">
+                {{ 'landing.mockup.finance.receivable' | translate }}
+              </span>
+              <strong class="fin__kpi-value">R$ 23.940</strong>
+              <span class="fin__kpi-delta">
+                {{ 'landing.mockup.finance.next30' | translate }}
+              </span>
+            </div>
+          </div>
+
+          <div class="fin__chart">
+            <div class="fin__chart-head">
+              <span class="fin__chart-title">
+                {{ 'landing.mockup.finance.chartTitle' | translate }}
+              </span>
+              <!-- Two series -> a legend is mandatory; identity is never colour-alone. -->
+              <span class="fin__legend">
+                <span class="fin__legend-item">
+                  <i class="fin__swatch" style="background: #047857" aria-hidden="true"></i>
+                  {{ 'landing.mockup.finance.revenue' | translate }}
+                </span>
+                <span class="fin__legend-item">
+                  <i class="fin__swatch" style="background: #6d28d9" aria-hidden="true"></i>
+                  {{ 'landing.mockup.finance.expense' | translate }}
+                </span>
+              </span>
+            </div>
+
+            <svg
+              class="fin__svg"
+              viewBox="0 0 220 104"
+              preserveAspectRatio="none"
+              focusable="false"
+            >
+              @for (line of [8, 30, 52, 74, 96]; track line) {
+                <line class="grid" x1="0" [attr.y1]="line" x2="220" [attr.y2]="line" />
+              }
+              <path class="fin__area" [attr.d]="revenueArea()" />
+              <path class="fin__line fin__line--revenue" [attr.d]="revenueLine()" />
+              <path class="fin__line fin__line--expense" [attr.d]="expenseLine()" />
+              <circle class="fin__dot" cx="220" cy="12.4" r="4" />
+            </svg>
+
+            <div class="fin__axis">
+              <span>01/11</span><span>10/11</span><span>20/11</span><span>30/11</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @default {
+        <div class="ovw">
+          <div class="ovw__kpis">
+            <div class="ovw__kpi">
+              <span class="ovw__kpi-label">{{ 'landing.mockup.overview.today' | translate }}</span>
+              <strong class="ovw__kpi-value">R$ 12.480</strong>
+              <svg
+                class="ovw__spark"
+                viewBox="0 0 80 26"
+                preserveAspectRatio="none"
+                focusable="false"
+              >
+                <path class="ovw__spark-line" [attr.d]="sparkline()" />
+              </svg>
+            </div>
+            <div class="ovw__kpi">
+              <span class="ovw__kpi-label">{{ 'landing.mockup.overview.sales' | translate }}</span>
+              <strong class="ovw__kpi-value">184</strong>
+              <span class="ovw__kpi-delta">
+                <i class="pi pi-arrow-up-right" aria-hidden="true"></i> 8,6%
+              </span>
+            </div>
+            <div class="ovw__kpi">
+              <span class="ovw__kpi-label">{{ 'landing.mockup.overview.ticket' | translate }}</span>
+              <strong class="ovw__kpi-value">R$ 67,80</strong>
+              <span class="ovw__kpi-delta">
+                <i class="pi pi-arrow-up-right" aria-hidden="true"></i> 3,2%
+              </span>
+            </div>
+          </div>
+
+          <div class="ovw__grid">
+            <div class="ovw__panel">
+              <span class="ovw__panel-title">{{
+                'landing.mockup.overview.byHour' | translate
+              }}</span>
+              <!-- Single series: the title names it, so no legend box. The peak
+                   bar carries the only direct label. -->
+              <div class="ovw__bars">
+                @for (bar of hourlyBars; track bar.label) {
+                  <span class="ovw__bar-slot">
+                    @if (bar.peak) {
+                      <span class="ovw__bar-label">42</span>
+                    }
+                    <span
+                      class="ovw__bar"
+                      [class.ovw__bar--peak]="bar.peak"
+                      [style.height.%]="bar.value"
+                    ></span>
+                    <span class="ovw__bar-tick">{{ bar.label }}</span>
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="ovw__panel">
+              <span class="ovw__panel-title">{{
+                'landing.mockup.overview.alerts' | translate
+              }}</span>
+              <ul class="ovw__alerts">
+                @for (alert of overviewAlerts(); track alert.id) {
+                  <li class="ovw__alert">
+                    <i
+                      [class]="'ovw__alert-icon ' + alert.icon"
+                      [class.ovw__alert-icon--critical]="alert.severity === 'danger'"
+                      aria-hidden="true"
+                    ></i>
+                    <span class="ovw__alert-name">{{ alert.nameKey | translate }}</span>
+                    <span class="ovw__alert-left">{{ alert.left }} un.</span>
+                  </li>
+                }
+              </ul>
+
+              <span class="ovw__panel-title ovw__panel-title--spaced">
+                {{ 'landing.mockup.overview.paymentMix' | translate }}
+              </span>
+              <div class="ovw__mix">
+                @for (slice of paymentMix; track slice.id) {
+                  <span
+                    class="ovw__mix-seg"
+                    [style.flex-basis.%]="slice.share"
+                    [style.background]="slice.color"
+                  ></span>
+                }
+              </div>
+              <ul class="ovw__mix-legend">
+                @for (slice of paymentMix; track slice.id) {
+                  <li>
+                    <i class="ovw__swatch" [style.background]="slice.color" aria-hidden="true"></i>
+                    {{ slice.labelKey | translate }}
+                    <strong>{{ slice.share }}%</strong>
+                  </li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

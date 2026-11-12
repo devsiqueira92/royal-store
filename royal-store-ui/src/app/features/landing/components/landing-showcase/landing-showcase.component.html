@@ -1,0 +1,56 @@
+<section class="showcase" [id]="sectionId()" tabindex="-1">
+  <div class="showcase__inner">
+    <header class="showcase__head" appRevealOnScroll>
+      <span class="showcase__eyebrow">{{ 'landing.showcase.eyebrow' | translate }}</span>
+      <h2 class="showcase__title">{{ 'landing.showcase.title' | translate }}</h2>
+      <p class="showcase__subtitle">{{ 'landing.showcase.subtitle' | translate }}</p>
+    </header>
+
+    <div class="showcase__panel" appRevealOnScroll [revealDelay]="80">
+      <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+        <p-tablist>
+          @for (tab of tabs(); track tab.id) {
+            <p-tab [value]="tab.id">
+              <i [class]="tab.icon" aria-hidden="true"></i>
+              <span>{{ tab.labelKey | translate }}</span>
+            </p-tab>
+          }
+        </p-tablist>
+
+        <p-tabpanels>
+          @for (tab of tabs(); track tab.id) {
+            <p-tabpanel [value]="tab.id">
+              <div class="showcase__content">
+                <div class="showcase__text">
+                  <h3 class="showcase__content-title">{{ tab.titleKey | translate }}</h3>
+                  <p class="showcase__content-text">{{ tab.descriptionKey | translate }}</p>
+
+                  <ul class="showcase__bullets">
+                    @for (bullet of tab.bulletKeys; track bullet) {
+                      <li>
+                        <i class="pi pi-check-circle" aria-hidden="true"></i>
+                        {{ bullet | translate }}
+                      </li>
+                    }
+                  </ul>
+
+                  <a class="showcase__link" routerLink="/auth/register">
+                    {{ 'landing.showcase.tryIt' | translate }}
+                    <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                  </a>
+                </div>
+
+                <div class="showcase__visual">
+                  <app-dashboard-mockup
+                    [variant]="tab.variant"
+                    [ariaLabel]="tab.mockupAltKey | translate"
+                  />
+                </div>
+              </div>
+            </p-tabpanel>
+          }
+        </p-tabpanels>
+      </p-tabs>
+    </div>
+  </div>
+</section>

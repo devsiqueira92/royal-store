@@ -6,7 +6,7 @@ import {
 } from '@angular/core';
 import { SidebarMenuComponent } from '../sidebar-menu/sidebar-menu.component';
 import { HeaderComponent } from '../header/header.component';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { LayoutService } from '../../services/layout.service';
 import { DeviceService } from '../../services/device.service';
 import { DetailsSidebarComponent } from '../details-sidebar/details-sidebar.component';
@@ -37,6 +37,7 @@ export class AdminLayoutComponent {
   private readonly supplierFacade = inject(SupplierFacade);
   private readonly originOptionFacade = inject(OriginOptionFacade);
   private readonly currentSellerFacade = inject(CurrentSellerFacade);
+  private readonly router = inject(Router);
 
   protected readonly isSidebarVisible = this.layoutService.sidebarVisible;
   protected readonly shouldPushContent = computed(() => this.canPushContent());
@@ -53,6 +54,8 @@ export class AdminLayoutComponent {
     this.supplierFacade.loadSuppliers();
     this.originOptionFacade.loadOriginOptions();
     this.currentSellerFacade.loadCurrentSeller();
+
+    this.router.navigate(['/products']);
   }
 
   private canPushContent() {

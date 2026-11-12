@@ -1,0 +1,246 @@
+:host {
+  display: block;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: calc(4rem + var(--ls-space-7)) 0 var(--ls-space-7);
+  background:
+    radial-gradient(
+      70rem 30rem at 50% -10%,
+      color-mix(in srgb, var(--ls-accent-soft) 10%, transparent),
+      transparent 70%
+    ),
+    var(--ls-page);
+}
+
+/* Decorative accent wash; never carries information. */
+.hero__glow {
+  position: absolute;
+  top: -14rem;
+  left: 50%;
+  width: 46rem;
+  height: 30rem;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--ls-accent-soft) 18%, transparent),
+    transparent
+  );
+  filter: blur(14px);
+  pointer-events: none;
+}
+
+.hero__inner {
+  position: relative;
+  display: grid;
+  /* Grid items default to min-width:auto, which would let the mockup's
+     intrinsic width push the page wider than the viewport on small screens. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ls-space-6);
+  width: 100%;
+  max-width: var(--ls-container);
+  margin: 0 auto;
+  padding: 0 var(--ls-gutter);
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: var(--ls-space-6);
+    align-items: center;
+  }
+}
+
+/* ------------------------------------------------------------------ copy -- */
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--ls-accent) 24%, var(--ls-border));
+  border-radius: 999px;
+  background: var(--ls-accent-wash);
+  color: var(--ls-accent);
+  font-size: 0.8125rem;
+  font-weight: 550;
+}
+
+.hero__badge-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--ls-accent-soft);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ls-accent-soft) 22%, transparent);
+}
+
+.hero__title {
+  margin-top: var(--ls-space-3);
+  color: var(--ls-ink);
+  font-size: clamp(2.125rem, 5.2vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.07;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.hero__title-accent {
+  color: var(--ls-accent);
+}
+
+.hero__subtitle {
+  max-width: 34rem;
+  margin-top: var(--ls-space-3);
+  color: var(--ls-ink-2);
+  font-size: clamp(1rem, 1.6vw, 1.1875rem);
+  line-height: 1.6;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: var(--ls-space-5);
+}
+
+/* Single primary action on the page; the secondary stays visually subordinate. */
+.hero__cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-height: 3.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--ls-radius);
+  background: var(--ls-accent);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color var(--ls-dur-fast) var(--ls-ease),
+    transform var(--ls-dur-fast) var(--ls-ease),
+    box-shadow var(--ls-dur-fast) var(--ls-ease);
+
+  &:hover {
+    background: var(--ls-accent-hover);
+    box-shadow: var(--ls-shadow-accent);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.hero__cta-main {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.hero__cta-sub {
+  color: color-mix(in srgb, #fff 82%, transparent);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.hero__cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 3.5rem;
+  padding: 0 1.25rem;
+  border: 1px solid var(--ls-border-strong);
+  border-radius: var(--ls-radius);
+  background: var(--ls-surface);
+  color: var(--ls-ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--ls-dur-fast) var(--ls-ease),
+    background-color var(--ls-dur-fast) var(--ls-ease);
+
+  i {
+    color: var(--ls-accent);
+    font-size: 1.125rem;
+  }
+
+  &:hover {
+    border-color: var(--ls-accent);
+    background: var(--ls-accent-wash);
+  }
+}
+
+.hero__trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: var(--ls-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ls-ink-3);
+    font-size: 0.8125rem;
+  }
+
+  i {
+    color: var(--ls-accent);
+    font-size: 0.6875rem;
+  }
+}
+
+/* ---------------------------------------------------------------- visual -- */
+
+.hero__visual {
+  position: relative;
+
+  @media (min-width: 64rem) {
+    /* Slight optical offset so the mockup breathes toward the viewport edge. */
+    margin-right: calc(var(--ls-gutter) * -0.5);
+  }
+}
+
+.hero__float {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--ls-border);
+  border-radius: var(--ls-radius);
+  background: var(--ls-surface);
+  box-shadow: var(--ls-shadow);
+  color: var(--ls-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.35;
+
+  strong {
+    display: block;
+    color: var(--ls-ink);
+    font-size: 0.8125rem;
+  }
+
+  i {
+    color: var(--ls-accent);
+    font-size: 1rem;
+  }
+
+  @media (min-width: 80rem) {
+    position: absolute;
+    display: flex;
+    max-width: 13rem;
+  }
+
+  /* Anchored to the card's outer corners so they frame the mockup instead of
+     covering the numbers inside it. */
+  &--sale {
+    top: -1.5rem;
+    left: -2.5rem;
+  }
+
+  &--stock {
+    right: -2.5rem;
+    bottom: -1.5rem;
+  }
+}

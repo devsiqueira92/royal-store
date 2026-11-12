@@ -1,0 +1,108 @@
+:host {
+  display: block;
+}
+
+.faq {
+  padding: var(--ls-space-7) 0;
+  background: var(--ls-surface);
+  border-top: 1px solid var(--ls-border);
+  scroll-margin-top: 5rem;
+}
+
+.faq__inner {
+  display: grid;
+  gap: var(--ls-space-5);
+  width: 100%;
+  max-width: var(--ls-container);
+  margin: 0 auto;
+  padding: 0 var(--ls-gutter);
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: var(--ls-space-6);
+    align-items: start;
+  }
+}
+
+.faq__head {
+  @media (min-width: 64rem) {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+.faq__eyebrow {
+  display: inline-block;
+  color: var(--ls-accent);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.faq__title {
+  margin-top: 0.5rem;
+  color: var(--ls-ink);
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.faq__subtitle {
+  margin-top: 0.75rem;
+  max-width: 28rem;
+  color: var(--ls-ink-2);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.faq__question {
+  color: var(--ls-ink);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
+
+.faq__answer {
+  max-width: 44rem;
+  color: var(--ls-ink-2);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* ---------------------------------------- PrimeNG accordion, landing skin -- */
+
+:host ::ng-deep {
+  .p-accordionpanel {
+    border-color: var(--ls-border);
+    background: transparent;
+  }
+
+  .p-accordionheader {
+    gap: 1rem;
+    min-height: 3.25rem;
+    padding: 1rem 0.25rem;
+    background: transparent;
+    color: var(--ls-ink);
+
+    &:hover {
+      background: transparent;
+
+      .faq__question {
+        color: var(--ls-accent);
+      }
+    }
+  }
+
+  .p-accordionheader-toggle-icon {
+    color: var(--ls-ink-3);
+  }
+
+  .p-accordioncontent-content {
+    padding: 0 0.25rem 1.125rem;
+    background: transparent;
+  }
+}

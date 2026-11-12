@@ -1,0 +1,175 @@
+:host {
+  display: block;
+}
+
+.showcase {
+  padding: var(--ls-space-7) 0;
+  background: var(--ls-surface);
+  border-top: 1px solid var(--ls-border);
+  border-bottom: 1px solid var(--ls-border);
+  scroll-margin-top: 5rem;
+}
+
+.showcase__inner {
+  width: 100%;
+  max-width: var(--ls-container);
+  margin: 0 auto;
+  padding: 0 var(--ls-gutter);
+}
+
+.showcase__head {
+  max-width: 44rem;
+  margin-bottom: var(--ls-space-5);
+}
+
+.showcase__eyebrow {
+  display: inline-block;
+  color: var(--ls-accent);
+  font-size: 0.8125rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.showcase__title {
+  margin-top: 0.5rem;
+  color: var(--ls-ink);
+  font-size: clamp(1.75rem, 3.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.showcase__subtitle {
+  margin-top: 0.75rem;
+  color: var(--ls-ink-2);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.showcase__panel {
+  padding: var(--ls-space-4);
+  border: 1px solid var(--ls-border);
+  border-radius: var(--ls-radius-lg);
+  background: var(--ls-page);
+}
+
+.showcase__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ls-space-5);
+  align-items: center;
+  padding-top: var(--ls-space-4);
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: var(--ls-space-6);
+  }
+}
+
+.showcase__content-title {
+  color: var(--ls-ink);
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.showcase__content-text {
+  margin-top: 0.625rem;
+  color: var(--ls-ink-2);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.showcase__bullets {
+  display: grid;
+  gap: 0.6rem;
+  margin: var(--ls-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    color: var(--ls-ink-2);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  i {
+    margin-top: 0.15rem;
+    color: var(--ls-accent);
+    font-size: 0.875rem;
+  }
+}
+
+.showcase__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  margin-top: var(--ls-space-4);
+  color: var(--ls-accent);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  i {
+    font-size: 0.75rem;
+    transition: transform var(--ls-dur-fast) var(--ls-ease);
+  }
+
+  &:hover {
+    color: var(--ls-accent-hover);
+    text-decoration: underline;
+
+    i {
+      transform: translateX(3px);
+    }
+  }
+}
+
+/* --------------------------------------------- PrimeNG tabs, landing skin -- */
+
+:host ::ng-deep {
+  .p-tablist-tab-list {
+    gap: 0.25rem;
+    background: transparent;
+    border-color: var(--ls-border);
+  }
+
+  .p-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.625rem 1rem;
+    color: var(--ls-ink-2);
+    font-size: 0.9375rem;
+    font-weight: 550;
+    border-bottom-width: 2px;
+    white-space: nowrap;
+
+    i {
+      font-size: 0.9375rem;
+    }
+
+    &:not(.p-disabled):hover {
+      color: var(--ls-ink);
+      background: var(--ls-surface);
+    }
+
+    &[data-p-active='true'] {
+      color: var(--ls-accent);
+      border-color: var(--ls-accent);
+    }
+  }
+
+  .p-tabpanels {
+    padding: 0;
+    background: transparent;
+  }
+}

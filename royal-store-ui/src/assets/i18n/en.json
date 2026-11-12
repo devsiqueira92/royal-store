@@ -905,5 +905,317 @@
       "submit": "Save template",
       "createSubmit": "Create template"
     }
+  },
+  "landing": {
+    "meta": {
+      "title": "Axius Store — POS, inventory and finance for your store in one place"
+    },
+    "nav": {
+      "home": "Axius Store — home",
+      "primary": "Primary navigation",
+      "features": "Features",
+      "howItWorks": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ",
+      "login": "Sign in",
+      "trial": "Start free trial",
+      "openMenu": "Open navigation menu",
+      "closeMenu": "Close navigation menu",
+      "skipToContent": "Skip to main content"
+    },
+    "hero": {
+      "badge": "New: tax invoices issued straight from the register",
+      "titleLead": "Stop losing sales and",
+      "titleHighlight": "run your whole store in one place",
+      "subtitle": "A register that keeps up with the queue, stock that warns you before it runs out, and books that close themselves. Axius Store brings together everything your store needs — no spreadsheets, no double entry, no surprises at month end.",
+      "ctaPrimary": "Start your 14-day free trial",
+      "ctaPrimaryHint": "No credit card required",
+      "ctaSecondary": "See the interactive demo",
+      "trust1": "Live in 10 minutes",
+      "trust2": "We import your current stock",
+      "trust3": "Cancel anytime",
+      "mockupAlt": "Preview of the Axius Store dashboard: R$ 12,480 in revenue today, 184 sales, R$ 67.80 average ticket, a sales-per-hour chart peaking at 6pm, low-stock alerts and the payment split across instant transfer, card and cash.",
+      "floatSaleTitle": "Sale completed",
+      "floatSaleText": "Receipt printed in 1.8s",
+      "floatStockTitle": "Stock updated",
+      "floatStockText": "Deducted automatically per item"
+    },
+    "stats": {
+      "title": "Axius Store in numbers",
+      "stores": {
+        "value": "2,500+",
+        "label": "active stores running it every day"
+      },
+      "uptime": {
+        "value": "99.9%",
+        "label": "uptime during business hours"
+      },
+      "hours": {
+        "value": "12h",
+        "label": "saved per week, on average"
+      },
+      "rating": {
+        "value": "4.8/5",
+        "label": "average support rating from owners"
+      }
+    },
+    "features": {
+      "eyebrow": "Everything connected",
+      "title": "One platform, four problems solved",
+      "subtitle": "Register, stock, finance and tax all talking to each other. A sale rung up at the register already deducts stock, lands in your cash flow and becomes an invoice — you never type the same thing twice.",
+      "pos": {
+        "tag": "Most used",
+        "title": "A register built for a full queue",
+        "description": "Barcode scanner, keyboard shortcuts and checkout in seconds. Runs on any computer, with a mouse or on the keyboard alone.",
+        "bullets": {
+          "b1": "Sale closed in under 10 seconds",
+          "b2": "Instant transfer, card, cash and split payments",
+          "b3": "Discounts, exchanges and refunds logged per operator"
+        },
+        "keys": {
+          "finish": "Checkout",
+          "discount": "Discount",
+          "withdraw": "Cash drop"
+        }
+      },
+      "inventory": {
+        "title": "Smart stock that warns you before it runs out",
+        "description": "Set a minimum per product and get the alert on your dashboard when it is time to reorder. No more finding out you are out of stock with the customer standing there."
+      },
+      "finance": {
+        "title": "Finance in real time",
+        "description": "Revenue, margin, receivables and payables updated with every sale."
+      },
+      "invoice": {
+        "title": "Tax invoices without the headache",
+        "description": "Electronic invoices with tax profiles ready per product type."
+      },
+      "loyalty": {
+        "title": "Customers and loyalty in the same record",
+        "description": "Purchase history, points and loyalty tiers per customer — ready to bring back everyone who has already bought from you."
+      },
+      "cashShift": {
+        "title": "Shift open and close, properly reconciled",
+        "description": "Cash drops, float top-ups and blind counts per operator. At the end of the shift you know exactly what should be in the drawer."
+      }
+    },
+    "showcase": {
+      "eyebrow": "Inside the system",
+      "title": "See the screens your team will use every day",
+      "subtitle": "No 20-minute video, no call to book. Switch between the screens and see how the system behaves in real operation.",
+      "tryIt": "Try this screen in my store",
+      "pos": {
+        "label": "Register",
+        "title": "Register: scan, charge, hand over",
+        "description": "The operator scans the product, picks a payment method and closes the sale with F2. The receipt prints, stock is deducted and the drawer is recorded — all in the same action.",
+        "mockupAlt": "Preview of the register screen: a scanned barcode, four items in the cart, a R$ 186.80 total, instant transfer selected and the F2 shortcut to close the sale.",
+        "bullets": {
+          "b1": "Search by barcode, name or shortcut",
+          "b2": "Split a payment across more than one method",
+          "b3": "Fully keyboard-operable, no mouse needed"
+        }
+      },
+      "inventory": {
+        "label": "Stock management",
+        "title": "Stock: you know what is missing before the customer does",
+        "description": "Every product carries a minimum, a current balance and a status you can read across the room. The system suggests what to reorder based on recent weeks of sales.",
+        "mockupAlt": "Preview of the stock screen: a product list with balance bars, remaining units and critical, low and normal status tags, plus a suggested reorder.",
+        "bullets": {
+          "b1": "Critical, low and normal status with icon and label",
+          "b2": "Goods received from a supplier invoice, not item by item",
+          "b3": "Price and barcode labels ready to print"
+        }
+      },
+      "finance": {
+        "label": "Financial dashboard",
+        "title": "Finance: the books balance without a spreadsheet",
+        "description": "Revenue and expense on one shared scale, the real margin for the period and what is coming in over the next 30 days. The number you read is the number that hit the drawer.",
+        "mockupAlt": "Preview of the financial dashboard: R$ 148,320 in revenue up 12.4%, a 31.8% margin, R$ 23,940 in receivables and a revenue-versus-expense chart for the last 30 days.",
+        "bullets": {
+          "b1": "Revenue and expense on one chart, one shared scale",
+          "b2": "Margin by period, product and payment method",
+          "b3": "Shift close reconciled per operator"
+        }
+      }
+    },
+    "pricing": {
+      "eyebrow": "Pricing",
+      "title": "Clear pricing, no hidden fees",
+      "subtitle": "Every plan includes the 14-day trial, all updates and support from real people. You only pay when you decide to stay.",
+      "cycleLabel": "Billing period",
+      "monthly": "Monthly",
+      "annual": "Annual",
+      "annualSaving": "2 months free",
+      "currency": "$",
+      "perMonth": "/mo",
+      "billedAnnually": "billed annually",
+      "billedMonthly": "billed monthly",
+      "custom": "Custom",
+      "customNote": "quoted by number of stores",
+      "mostPopular": "Most popular",
+      "guarantee": "14-day trial, no card. If you cancel, we export your data as CSV.",
+      "essential": {
+        "name": "Essential",
+        "description": "For stores moving off spreadsheets and notebooks.",
+        "features": {
+          "f1": "1 store and 1 concurrent register",
+          "f2": "Full register with barcode support",
+          "f3": "Stock control with minimum-level alerts",
+          "f4": "Sales reports and shift close",
+          "f5": "Email support within 1 business day"
+        },
+        "cta": "Start with Essential"
+      },
+      "professional": {
+        "name": "Professional",
+        "description": "For a store that already sells daily and wants margin.",
+        "features": {
+          "f1": "1 store and up to 3 concurrent registers",
+          "f2": "Everything in Essential, with no product limit",
+          "f3": "Electronic tax invoices with tax profiles",
+          "f4": "Financial dashboard and margin per product",
+          "f5": "Loyalty tiers and customer history",
+          "f6": "Chat support during business hours"
+        },
+        "cta": "Try Professional free"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For chains with several stores and an ops team.",
+        "features": {
+          "f1": "Unlimited stores and registers",
+          "f2": "Everything in Professional, consolidated per store",
+          "f3": "Role-based permissions and action auditing",
+          "f4": "API integration and assisted import",
+          "f5": "Account manager and dedicated SLA"
+        },
+        "cta": "Talk to a specialist"
+      }
+    },
+    "faq": {
+      "eyebrow": "Frequently asked",
+      "title": "What every store owner asks before trying it",
+      "subtitle": "If your question is not here, support answers on chat during business hours — before you sign up for anything.",
+      "migration": {
+        "question": "Will I have to register my products one by one?",
+        "answer": "No. You send us your product spreadsheet (or the export from your current system) and our team runs the import with you, including stock balances, cost prices and sale prices. Migration is included in every plan at no extra cost."
+      },
+      "trial": {
+        "question": "How does the 14-day trial work?",
+        "answer": "You create an account without entering a card and use the whole platform — register, stock, finance and invoicing. Nothing is locked during the trial. We remind you on the last day, and everything you set up stays there if you decide to subscribe."
+      },
+      "cancel": {
+        "question": "If I cancel, do I lose my data?",
+        "answer": "No. You cancel from the dashboard itself, with no penalty and no phone call. Before closing the account you export products, customers and sales as CSV. We keep your data available for 30 days after cancellation in case you change your mind."
+      },
+      "support": {
+        "question": "What kind of support do I get?",
+        "answer": "On Essential, email support answered within 1 business day. On Professional, chat during business hours with people who understand store operations. On Enterprise, an account manager and a contracted SLA. On every plan, initial setup is done with you."
+      },
+      "hardware": {
+        "question": "Do I need to buy new equipment?",
+        "answer": "In most cases, no. Axius Store runs in the browser on any computer and works with the most common barcode scanners and thermal printers on the market. If you are unsure about your hardware, send us the model and we will confirm before you subscribe."
+      },
+      "offline": {
+        "question": "What if the internet drops mid-rush?",
+        "answer": "The register tells you the moment the connection drops and shows the status of the sale in progress, so you never charge twice or lose the record. When the connection returns, syncing runs automatically and you can review what was sent."
+      },
+      "invoice": {
+        "question": "Is tax invoicing included?",
+        "answer": "Yes, on the Professional and Enterprise plans, issued straight from the register. You configure the tax profile per product type once and the system applies the right tax codes to every sale. The digital certificate stays on your side."
+      }
+    },
+    "finalCta": {
+      "title": "Your next sale could already be under control",
+      "subtitle": "Create your account, import your products and run the register today. 14 days free, no card, no commitment.",
+      "cta": "Start your 14-day free trial",
+      "secondary": "Compare plans",
+      "note1": "No credit card required",
+      "note2": "Data import included",
+      "note3": "Cancel anytime"
+    },
+    "footer": {
+      "tagline": "Complete store management: POS, stock, finance and tax on a single platform.",
+      "supportHours": "Support Mon-Sat, 8am to 8pm",
+      "navLabel": "Footer navigation",
+      "rights": "© {{year}} Axius Store. All rights reserved.",
+      "terms": "Terms of use",
+      "privacy": "Privacy",
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "showcase": "Inside the system",
+        "pricing": "Plans and pricing",
+        "login": "Sign in to my account"
+      },
+      "resources": {
+        "title": "Resources",
+        "faq": "Frequently asked questions",
+        "migration": "Data migration",
+        "register": "Create a free account"
+      },
+      "company": {
+        "title": "Company",
+        "about": "About Axius Store",
+        "contact": "Talk to us"
+      }
+    },
+    "mockup": {
+      "window": {
+        "overview": "Overview",
+        "pos": "Register",
+        "inventory": "Stock",
+        "finance": "Finance"
+      },
+      "products": {
+        "p1": "Basic white tee M",
+        "p2": "Black casual sneaker 40",
+        "p3": "Curved brim cap",
+        "p4": "Sports socks pair",
+        "p5": "Brown leather belt",
+        "p6": "Metal keyring"
+      },
+      "stock": {
+        "critical": "Critical",
+        "low": "Low",
+        "ok": "Normal"
+      },
+      "payments": {
+        "pix": "Instant",
+        "card": "Card",
+        "cash": "Cash"
+      },
+      "pos": {
+        "scanHint": "Product scanned",
+        "item": "Item",
+        "qty": "Qty",
+        "total": "Total",
+        "amountDue": "Amount due",
+        "finish": "Close sale",
+        "timer": "Time at register: 00:08"
+      },
+      "inventory": {
+        "title": "Products below minimum",
+        "filter": "Status",
+        "suggestion": "Reorder suggested for 3 products",
+        "suggestionCta": "Create order"
+      },
+      "finance": {
+        "revenue": "Revenue",
+        "expense": "Expense",
+        "margin": "Margin",
+        "receivable": "Receivables",
+        "next30": "next 30 days",
+        "chartTitle": "Revenue vs. expense — last 30 days"
+      },
+      "overview": {
+        "today": "Revenue today",
+        "sales": "Sales today",
+        "ticket": "Average ticket",
+        "byHour": "Sales per hour",
+        "alerts": "Stock alerts",
+        "paymentMix": "Payment methods"
+      }
+    }
   }
 }

@@ -1,0 +1,191 @@
+/*
+  Landing design system
+  ---------------------
+  Scope: this host only, so the admin app keeps its own PrimeNG Aura tokens.
+  Child sections inherit every `--ls-*` custom property through the DOM.
+
+  Palette: industrial slate ink on a near-white page with a single emerald
+  accent. `--ls-accent` (#047857) is the only green used behind white text or as
+  text on light surfaces — it measures ~5.5:1 on white. The lighter
+  `--ls-accent-soft` (#059669, ~3.8:1) is reserved for graphics, icons and chart
+  marks, where the 3:1 non-text threshold applies.
+
+  Chart categorical order (validated for deutan/tritan separation):
+  #047857 -> #6D28D9 -> #B45309.
+*/
+
+:host {
+  /* surfaces + ink */
+  --ls-page: #f8fafc;
+  --ls-surface: #ffffff;
+  --ls-surface-2: #f1f5f9;
+  --ls-ink: #0f172a;
+  --ls-ink-2: #475569;
+  --ls-ink-3: #64748b;
+  --ls-border: #e2e8f0;
+  --ls-border-strong: #cbd5e1;
+
+  /* accent + status */
+  --ls-accent: #047857;
+  --ls-accent-hover: #065f46;
+  --ls-accent-soft: #059669;
+  --ls-accent-wash: #ecfdf5;
+  --ls-warn: #b45309;
+  --ls-danger: #dc2626;
+
+  /* shape */
+  --ls-radius-sm: 10px;
+  --ls-radius: 14px;
+  --ls-radius-lg: 20px;
+  --ls-radius-xl: 28px;
+
+  /* elevation */
+  --ls-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --ls-shadow: 0 4px 6px rgba(15, 23, 42, 0.04), 0 12px 32px -14px rgba(15, 23, 42, 0.16);
+  --ls-shadow-lg: 0 24px 64px -24px rgba(15, 23, 42, 0.3);
+  --ls-shadow-accent: 0 10px 24px -12px rgba(4, 120, 87, 0.55);
+
+  /* 8pt spacing rhythm */
+  --ls-space-1: 0.25rem;
+  --ls-space-2: 0.5rem;
+  --ls-space-3: 1rem;
+  --ls-space-4: 1.5rem;
+  --ls-space-5: 2rem;
+  --ls-space-6: 3rem;
+  --ls-space-7: clamp(3.5rem, 8vw, 6rem);
+
+  /* layout */
+  --ls-container: 75rem;
+  --ls-gutter: 1rem;
+  --ls-z-nav: 100;
+
+  /* motion: one shared easing + three durations across the page */
+  --ls-dur-fast: 160ms;
+  --ls-dur: 240ms;
+  --ls-dur-slow: 480ms;
+  --ls-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: block;
+  min-height: 100dvh;
+  background: var(--ls-page);
+  color: var(--ls-ink);
+  font-family: var(--ls-font, 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif);
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+
+  @media (min-width: 48rem) {
+    --ls-gutter: 2rem;
+  }
+
+  @media (min-width: 80rem) {
+    --ls-gutter: 2.5rem;
+  }
+}
+
+/* The app sets `cursor: default` and resets link colour globally; the landing
+   needs real link affordances back. */
+:host ::ng-deep a {
+  cursor: pointer;
+}
+
+/* Dark mode is not the landing's primary theme, but the app-wide toggle must
+   not leave it unreadable: the token layer is re-pointed, nothing else. */
+:host-context(.app-dark) {
+  --ls-page: #020617;
+  --ls-surface: #0b1220;
+  --ls-surface-2: #111c2f;
+  --ls-ink: #f8fafc;
+  --ls-ink-2: #cbd5e1;
+  --ls-ink-3: #94a3b8;
+  --ls-border: #1e293b;
+  --ls-border-strong: #334155;
+  --ls-accent: #34d399;
+  --ls-accent-hover: #6ee7b7;
+  --ls-accent-soft: #34d399;
+  --ls-accent-wash: rgba(52, 211, 153, 0.12);
+  --ls-warn: #fbbf24;
+  --ls-danger: #f87171;
+  --ls-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --ls-shadow: 0 4px 6px rgba(0, 0, 0, 0.4), 0 12px 32px -14px rgba(0, 0, 0, 0.7);
+  --ls-shadow-lg: 0 24px 64px -24px rgba(0, 0, 0, 0.8);
+  --ls-shadow-accent: 0 10px 24px -12px rgba(52, 211, 153, 0.4);
+}
+
+/* ------------------------------------------------------------ skip link --- */
+
+.landing__skip {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: calc(var(--ls-z-nav) + 10);
+  padding: 0.75rem 1rem;
+  border-radius: var(--ls-radius-sm);
+  background: var(--ls-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform var(--ls-dur-fast) var(--ls-ease);
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+.landing__main {
+  display: block;
+}
+
+/* Reserves the deferred showcase section's height to keep CLS at zero. */
+.landing__placeholder {
+  min-height: 42rem;
+  background: var(--ls-surface);
+  border-top: 1px solid var(--ls-border);
+  border-bottom: 1px solid var(--ls-border);
+  scroll-margin-top: 5rem;
+}
+
+/* ------------------------------------------------- scroll + focus policy --- */
+
+/* Sections receive focus after an in-page jump; the outline would otherwise
+   draw a box around a whole screen, so only the ring on real controls is kept.
+   Focus order and visibility for interactive elements are untouched. */
+:host ::ng-deep section:focus,
+:host ::ng-deep .landing__placeholder:focus {
+  outline: none;
+}
+
+:host ::ng-deep :is(a, button, [tabindex='0']):focus-visible {
+  outline: 2px solid var(--ls-accent);
+  outline-offset: 2px;
+  border-radius: var(--ls-radius-sm);
+}
+
+/* --------------------------------------------------- scroll reveal layer --- */
+
+/* Driven by RevealOnScrollDirective. Animates opacity/transform only, so no
+   layout work per frame. */
+:host ::ng-deep .reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity var(--ls-dur-slow) var(--ls-ease),
+    transform var(--ls-dur-slow) var(--ls-ease);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+:host ::ng-deep .reveal.is-revealed {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
