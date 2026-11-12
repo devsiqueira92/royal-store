@@ -51,7 +51,7 @@ jobs:
           EOF
 
       - name: Build
-        run: npx ng build --configuration production --base-href "/royal-store/"
+        run: npx ng build --configuration production --base-href "/"
 
       # GitHub Pages has no server-side rewrites, so a direct hit or refresh on a deep
       # route (e.g. /products/123) 404s. Serving index.html as 404.html hands the request
