@@ -9,10 +9,10 @@
       [attr.step]="step"
       [formControlName]="controlName"
       [invalid]="
-        parentForm.controls[controlName].touched &&
-        parentForm.controls[controlName].errors
+        parentForm.controls[controlName].touched && parentForm.controls[controlName].errors
       "
-      autocomplete="off"
+      [attr.autocomplete]="autocomplete"
+      [attr.inputmode]="inputmode"
       (blur)="blurred.emit()"
     />
     <label [for]="controlName"
@@ -24,8 +24,5 @@
     </label>
   </p-floatlabel>
 
-  <app-form-error
-    [parentForm]="parentForm"
-    [controlName]="controlName"
-  ></app-form-error>
+  <app-form-error [parentForm]="parentForm" [controlName]="controlName"></app-form-error>
 </form>

@@ -1,85 +1,79 @@
-<div class="register-page">
-  <form id="register-form" class="register-card row" [formGroup]="formGroup">
-    <header class="col-12 register-header">
-      <h1 class="register-title">{{ 'auth.register.title' | translate }}</h1>
-      <p class="register-subtitle">
-        {{ 'auth.register.subtitle' | translate }}
-      </p>
-
-      @if (registerError$ | async; as error) {
-        <p-message styleClass="register-error" severity="error">
-          {{ error }}
-        </p-message>
-      }
+<app-auth-shell>
+  <form id="register-form" class="auth-form" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+    <header class="auth-form__header">
+      <h1 class="auth-form__title">{{ 'auth.register.title' | translate }}</h1>
+      <p class="auth-form__subtitle">{{ 'auth.register.subtitle' | translate }}</p>
     </header>
 
+    @if (registerError$ | async; as error) {
+      <p-message severity="error" styleClass="auth-form__error" role="alert">
+        {{ error }}
+      </p-message>
+    }
+
     <app-input-field
-      class="col-12"
       [parentForm]="formGroup"
       controlName="storeName"
+      autocomplete="organization"
       [label]="'auth.storeName'"
-    >
-    </app-input-field>
+    />
 
     <app-input-field
-      class="col-12"
       [parentForm]="formGroup"
       controlName="email"
+      type="email"
+      autocomplete="username"
       [label]="'auth.email'"
-    >
-    </app-input-field>
+    />
 
-    <div class="col-12 document-type-group">
-      <span class="document-type-label">
-        {{ 'auth.documentType' | translate }}
-      </span>
+    <fieldset class="auth-form__fieldset">
+      <legend class="auth-form__legend">{{ 'auth.documentType' | translate }}</legend>
       <p-selectbutton
         formControlName="documentType"
         [options]="documentTypeOptions"
         optionLabel="label"
         optionValue="value"
+        [allowEmpty]="false"
       />
-    </div>
+    </fieldset>
 
     <app-input-field
-      class="col-12"
       [parentForm]="formGroup"
       controlName="document"
+      inputmode="numeric"
       [label]="'auth.document'"
-    >
-    </app-input-field>
+    />
 
+    <!-- `new-password` on both fields lets a password manager offer to
+         generate and then save the credential. -->
     <app-password-field
-      class="col-12"
       [parentForm]="formGroup"
       controlName="password"
+      autocomplete="new-password"
       [label]="'auth.password'"
-    >
-    </app-password-field>
+    />
 
     <app-password-field
-      class="col-12"
       [parentForm]="formGroup"
       controlName="confirmPassword"
+      autocomplete="new-password"
       [label]="'auth.confirmPassword'"
-    >
-    </app-password-field>
+    />
 
-    <div class="col-12 submit-actions">
-      <app-button
-        class="submit-btn"
-        severity="primary"
-        label="auth.button.createAccount"
-        [disabled]="(isLoading$ | async)!"
-        (onClick)="onSubmit()"
-      ></app-button>
+    <app-button
+      class="auth-form__submit"
+      type="submit"
+      severity="primary"
+      label="auth.button.createAccount"
+      [loading]="(isLoading$ | async)!"
+      [disabled]="(isLoading$ | async)!"
+    />
 
-      <div class="signin-hint">
-        <span>{{ 'auth.alreadyHaveAccount' | translate }}</span>
-        <app-link routerLink="/auth/login">
-          {{ 'auth.button.signIn' | translate }}
-        </app-link>
-      </div>
-    </div>
+    <p class="auth-form__hint">
+      {{ 'auth.alreadyHaveAccount' | translate }}
+      <app-link routerLink="/auth/login">
+        {{ 'auth.button.signIn' | translate }}
+      </app-link>
+    </p>
   </form>
-</div>
+</app-auth-shell>

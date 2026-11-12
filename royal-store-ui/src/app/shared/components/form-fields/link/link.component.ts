@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
@@ -20,9 +15,7 @@ export class LinkComponent {
   readonly href = input<string | null>(null);
   readonly target = input<'_blank' | '_self' | '_parent' | '_top'>('_self');
 
-  readonly variant = input<'inline' | 'btn-primary' | 'btn-secondary'>(
-    'inline',
-  );
+  readonly variant = input<'inline' | 'btn-primary' | 'btn-secondary'>('inline');
   readonly customClass = input<string>('');
 
   readonly classesCss = computed(() => {

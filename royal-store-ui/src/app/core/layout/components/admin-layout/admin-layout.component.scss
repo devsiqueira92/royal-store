@@ -1,12 +1,66 @@
 :host {
+  /* One place for the shell's geometry, so the sidebar, header and content
+     cannot drift apart. */
+  --shell-sidebar-width: 15rem;
+  --shell-header-height: 3.75rem;
+  --shell-gutter: 1rem;
+  --shell-max-width: 90rem;
+
   display: block;
+  min-height: 100dvh;
+  background: light-dark(var(--p-surface-50), var(--p-surface-950));
 
-  .main-content {
-    transition: margin-left 0.2s;
-    padding: 1rem;
+  @media (min-width: 48rem) {
+    --shell-gutter: 1.5rem;
   }
 
-  .main-content.content-pushed {
-    margin-left: 15rem;
+  @media (min-width: 80rem) {
+    --shell-gutter: 2rem;
   }
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 1200;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--p-primary-color);
+  color: var(--p-primary-contrast-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.16s ease;
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  transition: margin-left 0.2s ease;
+
+  &--pushed {
+    margin-left: var(--shell-sidebar-width);
+  }
+}
+
+.shell__main {
+  flex: 1 1 auto;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--shell-gutter);
+  /* Focused by the skip link; the ring would otherwise box the whole page. */
+  outline: none;
+}
+
+.shell__loading {
+  padding: 1.5rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: var(--p-content-border-radius);
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
 }

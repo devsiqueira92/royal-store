@@ -1,0 +1,55 @@
+<div class="auth">
+  <!-- Brand panel: desktop only, decorative + reassurance. Nothing here is
+       required to complete the form. -->
+  <aside class="auth__panel">
+    <a class="auth__brand" routerLink="/homepage">
+      <span class="auth__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" focusable="false">
+          <rect x="1.5" y="1.5" width="29" height="29" rx="9" class="auth__mark-bg" />
+          <path
+            d="M10 21.5V13c0-2.2 1.8-4 4-4h4.5c2.2 0 4 1.8 4 4s-1.8 4-4 4H14l8.5 4.5"
+            class="auth__mark-glyph"
+          />
+        </svg>
+      </span>
+      <span class="auth__brand-text">Axius Store</span>
+    </a>
+
+    <p class="auth__headline">{{ 'auth.shell.headline' | translate }}</p>
+
+    <ul class="auth__bullets">
+      @for (bullet of bulletKeys; track bullet) {
+        <li>
+          <i class="pi pi-check" aria-hidden="true"></i>
+          {{ bullet | translate }}
+        </li>
+      }
+    </ul>
+
+    <p class="auth__note">{{ 'auth.shell.note' | translate }}</p>
+  </aside>
+
+  <main class="auth__main">
+    <a class="auth__brand auth__brand--mobile" routerLink="/homepage">
+      <span class="auth__mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" focusable="false">
+          <rect x="1.5" y="1.5" width="29" height="29" rx="9" class="auth__mark-bg" />
+          <path
+            d="M10 21.5V13c0-2.2 1.8-4 4-4h4.5c2.2 0 4 1.8 4 4s-1.8 4-4 4H14l8.5 4.5"
+            class="auth__mark-glyph"
+          />
+        </svg>
+      </span>
+      <span class="auth__brand-text">Axius Store</span>
+    </a>
+
+    <div class="auth__card">
+      <ng-content />
+    </div>
+
+    <a class="auth__back" routerLink="/homepage">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      {{ 'auth.shell.backToSite' | translate }}
+    </a>
+  </main>
+</div>

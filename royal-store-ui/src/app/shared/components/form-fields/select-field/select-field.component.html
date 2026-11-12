@@ -4,8 +4,7 @@
       [id]="controlName"
       [formControlName]="controlName"
       [invalid]="
-        parentForm.controls[controlName].touched &&
-        parentForm.controls[controlName].errors
+        parentForm.controls[controlName].touched && parentForm.controls[controlName].errors
       "
       [placeholder]="placeholder | translate"
       [options]="options"
@@ -25,8 +24,5 @@
     </label>
   </p-floatlabel>
 
-  <app-form-error
-    [parentForm]="parentForm"
-    [controlName]="controlName"
-  ></app-form-error>
+  <app-form-error [parentForm]="parentForm" [controlName]="controlName"></app-form-error>
 </form>

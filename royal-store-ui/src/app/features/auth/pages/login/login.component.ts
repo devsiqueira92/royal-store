@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -19,6 +14,7 @@ import { LinkComponent } from '../../../../shared/components/form-fields/link/li
 import { TranslatePipe } from '@ngx-translate/core';
 import { DividerModule } from 'primeng/divider';
 import { LoginForm } from '../../models/login-form.interface';
+import { AuthShellComponent } from '../../components/auth-shell/auth-shell.component';
 
 @Component({
   imports: [
@@ -35,6 +31,7 @@ import { LoginForm } from '../../models/login-form.interface';
     LinkComponent,
     TranslatePipe,
     DividerModule,
+    AuthShellComponent,
   ],
   templateUrl: 'login.component.html',
   styleUrl: './login.component.scss',

@@ -1,53 +1,104 @@
-<div class="card">
-  <p-menubar>
-    <ng-template #start>
-      <p-button
-        size="small"
-        (click)="updateVisibility(!isSidebarVisible())"
-        icon="pi pi-bars"
-      ></p-button>
-    </ng-template>
+<header class="appbar">
+  <button
+    type="button"
+    class="appbar__icon-btn"
+    [attr.aria-label]="
+      (isSidebarVisible() ? 'layout.header.closeMenu' : 'layout.header.openMenu') | translate
+    "
+    [attr.aria-expanded]="isSidebarVisible()"
+    aria-controls="app-sidebar"
+    (click)="updateVisibility(!isSidebarVisible())"
+  >
+    <i class="pi pi-bars" aria-hidden="true"></i>
+  </button>
 
-    <ng-template #end>
-      <ul class="d-flex align-items-center list-unstyled m-0">
-        @if (cashShift(); as shift) {
-          <li class="mx-2">
-            <button type="button" class="cash-shift-chip" (click)="openManageCashShift()">
-              <span class="cash-shift-chip__dot"></span>
-              <span class="cash-shift-chip__text">
-                <span class="cash-shift-chip__label">{{ 'cashShift.chip.label' | translate }}</span>
-                <span class="cash-shift-chip__value">{{
-                  'cashShift.chip.openSince' | translate: { time: formatOpenedAt(shift.openedAt) }
-                }}</span>
-              </span>
-            </button>
-          </li>
-        }
-        <li class="mx-4 d-flex align-items-center">
-          <i class="pi pi-sun" style="font-size: 1rem"></i>
-          <app-switch
-            class="mx-2"
-            [checked]="isDarkMode()"
-            [ariaLabel]="'layout.header.darkMode' | translate"
-            (changed)="toggleDarkMode($event)"
-          />
-          <i class="pi pi-moon" style="font-size: 1rem"></i>
-        </li>
-        <li class="mx-4">
-          <a class="cursor-pointer">
-            <i class="pi pi-bell" style="font-size: 1.2rem"></i>
-          </a>
-        </li>
-        <li>
-          <p-avatar
-            image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-            shape="circle"
-            (click)="userMenu.toggle($event)"
-          />
+  <!-- Brand shows only while the sidebar is collapsed, so the name is never
+       duplicated on screen. -->
+  @if (!isSidebarVisible()) {
+    <span class="appbar__brand">
+      <i class="pi pi-shop" aria-hidden="true"></i>
+      Axius Store
+    </span>
+  }
 
-          <p-menu #userMenu [model]="items" [popup]="true"></p-menu>
-        </li>
-      </ul>
-    </ng-template>
-  </p-menubar>
-</div>
+  <div class="appbar__spacer"></div>
+
+  @if (cashShift(); as shift) {
+    <button
+      type="button"
+      class="cash-shift-chip"
+      [attr.aria-label]="'cashShift.chip.manage' | translate"
+      (click)="openManageCashShift()"
+    >
+      <span class="cash-shift-chip__dot" aria-hidden="true"></span>
+      <span class="cash-shift-chip__text">
+        <span class="cash-shift-chip__label">
+          {{ 'cashShift.chip.label' | translate }}
+        </span>
+        <span class="cash-shift-chip__value">
+          {{ 'cashShift.chip.openSince' | translate: { time: formatOpenedAt(shift.openedAt) } }}
+        </span>
+      </span>
+    </button>
+  }
+
+  <button
+    type="button"
+    class="appbar__icon-btn"
+    [attr.aria-label]="
+      (isDarkMode() ? 'layout.header.lightMode' : 'layout.header.darkMode') | translate
+    "
+    [attr.aria-pressed]="isDarkMode()"
+    (click)="toggleDarkMode(!isDarkMode())"
+  >
+    <i [class]="isDarkMode() ? 'pi pi-sun' : 'pi pi-moon'" aria-hidden="true"></i>
+  </button>
+
+  <button
+    type="button"
+    class="appbar__icon-btn"
+    [attr.aria-label]="'layout.header.notifications' | translate"
+    (click)="notifications.toggle($event)"
+  >
+    <i class="pi pi-bell" aria-hidden="true"></i>
+  </button>
+
+  <p-popover #notifications>
+    <div class="appbar__notifications">
+      <p class="appbar__notifications-title">
+        {{ 'layout.header.notifications' | translate }}
+      </p>
+      <p class="appbar__notifications-empty">
+        {{ 'layout.header.noNotifications' | translate }}
+      </p>
+    </div>
+  </p-popover>
+
+  <button
+    type="button"
+    class="appbar__user"
+    [attr.aria-label]="'layout.header.account' | translate"
+    aria-haspopup="true"
+    (click)="userMenu.toggle($event)"
+  >
+    <!-- Initials instead of a stock photo: it identifies the real signed-in
+         user and loads nothing from a third-party CDN. -->
+    <span class="appbar__avatar" aria-hidden="true">{{ userInitials() }}</span>
+    <span class="appbar__user-name">{{ userName() }}</span>
+    <i class="pi pi-angle-down appbar__user-caret" aria-hidden="true"></i>
+  </button>
+
+  <!--
+    `appendTo="body"` takes the popup out of the app bar's flex row. Rendered
+    in place, it was laid out from the trigger's left edge — which sits at the
+    far right of the bar — and ran off the viewport. On the body it is
+    positioned against the viewport instead, so it flips back inside the screen.
+  -->
+  <p-menu
+    #userMenu
+    appendTo="body"
+    styleClass="appbar__user-menu"
+    [model]="items()"
+    [popup]="true"
+  />
+</header>

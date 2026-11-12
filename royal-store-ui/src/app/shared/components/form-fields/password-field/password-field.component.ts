@@ -1,9 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import {
-  ReactiveFormsModule,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -28,6 +24,12 @@ export class PasswordFieldComponent {
   @Input({ required: true }) controlName!: string;
   @Input() label?: string;
   @Input() id?: string;
+  /**
+   * `current-password` on sign-in, `new-password` on register/reset. Password
+   * managers rely on this to offer the right credential and to save a new one,
+   * which WCAG 2.2 Accessible Authentication expects us not to block.
+   */
+  @Input() autocomplete: 'current-password' | 'new-password' = 'current-password';
 
   objectKeys = Object.keys;
   Validators = Validators;

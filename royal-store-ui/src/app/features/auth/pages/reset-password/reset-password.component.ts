@@ -7,12 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthFacade } from '@app-core/auth/facade/auth.facade';
@@ -20,6 +15,7 @@ import { ButtonComponent } from '../../../../shared/components/button/button.com
 import { PasswordFieldComponent } from '../../../../shared/components/form-fields/password-field/password-field.component';
 import { passwordsMatchValidator } from '@app/shared/validators/password-match.validator';
 import { ResetPasswordForm } from '../../models/reset-password-form.interface';
+import { AuthShellComponent } from '../../components/auth-shell/auth-shell.component';
 
 type ResetPasswordViewStatus = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -29,6 +25,7 @@ type ResetPasswordViewStatus = 'idle' | 'submitting' | 'success' | 'error';
     TranslatePipe,
     ButtonComponent,
     PasswordFieldComponent,
+    AuthShellComponent,
   ],
   templateUrl: './reset-password.component.html',
   styleUrl: './reset-password.component.scss',
@@ -45,12 +42,9 @@ export class ResetPasswordComponent implements OnInit {
   // the same way as) the backend rejecting a well-formed link as expired/already used.
   private readonly linkMalformed = signal(false);
 
-  private readonly resetStatus = toSignal(
-    this.authFacade.resetPasswordStatus$,
-    {
-      initialValue: 'idle',
-    },
-  );
+  private readonly resetStatus = toSignal(this.authFacade.resetPasswordStatus$, {
+    initialValue: 'idle',
+  });
 
   protected readonly status = computed<ResetPasswordViewStatus>(() =>
     this.linkMalformed() ? 'error' : this.resetStatus(),
@@ -110,10 +104,7 @@ export class ResetPasswordComponent implements OnInit {
   private buildForm(): FormGroup<ResetPasswordForm> {
     return new FormGroup<ResetPasswordForm>(
       {
-        password: new FormControl(null, [
-          Validators.required,
-          Validators.minLength(8),
-        ]),
+        password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
         confirmPassword: new FormControl(null, [Validators.required]),
       },
       { validators: passwordsMatchValidator() },

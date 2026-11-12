@@ -1,14 +1,9 @@
-<form
-  [formGroup]="parentForm"
-  [class.disabled]="parentForm.controls[controlName].disabled"
->
+<form [formGroup]="parentForm" [class.disabled]="parentForm.controls[controlName].disabled">
   @if (titleKey) {
     <div>
       <span class="toggle-field__title">{{ titleKey | translate }}</span>
       @if (subtitleKey) {
-        <span class="toggle-field__subtitle">{{
-          subtitleKey | translate
-        }}</span>
+        <span class="toggle-field__subtitle">{{ subtitleKey | translate }}</span>
       }
     </div>
   }
@@ -16,10 +11,7 @@
   <p-togglebutton
     [name]="controlName"
     [formControlName]="controlName"
-    [invalid]="
-      parentForm.controls[controlName].touched &&
-      parentForm.controls[controlName].errors
-    "
+    [invalid]="parentForm.controls[controlName].touched && parentForm.controls[controlName].errors"
     onLabel="Enabled"
     offLabel="Disabled"
     class="min-w-40"

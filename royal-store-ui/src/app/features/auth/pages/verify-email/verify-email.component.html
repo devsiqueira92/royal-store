@@ -1,109 +1,106 @@
-<div class="verify-email-page">
-  <div class="verify-email-card row">
-    @switch (status()) {
-      @case ('success') {
-        <div class="col-12 result-state">
-          <i class="pi pi-check-circle result-icon success"></i>
-          <h1 class="result-title">
-            {{ 'auth.verifyEmail.successTitle' | translate }}
-          </h1>
-          <p class="result-description">
-            {{ 'auth.verifyEmail.successDescription' | translate }}
-          </p>
+<app-auth-shell>
+  @switch (status()) {
+    @case ('success') {
+      <div class="auth-result">
+        <i
+          class="pi pi-check-circle auth-result__icon auth-result__icon--success"
+          aria-hidden="true"
+        ></i>
+        <h1 class="auth-result__title">{{ 'auth.verifyEmail.successTitle' | translate }}</h1>
+        <p class="auth-result__description">
+          {{ 'auth.verifyEmail.successDescription' | translate }}
+        </p>
 
+        <div class="auth-result__actions">
           <app-button
-            class="go-to-login-btn"
             severity="primary"
             label="auth.verifyEmail.goToLogin"
             (onClick)="goToLogin()"
-          ></app-button>
+          />
         </div>
-      }
+      </div>
+    }
 
-      @case ('error') {
-        <div class="col-12 result-state">
-          <i class="pi pi-times-circle result-icon error"></i>
-          <h1 class="result-title">
-            {{ 'auth.verifyEmail.errorTitle' | translate }}
-          </h1>
-          <p class="result-description">
-            {{ 'auth.verifyEmail.errorDescription' | translate }}
-          </p>
+    @case ('error') {
+      <div class="auth-result" role="alert">
+        <i
+          class="pi pi-times-circle auth-result__icon auth-result__icon--error"
+          aria-hidden="true"
+        ></i>
+        <h1 class="auth-result__title">{{ 'auth.verifyEmail.errorTitle' | translate }}</h1>
+        <p class="auth-result__description">
+          {{ 'auth.verifyEmail.errorDescription' | translate }}
+        </p>
 
+        <div class="auth-result__actions">
           <app-button
-            class="go-to-login-btn"
             severity="primary"
             label="auth.verifyEmail.goToLogin"
             (onClick)="goToLogin()"
-          ></app-button>
+          />
         </div>
-      }
+      </div>
+    }
 
-      @case ('verifying') {
-        <div class="col-12 result-state">
-          <i class="pi pi-spin pi-spinner result-icon"></i>
-          <p class="result-description">
-            {{ 'auth.verifyEmail.verifying' | translate }}
-          </p>
-        </div>
-      }
+    @case ('verifying') {
+      <div class="auth-result" role="status" aria-live="polite">
+        <i class="pi pi-spin pi-spinner auth-result__icon" aria-hidden="true"></i>
+        <p class="auth-result__description">{{ 'auth.verifyEmail.verifying' | translate }}</p>
+      </div>
+    }
 
-      @default {
-        <header class="col-12 verify-email-header">
-          <i class="pi pi-inbox header-icon"></i>
-          <h1 class="verify-email-title">
-            {{ 'auth.verifyEmail.title' | translate }}
-          </h1>
-          <p class="verify-email-description">
-            {{ 'auth.verifyEmail.description' | translate }}
-          </p>
+    @default {
+      <div class="verify">
+        <header class="auth-form__header verify__header">
+          <i class="pi pi-inbox verify__icon" aria-hidden="true"></i>
+          <h1 class="auth-form__title">{{ 'auth.verifyEmail.title' | translate }}</h1>
+          <p class="auth-form__subtitle">{{ 'auth.verifyEmail.description' | translate }}</p>
         </header>
 
-        <div class="col-12 email-display">
-          <span class="email-value">{{ email() }}</span>
-
-          <span class="edit-email">
+        <div class="verify__email">
+          <span class="verify__email-value">{{ email() }}</span>
+          <span class="verify__email-edit">
             {{ 'auth.verifyEmail.wrongAddress' | translate }}
-            <button type="button" class="edit-email-btn" (click)="editEmail()">
+            <button type="button" class="auth-form__link-btn" (click)="editEmail()">
               {{ 'auth.verifyEmail.editEmail' | translate }}
             </button>
           </span>
         </div>
 
-        <div class="col-12 spam-notice">
-          <i class="pi pi-folder-open"></i>
-          <span>{{ 'auth.verifyEmail.spamNotice' | translate }}</span>
-        </div>
+        <p class="verify__spam">
+          <i class="pi pi-folder-open" aria-hidden="true"></i>
+          {{ 'auth.verifyEmail.spamNotice' | translate }}
+        </p>
 
-        <div class="col-12 verify-email-actions">
+        <div class="verify__actions">
           <app-button
             icon="pi pi-envelope"
             severity="secondary"
             label="auth.verifyEmail.resendEmail"
+            [loading]="isResending()"
             [disabled]="isResending() || cooldownRemaining() > 0"
             (onClick)="resendEmail()"
-          ></app-button>
+          />
 
           @if (cooldownRemaining() > 0) {
-            <span class="resend-cooldown">
-              {{
-                'auth.verifyEmail.resendCooldown'
-                  | translate: { seconds: cooldownRemaining() }
-              }}
+            <!-- Announced politely so a screen reader user knows why the button
+                 is disabled, without the countdown stealing focus. -->
+            <span class="verify__cooldown" role="status" aria-live="polite">
+              {{ 'auth.verifyEmail.resendCooldown' | translate: { seconds: cooldownRemaining() } }}
             </span>
           }
 
           <a
-            class="open-gmail-link"
+            class="verify__gmail"
             href="https://mail.google.com"
             target="_blank"
             rel="noopener noreferrer"
           >
             {{ 'auth.verifyEmail.openGmail' | translate }}
-            <i class="pi pi-arrow-up-right"></i>
+            <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
           </a>
         </div>
-      }
+      </div>
     }
-  </div>
-</div>
+  }
+</app-auth-shell>

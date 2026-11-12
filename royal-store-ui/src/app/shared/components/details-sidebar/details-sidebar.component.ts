@@ -44,10 +44,7 @@ export class DetailsSidebarComponents {
       const content = this.layoutService.contentToRender();
       if (content && this.viewContainerRef) {
         this.loadComponent(content.component);
-      } else if (
-        !this.layoutService.sidebarVisible() &&
-        this.viewContainerRef
-      ) {
+      } else if (!this.layoutService.sidebarVisible() && this.viewContainerRef) {
         this.viewContainerRef.clear();
       }
     });

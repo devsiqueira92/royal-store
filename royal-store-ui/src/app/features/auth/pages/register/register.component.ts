@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { MessageModule } from 'primeng/message';
@@ -19,6 +14,7 @@ import { RegisterRequest } from '@app/core/auth/interfaces/register-request.inte
 import { passwordsMatchValidator } from '@app/shared/validators/password-match.validator';
 import { RegisterForm } from '../../models/register-form.interface';
 import { DocumentType } from '@app/shared/interfaces/document-type.enum';
+import { AuthShellComponent } from '../../components/auth-shell/auth-shell.component';
 
 @Component({
   imports: [
@@ -32,6 +28,7 @@ import { DocumentType } from '@app/shared/interfaces/document-type.enum';
     PasswordFieldComponent,
     LinkComponent,
     TranslatePipe,
+    AuthShellComponent,
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
@@ -62,10 +59,7 @@ export class RegisterComponent {
         document: new FormControl(null, [Validators.required]),
         documentType: new FormControl(DocumentType.CNPJ, [Validators.required]),
         storeName: new FormControl(null, [Validators.required]),
-        password: new FormControl(null, [
-          Validators.required,
-          Validators.minLength(8),
-        ]),
+        password: new FormControl(null, [Validators.required, Validators.minLength(8)]),
         confirmPassword: new FormControl(null, [Validators.required]),
       },
       { validators: passwordsMatchValidator() },

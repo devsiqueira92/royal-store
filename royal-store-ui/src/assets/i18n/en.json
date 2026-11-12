@@ -4,7 +4,36 @@
   "or": "or",
   "layout": {
     "header": {
-      "darkMode": "Toggle dark mode"
+      "darkMode": "Switch to dark mode",
+      "openMenu": "Open navigation menu",
+      "closeMenu": "Close navigation menu",
+      "lightMode": "Switch to light mode",
+      "notifications": "Notifications",
+      "noNotifications": "No notifications yet.",
+      "account": "My account",
+      "profile": "Profile",
+      "logout": "Sign out"
+    },
+    "skipToContent": "Skip to main content",
+    "loading": "Loading",
+    "nav": {
+      "label": "Primary navigation",
+      "operation": "Operation",
+      "catalog": "Catalog",
+      "relationship": "Relationship",
+      "settings": "Settings",
+      "pos": "Register",
+      "salesHistory": "Sales history",
+      "cashShift": "Cash shift",
+      "products": "Products",
+      "categories": "Categories",
+      "suppliers": "Suppliers",
+      "customers": "Customers",
+      "loyalty": "Loyalty",
+      "sellers": "Sellers",
+      "paymentMethods": "Payment methods",
+      "taxProfiles": "Tax profiles",
+      "profile": "My profile"
     }
   },
   "auth": {
@@ -64,6 +93,14 @@
       "forgotPassword": "Forgot password?",
       "signIn": "Sign in",
       "createAccount": "Create account"
+    },
+    "shell": {
+      "headline": "Your store under control, from the register to month-end.",
+      "bullet1": "Register, stock and finance in one place",
+      "bullet2": "Your data imported by our team",
+      "bullet3": "Support from people who know retail",
+      "note": "Over 2,500 stores run Axius Store every day.",
+      "backToSite": "Back to the site"
     }
   },
   "formValidation": {
@@ -676,7 +713,8 @@
     },
     "chip": {
       "label": "Cash Shift",
-      "openSince": "Open · since {{time}}"
+      "openSince": "Open · since {{time}}",
+      "manage": "Manage cash shift"
     },
     "open": {
       "title": "Open a Cash Shift to Continue",

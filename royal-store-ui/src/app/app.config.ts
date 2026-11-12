@@ -12,7 +12,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeuix/themes/aura';
+import { AxiusPreset } from './core/theme/axius-preset';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import localeEn from '@angular/common/locales/en';
@@ -64,7 +64,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: AxiusPreset,
         options: {
           darkModeSelector: '.app-dark',
         },

@@ -1,9 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import {
-  ReactiveFormsModule,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { TextareaModule } from 'primeng/textarea';

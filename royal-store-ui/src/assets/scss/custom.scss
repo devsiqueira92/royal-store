@@ -1,7 +1,6 @@
 :root {
   --app-font-mono:
-    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
-    monospace;
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 .form__row {
@@ -110,4 +109,12 @@
 @page fiscal-receipt {
   size: 80mm auto;
   margin: 0;
+}
+
+// The app bar's user menu is appended to <body>, so it is out of reach of the
+// header component's scoped styles. These two rules keep it inside the viewport
+// on narrow screens, where the trigger sits against the right edge.
+.appbar__user-menu {
+  min-width: 12rem;
+  max-width: calc(100vw - 1rem);
 }

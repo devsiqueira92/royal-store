@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  output,
-} from '@angular/core';
-import {
-  ReactiveFormsModule,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, Input, output } from '@angular/core';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -38,6 +29,15 @@ export class InputFieldComponent {
   @Input() type: string = 'text';
   @Input() min?: number;
   @Input() step?: number;
+  /**
+   * Defaults to `off` for the app's internal forms (product, customer, …),
+   * where browser suggestions are noise. Sign-in and sign-up screens pass a
+   * real token (`email`, `username`, …) so password managers and autofill can
+   * do their job — blanket `autocomplete="off"` is the documented anti-pattern.
+   */
+  @Input() autocomplete: string = 'off';
+  /** `numeric`/`tel`/`email` brings up the right on-screen keyboard. */
+  @Input() inputmode?: string;
 
   blurred = output<void>();
 

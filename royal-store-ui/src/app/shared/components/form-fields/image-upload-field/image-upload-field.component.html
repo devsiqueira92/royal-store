@@ -13,16 +13,11 @@
       (click)="setCoverImage(i)"
     >
       <img [src]="image.url" alt="" />
-      <span
-        class="image-upload-field__remove"
-        (click)="removeImage(i, $event)"
-      >
+      <span class="image-upload-field__remove" (click)="removeImage(i, $event)">
         <i class="pi pi-times"></i>
       </span>
       @if (image.isCover) {
-        <span class="image-upload-field__cover-tag">{{
-          coverLabelKey() | translate
-        }}</span>
+        <span class="image-upload-field__cover-tag">{{ coverLabelKey() | translate }}</span>
       }
     </button>
   }

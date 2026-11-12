@@ -1,0 +1,321 @@
+:host {
+  display: block;
+}
+
+.auth {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100dvh;
+  background: light-dark(var(--p-surface-50), var(--p-surface-950));
+
+  @media (min-width: 64rem) {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}
+
+/* ------------------------------------------------------------ brand panel -- */
+
+.auth__panel {
+  display: none;
+  flex-direction: column;
+  padding: 3rem;
+  background:
+    radial-gradient(28rem 18rem at 20% 10%, rgba(16, 185, 129, 0.35), transparent 70%),
+    linear-gradient(150deg, #064e3b 0%, #0f172a 100%);
+  color: #fff;
+
+  @media (min-width: 64rem) {
+    display: flex;
+  }
+}
+
+.auth__headline {
+  max-width: 24rem;
+  margin-top: auto;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.auth__bullets {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  i {
+    margin-top: 0.3rem;
+    color: #6ee7b7;
+    font-size: 0.75rem;
+  }
+}
+
+.auth__note {
+  /* Second `auto` margin: the free space splits between the brand and the
+     note, which centres the headline block instead of dropping it to the
+     bottom edge. */
+  margin-top: auto;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ brand -- */
+
+.auth__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  align-self: flex-start;
+}
+
+.auth__mark {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.auth__panel .auth__mark-bg {
+  fill: #fff;
+}
+
+.auth__panel .auth__mark-glyph {
+  stroke: #064e3b;
+}
+
+.auth__mark-bg {
+  fill: var(--p-primary-color);
+}
+
+.auth__mark-glyph {
+  fill: none;
+  stroke: var(--p-primary-contrast-color);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.auth__brand-text {
+  font-size: 1.0625rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.auth__panel .auth__brand-text {
+  color: #fff;
+}
+
+.auth__brand--mobile {
+  margin-bottom: 1.5rem;
+  color: var(--p-text-color);
+
+  @media (min-width: 64rem) {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------- form -- */
+
+.auth__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem 2.5rem;
+
+  @media (min-width: 48rem) {
+    padding: 3rem 2rem;
+  }
+}
+
+.auth__card {
+  width: 100%;
+  max-width: 26rem;
+  padding: 2rem 1.75rem;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 16px;
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    0 16px 40px -24px rgba(15, 23, 42, 0.25);
+}
+
+/*
+  Form styles live here, next to the card that holds them, and reach the
+  projected content with ::ng-deep. The five auth pages previously repeated
+  these rules in five stylesheets, which is how they drifted apart.
+*/
+:host ::ng-deep {
+  .auth-form {
+    display: block;
+  }
+
+  .auth-form__header {
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-form__title {
+    color: var(--p-text-color);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+  }
+
+  .auth-form__subtitle {
+    margin-top: 0.375rem;
+    color: var(--p-text-muted-color);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .auth-form__error {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .auth-form__password {
+    position: relative;
+  }
+
+  .auth-form__forgot {
+    display: inline-block;
+    margin: -0.25rem 0 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .auth-form__submit {
+    display: block;
+    margin-top: 0.5rem;
+  }
+
+  .auth-form__hint {
+    margin-top: 1rem;
+    color: var(--p-text-muted-color);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .auth-form__divider-text {
+    color: var(--p-text-muted-color);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Result panels (verified, link sent, password changed, failure). */
+  .auth-result {
+    text-align: center;
+  }
+
+  .auth-result__icon {
+    font-size: 2rem;
+
+    &--success {
+      color: var(--p-primary-color);
+    }
+
+    &--error {
+      color: var(--p-red-500);
+    }
+  }
+
+  .auth-result__title {
+    margin-top: 0.875rem;
+    color: var(--p-text-color);
+    font-size: 1.25rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+  }
+
+  .auth-result__description {
+    margin-top: 0.5rem;
+    color: var(--p-text-muted-color);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .auth-result__actions {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  /* A button that reads as a link (change e-mail, try another address). */
+  .auth-form__link-btn {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+    border: 0;
+    background: none;
+    color: var(--p-primary-color);
+    font: inherit;
+    font-weight: 550;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .auth-form__fieldset {
+    margin-bottom: 1rem;
+    border: 0;
+  }
+
+  .auth-form__legend {
+    margin-bottom: 0.4rem;
+    color: var(--p-text-muted-color);
+    font-size: 0.8125rem;
+    font-weight: 550;
+  }
+
+  /* Links inside the auth card follow the brand colour, not the browser blue. */
+  .link-base,
+  a.link-base {
+    color: var(--p-primary-color);
+    font-weight: 550;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.auth__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  margin-top: 1rem;
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &:hover {
+    color: var(--p-primary-color);
+    text-decoration: underline;
+  }
+}

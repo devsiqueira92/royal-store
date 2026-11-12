@@ -51,9 +51,7 @@ export class ImageUploadFieldComponent implements OnDestroy {
   }
 
   protected setCoverImage(index: number): void {
-    this.images.update(images =>
-      images.map((image, i) => ({ ...image, isCover: i === index })),
-    );
+    this.images.update(images => images.map((image, i) => ({ ...image, isCover: i === index })));
   }
 
   protected removeImage(index: number, event: Event): void {

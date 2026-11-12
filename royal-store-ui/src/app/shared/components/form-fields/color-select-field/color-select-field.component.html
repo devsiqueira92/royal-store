@@ -3,8 +3,7 @@
     <p-select
       [formControlName]="controlName"
       [invalid]="
-        parentForm.controls[controlName].touched &&
-        parentForm.controls[controlName].errors
+        parentForm.controls[controlName].touched && parentForm.controls[controlName].errors
       "
       [placeholder]="placeholder | translate"
       [options]="groups"
@@ -22,20 +21,14 @@
 
       <ng-template #item let-item>
         <span class="color-select-field__option">
-          <span
-            class="color-select-field__swatch"
-            [style.background]="item.hex"
-          ></span>
+          <span class="color-select-field__swatch" [style.background]="item.hex"></span>
           {{ item.label }}
         </span>
       </ng-template>
 
       <ng-template #selectedItem let-selected>
         <span class="color-select-field__option">
-          <span
-            class="color-select-field__swatch"
-            [style.background]="selected.hex"
-          ></span>
+          <span class="color-select-field__swatch" [style.background]="selected.hex"></span>
           {{ selected.label }}
         </span>
       </ng-template>
@@ -49,20 +42,11 @@
     </label>
   </p-floatlabel>
 
-  <p-message
-    severity="error"
-    size="small"
-    variant="simple"
-    [style.position]="'absolute'"
-  >
-    @if (
-      parentForm.controls[controlName].touched &&
-      parentForm.controls[controlName].errors
-    ) {
+  <p-message severity="error" size="small" variant="simple" [style.position]="'absolute'">
+    @if (parentForm.controls[controlName].touched && parentForm.controls[controlName].errors) {
       <span class="error-message">
         {{
-          'formValidation.' +
-            objectKeys(parentForm.controls[controlName].errors || {})[0]
+          'formValidation.' + objectKeys(parentForm.controls[controlName].errors || {})[0]
             | translate
         }}
       </span>

@@ -1,9 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
-import {
-  ReactiveFormsModule,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message';
@@ -13,13 +9,7 @@ import { ColorPaletteService } from '@app/shared/services/color-palette.service'
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-color-select-field',
-  imports: [
-    ReactiveFormsModule,
-    SelectModule,
-    MessageModule,
-    FloatLabelModule,
-    TranslatePipe,
-  ],
+  imports: [ReactiveFormsModule, SelectModule, MessageModule, FloatLabelModule, TranslatePipe],
   templateUrl: './color-select-field.component.html',
   styleUrl: './color-select-field.component.scss',
 })

@@ -9,9 +9,11 @@
 }
 
 html {
+  /* Inter is loaded in index.html with display=swap; the system stack stays as
+     the fallback so text paints immediately with matching metrics. */
   font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
-    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   color-scheme: light;
 
   &.app-dark {
@@ -25,15 +27,29 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   font-weight: normal;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: light-dark(var(--p-surface-0), var(--p-surface-950));
+  background: light-dark(var(--p-surface-50), var(--p-surface-950));
+  color: var(--p-text-color);
 }
 
+/* Links keep the app's own colour decisions (PrimeNG components style their own
+   anchors), but they must read and behave as links: a pointer cursor and an
+   underline on hover. `cursor: default` made every link in the app look inert. */
 a {
+  color: inherit;
   text-decoration: none;
-  color: initial;
-  cursor: default;
+  cursor: pointer;
+}
+
+/* A single visible focus indicator for everything that is keyboard reachable.
+   PrimeNG components draw their own ring from the preset's focusRing tokens;
+   this covers plain anchors, buttons and custom controls. */
+:where(a, button, [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .w-100 {
@@ -44,4 +60,17 @@ a {
   font-size: 0.35rem !important;
   position: relative;
   top: -6px;
+}
+
+/* Visually hidden, still announced by screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

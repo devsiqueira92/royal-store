@@ -12,6 +12,5 @@ import { CashShiftFormComponent } from '../../forms/cash-shift-form/cash-shift-f
 export class CashShiftComponent {
   private readonly config = inject(DynamicDialogConfig);
 
-  protected readonly cashShift = (this.config.data as { cashShift: CashShift })
-    .cashShift;
+  protected readonly cashShift = (this.config.data as { cashShift: CashShift }).cashShift;
 }

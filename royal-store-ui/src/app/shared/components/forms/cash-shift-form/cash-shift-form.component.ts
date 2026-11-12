@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { CashMovementFormComponent } from '@app/features/cash-shift/components/cash-movement-form/cash-movement-form.component';
@@ -18,12 +13,7 @@ import { filter, take } from 'rxjs';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-cash-shift-form',
-  imports: [
-    TranslatePipe,
-    ButtonModule,
-    CashShiftSummaryComponent,
-    CashMovementFormComponent,
-  ],
+  imports: [TranslatePipe, ButtonModule, CashShiftSummaryComponent, CashMovementFormComponent],
   templateUrl: './cash-shift-form.component.html',
   styleUrl: './cash-shift-form.component.scss',
 })

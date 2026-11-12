@@ -88,8 +88,14 @@ export const cashShiftFeature = createFeature({
       current: cashShift,
       currentLoaded: true,
     })),
+    // `currentLoaded` means "the lookup finished", not "a shift exists". The
+    // shell renders nothing until it flips, so leaving it false on failure made
+    // a single failed request (API down, 500, dropped connection) hide the
+    // entire authenticated app with no way out. The error still surfaces
+    // through the HTTP error interceptor.
     on(CashShiftActions.loadCurrentFailure, (state, { error }): CashShiftState => ({
       ...state,
+      currentLoaded: true,
       error,
     })),
     on(CashShiftActions.openCashShift, (state): CashShiftState => ({

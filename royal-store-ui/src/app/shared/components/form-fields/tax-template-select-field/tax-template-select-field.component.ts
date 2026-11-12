@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  input,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ProductFormControls } from '@app/features/product/interfaces/product.interface';
 import { combineLatest, filter, map, tap } from 'rxjs';
@@ -37,10 +31,9 @@ export class TaxTemplateSelectFieldComponent {
       })),
     ),
   );
-  protected readonly defaultTemplate$ =
-    this.taxProfileTemplateFacade.templates$.pipe(
-      map(template => template.find(t => t.isDefault)),
-    );
+  protected readonly defaultTemplate$ = this.taxProfileTemplateFacade.templates$.pipe(
+    map(template => template.find(t => t.isDefault)),
+  );
 
   protected readonly selectedProduct$ = this.productFacade.selectedProduct$;
 

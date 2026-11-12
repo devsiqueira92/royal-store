@@ -1,17 +1,10 @@
-<p-message
-  severity="error"
-  size="small"
-  variant="simple"
-  [style.position]="'absolute'"
->
+<p-message severity="error" size="small" variant="simple" [style.position]="'absolute'">
   @if (
-    parentForm().controls[controlName()].touched &&
-    parentForm().controls[controlName()].errors
+    parentForm().controls[controlName()].touched && parentForm().controls[controlName()].errors
   ) {
     <span class="error-message">
       {{
-        'formValidation.' +
-          objectKeys(parentForm().controls[controlName()].errors || {})[0]
+        'formValidation.' + objectKeys(parentForm().controls[controlName()].errors || {})[0]
           | translate
       }}
     </span>

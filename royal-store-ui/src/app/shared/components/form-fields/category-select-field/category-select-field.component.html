@@ -4,8 +4,7 @@
       [id]="controlName()"
       [formControlName]="controlName()"
       [invalid]="
-        parentForm().controls[controlName()].touched &&
-        parentForm().controls[controlName()].errors
+        parentForm().controls[controlName()].touched && parentForm().controls[controlName()].errors
       "
       [options]="categories()"
       optionLabel="description"
@@ -17,21 +16,14 @@
     >
       <ng-template #selectedItem let-selectedOption>
         <div class="d-flex align-items-center">
-          <span
-            class="color-indicator"
-            [ngStyle]="{ 'background-color': selectedOption.color }"
-          >
+          <span class="color-indicator" [ngStyle]="{ 'background-color': selectedOption.color }">
           </span>
           <span>{{ selectedOption.name }}</span>
         </div>
       </ng-template>
       <ng-template let-category #item>
         <div class="d-flex align-items-center">
-          <span
-            class="color-indicator"
-            [ngStyle]="{ 'background-color': category.color }"
-          >
-          </span>
+          <span class="color-indicator" [ngStyle]="{ 'background-color': category.color }"> </span>
           <span>{{ category.name }}</span>
         </div>
       </ng-template>
@@ -51,16 +43,11 @@
     <label [for]="controlName()"
       >{{ label() | translate }}
 
-      @if (
-        parentForm().controls[controlName()].hasValidator(Validators.required)
-      ) {
+      @if (parentForm().controls[controlName()].hasValidator(Validators.required)) {
         <i class="pi pi-asterisk required-icon"></i>
       }
     </label>
   </p-floatlabel>
 
-  <app-form-error
-    [parentForm]="parentForm()"
-    [controlName]="controlName()"
-  ></app-form-error>
+  <app-form-error [parentForm]="parentForm()" [controlName]="controlName()"></app-form-error>
 </form>

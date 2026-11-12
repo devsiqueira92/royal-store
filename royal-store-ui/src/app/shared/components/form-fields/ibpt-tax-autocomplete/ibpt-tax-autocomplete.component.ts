@@ -53,8 +53,7 @@ export class IbptTaxAutocompleteComponent {
     effect(() => {
       const code = this.code();
       const current = this.model();
-      const currentCode =
-        typeof current === 'string' ? current : (current?.code ?? null);
+      const currentCode = typeof current === 'string' ? current : (current?.code ?? null);
 
       if (code !== currentCode) {
         this.model.set(code ?? null);

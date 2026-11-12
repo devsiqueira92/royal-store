@@ -3,39 +3,61 @@
   [visible]="visible()"
   (visibleChange)="updateVisibility($event)"
   [modal]="isMobile()"
-  [closeOnEscape]="false"
+  [closeOnEscape]="isMobile()"
+  styleClass="app-sidebar"
 >
   <ng-template #headless>
-    <div class="d-flex align-items-center p-3">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 64 64"
-        width="36"
-        height="36"
-        fill="none"
-      >
-        <path
-          d="M10 46L5 17L20 29L32 9L44 29L59 17L54 46H10Z"
-          stroke="#86efac"
-          stroke-width="4"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M10 53H54"
-          stroke="#86efac"
-          stroke-width="4"
-          stroke-linecap="round"
-        />
-        <circle cx="5" cy="14" r="3" fill="#86efac" />
-        <circle cx="32" cy="7" r="3" fill="#86efac" />
-        <circle cx="59" cy="14" r="3" fill="#86efac" />
-      </svg>
+    <nav id="app-sidebar" class="sidenav" [attr.aria-label]="'layout.nav.label' | translate">
+      <div class="sidenav__brand">
+        <span class="sidenav__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" focusable="false">
+            <rect x="1.5" y="1.5" width="29" height="29" rx="9" class="sidenav__mark-bg" />
+            <path
+              d="M10 21.5V13c0-2.2 1.8-4 4-4h4.5c2.2 0 4 1.8 4 4s-1.8 4-4 4H14l8.5 4.5"
+              class="sidenav__mark-glyph"
+            />
+          </svg>
+        </span>
+        <span class="sidenav__brand-text">Axius Store</span>
 
-      <span id="logo-name" class="mx-2"> Axius Store</span>
-    </div>
-    <div class="overflow-y-auto">
-      <p-panelmenu [model]="items" class="w-full md:w-80" />
-    </div>
+        @if (isMobile()) {
+          <button
+            type="button"
+            class="sidenav__close"
+            [attr.aria-label]="'layout.header.closeMenu' | translate"
+            (click)="updateVisibility(false)"
+          >
+            <i class="pi pi-times" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+
+      <div class="sidenav__scroll">
+        @for (group of groups; track group.id) {
+          <p class="sidenav__group-label" [attr.id]="'nav-group-' + group.id">
+            {{ group.labelKey | translate }}
+          </p>
+
+          <ul class="sidenav__list" [attr.aria-labelledby]="'nav-group-' + group.id">
+            @for (item of group.items; track item.route) {
+              <li>
+                <a
+                  class="sidenav__item"
+                  [routerLink]="item.route"
+                  routerLinkActive="sidenav__item--active"
+                  #itemLink="routerLinkActive"
+                  [routerLinkActiveOptions]="{ exact: !!item.exact }"
+                  [attr.aria-current]="itemLink.isActive ? 'page' : null"
+                  (click)="onNavigate()"
+                >
+                  <i [class]="item.icon" aria-hidden="true"></i>
+                  <span>{{ item.labelKey | translate }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </nav>
   </ng-template>
 </p-drawer>

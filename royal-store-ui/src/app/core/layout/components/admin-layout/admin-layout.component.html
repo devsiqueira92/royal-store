@@ -1,12 +1,25 @@
-<app-sidebar-menu></app-sidebar-menu>
-<div class="main-content" [class.content-pushed]="shouldPushContent()">
-  <app-header></app-header>
+<a class="skip-link" href="#main-content">{{ 'layout.skipToContent' | translate }}</a>
 
-  <div class="mt-4">
+<app-sidebar-menu />
+
+<div class="shell" [class.shell--pushed]="shouldPushContent()">
+  <app-header />
+
+  <!-- `tabindex="-1"` lets the skip link move focus here. -->
+  <main id="main-content" class="shell__main" tabindex="-1">
     @if (loaded$ | async) {
-      <router-outlet></router-outlet>
+      <router-outlet />
+    } @else {
+      <!-- Reserves the content area while the shift state loads, so the page
+           does not jump when the real screen arrives. -->
+      <div class="shell__loading" role="status" aria-live="polite">
+        <span class="sr-only">{{ 'layout.loading' | translate }}</span>
+        <p-skeleton height="2.25rem" width="14rem" />
+        <p-skeleton height="1rem" width="22rem" styleClass="mt-2" />
+        <p-skeleton height="18rem" styleClass="mt-4" />
+      </div>
     }
-  </div>
+  </main>
 </div>
 
-<app-details-sidebar></app-details-sidebar>
+<app-details-sidebar />

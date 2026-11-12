@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -14,6 +9,7 @@ import { ButtonComponent } from '../../../../shared/components/button/button.com
 import { InputFieldComponent } from '../../../../shared/components/form-fields/input-field/input-field.component';
 import { LinkComponent } from '../../../../shared/components/form-fields/link/link.component';
 import { ForgotPasswordForm } from '../../models/forgot-password-form.interface';
+import { AuthShellComponent } from '../../components/auth-shell/auth-shell.component';
 
 @Component({
   imports: [
@@ -24,6 +20,7 @@ import { ForgotPasswordForm } from '../../models/forgot-password-form.interface'
     ButtonComponent,
     InputFieldComponent,
     LinkComponent,
+    AuthShellComponent,
   ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',

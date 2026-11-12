@@ -1,14 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  ToggleSwitchModule,
-  ToggleSwitchChangeEvent,
-} from 'primeng/toggleswitch';
+import { ToggleSwitchModule, ToggleSwitchChangeEvent } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'app-switch',

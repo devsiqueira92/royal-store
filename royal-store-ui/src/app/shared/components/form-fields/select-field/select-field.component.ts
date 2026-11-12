@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  output,
-} from '@angular/core';
-import {
-  ReactiveFormsModule,
-  UntypedFormGroup,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, Input, output } from '@angular/core';
+import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
 import { Options } from '@app/shared/interceptors/options.interface';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -18,13 +9,7 @@ import { FormErrorComponent } from '../form-error/form-error.component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-select-field',
-  imports: [
-    ReactiveFormsModule,
-    SelectModule,
-    FloatLabelModule,
-    TranslatePipe,
-    FormErrorComponent,
-  ],
+  imports: [ReactiveFormsModule, SelectModule, FloatLabelModule, TranslatePipe, FormErrorComponent],
   templateUrl: './select-field.component.html',
   styleUrl: './select-field.component.scss',
 })

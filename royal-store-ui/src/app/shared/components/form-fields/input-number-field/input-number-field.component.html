@@ -24,9 +24,7 @@
       <label [for]="id()"
         >{{ label() | translate }}
 
-        @if (
-          parentForm().controls[controlName()].hasValidator(Validators.required)
-        ) {
+        @if (parentForm().controls[controlName()].hasValidator(Validators.required)) {
           <i class="pi pi-asterisk required-icon"></i>
         }
       </label>
@@ -36,8 +34,5 @@
     }
   </p-inputgroup>
 
-  <app-form-error
-    [parentForm]="parentForm()"
-    [controlName]="controlName()"
-  ></app-form-error>
+  <app-form-error [parentForm]="parentForm()" [controlName]="controlName()"></app-form-error>
 </form>

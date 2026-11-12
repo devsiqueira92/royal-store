@@ -1,10 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ProductVariantFormControls } from '@app/features/product/interfaces/product.interface';
-import {
-  generateEan13,
-  isValidEan13,
-} from '@app/features/product/utils/barcode.util';
+import { generateEan13, isValidEan13 } from '@app/features/product/utils/barcode.util';
 import { InputFieldComponent } from '../input-field/input-field.component';
 
 @Component({

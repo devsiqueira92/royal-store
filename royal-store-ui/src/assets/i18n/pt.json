@@ -4,7 +4,36 @@
   "or": "ou",
   "layout": {
     "header": {
-      "darkMode": "Alternar modo escuro"
+      "darkMode": "Ativar modo escuro",
+      "openMenu": "Abrir menu de navegação",
+      "closeMenu": "Fechar menu de navegação",
+      "lightMode": "Ativar modo claro",
+      "notifications": "Notificações",
+      "noNotifications": "Nenhuma notificação por enquanto.",
+      "account": "Minha conta",
+      "profile": "Perfil",
+      "logout": "Sair"
+    },
+    "skipToContent": "Ir para o conteúdo principal",
+    "loading": "Carregando",
+    "nav": {
+      "label": "Navegação principal",
+      "operation": "Operação",
+      "catalog": "Catálogo",
+      "relationship": "Relacionamento",
+      "settings": "Configurações",
+      "pos": "PDV",
+      "salesHistory": "Histórico de vendas",
+      "cashShift": "Caixa",
+      "products": "Produtos",
+      "categories": "Categorias",
+      "suppliers": "Fornecedores",
+      "customers": "Clientes",
+      "loyalty": "Fidelidade",
+      "sellers": "Vendedores",
+      "paymentMethods": "Formas de pagamento",
+      "taxProfiles": "Perfis fiscais",
+      "profile": "Meu perfil"
     }
   },
   "auth": {
@@ -64,6 +93,14 @@
       "forgotPassword": "Esqueceu a senha?",
       "signIn": "Entrar",
       "createAccount": "Criar conta"
+    },
+    "shell": {
+      "headline": "A gestão da sua loja, do caixa ao fechamento do mês.",
+      "bullet1": "PDV, estoque e financeiro no mesmo lugar",
+      "bullet2": "Seus dados importados pela nossa equipe",
+      "bullet3": "Suporte de gente que entende de loja",
+      "note": "Mais de 2.500 lojas usam o Axius Store todos os dias.",
+      "backToSite": "Voltar para o site"
     }
   },
   "formValidation": {
@@ -676,7 +713,8 @@
     },
     "chip": {
       "label": "Turno de caixa",
-      "openSince": "Aberto · desde {{time}}"
+      "openSince": "Aberto · desde {{time}}",
+      "manage": "Gerenciar turno de caixa"
     },
     "open": {
       "title": "Abra um turno de caixa para continuar",

@@ -11,11 +11,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthFacade } from '@app-core/auth/facade/auth.facade';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { AuthShellComponent } from '../../components/auth-shell/auth-shell.component';
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
 @Component({
-  imports: [TranslatePipe, ButtonComponent],
+  imports: [TranslatePipe, ButtonComponent, AuthShellComponent],
   templateUrl: './verify-email.component.html',
   styleUrl: './verify-email.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,10 +35,9 @@ export class VerifyEmailComponent implements OnInit {
     initialValue: 'idle',
   });
 
-  protected readonly isResending = toSignal(
-    this.authFacade.isResendingConfirmation$,
-    { initialValue: false },
-  );
+  protected readonly isResending = toSignal(this.authFacade.isResendingConfirmation$, {
+    initialValue: false,
+  });
 
   protected readonly cooldownRemaining = signal(0);
 
