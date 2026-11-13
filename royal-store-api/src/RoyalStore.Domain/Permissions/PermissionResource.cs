@@ -11,4 +11,5 @@ public enum PermissionResource
     Roles,
     System,
     Catalog,
+    Expenses,
 }

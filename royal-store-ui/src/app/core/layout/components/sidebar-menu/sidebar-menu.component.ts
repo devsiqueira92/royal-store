@@ -57,6 +57,30 @@ export class SidebarMenuComponent {
       ],
     },
     {
+      id: 'finance',
+      labelKey: 'layout.nav.finance',
+      items: [
+        // `exact`: without it the expenses entry stays highlighted while the
+        // category screen below it is open.
+        {
+          labelKey: 'layout.nav.expenses',
+          icon: 'pi pi-wallet',
+          route: '/expenses',
+          exact: true,
+        },
+        {
+          labelKey: 'layout.nav.expenseCategories',
+          icon: 'pi pi-sitemap',
+          route: '/expenses/categories',
+        },
+        {
+          labelKey: 'layout.nav.financialAccounts',
+          icon: 'pi pi-building',
+          route: '/expenses/financial-accounts',
+        },
+      ],
+    },
+    {
       id: 'catalog',
       labelKey: 'layout.nav.catalog',
       items: [

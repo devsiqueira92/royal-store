@@ -1,0 +1,97 @@
+<p-table
+  [value]="accounts()"
+  [loading]="loading()"
+  dataKey="id"
+  class="account-table"
+  [tableStyle]="{ 'min-width': '40rem' }"
+>
+  <ng-template #header>
+    <tr>
+      <th>{{ 'expense.accounts.columns.account' | translate }}</th>
+      <th>{{ 'expense.accounts.columns.type' | translate }}</th>
+      <th class="account-table__numeric">
+        {{
+          'expense.accounts.columns.outflow'
+            | translate: { month: competenceMonth() | plainDate: 'MMM yyyy' }
+        }}
+      </th>
+      <th class="account-table__status">
+        {{ 'expense.accounts.columns.status' | translate }}
+      </th>
+      <th class="account-table__actions-col">
+        <span class="sr-only">{{ 'expense.columns.actions' | translate }}</span>
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-account>
+    <tr [class.account-row--inactive]="!account.isActive">
+      <td>
+        <span class="account">
+          <i class="account__icon" [class]="iconOf(account)" aria-hidden="true"></i>
+          <span class="account__name">{{ account.name }}</span>
+        </span>
+      </td>
+
+      <td>
+        <span class="type">{{ 'expense.accounts.types.' + account.type | translate }}</span>
+      </td>
+
+      <td class="account-table__numeric">
+        <!-- Null means no payment left this account in the period, which is not
+             the same as a zero balance — the account keeps none. -->
+        @if (account.outflowInPeriod) {
+          {{ account.outflowInPeriod | currency }}
+        } @else {
+          <span class="account-table__dash" aria-hidden="true">—</span>
+        }
+      </td>
+
+      <td class="account-table__status">
+        <app-switch
+          [checked]="account.isActive"
+          [disabled]="saving()"
+          [ariaLabel]="'expense.accounts.toggleActive' | translate"
+          (changed)="onActiveChange(account, $event)"
+        />
+      </td>
+
+      <td class="account-table__actions">
+        <p-button
+          icon="pi pi-pencil"
+          severity="secondary"
+          [rounded]="true"
+          [text]="true"
+          [attr.aria-label]="'expense.accounts.list.edit' | translate"
+          [pTooltip]="'expense.accounts.list.edit' | translate"
+          tooltipPosition="bottom"
+          (onClick)="edit.emit(account)"
+        />
+
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [rounded]="true"
+          [text]="true"
+          [attr.aria-label]="'expense.accounts.list.delete' | translate"
+          [pTooltip]="'expense.accounts.list.delete' | translate"
+          tooltipPosition="bottom"
+          (onClick)="remove.emit({ account, event: $event })"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5" class="account-table__empty">
+        <p class="account-table__empty-title">
+          {{ 'expense.accounts.list.emptyTitle' | translate }}
+        </p>
+        <p class="account-table__empty-text">
+          {{ 'expense.accounts.list.emptyText' | translate }}
+        </p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

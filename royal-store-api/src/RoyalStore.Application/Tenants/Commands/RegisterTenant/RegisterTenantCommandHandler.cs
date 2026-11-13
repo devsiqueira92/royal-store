@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Email;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Expenses;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Payments;
@@ -23,6 +24,7 @@ public sealed class RegisterTenantCommandHandler
     private readonly ILoyaltyTierRepository _loyaltyTierRepository;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProfileRepository _profileRepository;
+    private readonly IExpenseCategoryRepository _expenseCategoryRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly ISecurityAuditService _securityAuditService;
@@ -33,6 +35,7 @@ public sealed class RegisterTenantCommandHandler
         ILoyaltyTierRepository loyaltyTierRepository,
         IPaymentRepository paymentRepository,
         IProfileRepository profileRepository,
+        IExpenseCategoryRepository expenseCategoryRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService,
         ISecurityAuditService securityAuditService)
@@ -42,6 +45,7 @@ public sealed class RegisterTenantCommandHandler
         _loyaltyTierRepository = loyaltyTierRepository;
         _paymentRepository = paymentRepository;
         _profileRepository = profileRepository;
+        _expenseCategoryRepository = expenseCategoryRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
         _securityAuditService = securityAuditService;
@@ -104,6 +108,10 @@ public sealed class RegisterTenantCommandHandler
                 // Every tenant starts with its default payment methods catalog too (FR-003) — same
                 // reasoning and same transaction as the loyalty tiers above (037 research.md Decision 12).
                 await _paymentRepository.AddRangeAsync(Payment.SeedDefaults(tenant.Id), ct);
+
+                // And its default operating-expense categories (060 FR-029) — same reasoning and
+                // same transaction, so no store ever exists without a usable OPEX structure.
+                await _expenseCategoryRepository.AddRangeAsync(ExpenseCategory.SeedDefaults(tenant.Id), ct);
 
                 await _unitOfWork.SaveChangesAsync(ct);
 

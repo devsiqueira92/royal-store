@@ -1,0 +1,27 @@
+<div class="month-switch" role="group" [attr.aria-label]="'expense.month.label' | translate">
+  <button
+    type="button"
+    class="month-switch__step"
+    [disabled]="disabled()"
+    [attr.aria-label]="'expense.month.previous' | translate"
+    (click)="previous.emit()"
+  >
+    <i class="pi pi-chevron-left" aria-hidden="true"></i>
+  </button>
+
+  <!-- `aria-live` so stepping the month is announced: the figures around it all
+       change, but nothing else moves focus. -->
+  <span class="month-switch__value" aria-live="polite">
+    {{ competenceMonth() | plainDate: 'MMM yyyy' }}
+  </span>
+
+  <button
+    type="button"
+    class="month-switch__step"
+    [disabled]="disabled()"
+    [attr.aria-label]="'expense.month.next' | translate"
+    (click)="next.emit()"
+  >
+    <i class="pi pi-chevron-right" aria-hidden="true"></i>
+  </button>
+</div>

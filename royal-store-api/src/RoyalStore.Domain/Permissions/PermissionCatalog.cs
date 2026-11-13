@@ -35,6 +35,15 @@ public static class PermissionCatalog
         new(Permission.SystemManagerOverride, "system.managerOverride", PermissionResource.System, "Manager override"),
 
         new(Permission.CatalogManageTaxProfiles, "catalog.manageTaxProfiles", PermissionResource.Catalog, "Manage tax profile templates"),
+
+        new(Permission.ExpensesView, "expenses.view", PermissionResource.Expenses, "View operating expenses"),
+        new(Permission.ExpensesCreate, "expenses.create", PermissionResource.Expenses, "Record and edit operating expenses"),
+        new(Permission.ExpensesCancel, "expenses.cancel", PermissionResource.Expenses, "Cancel operating expenses"),
+        new(Permission.ExpensesRegisterPayment, "expenses.registerPayment", PermissionResource.Expenses, "Register expense payment"),
+        new(Permission.ExpensesReversePayment, "expenses.reversePayment", PermissionResource.Expenses, "Reverse expense payment"),
+        new(Permission.ExpensesManageCategories, "expenses.manageCategories", PermissionResource.Expenses, "Manage expense categories, cost centers and financial accounts"),
+        new(Permission.ExpensesManageRecurrences, "expenses.manageRecurrences", PermissionResource.Expenses, "Manage recurring expense templates"),
+        new(Permission.ExpensesViewReports, "expenses.viewReports", PermissionResource.Expenses, "View expense reports"),
     ];
 
     private static readonly Dictionary<Permission, PermissionEntry> ByPermission =

@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.category-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-form__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.category-form__hint {
+  margin: 0.25rem 0 0.875rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.category-form__colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-form__swatch {
+  /* 2rem square, so the target clears the 24px minimum on its own without the
+     surrounding gap having to make up the difference. */
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  border-radius: 0.5rem;
+  cursor: pointer;
+
+  &--selected {
+    /* A ring rather than a border swap: the swatch keeps its exact size, so
+       picking one does not shift the row. */
+    outline: 2px solid light-dark(var(--p-surface-900), var(--p-surface-0));
+    outline-offset: 2px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+}
+
+.category-form__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding-top: 1rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}

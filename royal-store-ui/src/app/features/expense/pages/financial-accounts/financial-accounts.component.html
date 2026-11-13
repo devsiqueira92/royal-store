@@ -1,0 +1,58 @@
+<section class="accounts-page">
+  <header class="accounts-page__header">
+    <div class="accounts-page__intro">
+      <a class="accounts-page__back" routerLink="/expenses">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        {{ 'expense.accounts.back' | translate }}
+      </a>
+      <h1 class="accounts-page__title">{{ 'expense.accounts.title' | translate }}</h1>
+      <p class="accounts-page__subtitle">{{ 'expense.accounts.subtitle' | translate }}</p>
+    </div>
+
+    <div class="accounts-page__actions">
+      <app-expense-month-switch
+        [competenceMonth]="competenceMonth()"
+        [disabled]="isLoading()"
+        (previous)="onPreviousMonth()"
+        (next)="onNextMonth()"
+      />
+
+      <label class="accounts-page__filter">
+        <app-switch
+          [checked]="showInactive()"
+          [ariaLabel]="'expense.accounts.showInactive' | translate"
+          (changed)="onShowInactiveChange($event)"
+        />
+        <span>{{ 'expense.accounts.showInactive' | translate }}</span>
+      </label>
+
+      <p-button
+        [label]="'expense.accounts.newAccount' | translate"
+        icon="pi pi-plus"
+        (onClick)="onCreate()"
+      />
+    </div>
+  </header>
+
+  <p class="accounts-page__counts">
+    {{ 'expense.accounts.counts' | translate: { active: activeCount() } }}
+    @if (showInactive() && inactiveCount()) {
+      <span class="accounts-page__sep" aria-hidden="true">·</span>
+      {{ 'expense.accounts.inactiveCounts' | translate: { inactive: inactiveCount() } }}
+    }
+    <span class="accounts-page__sep" aria-hidden="true">·</span>
+    {{ 'expense.accounts.totalOutflow' | translate: { total: totalOutflow() | currency } }}
+  </p>
+
+  <div class="accounts-page__panel">
+    <app-expense-account-list
+      [accounts]="accounts()"
+      [loading]="isLoading()"
+      [saving]="isSaving()"
+      [competenceMonth]="competenceMonth()"
+      (edit)="onEdit($event)"
+      (remove)="onDelete($event)"
+      (activeChange)="onActiveChange($event)"
+    />
+  </div>
+</section>

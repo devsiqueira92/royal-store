@@ -1,0 +1,127 @@
+:host {
+  display: block;
+}
+
+.payment-form__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}
+
+.payment-form__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.payment-form__subtitle {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.payment-form__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border-radius: 0.5rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: transparent;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+  cursor: pointer;
+
+  &:hover {
+    background: light-dark(var(--p-surface-100), var(--p-surface-800));
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
+}
+
+.payment-form__body {
+  padding: 1.25rem;
+}
+
+.payment-form__target {
+  padding: 0.875rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.625rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: light-dark(var(--p-surface-50), var(--p-surface-800));
+}
+
+.payment-form__target-name {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.payment-form__target-meta {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.payment-form__figures {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0.875rem 0 0;
+
+  dt {
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  dd {
+    margin: 0.125rem 0 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: light-dark(var(--p-surface-800), var(--p-surface-100));
+  }
+}
+
+.payment-form__remaining {
+  color: var(--p-primary-color);
+}
+
+.payment-form__row {
+  display: grid;
+  gap: 0 1rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 30rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.payment-form__warning {
+  margin: -0.5rem 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: light-dark(var(--p-red-50), color-mix(in oklab, var(--p-red-400) 14%, transparent));
+  font-size: 0.75rem;
+  color: light-dark(var(--p-red-700), var(--p-red-300));
+}
+
+.payment-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}
+
+.payment-form__footer ::ng-deep .p-button {
+  width: auto;
+}

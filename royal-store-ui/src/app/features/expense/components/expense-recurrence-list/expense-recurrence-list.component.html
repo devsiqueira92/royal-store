@@ -1,0 +1,201 @@
+<section class="generator">
+  <span class="generator__icon" aria-hidden="true">
+    <i class="pi pi-sync"></i>
+  </span>
+
+  <div class="generator__text">
+    <p class="generator__title">{{ 'expense.recurrence.generator.title' | translate }}</p>
+    <p class="generator__subtitle">
+      {{ 'expense.recurrence.generator.subtitle' | translate }}
+    </p>
+  </div>
+
+  @if (generatedThrough(); as generated) {
+    <div class="generator__state">
+      <p class="generator__state-label">
+        {{ 'expense.recurrence.generator.generatedThrough' | translate }}
+      </p>
+      <p class="generator__state-value">{{ generated | plainDate: 'MMM yyyy' }}</p>
+    </div>
+  }
+
+  <!-- The date the next bill is actually created on. A run before it is a
+       no-op by design, so it is stated up front rather than discovered by
+       pressing the button and seeing nothing happen. -->
+  @if (nextGeneration(); as next) {
+    <div class="generator__state">
+      <p class="generator__state-label">
+        {{ 'expense.recurrence.generator.nextGeneration' | translate }}
+      </p>
+      <p class="generator__state-value">{{ next | plainDate: 'MMM dd' }}</p>
+    </div>
+  }
+
+  <p-button
+    [label]="'expense.recurrence.generator.run' | translate"
+    severity="secondary"
+    [outlined]="true"
+    [loading]="isGenerating()"
+    (onClick)="generate.emit()"
+  />
+</section>
+
+@if (lastGeneration(); as run) {
+  <p class="generator__result" [class.generator__result--idle]="!run.expensesCreated" role="status">
+    @if (run.expensesCreated) {
+      <!-- Zero created with N skipped is the normal outcome of a repeat run —
+           it means the bills already existed, which is why both figures show. -->
+      {{
+        'expense.recurrence.generator.result'
+          | translate
+            : {
+                created: run.expensesCreated,
+                skipped: run.cyclesSkipped,
+                evaluated: run.templatesEvaluated,
+              }
+      }}
+    } @else if (run.cyclesSkipped) {
+      {{
+        'expense.recurrence.generator.resultSkipped'
+          | translate: { skipped: run.cyclesSkipped, evaluated: run.templatesEvaluated }
+      }}
+    } @else if (nextGeneration(); as next) {
+      <!-- The common confusion: the run worked, no cycle was inside its
+           creation window yet. Naming the date is the whole answer. -->
+      {{
+        'expense.recurrence.generator.resultTooEarly'
+          | translate: { evaluated: run.templatesEvaluated, date: next | plainDate: 'MMM dd' }
+      }}
+    } @else {
+      {{
+        'expense.recurrence.generator.resultNothing'
+          | translate: { evaluated: run.templatesEvaluated }
+      }}
+    }
+  </p>
+}
+
+<div class="recurrence-panel">
+  <p-table
+    [value]="recurrences()?.items ?? []"
+    [loading]="loading()"
+    dataKey="id"
+    [tableStyle]="{ 'min-width': '52rem' }"
+  >
+    <ng-template #header>
+      <tr>
+        <th>{{ 'expense.recurrence.columns.template' | translate }}</th>
+        <th>{{ 'expense.columns.category' | translate }}</th>
+        <th>{{ 'expense.recurrence.columns.schedule' | translate }}</th>
+        <th class="recurrence__numeric">{{ 'expense.columns.amount' | translate }}</th>
+        <th>{{ 'expense.recurrence.columns.nextBill' | translate }}</th>
+        <th class="recurrence__active-col">
+          {{ 'expense.recurrence.columns.active' | translate }}
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-item>
+      <tr [class.recurrence--paused]="!item.isActive">
+        <td>
+          <span class="recurrence__name">{{ item.description }}</span>
+          <span class="recurrence__meta">{{ item.payeeName }}</span>
+        </td>
+
+        <td>
+          <span class="category">
+            <span
+              class="category__dot"
+              aria-hidden="true"
+              [style.background]="colorOf(item.category.color, 0)"
+            ></span>
+            {{ item.category.name }}
+          </span>
+        </td>
+
+        <td>
+          <span class="recurrence__schedule">
+            {{ 'expense.frequency.' + item.frequency | translate }}
+            <span class="recurrence__sep" aria-hidden="true">·</span>
+            {{ 'expense.recurrence.onDay' | translate: { day: item.dueDay } }}
+          </span>
+          <span class="recurrence__meta">
+            {{ 'expense.recurrence.leadDays' | translate: { days: item.leadDays } }}
+          </span>
+        </td>
+
+        <td class="recurrence__numeric">
+          <span class="recurrence__amount">
+            @if (item.isVariableAmount) {
+              <span class="recurrence__approx" aria-hidden="true">≈</span>
+            }
+            {{ item.amount | currency }}
+          </span>
+          <span class="recurrence__meta">
+            @if (item.isVariableAmount) {
+              {{ 'expense.recurrence.variable' | translate }}
+            } @else {
+              {{ 'expense.recurrence.fixed' | translate }}
+            }
+          </span>
+        </td>
+
+        <td>
+          @if (item.nextBillDate) {
+            <span class="recurrence__next">{{ item.nextBillDate | plainDate: 'MMM dd' }}</span>
+            @if (item.generatesOn) {
+              <span class="recurrence__meta">
+                {{
+                  'expense.recurrence.generatesOn'
+                    | translate: { date: item.generatesOn | plainDate: 'MMM dd' }
+                }}
+              </span>
+            }
+          } @else {
+            <span class="recurrence__meta">{{ 'expense.recurrence.finished' | translate }}</span>
+          }
+        </td>
+
+        <td class="recurrence__active-col">
+          <app-switch
+            [checked]="item.isActive"
+            [ariaLabel]="'expense.recurrence.toggleActive' | translate"
+            (changed)="onActiveChange(item, $event)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="recurrence__empty">
+          <p class="recurrence__empty-title">
+            {{ 'expense.recurrence.emptyTitle' | translate }}
+          </p>
+          <p class="recurrence__empty-text">{{ 'expense.recurrence.emptyText' | translate }}</p>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #footer>
+      @if (recurrences(); as data) {
+        @if (data.items.length) {
+          <tr>
+            <td colspan="3" class="recurrence__foot-label">
+              {{
+                'expense.recurrence.footerCount'
+                  | translate: { active: data.activeCount, total: data.totalCount }
+              }}
+            </td>
+            <td colspan="3" class="recurrence__foot-total">
+              {{ data.monthlyTotal | currency }}
+              <span class="recurrence__foot-unit">
+                {{ 'expense.recurrence.perMonth' | translate }}
+              </span>
+            </td>
+          </tr>
+        }
+      }
+    </ng-template>
+  </p-table>
+</div>

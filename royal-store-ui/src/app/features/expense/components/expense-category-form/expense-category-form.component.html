@@ -1,0 +1,71 @@
+<form class="category-form" [formGroup]="formGroup">
+  <app-form-layout title="expense.categories.form.section" [index]="1" [collapsedPanel]="false">
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="expense.categories.form.name"
+      placeholder="expense.categories.form.namePlaceholder"
+    ></app-input-field>
+
+    <app-select-field
+      controlName="parentId"
+      [parentForm]="formGroup"
+      label="expense.categories.form.parent"
+      placeholder="expense.categories.form.parentPlaceholder"
+      [options]="parentOptions()"
+      [showClear]="true"
+      [filter]="true"
+    ></app-select-field>
+    <p class="category-form__hint">
+      {{ 'expense.categories.form.parentHint' | translate }}
+    </p>
+
+    <span class="category-form__label">{{ 'expense.categories.form.color' | translate }}</span>
+    <div class="category-form__colors">
+      @for (color of colors; track color) {
+        <button
+          type="button"
+          class="category-form__swatch"
+          [class.category-form__swatch--selected]="selectedColor() === color"
+          [style.background]="color"
+          [attr.aria-label]="color"
+          [attr.aria-pressed]="selectedColor() === color"
+          (click)="onColorSelected(color)"
+        ></button>
+      }
+    </div>
+    <p class="category-form__hint">
+      {{ 'expense.categories.form.colorHint' | translate }}
+    </p>
+
+    <app-input-field
+      controlName="displayOrder"
+      [parentForm]="formGroup"
+      label="expense.categories.form.order"
+      type="number"
+      [min]="0"
+      [step]="1"
+      inputmode="numeric"
+    ></app-input-field>
+    <p class="category-form__hint">
+      {{ 'expense.categories.form.orderHint' | translate }}
+    </p>
+  </app-form-layout>
+
+  <div class="category-form__footer">
+    <app-button
+      label="expense.categories.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      [label]="
+        isCreateMode() ? 'expense.categories.form.createSubmit' : 'expense.categories.form.submit'
+      "
+      [disabled]="formGroup.invalid"
+      [loading]="isSaving()"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

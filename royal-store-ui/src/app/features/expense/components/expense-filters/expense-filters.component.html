@@ -1,0 +1,54 @@
+<div class="filters">
+  <!-- `role="group"` + `aria-pressed` rather than tabs: these narrow the list
+       below, they do not switch between panels. -->
+  <div class="filters__set" role="group" [attr.aria-label]="'expense.filters.status' | translate">
+    @for (chip of statusChips(); track chip.value) {
+      <button
+        type="button"
+        class="chip"
+        [class.chip--active]="activeStatus() === chip.value"
+        [attr.aria-pressed]="activeStatus() === chip.value"
+        (click)="statusChange.emit(chip.value)"
+      >
+        <span>{{ chip.labelKey | translate }}</span>
+        <span class="chip__count">{{ chip.count }}</span>
+      </button>
+    }
+  </div>
+
+  @if (categories().length) {
+    <div
+      class="filters__set filters__set--categories"
+      role="group"
+      [attr.aria-label]="'expense.filters.category' | translate"
+    >
+      <button
+        type="button"
+        class="chip"
+        [class.chip--active]="!activeCategoryId()"
+        [attr.aria-pressed]="!activeCategoryId()"
+        (click)="categoryChange.emit(null)"
+      >
+        <span class="chip__dot chip__dot--all" aria-hidden="true"></span>
+        <span>{{ 'expense.filters.allCategories' | translate }}</span>
+      </button>
+
+      @for (category of categories(); track category.id; let i = $index) {
+        <button
+          type="button"
+          class="chip"
+          [class.chip--active]="activeCategoryId() === category.id"
+          [attr.aria-pressed]="activeCategoryId() === category.id"
+          (click)="categoryChange.emit(category.id)"
+        >
+          <span
+            class="chip__dot"
+            aria-hidden="true"
+            [style.background]="colorOf(category.color, i)"
+          ></span>
+          <span>{{ category.name }}</span>
+        </button>
+      }
+    </div>
+  }
+</div>

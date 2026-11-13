@@ -33,7 +33,11 @@
       "sellers": "Sellers",
       "paymentMethods": "Payment methods",
       "taxProfiles": "Tax profiles",
-      "profile": "My profile"
+      "profile": "My profile",
+      "finance": "Finance",
+      "expenses": "Expenses",
+      "expenseCategories": "Expense categories",
+      "financialAccounts": "Financial accounts"
     }
   },
   "auth": {
@@ -1253,6 +1257,259 @@
         "byHour": "Sales per hour",
         "alerts": "Stock alerts",
         "paymentMix": "Payment methods"
+      }
+    }
+  },
+  "expense": {
+    "title": "Operating expenses",
+    "subtitle": "What it costs to keep the doors open. Merchandise for resale (COGS) and fixed assets (Capex) are tracked outside this module.",
+    "newExpense": "New expense",
+    "month": {
+      "label": "Competence month",
+      "previous": "Previous month",
+      "next": "Next month"
+    },
+    "tabs": {
+      "expenses": "Expenses",
+      "recurrences": "Recurrences",
+      "reports": "Reports"
+    },
+    "summary": {
+      "total": "Total",
+      "expenseCount": "{{count}} expenses",
+      "paid": "Paid",
+      "settled": "{{percentage}}% settled",
+      "pending": "Pending",
+      "pendingMeta": "{{count}} open · not yet due",
+      "overdue": "Overdue",
+      "overdueMeta": "{{count}} past due"
+    },
+    "filters": {
+      "status": "Filter by status",
+      "category": "Filter by category",
+      "all": "All",
+      "allCategories": "All categories"
+    },
+    "columns": {
+      "due": "Due",
+      "expense": "Expense",
+      "category": "Category",
+      "amount": "Amount",
+      "payments": "Payments",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "partially-paid": "Partially paid",
+      "paid": "Paid",
+      "cancelled": "Cancelled",
+      "overdue": "Overdue"
+    },
+    "frequency": {
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "semiannually": "Semiannually",
+      "yearly": "Yearly"
+    },
+    "list": {
+      "settled": "Settled",
+      "overdueDays": "Overdue {{days}}d",
+      "dueToday": "due today",
+      "dueIn": "in {{days}}d",
+      "recurring": "Recurring",
+      "estimated": "Estimated",
+      "noPayments": "No payments",
+      "partialOf": "{{settled}} of {{amount}}",
+      "registerPayment": "Register payment",
+      "emptyTitle": "No expenses this month",
+      "emptyText": "Record the first expense or step to another competence month.",
+      "footerCount": "{{count}} expenses",
+      "footerMonth": "competence {{month}}",
+      "view": "View expense",
+      "cancel": "Cancel expense",
+      "cancelConfirm": "Cancel the expense \"{{description}}\"? It stops counting towards the month totals.",
+      "cancelAccept": "Cancel expense",
+      "cancelReject": "Keep it"
+    },
+    "recurrence": {
+      "generator": {
+        "title": "Recurrence generator",
+        "subtitle": "Background service · runs daily · creates each bill as PENDING within the window set by \"create ahead of due date\"",
+        "generatedThrough": "Generated through",
+        "run": "Run generator now",
+        "result": "{{created}} bills created · {{skipped}} cycles skipped (already existed) · {{evaluated}} templates evaluated",
+        "nextGeneration": "Next creation",
+        "resultSkipped": "{{skipped}} cycles skipped — the bills already existed · {{evaluated}} templates evaluated",
+        "resultTooEarly": "No bills created: no cycle has entered its creation window yet. The next bill is created on {{date}} · {{evaluated}} templates evaluated.",
+        "resultNothing": "Nothing to create · {{evaluated}} templates evaluated"
+      },
+      "columns": {
+        "template": "Template",
+        "schedule": "Schedule",
+        "nextBill": "Next bill",
+        "active": "Active"
+      },
+      "onDay": "day {{day}}",
+      "leadDays": "Created {{days}} days ahead",
+      "generatesOn": "generates {{date}}",
+      "fixed": "Fixed",
+      "variable": "Variable · estimate",
+      "finished": "Finished",
+      "perMonth": "/ month",
+      "footerCount": "{{active}} of {{total}} templates active",
+      "toggleActive": "Activate or pause template",
+      "emptyTitle": "No recurring templates",
+      "emptyText": "Templates are created from New expense by turning on Repeat monthly."
+    },
+    "report": {
+      "share": "Share",
+      "totalOpex": "Total OPEX",
+      "empty": "No data for this period.",
+      "byCategory": {
+        "title": "Expenses by category · management P&L",
+        "subtitle": "Competence basis · {{months}} months ending at the selected month"
+      },
+      "cashFlow": {
+        "title": "Cash flow projection",
+        "subtitle": "Open balances and upcoming bills from today · next {{weeks}} weeks",
+        "overdue": "Overdue",
+        "committed": "Committed (generated bills)",
+        "projected": "Projected (recurrences)",
+        "payFirst": "Pay these first",
+        "next30": "Next 30 days",
+        "horizon": "Next {{weeks}} weeks",
+        "split": "{{committed}} committed · {{projected}} projected",
+        "week": "Week",
+        "toDate": "to {{date}}"
+      }
+    },
+    "form": {
+      "create": "New expense",
+      "edit": "Edit expense",
+      "subtitle": "Operating cost (OPEX) · payments are registered separately",
+      "description": "Description",
+      "descriptionPlaceholder": "e.g. Energy",
+      "payee": "Supplier",
+      "payeePlaceholder": "e.g. Enel SP",
+      "category": "Category",
+      "noCategories": "No expense categories registered yet.",
+      "amount": "Amount",
+      "dueDate": "Due date",
+      "notes": "Notes",
+      "repeatMonthly": "Repeat monthly",
+      "repeatMonthlyHint": "Saves a recurrence template — the generator creates each month's bill as PENDING.",
+      "variableAmount": "Variable amount",
+      "variableAmountHint": "For bills like energy or water — generated with an estimate to confirm later.",
+      "leadDays": "Create bill ahead of due date",
+      "leadDaysOption": "{{days}} days",
+      "recurrenceSummary": "Every month on day {{day}} · next bill {{nextBill}} created {{leadDays}} days before",
+      "cancel": "Cancel",
+      "submit": "Save expense",
+      "submitRecurrence": "Save recurrence"
+    },
+    "payment": {
+      "title": "Register payment",
+      "subtitle": "Settles part or all of the expense",
+      "amount": "Amount",
+      "settled": "Settled",
+      "remaining": "Remaining",
+      "payAmount": "Payment amount",
+      "paidAt": "Payment date",
+      "account": "Paid from",
+      "accountPlaceholder": "Select the account",
+      "noAccounts": "No active financial account. Register one before recording payments.",
+      "methodNote": "Payment method",
+      "methodNotePlaceholder": "e.g. Pix, bank slip",
+      "submit": "Register payment"
+    },
+    "categories": {
+      "title": "Expense categories",
+      "subtitle": "The buckets expenses roll up into on the management P&L. A category with children includes their expenses in the report.",
+      "back": "Back to expenses",
+      "newCategory": "New category",
+      "showInactive": "Show inactive",
+      "toggleActive": "Activate or deactivate category",
+      "counts": "{{active}} active categories",
+      "inactiveCounts": "{{inactive}} inactive",
+      "columns": {
+        "category": "Category",
+        "children": "Subcategories",
+        "order": "Order",
+        "status": "Active"
+      },
+      "list": {
+        "edit": "Edit category",
+        "delete": "Delete category",
+        "deleteBlocked": "Has subcategories. Delete or move them first.",
+        "deleteConfirm": "Delete the category \"{{name}}\"? Only possible while no expense or template uses it — otherwise deactivate it.",
+        "deleteAccept": "Delete",
+        "deleteReject": "Back",
+        "emptyTitle": "No categories yet",
+        "emptyText": "Create the first category to classify expenses on the management P&L."
+      },
+      "form": {
+        "create": "New category",
+        "edit": "Edit category",
+        "subtitle": "Expense classification · activate and deactivate from the list",
+        "section": "Category details",
+        "name": "Name",
+        "namePlaceholder": "e.g. Rent",
+        "parent": "Parent category",
+        "parentPlaceholder": "None (root category)",
+        "parentHint": "Leave empty to create a root group. A parent category includes its children in the report.",
+        "color": "Colour",
+        "colorHint": "Used in the charts and lists. Click the chosen colour to clear it.",
+        "order": "Display order",
+        "orderHint": "Lowest first. Sets the order in the lists and in the report.",
+        "cancel": "Cancel",
+        "createSubmit": "Create category",
+        "submit": "Save category"
+      }
+    },
+    "accounts": {
+      "title": "Financial accounts",
+      "subtitle": "Where money leaves from when an expense is paid. An account holds no balance — the outflow column is computed from the selected month’s payments.",
+      "back": "Back to expenses",
+      "newAccount": "New account",
+      "showInactive": "Show inactive",
+      "toggleActive": "Activate or deactivate account",
+      "counts": "{{active}} active accounts",
+      "inactiveCounts": "{{inactive}} inactive",
+      "totalOutflow": "{{total}} left this month",
+      "types": {
+        "cash": "Cash",
+        "bank-account": "Bank account",
+        "digital-wallet": "Digital wallet"
+      },
+      "columns": {
+        "account": "Account",
+        "type": "Type",
+        "outflow": "Outflow · {{month}}",
+        "status": "Active"
+      },
+      "list": {
+        "edit": "Edit account",
+        "delete": "Delete account",
+        "deleteConfirm": "Delete the account \"{{name}}\"? Only possible while no payment, expense or template uses it — otherwise deactivate it.",
+        "deleteAccept": "Delete",
+        "deleteReject": "Back",
+        "emptyTitle": "No accounts yet",
+        "emptyText": "Add an account before registering expense payments."
+      },
+      "form": {
+        "create": "New account",
+        "edit": "Edit account",
+        "subtitle": "Payment source · no balance · activate and deactivate from the list",
+        "section": "Account details",
+        "name": "Name",
+        "namePlaceholder": "e.g. Chase checking",
+        "type": "Type",
+        "typePlaceholder": "Select the type",
+        "cancel": "Cancel",
+        "createSubmit": "Create account",
+        "submit": "Save account"
       }
     }
   }

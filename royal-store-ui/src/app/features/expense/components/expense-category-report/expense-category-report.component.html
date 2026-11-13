@@ -1,0 +1,106 @@
+<section class="report">
+  <header class="report__header">
+    <div>
+      <h2 class="report__title">{{ 'expense.report.byCategory.title' | translate }}</h2>
+      <p class="report__subtitle">
+        {{ 'expense.report.byCategory.subtitle' | translate: { months: monthCount() } }}
+      </p>
+    </div>
+
+    @if (legend().length) {
+      <!-- A legend is always present for more than one series; the table below
+           repeats the same names, so identity never rests on colour. -->
+      <app-chart-legend [items]="legend()" />
+    }
+  </header>
+
+  @if (loading() && !report()) {
+    <p-skeleton width="100%" height="11rem" />
+  } @else if (!report()?.months?.length) {
+    <p class="report__empty">{{ 'expense.report.empty' | translate }}</p>
+  } @else {
+    <div class="chart" aria-hidden="true">
+      @for (column of columns(); track column.month) {
+        <div class="chart__column">
+          <span class="chart__value">{{ column.totalLabel }}</span>
+
+          <div class="chart__bar" [style.height.%]="column.heightPercentage">
+            @for (segment of column.segments; track segment.categoryId) {
+              <span
+                class="chart__segment"
+                [style.height.%]="segment.heightPercentage"
+                [style.background]="segment.color"
+              ></span>
+            }
+          </div>
+
+          <span class="chart__label">{{ column.month | plainDate: 'MMM' }}</span>
+        </div>
+      }
+    </div>
+
+    <table class="report__table">
+      <caption class="sr-only">
+        {{
+          'expense.report.byCategory.title' | translate
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'expense.columns.category' | translate }}</th>
+          @for (month of report()!.months; track month) {
+            <th scope="col" class="report__numeric" [class.report__current]="month === lastMonth()">
+              {{ month | plainDate: 'MMM' }}
+            </th>
+          }
+          <th scope="col" class="report__numeric">{{ 'expense.report.share' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of report()!.categories; track row.categoryId; let i = $index) {
+          <tr>
+            <th scope="row" class="report__row-head">
+              <span
+                class="report__swatch"
+                aria-hidden="true"
+                [style.background]="series()[i]?.color"
+              ></span>
+              {{ row.name }}
+            </th>
+
+            @for (value of row.values; track $index; let m = $index) {
+              <td
+                class="report__numeric"
+                [class.report__current]="report()!.months[m] === lastMonth()"
+              >
+                <!-- A dash, never a zero: "nothing recorded" and "recorded as
+                     zero" are different facts. -->
+                @if (value === null) {
+                  <span class="report__dash">–</span>
+                } @else {
+                  {{ value | currency: undefined : 'symbol' : '1.0-0' }}
+                }
+              </td>
+            }
+
+            <td class="report__numeric report__share">{{ row.share | number: '1.1-1' }}%</td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" class="report__row-head">{{ 'expense.report.totalOpex' | translate }}</th>
+          @for (total of report()!.totals; track $index; let m = $index) {
+            <td
+              class="report__numeric"
+              [class.report__current]="report()!.months[m] === lastMonth()"
+            >
+              {{ total | currency: undefined : 'symbol' : '1.0-0' }}
+            </td>
+          }
+          <td class="report__numeric">100%</td>
+        </tr>
+      </tfoot>
+    </table>
+  }
+</section>

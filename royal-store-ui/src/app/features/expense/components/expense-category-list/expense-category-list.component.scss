@@ -1,0 +1,84 @@
+:host {
+  display: block;
+}
+
+.category-table__numeric {
+  width: 8rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.category-table__status {
+  width: 7rem;
+  white-space: nowrap;
+}
+
+.category-table__actions-col,
+.category-table__actions {
+  width: 6.5rem;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.category-table__dash {
+  color: light-dark(var(--p-surface-300), var(--p-surface-600));
+}
+
+/* Deactivated categories stay listed — they are what the reactivate switch is
+   for — but recede, so the active set reads first. */
+.category-row--inactive .category__name,
+.category-row--inactive .category-table__numeric {
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.category-row--inactive .category__dot {
+  opacity: 0.45;
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  flex: none;
+}
+
+.category__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.category__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.category__path {
+  font-size: 0.6875rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.category-table__empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.category-table__empty-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.category-table__empty-text {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}

@@ -33,7 +33,11 @@
       "sellers": "Vendedores",
       "paymentMethods": "Formas de pagamento",
       "taxProfiles": "Perfis fiscais",
-      "profile": "Meu perfil"
+      "profile": "Meu perfil",
+      "finance": "Financeiro",
+      "expenses": "Despesas",
+      "expenseCategories": "Categorias de despesa",
+      "financialAccounts": "Contas financeiras"
     }
   },
   "auth": {
@@ -1253,6 +1257,259 @@
         "byHour": "Vendas por hora",
         "alerts": "Alertas de estoque",
         "paymentMix": "Formas de pagamento"
+      }
+    }
+  },
+  "expense": {
+    "title": "Despesas operacionais",
+    "subtitle": "O que custa manter a loja aberta. Mercadoria para revenda (CMV) e bens do ativo imobilizado (Capex) são controlados fora deste módulo.",
+    "newExpense": "Nova despesa",
+    "month": {
+      "label": "Mês de competência",
+      "previous": "Mês anterior",
+      "next": "Próximo mês"
+    },
+    "tabs": {
+      "expenses": "Despesas",
+      "recurrences": "Recorrências",
+      "reports": "Relatórios"
+    },
+    "summary": {
+      "total": "Total",
+      "expenseCount": "{{count}} despesas",
+      "paid": "Pago",
+      "settled": "{{percentage}}% quitado",
+      "pending": "Em aberto",
+      "pendingMeta": "{{count}} em aberto · ainda no prazo",
+      "overdue": "Vencido",
+      "overdueMeta": "{{count}} vencidas"
+    },
+    "filters": {
+      "status": "Filtrar por situação",
+      "category": "Filtrar por categoria",
+      "all": "Todas",
+      "allCategories": "Todas as categorias"
+    },
+    "columns": {
+      "due": "Vencimento",
+      "expense": "Despesa",
+      "category": "Categoria",
+      "amount": "Valor",
+      "payments": "Pagamentos",
+      "status": "Situação",
+      "actions": "Ações"
+    },
+    "status": {
+      "pending": "Em aberto",
+      "partially-paid": "Parcial",
+      "paid": "Pago",
+      "cancelled": "Cancelada",
+      "overdue": "Vencida"
+    },
+    "frequency": {
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "quarterly": "Trimestral",
+      "semiannually": "Semestral",
+      "yearly": "Anual"
+    },
+    "list": {
+      "settled": "Quitada",
+      "overdueDays": "Vencida há {{days}}d",
+      "dueToday": "vence hoje",
+      "dueIn": "em {{days}}d",
+      "recurring": "Recorrente",
+      "estimated": "Estimada",
+      "noPayments": "Sem pagamentos",
+      "partialOf": "{{settled}} de {{amount}}",
+      "registerPayment": "Registrar pagamento",
+      "emptyTitle": "Nenhuma despesa neste mês",
+      "emptyText": "Registre a primeira despesa ou troque o mês de competência.",
+      "footerCount": "{{count}} despesas",
+      "footerMonth": "competência {{month}}",
+      "view": "Ver despesa",
+      "cancel": "Cancelar despesa",
+      "cancelConfirm": "Cancelar a despesa \"{{description}}\"? Ela deixa de contar nos totais do mês.",
+      "cancelAccept": "Cancelar despesa",
+      "cancelReject": "Voltar"
+    },
+    "recurrence": {
+      "generator": {
+        "title": "Gerador de recorrências",
+        "subtitle": "Serviço em segundo plano · roda diariamente · cria cada conta como EM ABERTO na janela definida por \"criar antes do vencimento\"",
+        "generatedThrough": "Gerado até",
+        "run": "Rodar gerador agora",
+        "result": "{{created}} contas criadas · {{skipped}} ciclos ignorados (já existiam) · {{evaluated}} modelos avaliados",
+        "nextGeneration": "Próxima criação",
+        "resultSkipped": "{{skipped}} ciclos ignorados — as contas já existiam · {{evaluated}} modelos avaliados",
+        "resultTooEarly": "Nenhuma conta criada: nenhum ciclo entrou na janela de criação ainda. A próxima conta será criada em {{date}} · {{evaluated}} modelos avaliados.",
+        "resultNothing": "Nenhuma conta a criar · {{evaluated}} modelos avaliados"
+      },
+      "columns": {
+        "template": "Modelo",
+        "schedule": "Periodicidade",
+        "nextBill": "Próxima conta",
+        "active": "Ativo"
+      },
+      "onDay": "dia {{day}}",
+      "leadDays": "Criada {{days}} dias antes",
+      "generatesOn": "gera em {{date}}",
+      "fixed": "Fixo",
+      "variable": "Variável · estimativa",
+      "finished": "Encerrado",
+      "perMonth": "/ mês",
+      "footerCount": "{{active}} de {{total}} modelos ativos",
+      "toggleActive": "Ativar ou pausar modelo",
+      "emptyTitle": "Nenhum modelo recorrente",
+      "emptyText": "Modelos são criados em Nova despesa, ativando Repetir todo mês."
+    },
+    "report": {
+      "share": "Partic.",
+      "totalOpex": "Total despesas",
+      "empty": "Sem dados para o período.",
+      "byCategory": {
+        "title": "Despesas por categoria · DRE gerencial",
+        "subtitle": "Regime de competência · {{months}} meses até o mês selecionado"
+      },
+      "cashFlow": {
+        "title": "Projeção de caixa",
+        "subtitle": "Saldos em aberto e contas futuras a partir de hoje · próximas {{weeks}} semanas",
+        "overdue": "Vencido",
+        "committed": "Comprometido (contas geradas)",
+        "projected": "Projetado (recorrências)",
+        "payFirst": "Pague estas primeiro",
+        "next30": "Próximos 30 dias",
+        "horizon": "Próximas {{weeks}} semanas",
+        "split": "{{committed}} comprometido · {{projected}} projetado",
+        "week": "Semana",
+        "toDate": "até {{date}}"
+      }
+    },
+    "form": {
+      "create": "Nova despesa",
+      "edit": "Editar despesa",
+      "subtitle": "Custo operacional (OPEX) · pagamentos são registrados separadamente",
+      "description": "Descrição",
+      "descriptionPlaceholder": "ex.: Energia",
+      "payee": "Fornecedor",
+      "payeePlaceholder": "ex.: Enel SP",
+      "category": "Categoria",
+      "noCategories": "Nenhuma categoria de despesa cadastrada.",
+      "amount": "Valor",
+      "dueDate": "Vencimento",
+      "notes": "Observações",
+      "repeatMonthly": "Repetir todo mês",
+      "repeatMonthlyHint": "Salva um modelo recorrente — o gerador cria a conta de cada mês como EM ABERTO.",
+      "variableAmount": "Valor variável",
+      "variableAmountHint": "Para contas como energia ou água — gerada com estimativa para confirmar depois.",
+      "leadDays": "Criar conta antes do vencimento",
+      "leadDaysOption": "{{days}} dias",
+      "recurrenceSummary": "Todo mês no dia {{day}} · próxima conta {{nextBill}} criada {{leadDays}} dias antes",
+      "cancel": "Cancelar",
+      "submit": "Salvar despesa",
+      "submitRecurrence": "Salvar recorrência"
+    },
+    "payment": {
+      "title": "Registrar pagamento",
+      "subtitle": "Quita total ou parcialmente a despesa",
+      "amount": "Valor",
+      "settled": "Pago",
+      "remaining": "Em aberto",
+      "payAmount": "Valor do pagamento",
+      "paidAt": "Data do pagamento",
+      "account": "Conta de saída",
+      "accountPlaceholder": "Selecione a conta",
+      "noAccounts": "Nenhuma conta financeira ativa. Cadastre uma conta antes de registrar pagamentos.",
+      "methodNote": "Forma de pagamento",
+      "methodNotePlaceholder": "ex.: Pix, boleto",
+      "submit": "Registrar pagamento"
+    },
+    "categories": {
+      "title": "Categorias de despesa",
+      "subtitle": "Os grupos em que as despesas entram no DRE gerencial. Uma categoria com subcategorias soma as despesas delas no relatório.",
+      "back": "Voltar para despesas",
+      "newCategory": "Nova categoria",
+      "showInactive": "Mostrar inativas",
+      "toggleActive": "Ativar ou desativar categoria",
+      "counts": "{{active}} categorias ativas",
+      "inactiveCounts": "{{inactive}} inativas",
+      "columns": {
+        "category": "Categoria",
+        "children": "Subcategorias",
+        "order": "Ordem",
+        "status": "Ativa"
+      },
+      "list": {
+        "edit": "Editar categoria",
+        "delete": "Excluir categoria",
+        "deleteBlocked": "Tem subcategorias. Exclua ou mova as subcategorias primeiro.",
+        "deleteConfirm": "Excluir a categoria \"{{name}}\"? Só é possível enquanto nenhuma despesa ou recorrência usar ela — caso contrário, desative.",
+        "deleteAccept": "Excluir",
+        "deleteReject": "Voltar",
+        "emptyTitle": "Nenhuma categoria cadastrada",
+        "emptyText": "Crie a primeira categoria para classificar as despesas no DRE gerencial."
+      },
+      "form": {
+        "create": "Nova categoria",
+        "edit": "Editar categoria",
+        "subtitle": "Classificação das despesas · ativar e desativar é feito na lista",
+        "section": "Dados da categoria",
+        "name": "Nome",
+        "namePlaceholder": "ex.: Aluguel",
+        "parent": "Categoria pai",
+        "parentPlaceholder": "Nenhuma (categoria raiz)",
+        "parentHint": "Deixe em branco para criar um grupo raiz. Uma categoria pai soma no relatório as despesas das filhas.",
+        "color": "Cor",
+        "colorHint": "Usada nos gráficos e nas listas. Clique na cor escolhida para remover.",
+        "order": "Ordem de exibição",
+        "orderHint": "Menor primeiro. Define a ordem nas listas e no relatório.",
+        "cancel": "Cancelar",
+        "createSubmit": "Criar categoria",
+        "submit": "Salvar categoria"
+      }
+    },
+    "accounts": {
+      "title": "Contas financeiras",
+      "subtitle": "De onde o dinheiro sai nos pagamentos de despesas. Uma conta não guarda saldo — a coluna de saída é calculada a partir dos pagamentos do mês selecionado.",
+      "back": "Voltar para despesas",
+      "newAccount": "Nova conta",
+      "showInactive": "Mostrar inativas",
+      "toggleActive": "Ativar ou desativar conta",
+      "counts": "{{active}} contas ativas",
+      "inactiveCounts": "{{inactive}} inativas",
+      "totalOutflow": "saída no mês {{total}}",
+      "types": {
+        "cash": "Dinheiro",
+        "bank-account": "Conta bancária",
+        "digital-wallet": "Carteira digital"
+      },
+      "columns": {
+        "account": "Conta",
+        "type": "Tipo",
+        "outflow": "Saída · {{month}}",
+        "status": "Ativa"
+      },
+      "list": {
+        "edit": "Editar conta",
+        "delete": "Excluir conta",
+        "deleteConfirm": "Excluir a conta \"{{name}}\"? Só é possível enquanto nenhum pagamento, despesa ou recorrência usar ela — caso contrário, desative.",
+        "deleteAccept": "Excluir",
+        "deleteReject": "Voltar",
+        "emptyTitle": "Nenhuma conta cadastrada",
+        "emptyText": "Cadastre uma conta antes de registrar pagamentos de despesas."
+      },
+      "form": {
+        "create": "Nova conta",
+        "edit": "Editar conta",
+        "subtitle": "Origem dos pagamentos · sem saldo · ativar e desativar é feito na lista",
+        "section": "Dados da conta",
+        "name": "Nome",
+        "namePlaceholder": "ex.: Itaú conta corrente",
+        "type": "Tipo",
+        "typePlaceholder": "Selecione o tipo",
+        "cancel": "Cancelar",
+        "createSubmit": "Criar conta",
+        "submit": "Salvar conta"
       }
     }
   }

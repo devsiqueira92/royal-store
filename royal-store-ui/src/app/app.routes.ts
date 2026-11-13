@@ -8,11 +8,11 @@ export const routes: Routes = [
   {
     path: 'homepage',
     pathMatch: 'full',
-    loadChildren: () => import('./features/landing/landing.routes').then(m => m.LANDING_ROUTES),
+    loadChildren: () => import('./features/landing/landing.routes').then((m) => m.LANDING_ROUTES),
   },
   {
     path: 'auth',
-    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES),
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
     path: '',
@@ -25,56 +25,64 @@ export const routes: Routes = [
       { path: '', redirectTo: 'products', pathMatch: 'full' },
       {
         path: 'products',
-        loadChildren: () => import('./features/product/product.routes').then(m => m.PRODUCT_ROUTES),
+        loadChildren: () =>
+          import('./features/product/product.routes').then((m) => m.PRODUCT_ROUTES),
       },
       {
         path: 'categories',
         loadChildren: () =>
-          import('./features/category/category.routes').then(m => m.CATEGORY_ROUTES),
+          import('./features/category/category.routes').then((m) => m.CATEGORY_ROUTES),
       },
       {
         path: 'sellers',
-        loadChildren: () => import('./features/seller/seller.routes').then(m => m.SELLER_ROUTES),
+        loadChildren: () => import('./features/seller/seller.routes').then((m) => m.SELLER_ROUTES),
       },
       {
         path: 'customers',
         loadChildren: () =>
-          import('./features/customer/customer.routes').then(m => m.CUSTOMER_ROUTES),
+          import('./features/customer/customer.routes').then((m) => m.CUSTOMER_ROUTES),
       },
       {
         path: 'sales',
-        loadChildren: () => import('./features/sale/sale.routes').then(m => m.SALE_ROUTES),
+        loadChildren: () => import('./features/sale/sale.routes').then((m) => m.SALE_ROUTES),
+      },
+      {
+        path: 'expenses',
+        loadChildren: () =>
+          import('./features/expense/expense.routes').then((m) => m.EXPENSE_ROUTES),
       },
       {
         path: 'cash-shift',
         loadChildren: () =>
-          import('./features/cash-shift/cash-shift.routes').then(m => m.CASH_SHIFT_ROUTES),
+          import('./features/cash-shift/cash-shift.routes').then((m) => m.CASH_SHIFT_ROUTES),
       },
       {
         path: 'payment-methods',
         loadChildren: () =>
           import('./features/payment-method/payment-method.routes').then(
-            m => m.PAYMENT_METHOD_ROUTES,
+            (m) => m.PAYMENT_METHOD_ROUTES,
           ),
       },
       {
         path: 'loyalty',
-        loadChildren: () => import('./features/loyalty/loyalty.routes').then(m => m.LOYALTY_ROUTES),
+        loadChildren: () =>
+          import('./features/loyalty/loyalty.routes').then((m) => m.LOYALTY_ROUTES),
       },
       {
         path: 'profile',
-        loadChildren: () => import('./features/profile/profile.routes').then(m => m.PROFILE_ROUTES),
+        loadChildren: () =>
+          import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
       },
       {
         path: 'suppliers',
         loadChildren: () =>
-          import('./features/supplier/supplier.routes').then(m => m.SUPPLIER_ROUTES),
+          import('./features/supplier/supplier.routes').then((m) => m.SUPPLIER_ROUTES),
       },
       {
         path: 'tax-profile-templates',
         loadChildren: () =>
           import('./features/tax-profile-template/tax-profile-template.routes').then(
-            m => m.TAX_PROFILE_TEMPLATE_ROUTES,
+            (m) => m.TAX_PROFILE_TEMPLATE_ROUTES,
           ),
       },
       //   {

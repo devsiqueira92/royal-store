@@ -1,0 +1,218 @@
+<p-table
+  [value]="items()"
+  [loading]="loading()"
+  dataKey="id"
+  class="expense-table"
+  [tableStyle]="{ 'min-width': '52rem' }"
+>
+  <ng-template #header>
+    <tr>
+      <th class="expense-table__due">
+        {{ 'expense.columns.due' | translate }}
+      </th>
+      <th>{{ 'expense.columns.expense' | translate }}</th>
+      <th>{{ 'expense.columns.category' | translate }}</th>
+      <th class="expense-table__numeric">
+        {{ 'expense.columns.amount' | translate }}
+      </th>
+      <th class="expense-table__payments">
+        {{ 'expense.columns.payments' | translate }}
+      </th>
+      <th>{{ 'expense.columns.status' | translate }}</th>
+      <th class="expense-table__actions-col">
+        <span class="sr-only">{{ 'expense.columns.actions' | translate }}</span>
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-item>
+    <tr>
+      <td class="expense-table__due">
+        <span class="due__date">{{ item.dueDate | plainDate: 'MMM dd' }}</span>
+        <span class="due__hint" [class]="'due__hint--' + dueTone(item)">
+          @switch (dueTone(item)) {
+            @case ('settled') {
+              {{ 'expense.list.settled' | translate }}
+            }
+            @case ('overdue') {
+              {{
+                'expense.list.overdueDays'
+                  | translate: { days: item.daysOverdue }
+              }}
+            }
+            @default {
+              @if (daysUntil(item.dueDate) === 0) {
+                {{ 'expense.list.dueToday' | translate }}
+              } @else {
+                {{
+                  'expense.list.dueIn'
+                    | translate: { days: daysUntil(item.dueDate) }
+                }}
+              }
+            }
+          }
+        </span>
+      </td>
+
+      <td>
+        <!-- Plain text: opening the expense is the actions column's job now, so
+             the description is not also a control. -->
+        <span class="expense__name">{{ item.description }}</span>
+        <span class="expense__meta">
+          {{ item.payeeName }}
+          @if (item.isRecurring) {
+            <span class="expense__tag">{{
+              'expense.list.recurring' | translate
+            }}</span>
+          }
+          @if (item.isEstimated) {
+            <span class="expense__tag">{{
+              'expense.list.estimated' | translate
+            }}</span>
+          }
+        </span>
+      </td>
+
+      <td>
+        <span class="category">
+          <span
+            class="category__dot"
+            aria-hidden="true"
+            [style.background]="colorOf(item.category.color, 0)"
+          ></span>
+          {{ item.category.name }}
+        </span>
+      </td>
+
+      <td class="expense-table__numeric">
+        <span class="amount">
+          @if (item.isEstimated) {
+            <span class="amount__approx" aria-hidden="true">≈</span>
+          }
+          {{ item.amount | currency }}
+        </span>
+      </td>
+
+      <td class="expense-table__payments">
+        <!-- A meter, not decoration: the same figure is spelled out underneath,
+             so the bar never carries the value on its own. -->
+        <span
+          class="meter"
+          role="meter"
+          [attr.aria-valuenow]="settledPercentage(item)"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-label]="'expense.columns.payments' | translate"
+        >
+          <span
+            class="meter__fill"
+            [class.meter__fill--full]="item.status === 'paid'"
+            [class.meter__fill--overdue]="item.isOverdue"
+            [style.width.%]="settledPercentage(item)"
+          ></span>
+        </span>
+        <span class="meter__label">
+          @if (item.status === 'paid') {
+            {{ 'expense.list.settled' | translate }}
+          } @else if (item.settledAmount > 0) {
+            {{
+              'expense.list.partialOf'
+                | translate
+                  : {
+                      settled: item.settledAmount | currency,
+                      amount: item.amount | currency,
+                    }
+            }}
+          } @else {
+            {{ 'expense.list.noPayments' | translate }}
+          }
+        </span>
+      </td>
+
+      <td>
+        <span
+          class="status"
+          [class]="'status--' + (item.isOverdue ? 'overdue' : item.status)"
+        >
+          @if (item.isOverdue) {
+            {{ 'expense.status.overdue' | translate }}
+          } @else {
+            {{ 'expense.status.' + item.status | translate }}
+          }
+        </span>
+      </td>
+
+      <td class="expense-table__actions">
+        @if (item.status !== 'paid' && item.status !== 'cancelled') {
+          <p-button
+            icon="pi pi-eye"
+            severity="secondary"
+            [rounded]="true"
+            [text]="true"
+            [attr.aria-label]="'expense.list.view' | translate"
+            [pTooltip]="'expense.list.view' | translate"
+            tooltipPosition="bottom"
+            (onClick)="view.emit(item)"
+          />
+
+          <p-button
+            icon="pi pi-check-circle"
+            severity="secondary"
+            [rounded]="true"
+            [text]="true"
+            [attr.aria-label]="'expense.list.registerPayment' | translate"
+            [pTooltip]="'expense.list.registerPayment' | translate"
+            tooltipPosition="bottom"
+            (onClick)="registerPayment.emit(item)"
+          />
+        }
+
+        @if (canCancel(item)) {
+          <p-button
+            icon="pi pi-ban"
+            severity="danger"
+            [rounded]="true"
+            [text]="true"
+            [attr.aria-label]="'expense.list.cancel' | translate"
+            [pTooltip]="'expense.list.cancel' | translate"
+            tooltipPosition="bottom"
+            (onClick)="cancel.emit({ item, event: $event })"
+          />
+        }
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="7" class="expense-table__empty">
+        <p class="expense-table__empty-title">
+          {{ 'expense.list.emptyTitle' | translate }}
+        </p>
+        <p class="expense-table__empty-text">
+          {{ 'expense.list.emptyText' | translate }}
+        </p>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #footer>
+    @if (items().length) {
+      <tr>
+        <td colspan="4" class="expense-table__foot-label">
+          {{
+            'expense.list.footerCount' | translate: { count: items().length }
+          }}
+          <span class="expense-table__foot-sep" aria-hidden="true">·</span>
+          {{
+            'expense.list.footerMonth'
+              | translate: { month: competenceMonth() | plainDate: 'MMM yyyy' }
+          }}
+        </td>
+        <td colspan="3" class="expense-table__foot-total">
+          {{ listedTotal() | currency }}
+        </td>
+      </tr>
+    }
+  </ng-template>
+</p-table>

@@ -1,0 +1,35 @@
+<form class="account-form" [formGroup]="formGroup">
+  <app-form-layout title="expense.accounts.form.section" [index]="1" [collapsedPanel]="false">
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="expense.accounts.form.name"
+      placeholder="expense.accounts.form.namePlaceholder"
+    ></app-input-field>
+
+    <app-select-field
+      controlName="type"
+      [parentForm]="formGroup"
+      label="expense.accounts.form.type"
+      placeholder="expense.accounts.form.typePlaceholder"
+      [options]="typeOptions"
+    ></app-select-field>
+  </app-form-layout>
+
+  <div class="account-form__footer">
+    <app-button
+      label="expense.accounts.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    ></app-button>
+
+    <app-button
+      [label]="
+        isCreateMode() ? 'expense.accounts.form.createSubmit' : 'expense.accounts.form.submit'
+      "
+      [disabled]="formGroup.invalid"
+      [loading]="isSaving()"
+      (onClick)="onSubmit()"
+    ></app-button>
+  </div>
+</form>
