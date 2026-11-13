@@ -57,6 +57,8 @@ import { currentSellerFeature } from './core/current-seller/store/current-seller
 import { currentSellerStore } from './core/current-seller/store/current-seller.store';
 import { supplierFeature } from './features/supplier/store/supplier.reducer';
 import { supplierStore } from './features/supplier/store/supplier.store';
+import { expenseFeature } from './features/expense/store/expense.reducer';
+import { expenseStore } from './features/expense/store/expense.store';
 
 registerLocaleData(localeEn);
 
@@ -100,6 +102,7 @@ export const appConfig: ApplicationConfig = {
       [cashShiftFeature.name]: cashShiftFeature.reducer,
       [currentSellerFeature.name]: currentSellerFeature.reducer,
       [supplierFeature.name]: supplierFeature.reducer,
+      [expenseFeature.name]: expenseFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -119,6 +122,7 @@ export const appConfig: ApplicationConfig = {
       cashShiftStore,
       currentSellerStore,
       supplierStore,
+      expenseStore,
     ),
     provideAppInitializer(() => {
       inject(Store).dispatch(AuthActions.checkAuthProfile());

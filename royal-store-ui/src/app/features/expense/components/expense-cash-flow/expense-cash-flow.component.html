@@ -1,0 +1,134 @@
+<section class="flow">
+  <header class="flow__header">
+    <div>
+      <h2 class="flow__title">{{ 'expense.report.cashFlow.title' | translate }}</h2>
+      <p class="flow__subtitle">
+        {{ 'expense.report.cashFlow.subtitle' | translate: { weeks: weekCount() } }}
+      </p>
+    </div>
+
+    <!-- The projected swatch is hatched as well as coloured: in print, in
+         forced colours and for a reader who cannot separate the two hues, the
+         texture still says which part of the bar has not been billed yet. -->
+    <app-chart-legend [items]="legend()" />
+  </header>
+
+  @if (loading() && !projection()) {
+    <p-skeleton width="100%" height="12rem" />
+  } @else if (projection(); as data) {
+    <div class="flow__tiles">
+      <article class="flow__tile flow__tile--overdue">
+        <p class="flow__tile-label">{{ 'expense.report.cashFlow.overdue' | translate }}</p>
+        <p class="flow__tile-value">{{ data.overdue | currency }}</p>
+        <p class="flow__tile-meta">{{ 'expense.report.cashFlow.payFirst' | translate }}</p>
+      </article>
+
+      <article class="flow__tile">
+        <p class="flow__tile-label">{{ 'expense.report.cashFlow.next30' | translate }}</p>
+        <p class="flow__tile-value">{{ data.next30Days.total | currency }}</p>
+        <p class="flow__tile-meta">
+          {{
+            'expense.report.cashFlow.split'
+              | translate
+                : {
+                    committed: data.next30Days.committed | currency,
+                    projected: data.next30Days.projected | currency,
+                  }
+          }}
+        </p>
+      </article>
+
+      <article class="flow__tile">
+        <p class="flow__tile-label">
+          {{ 'expense.report.cashFlow.horizon' | translate: { weeks: weekCount() } }}
+        </p>
+        <p class="flow__tile-value">{{ data.fullHorizon.total | currency }}</p>
+        <p class="flow__tile-meta">
+          {{
+            'expense.report.cashFlow.split'
+              | translate
+                : {
+                    committed: data.fullHorizon.committed | currency,
+                    projected: data.fullHorizon.projected | currency,
+                  }
+          }}
+        </p>
+      </article>
+    </div>
+
+    <div class="chart" aria-hidden="true">
+      @for (column of columns(); track column.key) {
+        <div class="chart__column">
+          <span class="chart__value">{{ column.totalLabel }}</span>
+
+          <div class="chart__stack">
+            @if (column.projectedPercentage > 0) {
+              <span
+                class="chart__bar chart__bar--projected"
+                [style.height.%]="column.projectedPercentage"
+              ></span>
+            }
+            @if (column.committedPercentage > 0) {
+              <span
+                class="chart__bar"
+                [class.chart__bar--overdue]="column.kind === 'overdue'"
+                [style.height.%]="column.committedPercentage"
+              ></span>
+            }
+          </div>
+
+          @if (column.kind === 'overdue') {
+            <span class="chart__label chart__label--overdue">
+              {{ 'expense.report.cashFlow.overdue' | translate }}
+            </span>
+          } @else {
+            <span class="chart__label">{{ column.weekStart | plainDate: 'MMM dd' }}</span>
+            <span class="chart__sublabel">
+              {{
+                'expense.report.cashFlow.toDate'
+                  | translate: { date: column.weekEnd | plainDate: 'MMM dd' }
+              }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- The values the bars stand for, so the projection is readable without
+         reading the chart. -->
+    <table class="flow__table">
+      <caption class="sr-only">
+        {{
+          'expense.report.cashFlow.title' | translate
+        }}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ 'expense.report.cashFlow.week' | translate }}</th>
+          <th scope="col" class="flow__numeric">
+            {{ 'expense.report.cashFlow.committed' | translate }}
+          </th>
+          <th scope="col" class="flow__numeric">
+            {{ 'expense.report.cashFlow.projected' | translate }}
+          </th>
+          <th scope="col" class="flow__numeric">{{ 'expense.summary.total' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (week of data.weeks; track week.weekStart) {
+          <tr>
+            <th scope="row" class="flow__row-head">
+              {{ week.weekStart | plainDate: 'MMM dd' }} –
+              {{ week.weekEnd | plainDate: 'MMM dd' }}
+            </th>
+            <td class="flow__numeric">{{ week.committed | currency }}</td>
+            <td class="flow__numeric">{{ week.projected | currency }}</td>
+            <td class="flow__numeric flow__numeric--strong">
+              {{ week.committed + week.projected | currency }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>

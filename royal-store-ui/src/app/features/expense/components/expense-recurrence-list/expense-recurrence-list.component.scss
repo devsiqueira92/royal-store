@@ -1,0 +1,197 @@
+:host {
+  display: block;
+}
+
+.generator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  margin-bottom: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+}
+
+.generator__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border-radius: 0.5rem;
+  background: light-dark(
+    var(--p-primary-50),
+    color-mix(in oklab, var(--p-primary-color) 18%, transparent)
+  );
+  color: var(--p-primary-color);
+}
+
+.generator__text {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.generator__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.generator__subtitle {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.generator__state {
+  text-align: right;
+}
+
+.generator__state-label {
+  margin: 0;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.generator__state-value {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.generator__result {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-600), var(--p-surface-300));
+}
+
+.recurrence-panel {
+  border-radius: 0.75rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+  overflow: hidden;
+}
+
+.recurrence__numeric {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.recurrence__active-col {
+  width: 5rem;
+  text-align: right;
+}
+
+.recurrence--paused {
+  /* Paused templates stay legible — dimmed, not hidden: they still explain
+     why a bill stopped appearing. */
+  opacity: 0.6;
+}
+
+.recurrence__name {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.recurrence__meta {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.recurrence__schedule,
+.recurrence__next,
+.recurrence__amount {
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.recurrence__amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.recurrence__approx,
+.recurrence__sep {
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.recurrence__sep {
+  margin: 0 0.25rem;
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.category__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  flex: none;
+}
+
+.recurrence__empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.recurrence__empty-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.recurrence__empty-text {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.recurrence__foot-label {
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.recurrence__foot-total {
+  text-align: right;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.recurrence__foot-unit {
+  margin-left: 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+/* A run that created nothing is information, not an error — it reads quieter
+   than the line that reports created bills. */
+.generator__result--idle {
+  background: transparent;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}

@@ -1,0 +1,131 @@
+:host {
+  display: block;
+}
+
+.expense-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.expense-form__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+}
+
+.expense-form__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.expense-form__subtitle {
+  margin: 0.125rem 0 0;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.expense-form__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  border-radius: 0.5rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: transparent;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+  cursor: pointer;
+
+  &:hover {
+    background: light-dark(var(--p-surface-100), var(--p-surface-800));
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
+}
+
+.expense-form__body {
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
+.expense-form__row {
+  display: grid;
+  gap: 0 1rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 30rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.recurrence {
+  margin-bottom: 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: light-dark(var(--p-surface-50), var(--p-surface-800));
+  overflow: hidden;
+}
+
+.recurrence__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.875rem;
+
+  &--nested {
+    border-top: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  }
+}
+
+.recurrence__text {
+  min-width: 0;
+}
+
+.recurrence__title {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.recurrence__hint {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.recurrence__summary {
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-top: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+/* Not sticky: the drawer scrolls as one column, and a pinned bar would sit on
+   top of whichever field happened to be under it. */
+.expense-form__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.875rem 0 0;
+  margin-top: 0.5rem;
+  border-top: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+  background: light-dark(var(--p-surface-0), var(--p-surface-900));
+}
+
+/* The shared button stretches to its container; in the footer the two sit
+   side by side instead. */
+.expense-form__footer ::ng-deep .p-button {
+  width: auto;
+}

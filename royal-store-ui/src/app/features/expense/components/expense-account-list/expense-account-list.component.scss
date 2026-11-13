@@ -1,0 +1,80 @@
+:host {
+  display: block;
+}
+
+.account-table__numeric {
+  width: 12rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.account-table__status {
+  width: 7rem;
+  white-space: nowrap;
+}
+
+.account-table__actions-col,
+.account-table__actions {
+  width: 6.5rem;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.account-table__dash {
+  color: light-dark(var(--p-surface-300), var(--p-surface-600));
+}
+
+/* Deactivated accounts stay listed — this is the only place to bring one back —
+   but recede, so the usable set reads first. */
+.account-row--inactive .account__name,
+.account-row--inactive .account-table__numeric {
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.account__icon {
+  font-size: 0.875rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.account__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.type {
+  display: inline-block;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+  color: light-dark(var(--p-surface-600), var(--p-surface-300));
+}
+
+.account-table__empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.account-table__empty-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.account-table__empty-text {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}

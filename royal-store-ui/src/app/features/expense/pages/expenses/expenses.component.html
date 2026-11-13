@@ -1,0 +1,83 @@
+<section class="expenses-page">
+  <header class="expenses-page__header">
+    <div class="expenses-page__intro">
+      <h1 class="expenses-page__title">{{ 'expense.title' | translate }}</h1>
+      <p class="expenses-page__subtitle">{{ 'expense.subtitle' | translate }}</p>
+    </div>
+
+    <div class="expenses-page__actions">
+      <app-expense-month-switch
+        [competenceMonth]="competenceMonth()"
+        [disabled]="isLoading()"
+        (previous)="onPreviousMonth()"
+        (next)="onNextMonth()"
+      />
+
+      <p-button
+        [label]="'expense.newExpense' | translate"
+        icon="pi pi-plus"
+        (onClick)="onCreate()"
+      />
+    </div>
+  </header>
+
+  <app-expense-summary-cards
+    [summary]="summary()"
+    [competenceMonth]="competenceMonth()"
+    [loading]="isLoading()"
+  />
+
+  <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" class="expenses-page__tabs">
+    <p-tablist>
+      <p-tab value="expenses">{{ 'expense.tabs.expenses' | translate }}</p-tab>
+      <p-tab value="recurrences">{{ 'expense.tabs.recurrences' | translate }}</p-tab>
+      <p-tab value="reports">{{ 'expense.tabs.reports' | translate }}</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <p-tabpanel value="expenses">
+        <div class="expenses-page__panel">
+          <app-expense-filters
+            [statusChips]="statusChips()"
+            [activeStatus]="statusFilter()"
+            [categories]="monthCategories()"
+            [activeCategoryId]="categoryFilter()"
+            (statusChange)="onStatusChange($event)"
+            (categoryChange)="onCategoryChange($event)"
+          />
+
+          <app-expense-list
+            [items]="visibleItems()"
+            [loading]="isLoading()"
+            [competenceMonth]="competenceMonth()"
+            [listedTotal]="listedTotal()"
+            (view)="onView($event)"
+            (registerPayment)="onRegisterPayment($event)"
+            (cancel)="onCancel($event)"
+          />
+        </div>
+      </p-tabpanel>
+
+      <p-tabpanel value="recurrences">
+        <app-expense-recurrence-list
+          [recurrences]="recurrences()"
+          [lastGeneration]="lastGeneration()"
+          [generatedThrough]="generatedThrough()"
+          [nextGeneration]="nextGeneration()"
+          [loading]="isLoading()"
+          [isGenerating]="isGenerating()"
+          (generate)="onGenerate()"
+          (activeChange)="onRecurrenceActiveChange($event)"
+        />
+      </p-tabpanel>
+
+      <p-tabpanel value="reports">
+        <div class="expenses-page__reports">
+          <app-expense-category-report [report]="categoryReport()" [loading]="isLoadingReports()" />
+
+          <app-expense-cash-flow [projection]="cashFlow()" [loading]="isLoadingReports()" />
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</section>

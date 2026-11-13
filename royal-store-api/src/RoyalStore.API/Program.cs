@@ -33,6 +33,7 @@ if (!app.Environment.IsDevelopment())
 app.UseRateLimiter();
 
 await DatabaseSeeder.SeedRolesAsync(app.Services);
+await ExpenseCategorySeeder.SeedDefaultsForExistingTenantsAsync(app.Services);
 
 app.UseAuthentication();
 app.UseMiddleware<LogEnrichmentMiddleware>();

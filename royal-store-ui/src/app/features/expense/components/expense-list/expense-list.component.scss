@@ -1,0 +1,204 @@
+:host {
+  display: block;
+}
+
+.expense-table__due,
+.expense-table__numeric,
+.expense-table__payments {
+  white-space: nowrap;
+}
+
+.expense-table__due {
+  width: 7rem;
+}
+
+.expense-table__numeric {
+  text-align: right;
+}
+
+.expense-table__payments {
+  width: 12rem;
+}
+
+.expense-table__actions-col,
+.expense-table__actions {
+  /* Three buttons at most: view, register payment, cancel. Right-aligned rather
+     than laid out with flex, which would take the cell out of the table's
+     column sizing. */
+  width: 8.5rem;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.due__date {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.due__hint {
+  display: block;
+  font-size: 0.6875rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+
+  &--overdue {
+    color: light-dark(var(--p-red-600), var(--p-red-400));
+    font-weight: 600;
+  }
+
+  &--due-soon {
+    color: light-dark(var(--p-amber-600), var(--p-amber-400));
+  }
+}
+
+.expense__name {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.expense__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.expense__tag {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 999px;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.category__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  flex: none;
+}
+
+.amount {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.amount__approx {
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.meter {
+  display: block;
+  height: 0.25rem;
+  border-radius: 999px;
+  background: light-dark(var(--p-surface-200), var(--p-surface-700));
+  overflow: hidden;
+}
+
+.meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--p-primary-color);
+
+  &--full {
+    background: light-dark(var(--p-green-600), var(--p-green-400));
+  }
+
+  &--overdue {
+    background: light-dark(var(--p-red-500), var(--p-red-400));
+  }
+}
+
+.meter__label {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.status {
+  display: inline-block;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+  color: light-dark(var(--p-surface-600), var(--p-surface-300));
+
+  &--paid {
+    background: light-dark(
+      var(--p-green-50),
+      color-mix(in oklab, var(--p-green-400) 18%, transparent)
+    );
+    color: light-dark(var(--p-green-700), var(--p-green-300));
+  }
+
+  &--partially-paid {
+    background: light-dark(
+      var(--p-amber-50),
+      color-mix(in oklab, var(--p-amber-400) 18%, transparent)
+    );
+    color: light-dark(var(--p-amber-700), var(--p-amber-300));
+  }
+
+  &--overdue {
+    background: light-dark(var(--p-red-50), color-mix(in oklab, var(--p-red-400) 18%, transparent));
+    color: light-dark(var(--p-red-700), var(--p-red-300));
+  }
+}
+
+.expense-table__empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.expense-table__empty-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+}
+
+.expense-table__empty-text {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.expense-table__foot-label {
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.expense-table__foot-sep {
+  margin: 0 0.25rem;
+  opacity: 0.6;
+}
+
+.expense-table__foot-total {
+  text-align: right;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}

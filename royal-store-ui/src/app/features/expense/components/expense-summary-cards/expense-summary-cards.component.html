@@ -1,0 +1,51 @@
+@if (loading() && !summary()) {
+  <div class="summary">
+    @for (slot of [1, 2, 3, 4]; track slot) {
+      <article class="summary__card">
+        <p-skeleton width="4rem" height="0.7rem" />
+        <p-skeleton width="8rem" height="1.6rem" styleClass="mt-2" />
+        <p-skeleton width="5rem" height="0.7rem" styleClass="mt-2" />
+      </article>
+    }
+  </div>
+} @else if (summary(); as data) {
+  <div class="summary">
+    <article class="summary__card">
+      <p class="summary__label">
+        {{ 'expense.summary.total' | translate }}
+        <span class="summary__label-sep" aria-hidden="true">·</span>
+        {{ competenceMonth() | plainDate: 'MMM' }}
+      </p>
+      <p class="summary__value">{{ data.total | currency }}</p>
+      <p class="summary__meta">
+        {{ 'expense.summary.expenseCount' | translate: { count: data.expenseCount } }}
+      </p>
+    </article>
+
+    <article class="summary__card">
+      <p class="summary__label">{{ 'expense.summary.paid' | translate }}</p>
+      <p class="summary__value summary__value--paid">{{ data.paid | currency }}</p>
+      <p class="summary__meta">
+        {{ 'expense.summary.settled' | translate: { percentage: data.paidPercentage } }}
+      </p>
+    </article>
+
+    <article class="summary__card">
+      <p class="summary__label">{{ 'expense.summary.pending' | translate }}</p>
+      <p class="summary__value">{{ data.pending | currency }}</p>
+      <p class="summary__meta">
+        {{ 'expense.summary.pendingMeta' | translate: { count: data.pendingCount } }}
+      </p>
+    </article>
+
+    <!-- Overdue counts the unsettled balance, not the full amount: a partly
+         paid bill owes only what is left. -->
+    <article class="summary__card">
+      <p class="summary__label">{{ 'expense.summary.overdue' | translate }}</p>
+      <p class="summary__value summary__value--overdue">{{ data.overdue | currency }}</p>
+      <p class="summary__meta">
+        {{ 'expense.summary.overdueMeta' | translate: { count: data.overdueCount } }}
+      </p>
+    </article>
+  </div>
+}

@@ -1,0 +1,107 @@
+<p-table
+  [value]="rows()"
+  [loading]="loading()"
+  dataKey="id"
+  class="category-table"
+  [tableStyle]="{ 'min-width': '40rem' }"
+>
+  <ng-template #header>
+    <tr>
+      <th>{{ 'expense.categories.columns.category' | translate }}</th>
+      <th class="category-table__numeric">
+        {{ 'expense.categories.columns.children' | translate }}
+      </th>
+      <th class="category-table__numeric">
+        {{ 'expense.categories.columns.order' | translate }}
+      </th>
+      <th class="category-table__status">
+        {{ 'expense.categories.columns.status' | translate }}
+      </th>
+      <th class="category-table__actions-col">
+        <span class="sr-only">{{ 'expense.columns.actions' | translate }}</span>
+      </th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-row>
+    <tr [class.category-row--inactive]="!row.isActive">
+      <td>
+        <span class="category" [style.padding-left]="indentOf(row)">
+          <span
+            class="category__dot"
+            aria-hidden="true"
+            [style.background]="colorOf(row.color, 0)"
+          ></span>
+          <span class="category__text">
+            <span class="category__name">{{ row.name }}</span>
+            @if (row.depth > 0) {
+              <span class="category__path">{{ row.path }}</span>
+            }
+          </span>
+        </span>
+      </td>
+
+      <td class="category-table__numeric">
+        @if (row.childCount) {
+          {{ row.childCount }}
+        } @else {
+          <span class="category-table__dash" aria-hidden="true">—</span>
+        }
+      </td>
+
+      <td class="category-table__numeric">{{ row.displayOrder }}</td>
+
+      <td class="category-table__status">
+        <app-switch
+          [checked]="row.isActive"
+          [disabled]="saving()"
+          [ariaLabel]="'expense.categories.toggleActive' | translate"
+          (changed)="onActiveChange(row, $event)"
+        />
+      </td>
+
+      <td class="category-table__actions">
+        <p-button
+          icon="pi pi-pencil"
+          severity="secondary"
+          [rounded]="true"
+          [text]="true"
+          [attr.aria-label]="'expense.categories.list.edit' | translate"
+          [pTooltip]="'expense.categories.list.edit' | translate"
+          tooltipPosition="bottom"
+          (onClick)="edit.emit(row)"
+        />
+
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [rounded]="true"
+          [text]="true"
+          [disabled]="!canDelete(row)"
+          [attr.aria-label]="'expense.categories.list.delete' | translate"
+          [pTooltip]="
+            (canDelete(row)
+              ? 'expense.categories.list.delete'
+              : 'expense.categories.list.deleteBlocked'
+            ) | translate
+          "
+          tooltipPosition="bottom"
+          (onClick)="remove.emit({ row, event: $event })"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="5" class="category-table__empty">
+        <p class="category-table__empty-title">
+          {{ 'expense.categories.list.emptyTitle' | translate }}
+        </p>
+        <p class="category-table__empty-text">
+          {{ 'expense.categories.list.emptyText' | translate }}
+        </p>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>

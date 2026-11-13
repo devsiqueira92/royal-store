@@ -1,0 +1,48 @@
+<section class="categories-page">
+  <header class="categories-page__header">
+    <div class="categories-page__intro">
+      <a class="categories-page__back" routerLink="/expenses">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        {{ 'expense.categories.back' | translate }}
+      </a>
+      <h1 class="categories-page__title">{{ 'expense.categories.title' | translate }}</h1>
+      <p class="categories-page__subtitle">{{ 'expense.categories.subtitle' | translate }}</p>
+    </div>
+
+    <div class="categories-page__actions">
+      <label class="categories-page__filter">
+        <app-switch
+          [checked]="showInactive()"
+          [ariaLabel]="'expense.categories.showInactive' | translate"
+          (changed)="onShowInactiveChange($event)"
+        />
+        <span>{{ 'expense.categories.showInactive' | translate }}</span>
+      </label>
+
+      <p-button
+        [label]="'expense.categories.newCategory' | translate"
+        icon="pi pi-plus"
+        (onClick)="onCreate()"
+      />
+    </div>
+  </header>
+
+  <p class="categories-page__counts">
+    {{ 'expense.categories.counts' | translate: { active: activeCount() } }}
+    @if (showInactive() && inactiveCount()) {
+      <span class="categories-page__sep" aria-hidden="true">·</span>
+      {{ 'expense.categories.inactiveCounts' | translate: { inactive: inactiveCount() } }}
+    }
+  </p>
+
+  <div class="categories-page__panel">
+    <app-expense-category-list
+      [rows]="rows()"
+      [loading]="isLoading()"
+      [saving]="isSaving()"
+      (edit)="onEdit($event)"
+      (remove)="onDelete($event)"
+      (activeChange)="onActiveChange($event)"
+    />
+  </div>
+</section>

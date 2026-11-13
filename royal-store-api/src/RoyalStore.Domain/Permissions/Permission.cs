@@ -29,4 +29,13 @@ public enum Permission
     SystemManagerOverride,
 
     CatalogManageTaxProfiles,
+
+    ExpensesView,
+    ExpensesCreate,
+    ExpensesCancel,
+    ExpensesRegisterPayment,
+    ExpensesReversePayment,
+    ExpensesManageCategories,
+    ExpensesManageRecurrences,
+    ExpensesViewReports,
 }

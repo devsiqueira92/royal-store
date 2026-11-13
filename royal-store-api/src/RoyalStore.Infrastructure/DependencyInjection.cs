@@ -52,7 +52,12 @@ public sealed class DependencyInjection : IInstallService
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<RoyalStoreContext>());
         services.AddScoped<ICurrentUserService, HttpContextCurrentUserService>();
-        services.AddScoped<ITenantContext, JwtTenantContext>();
+        // AmbientTenantContext, not JwtTenantContext: it reads the same JWT claim for every HTTP
+        // request, and additionally honours an ambient TenantScope so background services can run
+        // per tenant without bypassing the global query filters (060 research Decision 1).
+        // JwtTenantContext is left in place as the reference implementation of the claim read.
+        services.AddSingleton<ITenantScope, TenantScope>();
+        services.AddScoped<ITenantContext, AmbientTenantContext>();
 
         services.AddIdentityCore<UserEntity>(options =>
         {
@@ -186,6 +191,14 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<ISecurityAuditService, SecurityAuditService>();
         services.AddScoped<IConfirmationResendRequestRepository, ConfirmationResendRequestRepository>();
         services.AddScoped<IEmailChangeRequestRepository, EmailChangeRequestRepository>();
+
+        // Operating expenses (OPEX)
+        services.AddScoped<IExpenseRepository, ExpenseRepository>();
+        services.AddScoped<IExpenseCategoryRepository, ExpenseCategoryRepository>();
+        services.AddScoped<ICostCenterRepository, CostCenterRepository>();
+        services.AddScoped<IFinancialAccountRepository, FinancialAccountRepository>();
+        services.AddScoped<IExpenseRecurrenceRepository, ExpenseRecurrenceRepository>();
+        services.AddSingleton<IUniqueConstraintDetector, NpgsqlUniqueConstraintDetector>();
 
         services.AddOptions<PasswordResetOptions>()
             .BindConfiguration("PasswordReset")

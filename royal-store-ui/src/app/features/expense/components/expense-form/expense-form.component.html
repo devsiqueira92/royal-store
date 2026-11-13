@@ -1,0 +1,160 @@
+<div class="expense-form">
+  <!-- <header class="expense-form__header">
+    <div>
+      <h2 class="expense-form__title">
+        {{
+          (isCreateMode() ? 'expense.form.create' : 'expense.form.edit')
+            | translate
+        }}
+      </h2>
+      <p class="expense-form__subtitle">
+        {{ 'expense.form.subtitle' | translate }}
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="expense-form__close"
+      [attr.aria-label]="'expense.form.cancel' | translate"
+      (click)="onClose()"
+    >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  </header> -->
+
+  <!-- `ngSubmit` so Enter in any field submits, and the footer button is a
+       real submit button rather than a click handler. -->
+  <form
+    class="expense-form__body"
+    [formGroup]="formGroup"
+    (ngSubmit)="onSubmit()"
+  >
+    <app-input-field
+      controlName="description"
+      [parentForm]="formGroup"
+      label="expense.form.description"
+      placeholder="expense.form.descriptionPlaceholder"
+    ></app-input-field>
+
+    <app-input-field
+      controlName="payeeName"
+      [parentForm]="formGroup"
+      label="expense.form.payee"
+      placeholder="expense.form.payeePlaceholder"
+    ></app-input-field>
+
+    <app-expense-category-picker
+      [categories]="categories()"
+      [selectedId]="selectedCategoryId()"
+      [invalid]="categoryInvalid()"
+      (selected)="onCategorySelected($event)"
+    />
+
+    <div class="expense-form__row">
+      <app-input-number-field
+        [parentForm]="formGroup"
+        controlName="amount"
+        label="expense.form.amount"
+        id="amount"
+      ></app-input-number-field>
+
+      <app-input-field
+        controlName="dueDate"
+        [parentForm]="formGroup"
+        label="expense.form.dueDate"
+        type="date"
+      ></app-input-field>
+    </div>
+
+    @if (isCreateMode()) {
+      <section class="recurrence">
+        <div class="recurrence__row">
+          <div class="recurrence__text">
+            <span class="recurrence__title">{{
+              'expense.form.repeatMonthly' | translate
+            }}</span>
+            <span class="recurrence__hint">
+              {{ 'expense.form.repeatMonthlyHint' | translate }}
+            </span>
+          </div>
+
+          <app-switch
+            [checked]="repeatMonthly()"
+            [ariaLabel]="'expense.form.repeatMonthly' | translate"
+            (changed)="onRepeatChange($event)"
+          />
+        </div>
+
+        <!-- Revealed only while the toggle is on: a lead time and a variable
+             amount describe a template, not a single bill. -->
+        @if (repeatMonthly()) {
+          <div class="recurrence__row recurrence__row--nested">
+            <div class="recurrence__text">
+              <span class="recurrence__title">{{
+                'expense.form.variableAmount' | translate
+              }}</span>
+              <span class="recurrence__hint">
+                {{ 'expense.form.variableAmountHint' | translate }}
+              </span>
+            </div>
+
+            <app-switch
+              [checked]="isVariableAmount()"
+              [ariaLabel]="'expense.form.variableAmount' | translate"
+              (changed)="onVariableAmountChange($event)"
+            />
+          </div>
+
+          <div class="recurrence__row recurrence__row--nested">
+            <span class="recurrence__title" id="lead-days-label">
+              {{ 'expense.form.leadDays' | translate }}
+            </span>
+
+            <p-selectbutton
+              formControlName="leadDays"
+              [options]="leadDayOptions"
+              [allowEmpty]="false"
+              aria-labelledby="lead-days-label"
+            >
+              <ng-template #item let-days>
+                {{ 'expense.form.leadDaysOption' | translate: { days } }}
+              </ng-template>
+            </p-selectbutton>
+          </div>
+
+          <p class="recurrence__summary">
+            {{
+              'expense.form.recurrenceSummary'
+                | translate
+                  : {
+                      day: dueDate().slice(8),
+                      nextBill: nextBillDate() | plainDate: 'MMM dd',
+                      leadDays: formGroup.controls.leadDays.value,
+                    }
+            }}
+          </p>
+        }
+      </section>
+    }
+
+    <div class="expense-form__footer">
+      <app-button
+        label="expense.form.cancel"
+        severity="secondary"
+        (onClick)="onClose()"
+      ></app-button>
+
+      <!-- No `(onClick)`: the button is a submit, so the form's `ngSubmit`
+           already fires once. Binding both would record the bill twice. -->
+      <app-button
+        type="submit"
+        [label]="
+          repeatMonthly()
+            ? 'expense.form.submitRecurrence'
+            : 'expense.form.submit'
+        "
+        [loading]="isSaving()"
+      ></app-button>
+    </div>
+  </form>
+</div>

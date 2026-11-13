@@ -5,6 +5,7 @@ using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Common;
+using RoyalStore.Domain.Expenses;
 using RoyalStore.Domain.Fiscal;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Loyalty;
@@ -44,6 +45,16 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<CashbackRedemption> CashbackRedemptions { get; set; } = null!;
     public DbSet<Clawback> Clawbacks { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
+
+    // Operating expenses (OPEX). Deliberately unrelated to Sales/Inventory: this module records
+    // what it costs to keep the doors open, never merchandise for resale or fixed assets (FR-011).
+    public DbSet<Expense> Expenses { get; set; } = null!;
+    public DbSet<ExpensePayment> ExpensePayments { get; set; } = null!;
+    public DbSet<ExpenseCategory> ExpenseCategories { get; set; } = null!;
+    public DbSet<ExpenseRecurrence> ExpenseRecurrences { get; set; } = null!;
+    public DbSet<ExpenseAttachment> ExpenseAttachments { get; set; } = null!;
+    public DbSet<CostCenter> CostCenters { get; set; } = null!;
+    public DbSet<FinancialAccount> FinancialAccounts { get; set; } = null!;
     public DbSet<UserPermissionGrant> UserPermissionGrants { get; set; } = null!;
     public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; } = null!;
     public DbSet<SecurityAuditEvent> SecurityAuditEvents { get; set; } = null!;
@@ -157,6 +168,27 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<UnitMeasureOption>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<Expense>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ExpensePayment>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ExpenseCategory>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ExpenseRecurrence>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ExpenseAttachment>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<CostCenter>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<FinancialAccount>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         // OriginOption is deliberately global — no query filter, same as IbptTax.

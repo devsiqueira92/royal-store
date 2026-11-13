@@ -1,0 +1,99 @@
+<div class="payment-form">
+  <!-- <header class="payment-form__header">
+    <div>
+      <h2 class="payment-form__title">{{ 'expense.payment.title' | translate }}</h2>
+      <p class="payment-form__subtitle">{{ 'expense.payment.subtitle' | translate }}</p>
+    </div>
+
+    <button
+      type="button"
+      class="payment-form__close"
+      [attr.aria-label]="'expense.form.cancel' | translate"
+      (click)="onClose()"
+    >
+      <i class="pi pi-times" aria-hidden="true"></i>
+    </button>
+  </header> -->
+
+  @if (expense(); as current) {
+    <div class="payment-form__body">
+      <section class="payment-form__target">
+        <p class="payment-form__target-name">{{ current.description }}</p>
+        <p class="payment-form__target-meta">{{ current.payeeName }}</p>
+
+        <dl class="payment-form__figures">
+          <div>
+            <dt>{{ 'expense.payment.amount' | translate }}</dt>
+            <dd>{{ current.amount | currency }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'expense.payment.settled' | translate }}</dt>
+            <dd>{{ current.settledAmount | currency }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'expense.payment.remaining' | translate }}</dt>
+            <dd class="payment-form__remaining">
+              {{ current.remainingBalance | currency }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <form [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+        <div class="payment-form__row">
+          <app-input-number-field
+            [parentForm]="formGroup"
+            controlName="amount"
+            label="expense.payment.payAmount"
+            id="paymentAmount"
+          ></app-input-number-field>
+
+          <app-input-field
+            controlName="paidAt"
+            [parentForm]="formGroup"
+            label="expense.payment.paidAt"
+            type="date"
+          ></app-input-field>
+        </div>
+
+        <app-select-field
+          controlName="financialAccountId"
+          [parentForm]="formGroup"
+          label="expense.payment.account"
+          placeholder="expense.payment.accountPlaceholder"
+          [options]="accountOptions()"
+        ></app-select-field>
+
+        @if (!accountOptions().length) {
+          <!-- Without an account there is nowhere to record the money leaving
+               from, so this is a blocker, not a hint. -->
+          <p class="payment-form__warning" role="alert">
+            {{ 'expense.payment.noAccounts' | translate }}
+          </p>
+        }
+
+        <app-input-field
+          controlName="methodNote"
+          [parentForm]="formGroup"
+          label="expense.payment.methodNote"
+          placeholder="expense.payment.methodNotePlaceholder"
+        ></app-input-field>
+
+        <div class="payment-form__footer">
+          <app-button
+            label="expense.form.cancel"
+            severity="secondary"
+            (onClick)="onClose()"
+          ></app-button>
+
+          <app-button
+            type="submit"
+            label="expense.payment.submit"
+            [loading]="isSaving()"
+            [disabled]="!accountOptions().length"
+          ></app-button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

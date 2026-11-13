@@ -1,0 +1,30 @@
+<fieldset class="picker" [class.picker--invalid]="invalid()">
+  <legend class="picker__legend">{{ label() | translate }}</legend>
+
+  @if (!categories().length) {
+    <p class="picker__empty">{{ 'expense.form.noCategories' | translate }}</p>
+  } @else {
+    <div class="picker__grid">
+      @for (category of categories(); track category.id; let i = $index) {
+        <label class="picker__option" [class.picker__option--active]="selectedId() === category.id">
+          <input
+            type="radio"
+            class="picker__input"
+            name="expenseCategory"
+            [value]="category.id"
+            [checked]="selectedId() === category.id"
+            (change)="selected.emit(category.id)"
+          />
+          <span class="picker__name">
+            <span
+              class="picker__dot"
+              aria-hidden="true"
+              [style.background]="colorOf(category.color, i)"
+            ></span>
+            {{ category.name }}
+          </span>
+        </label>
+      }
+    </div>
+  }
+</fieldset>
