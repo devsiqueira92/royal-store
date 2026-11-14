@@ -37,7 +37,8 @@
       "finance": "Financeiro",
       "expenses": "Despesas",
       "expenseCategories": "Categorias de despesa",
-      "financialAccounts": "Contas financeiras"
+      "financialAccounts": "Contas financeiras",
+      "pricing": "Precificação"
     }
   },
   "auth": {
@@ -1511,6 +1512,76 @@
         "createSubmit": "Criar conta",
         "submit": "Salvar conta"
       }
+    }
+  },
+  "pricing": {
+    "title": "Precificação",
+    "subtitle": "Calcule o preço de venda que cobre custo, impostos, taxas de cartão e despesas fixas, e ainda deixa a margem de lucro líquido que você quer.",
+    "product": {
+      "title": "Produto",
+      "hint": "Selecione um produto para trazer o custo e a carga tributária, ou informe os valores manualmente.",
+      "select": "Produto",
+      "placeholder": "Selecione um produto",
+      "empty": "Nenhum produto encontrado",
+      "cost": "Custo do produto (R$)",
+      "tax": "Imposto sobre a venda",
+      "taxLoading": "Buscando a carga tributária do produto…",
+      "taxSource": {
+        "manual": "Alíquota informada manualmente (ex.: Simples Nacional, ICMS).",
+        "product": "Carga tributária aproximada (IBPT) do NCM/NBS do produto. Ajuste se a sua alíquota efetiva for outra.",
+        "notFound": "Produto sem carga tributária cadastrada para o NCM/NBS. Informe a alíquota manualmente."
+      }
+    },
+    "expenses": {
+      "title": "Despesas fixas da loja",
+      "hint": "Valores mensais (aluguel, luz, salários). O rateio é o quanto elas pesam sobre o faturamento.",
+      "import": "Importar recorrências",
+      "importEmpty": "Nenhuma recorrência ativa para importar.",
+      "importFailed": "Não foi possível importar as recorrências.",
+      "imported": "Importada das recorrências",
+      "description": "Descrição",
+      "descriptionPlaceholder": "Ex.: Aluguel",
+      "amount": "Valor mensal",
+      "add": "Adicionar despesa",
+      "remove": "Remover despesa",
+      "empty": "Nenhuma despesa fixa informada.",
+      "revenue": "Faturamento médio mensal (R$)",
+      "total": "Total mensal",
+      "rate": "Rateio sobre o faturamento",
+      "revenueMissing": "Informe o faturamento médio mensal para que as despesas fixas entrem no cálculo."
+    },
+    "fees": {
+      "title": "Taxas da máquina de cartão",
+      "hint": "Taxa de cada forma de pagamento e quanto das vendas passa por ela. Sem participação informada, usa-se a média simples.",
+      "rate": "Taxa",
+      "share": "Participação nas vendas",
+      "debit": "Débito",
+      "credit": "Crédito 1x",
+      "pix": "Pix",
+      "average": "Taxa média considerada: {{rate}}%"
+    },
+    "margin": {
+      "title": "Margem e comissão",
+      "hint": "A margem é o lucro líquido que sobra depois de pagar tudo.",
+      "desired": "Margem de lucro desejada",
+      "commission": "Comissão de venda (opcional)"
+    },
+    "result": {
+      "title": "Preço sugerido de venda",
+      "summary": "{{total}}% do preço fica comprometido · equivale a multiplicar o custo por {{multiplier}}",
+      "sumTooHigh": "A soma das taxas, despesas e margem não pode ser igual ou superior a 100%",
+      "costRequired": "Informe o custo do produto para calcular o preço.",
+      "cost": "Custo do produto",
+      "tax": "Impostos",
+      "card": "Taxa de cartão",
+      "fixedExpenses": "Despesas fixas",
+      "commission": "Comissão",
+      "profit": "Lucro líquido",
+      "byMethod": "Lucro real por forma de pagamento",
+      "current": "Preço atual do produto",
+      "currentPrice": "Preço atual",
+      "currentMargin": "Margem líquida atual",
+      "difference": "Diferença para o sugerido"
     }
   }
 }

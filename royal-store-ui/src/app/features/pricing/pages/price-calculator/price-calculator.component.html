@@ -1,0 +1,267 @@
+<section class="pricing-page">
+  <header class="pricing-page__header">
+    <h1 class="pricing-page__title">{{ 'pricing.title' | translate }}</h1>
+    <p class="pricing-page__subtitle">{{ 'pricing.subtitle' | translate }}</p>
+  </header>
+
+  <div class="pricing-page__grid">
+    <div class="pricing-page__form">
+      <!-- Product: cost and tax -->
+      <section class="pricing-card">
+        <h2 class="pricing-card__title">{{ 'pricing.product.title' | translate }}</h2>
+        <p class="pricing-card__hint">{{ 'pricing.product.hint' | translate }}</p>
+
+        <label class="pricing-field">
+          <span class="pricing-field__label">{{ 'pricing.product.select' | translate }}</span>
+          <p-select
+            [options]="products()"
+            [ngModel]="selectedProductId()"
+            (ngModelChange)="onProductChange($event)"
+            optionLabel="name"
+            optionValue="id"
+            filterBy="name,sku"
+            [filter]="true"
+            [showClear]="true"
+            [loading]="isLoadingProducts()"
+            [placeholder]="'pricing.product.placeholder' | translate"
+            [emptyMessage]="'pricing.product.empty' | translate"
+            [emptyFilterMessage]="'pricing.product.empty' | translate"
+            [fluid]="true"
+          >
+            <ng-template #item let-product>
+              <span class="pricing-option">
+                <span>{{ product.name }}</span>
+                <span class="pricing-option__sku">{{ product.sku }}</span>
+              </span>
+            </ng-template>
+          </p-select>
+        </label>
+
+        <div class="pricing-row">
+          <label class="pricing-field">
+            <span class="pricing-field__label">{{ 'pricing.product.cost' | translate }}</span>
+            <p-inputnumber
+              [ngModel]="cost()"
+              (ngModelChange)="cost.set($event)"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [fluid]="true"
+            />
+          </label>
+
+          <label class="pricing-field">
+            <span class="pricing-field__label">{{ 'pricing.product.tax' | translate }}</span>
+            <p-inputnumber
+              [ngModel]="taxRate()"
+              (ngModelChange)="onTaxRateChange($event)"
+              suffix="%"
+              [min]="0"
+              [max]="100"
+              [maxFractionDigits]="2"
+              [fluid]="true"
+            />
+          </label>
+        </div>
+
+        <p class="pricing-card__note">
+          @if (isLoadingTax()) {
+            {{ 'pricing.product.taxLoading' | translate }}
+          } @else {
+            {{ 'pricing.product.taxSource.' + taxSource() | translate }}
+          }
+        </p>
+      </section>
+
+      <!-- Fixed expenses -->
+      <section class="pricing-card">
+        <div class="pricing-card__head">
+          <div>
+            <h2 class="pricing-card__title">{{ 'pricing.expenses.title' | translate }}</h2>
+            <p class="pricing-card__hint">{{ 'pricing.expenses.hint' | translate }}</p>
+          </div>
+          <p-button
+            [label]="'pricing.expenses.import' | translate"
+            icon="pi pi-download"
+            severity="secondary"
+            size="small"
+            [outlined]="true"
+            [loading]="importStatus() === 'loading'"
+            (onClick)="importRecurrences()"
+          />
+        </div>
+
+        @if (importStatus() === 'empty' || importStatus() === 'failed') {
+          <p class="pricing-card__note pricing-card__note--warn" role="status">
+            {{ 'pricing.expenses.import' + (importStatus() === 'empty' ? 'Empty' : 'Failed') | translate }}
+          </p>
+        }
+
+        <div class="pricing-list">
+          @for (expense of expenses(); track expense.id) {
+            <div class="pricing-list__row">
+              <input
+                pInputText
+                type="text"
+                class="pricing-list__description"
+                [ngModel]="expense.description"
+                (ngModelChange)="updateExpense(expense.id, { description: $event })"
+                [placeholder]="'pricing.expenses.descriptionPlaceholder' | translate"
+                [attr.aria-label]="'pricing.expenses.description' | translate"
+              />
+              <p-inputnumber
+                class="pricing-list__amount"
+                [ngModel]="expense.amount"
+                (ngModelChange)="updateExpense(expense.id, { amount: $event ?? 0 })"
+                mode="decimal"
+                [min]="0"
+                [minFractionDigits]="2"
+                [maxFractionDigits]="2"
+                [fluid]="true"
+                [ariaLabel]="'pricing.expenses.amount' | translate"
+              />
+              @if (expense.recurrenceId) {
+                <i
+                  class="pi pi-sync pricing-list__tag"
+                  [attr.title]="'pricing.expenses.imported' | translate"
+                  [attr.aria-label]="'pricing.expenses.imported' | translate"
+                ></i>
+              } @else {
+                <span class="pricing-list__tag"></span>
+              }
+              <p-button
+                icon="pi pi-times"
+                severity="secondary"
+                size="small"
+                [text]="true"
+                [ariaLabel]="'pricing.expenses.remove' | translate"
+                (onClick)="removeExpense(expense.id)"
+              />
+            </div>
+          } @empty {
+            <p class="pricing-list__empty">{{ 'pricing.expenses.empty' | translate }}</p>
+          }
+        </div>
+
+        <p-button
+          [label]="'pricing.expenses.add' | translate"
+          icon="pi pi-plus"
+          size="small"
+          [text]="true"
+          (onClick)="addExpense()"
+        />
+
+        <div class="pricing-row">
+          <label class="pricing-field">
+            <span class="pricing-field__label">{{ 'pricing.expenses.revenue' | translate }}</span>
+            <p-inputnumber
+              [ngModel]="monthlyRevenue()"
+              (ngModelChange)="monthlyRevenue.set($event)"
+              mode="decimal"
+              [min]="0"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+              [fluid]="true"
+            />
+          </label>
+
+          <dl class="pricing-stat">
+            <dt>{{ 'pricing.expenses.total' | translate }}</dt>
+            <dd>{{ expensesTotal() | currency }}</dd>
+            <dt>{{ 'pricing.expenses.rate' | translate }}</dt>
+            <dd>{{ expenseRate() | number: '1.0-2' }}%</dd>
+          </dl>
+        </div>
+
+        @if (revenueMissing()) {
+          <p class="pricing-card__note pricing-card__note--warn" role="status">
+            {{ 'pricing.expenses.revenueMissing' | translate }}
+          </p>
+        }
+      </section>
+
+      <!-- Card fees -->
+      <section class="pricing-card">
+        <h2 class="pricing-card__title">{{ 'pricing.fees.title' | translate }}</h2>
+        <p class="pricing-card__hint">{{ 'pricing.fees.hint' | translate }}</p>
+
+        <div class="pricing-fees">
+          <span></span>
+          <span class="pricing-field__label">{{ 'pricing.fees.rate' | translate }}</span>
+          <span class="pricing-field__label">{{ 'pricing.fees.share' | translate }}</span>
+
+          @for (fee of fees(); track fee.method) {
+            <span class="pricing-fees__method">{{ 'pricing.fees.' + fee.method | translate }}</span>
+            <p-inputnumber
+              [ngModel]="fee.rate"
+              (ngModelChange)="updateFee(fee.method, { rate: $event ?? 0 })"
+              suffix="%"
+              [min]="0"
+              [max]="100"
+              [maxFractionDigits]="2"
+              [fluid]="true"
+              [ariaLabel]="('pricing.fees.' + fee.method | translate) + ' — ' + ('pricing.fees.rate' | translate)"
+            />
+            <p-inputnumber
+              [ngModel]="fee.share"
+              (ngModelChange)="updateFee(fee.method, { share: $event ?? 0 })"
+              suffix="%"
+              [min]="0"
+              [max]="100"
+              [maxFractionDigits]="0"
+              [fluid]="true"
+              [ariaLabel]="('pricing.fees.' + fee.method | translate) + ' — ' + ('pricing.fees.share' | translate)"
+            />
+          }
+        </div>
+
+        <p class="pricing-card__note">
+          {{ 'pricing.fees.average' | translate: { rate: (cardRate() | number: '1.0-2') } }}
+        </p>
+      </section>
+
+      <!-- Commission and margin -->
+      <section class="pricing-card">
+        <h2 class="pricing-card__title">{{ 'pricing.margin.title' | translate }}</h2>
+        <p class="pricing-card__hint">{{ 'pricing.margin.hint' | translate }}</p>
+
+        <div class="pricing-row">
+          <label class="pricing-field">
+            <span class="pricing-field__label">{{ 'pricing.margin.desired' | translate }}</span>
+            <p-inputnumber
+              [ngModel]="marginRate()"
+              (ngModelChange)="marginRate.set($event ?? 0)"
+              suffix="%"
+              [min]="0"
+              [max]="100"
+              [maxFractionDigits]="2"
+              [fluid]="true"
+            />
+          </label>
+
+          <label class="pricing-field">
+            <span class="pricing-field__label">{{ 'pricing.margin.commission' | translate }}</span>
+            <p-inputnumber
+              [ngModel]="commissionRate()"
+              (ngModelChange)="commissionRate.set($event ?? 0)"
+              suffix="%"
+              [min]="0"
+              [max]="100"
+              [maxFractionDigits]="2"
+              [fluid]="true"
+            />
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <app-pricing-result
+      class="pricing-page__result"
+      [pricingInput]="pricingInput()"
+      [result]="result()"
+      [methods]="methods()"
+      [currentPrice]="selectedProduct()?.basePrice ?? null"
+    />
+  </div>
+</section>

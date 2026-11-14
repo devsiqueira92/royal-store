@@ -1,0 +1,81 @@
+<section class="result" aria-live="polite">
+  <span class="result__label">{{ 'pricing.result.title' | translate }}</span>
+
+  @switch (result().error) {
+    @case ('sumTooHigh') {
+      <p class="result__price result__price--empty">—</p>
+      <p-message severity="error" icon="pi pi-exclamation-triangle">
+        {{ 'pricing.result.sumTooHigh' | translate }}
+        ({{ result().totalRate | number: '1.0-2' }}%)
+      </p-message>
+    }
+    @case ('costRequired') {
+      <p class="result__price result__price--empty">—</p>
+      <p class="result__hint">{{ 'pricing.result.costRequired' | translate }}</p>
+    }
+    @default {
+      <p class="result__price">{{ result().price | currency }}</p>
+      <p class="result__hint">
+        {{
+          'pricing.result.summary'
+            | translate
+              : {
+                  total: (result().totalRate | number: '1.0-2'),
+                  multiplier: (result().multiplier | number: '1.2-2'),
+                }
+        }}
+      </p>
+
+      <ul class="result__lines">
+        @for (line of lines(); track line.labelKey) {
+          <li class="result__line" [class.result__line--highlight]="line.highlight">
+            <span>{{ line.labelKey | translate }}</span>
+            <span class="result__rate">
+              @if (line.rate !== null) {
+                {{ line.rate | number: '1.0-2' }}%
+              }
+            </span>
+            <span class="result__amount">{{ line.amount | currency }}</span>
+          </li>
+        }
+      </ul>
+
+      @if (methods().length) {
+        <h3 class="result__subtitle">{{ 'pricing.result.byMethod' | translate }}</h3>
+        <ul class="result__lines">
+          @for (method of methods(); track method.method) {
+            <li class="result__line" [class.result__line--negative]="method.profit < 0">
+              <span>{{ 'pricing.fees.' + method.method | translate }}</span>
+              <span class="result__rate">{{ method.margin | number: '1.0-2' }}%</span>
+              <span class="result__amount">{{ method.profit | currency }}</span>
+            </li>
+          }
+        </ul>
+      }
+
+      @if (currentPrice(); as price) {
+        <h3 class="result__subtitle">{{ 'pricing.result.current' | translate }}</h3>
+        <ul class="result__lines">
+          <li class="result__line">
+            <span>{{ 'pricing.result.currentPrice' | translate }}</span>
+            <span class="result__rate"></span>
+            <span class="result__amount">{{ price | currency }}</span>
+          </li>
+          @let margin = currentMargin();
+          @if (margin !== null) {
+            <li class="result__line" [class.result__line--negative]="margin < 0">
+              <span>{{ 'pricing.result.currentMargin' | translate }}</span>
+              <span class="result__rate"></span>
+              <span class="result__amount">{{ margin | number: '1.0-2' }}%</span>
+            </li>
+          }
+          <li class="result__line">
+            <span>{{ 'pricing.result.difference' | translate }}</span>
+            <span class="result__rate"></span>
+            <span class="result__amount">{{ result().price - price | currency }}</span>
+          </li>
+        </ul>
+      }
+    }
+  }
+</section>

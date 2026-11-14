@@ -37,7 +37,8 @@
       "finance": "Finance",
       "expenses": "Expenses",
       "expenseCategories": "Expense categories",
-      "financialAccounts": "Financial accounts"
+      "financialAccounts": "Financial accounts",
+      "pricing": "Pricing"
     }
   },
   "auth": {
@@ -1511,6 +1512,76 @@
         "createSubmit": "Create account",
         "submit": "Save account"
       }
+    }
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Work out the sale price that covers cost, taxes, card fees and fixed expenses and still leaves the net profit margin you want.",
+    "product": {
+      "title": "Product",
+      "hint": "Pick a product to bring in its cost and tax burden, or type the values in.",
+      "select": "Product",
+      "placeholder": "Select a product",
+      "empty": "No products found",
+      "cost": "Product cost",
+      "tax": "Sales tax",
+      "taxLoading": "Looking up the product tax burden…",
+      "taxSource": {
+        "manual": "Rate entered manually (e.g. Simples Nacional, ICMS).",
+        "product": "Approximate tax burden (IBPT) for the product NCM/NBS. Adjust it if your effective rate differs.",
+        "notFound": "No tax burden on file for this NCM/NBS. Enter the rate manually."
+      }
+    },
+    "expenses": {
+      "title": "Store fixed expenses",
+      "hint": "Monthly amounts (rent, energy, payroll). The share is how much they weigh on revenue.",
+      "import": "Import recurrences",
+      "importEmpty": "No active recurrences to import.",
+      "importFailed": "Could not import the recurrences.",
+      "imported": "Imported from recurrences",
+      "description": "Description",
+      "descriptionPlaceholder": "E.g. Rent",
+      "amount": "Monthly amount",
+      "add": "Add expense",
+      "remove": "Remove expense",
+      "empty": "No fixed expenses yet.",
+      "revenue": "Average monthly revenue",
+      "total": "Monthly total",
+      "rate": "Share of revenue",
+      "revenueMissing": "Enter the average monthly revenue so fixed expenses count in the price."
+    },
+    "fees": {
+      "title": "Card machine fees",
+      "hint": "Fee of each payment method and how much of the sales goes through it. With no share entered, the plain average is used.",
+      "rate": "Fee",
+      "share": "Share of sales",
+      "debit": "Debit",
+      "credit": "Credit (1x)",
+      "pix": "Pix",
+      "average": "Average fee applied: {{rate}}%"
+    },
+    "margin": {
+      "title": "Margin and commission",
+      "hint": "The margin is the net profit left after everything is paid.",
+      "desired": "Desired profit margin",
+      "commission": "Sales commission (optional)"
+    },
+    "result": {
+      "title": "Suggested sale price",
+      "summary": "{{total}}% of the price is committed · same as multiplying the cost by {{multiplier}}",
+      "sumTooHigh": "The sum of fees, expenses and margin cannot be equal to or greater than 100%",
+      "costRequired": "Enter the product cost to calculate the price.",
+      "cost": "Product cost",
+      "tax": "Taxes",
+      "card": "Card fee",
+      "fixedExpenses": "Fixed expenses",
+      "commission": "Commission",
+      "profit": "Net profit",
+      "byMethod": "Real profit by payment method",
+      "current": "Current product price",
+      "currentPrice": "Current price",
+      "currentMargin": "Current net margin",
+      "difference": "Difference to suggested"
     }
   }
 }

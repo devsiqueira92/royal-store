@@ -78,6 +78,7 @@ export class SidebarMenuComponent {
           icon: 'pi pi-building',
           route: '/expenses/financial-accounts',
         },
+        { labelKey: 'layout.nav.pricing', icon: 'pi pi-calculator', route: '/pricing' },
       ],
     },
     {

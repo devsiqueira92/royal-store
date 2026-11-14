@@ -52,6 +52,11 @@ export const routes: Routes = [
           import('./features/expense/expense.routes').then((m) => m.EXPENSE_ROUTES),
       },
       {
+        path: 'pricing',
+        loadChildren: () =>
+          import('./features/pricing/pricing.routes').then((m) => m.PRICING_ROUTES),
+      },
+      {
         path: 'cash-shift',
         loadChildren: () =>
           import('./features/cash-shift/cash-shift.routes').then((m) => m.CASH_SHIFT_ROUTES),
