@@ -154,7 +154,45 @@
       "status": "Status",
       "isActive": "Ativo"
     },
+    "priceLists": {
+      "title": "Listas de preço",
+      "hint": "Tabelas de preço nomeadas, compartilhadas por todo o catálogo — ex.: à vista, a prazo, promoção.",
+      "caption": "Listas de preço",
+      "default": "Padrão",
+      "isDefault": "Padrão",
+      "setDefault": "Definir",
+      "active": "Ativa",
+      "activeLabel": "Lista {{name}} ativa",
+      "name": "Nome",
+      "manage": "Gerenciar",
+      "done": "Concluir",
+      "add": "Adicionar lista",
+      "newPlaceholder": "Nova lista — ex.: Atacado",
+      "newLabel": "Nome da nova lista",
+      "remove": "Remover lista {{name}}",
+      "footnote": "As listas valem para todos os produtos. A lista padrão alimenta o PDV quando nenhuma outra é escolhida; listas inativas ficam ocultas nos produtos e no checkout."
+    },
+    "productPrices": {
+      "title": "Preços deste produto",
+      "hint": "A lista padrão espelha o preço de venda do Detalhe do produto. O preço mínimo limita o desconto que o vendedor pode dar no PDV.",
+      "costPrice": "Preço de custo",
+      "costPriceHint": "Calculado no Detalhe do produto (custo + composição). Base da margem de cada lista.",
+      "caption": "Preços de venda",
+      "count": "{{priced}} de {{total}} listas com preço · listas vazias usam o preço padrão",
+      "list": "Lista",
+      "salePrice": "Preço de venda",
+      "minPrice": "Preço mínimo · PDV",
+      "margin": "Margem",
+      "noLimit": "sem limite",
+      "usesDefault": "usa o padrão",
+      "required": "obrigatório",
+      "minAboveSale": "O preço mínimo não pode ser maior que o preço de venda."
+    },
     "form": {
+      "tabs": {
+        "details": "Detalhe do produto",
+        "pricing": "Precificação avançada"
+      },
       "title": "Novo produto",
       "edit": "Editar produto",
       "subtitle": "Detalhes do produto, classificação fiscal e variantes",

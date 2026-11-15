@@ -247,6 +247,66 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("OriginOptions", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.PriceList", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PriceLists_TenantId_Default")
+                        .HasFilter("\"IsDefault\" = true");
+
+                    b.HasIndex("TenantId", "IsActive");
+
+                    b.HasIndex("TenantId", "NormalizedName")
+                        .IsUnique();
+
+                    b.ToTable("PriceLists", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -445,6 +505,57 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasFilter("\"IsCover\" = true");
 
                     b.ToTable("ProductPhotos", (string)null);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductPrice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<decimal?>("MinPrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("PriceListId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("SalePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PriceListId");
+
+                    b.HasIndex("ProductId", "PriceListId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "PriceListId");
+
+                    b.ToTable("ProductPrices", (string)null);
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductVariant", b =>
@@ -2509,6 +2620,23 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductPrice", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.PriceList", "PriceList")
+                        .WithMany()
+                        .HasForeignKey("PriceListId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
+                        .WithMany("Prices")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PriceList");
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductVariant", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Catalog.Product", null)
@@ -2982,6 +3110,8 @@ namespace RoyalStore.Infrastructure.Migrations
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
                 {
                     b.Navigation("Photos");
+
+                    b.Navigation("Prices");
 
                     b.Navigation("Variants");
                 });

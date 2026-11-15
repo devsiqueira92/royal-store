@@ -4,6 +4,7 @@ using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Email;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.DTOs;
+using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Expenses;
 using RoyalStore.Domain.Identity;
@@ -25,6 +26,7 @@ public sealed class RegisterTenantCommandHandler
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProfileRepository _profileRepository;
     private readonly IExpenseCategoryRepository _expenseCategoryRepository;
+    private readonly IPriceListRepository _priceListRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEmailService _emailService;
     private readonly ISecurityAuditService _securityAuditService;
@@ -36,6 +38,7 @@ public sealed class RegisterTenantCommandHandler
         IPaymentRepository paymentRepository,
         IProfileRepository profileRepository,
         IExpenseCategoryRepository expenseCategoryRepository,
+        IPriceListRepository priceListRepository,
         IUnitOfWork unitOfWork,
         IEmailService emailService,
         ISecurityAuditService securityAuditService)
@@ -46,6 +49,7 @@ public sealed class RegisterTenantCommandHandler
         _paymentRepository = paymentRepository;
         _profileRepository = profileRepository;
         _expenseCategoryRepository = expenseCategoryRepository;
+        _priceListRepository = priceListRepository;
         _unitOfWork = unitOfWork;
         _emailService = emailService;
         _securityAuditService = securityAuditService;
@@ -112,6 +116,10 @@ public sealed class RegisterTenantCommandHandler
                 // And its default operating-expense categories (060 FR-029) — same reasoning and
                 // same transaction, so no store ever exists without a usable OPEX structure.
                 await _expenseCategoryRepository.AddRangeAsync(ExpenseCategory.SeedDefaults(tenant.Id), ct);
+
+                // And its default price list (061 FR-007) — a product cannot be saved without a price on
+                // the default list, so no store may ever exist without one.
+                await _priceListRepository.AddRangeAsync(PriceList.SeedDefaults(tenant.Id), ct);
 
                 await _unitOfWork.SaveChangesAsync(ct);
 

@@ -1,0 +1,105 @@
+<section class="product-prices">
+  <h3 class="product-prices__title">{{ 'product.productPrices.title' | translate }}</h3>
+  <p class="product-prices__hint">{{ 'product.productPrices.hint' | translate }}</p>
+
+  <label class="product-prices__cost">
+    <span class="product-prices__cost-label">
+      {{ 'product.productPrices.costPrice' | translate }}
+    </span>
+    <p-inputnumber
+      [ngModel]="costPrice()"
+      [ngModelOptions]="{ standalone: true }"
+      [disabled]="true"
+      mode="decimal"
+      prefix="R$ "
+      [minFractionDigits]="2"
+      [maxFractionDigits]="2"
+      inputStyleClass="product-prices__input"
+    />
+    <span class="product-prices__cost-hint">
+      {{ 'product.productPrices.costPriceHint' | translate }}
+    </span>
+  </label>
+
+  <div class="product-prices__box">
+    <div class="product-prices__bar">
+      <span class="product-prices__caption">{{ 'product.productPrices.caption' | translate }}</span>
+      <span class="product-prices__count">
+        {{
+          'product.productPrices.count'
+            | translate: { priced: pricedCount(), total: entries().length }
+        }}
+      </span>
+    </div>
+
+    <div class="product-prices__row product-prices__row--head">
+      <span>{{ 'product.productPrices.list' | translate }}</span>
+      <span>{{ 'product.productPrices.salePrice' | translate }}</span>
+      <span>{{ 'product.productPrices.minPrice' | translate }}</span>
+      <span class="product-prices__margin">{{ 'product.productPrices.margin' | translate }}</span>
+    </div>
+
+    @for (entry of entries(); track entry.list.id) {
+      <div class="product-prices__row" [formGroup]="entry.group">
+        <span class="product-prices__name">
+          {{ entry.list.name }}
+          @if (entry.list.isDefault) {
+            <span class="product-prices__tag">{{ 'product.priceLists.default' | translate }}</span>
+          }
+        </span>
+
+        <p-inputnumber
+          formControlName="salePrice"
+          mode="decimal"
+          prefix="R$ "
+          [min]="0"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [fluid]="true"
+          inputStyleClass="product-prices__input"
+          [placeholder]="
+            (entry.list.isDefault
+              ? 'product.productPrices.required'
+              : 'product.productPrices.usesDefault'
+            ) | translate
+          "
+          [ariaLabel]="
+            ('product.productPrices.salePrice' | translate) + ' — ' + entry.list.name
+          "
+        />
+
+        <p-inputnumber
+          formControlName="minPrice"
+          mode="decimal"
+          prefix="R$ "
+          [min]="0"
+          [minFractionDigits]="2"
+          [maxFractionDigits]="2"
+          [fluid]="true"
+          inputStyleClass="product-prices__input"
+          [invalid]="entry.minAboveSale"
+          [placeholder]="'product.productPrices.noLimit' | translate"
+          [ariaLabel]="('product.productPrices.minPrice' | translate) + ' — ' + entry.list.name"
+        />
+
+        <span
+          class="product-prices__margin"
+          [class.product-prices__margin--fallback]="entry.usesDefault"
+          [class.product-prices__margin--negative]="(entry.margin ?? 0) < 0"
+        >
+          @if (entry.margin !== null) {
+            {{ entry.margin | number: '1.0-0' }}%
+          } @else {
+            —
+          }
+        </span>
+
+        @if (entry.minAboveSale) {
+          <p class="product-prices__error" role="alert">
+            {{ 'product.productPrices.minAboveSale' | translate }}
+          </p>
+        }
+      </div>
+    }
+  </div>
+</section>

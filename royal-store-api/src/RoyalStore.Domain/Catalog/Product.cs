@@ -39,6 +39,10 @@ public sealed class Product : Entity, IAuditableEntity
     public ICollection<ProductVariant> Variants { get; private set; } = [];
     public ICollection<ProductPhoto> Photos { get; private set; } = [];
 
+    /// <summary>One sale price per price list (061). Services have none — they keep
+    /// <see cref="BasePrice"/> as their single price.</summary>
+    public ICollection<ProductPrice> Prices { get; private set; } = [];
+
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
     public DateTimeOffset UpdatedAt { get; set; }
@@ -153,16 +157,21 @@ public sealed class Product : Entity, IAuditableEntity
         return Result.Success();
     }
 
+    /// <param name="prices">One price per price list; the store's default list is mandatory (061 FR-010).</param>
+    /// <param name="tenantLists">Every price list of the store, active or not.</param>
     public static Result<Product> CreateProduct(
         Guid tenantId, Guid categoryId, string name, string sku, bool stockTrack,
-        decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
+        decimal baseCostPrice, string? description, string unitOfMeasure,
         string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
         Supplier? supplier = null)
     {
-        var common = ValidateCommonFields(tenantId, categoryId, name, sku, basePrice, baseCostPrice);
+        // The sale price is no longer an input: it comes from the price lists and is mirrored into
+        // BasePrice by ApplyPrices below.
+        var common = ValidateCommonFields(tenantId, categoryId, name, sku, 0m, baseCostPrice);
         if (!common.IsSuccess)
             return common.Error;
 
@@ -183,7 +192,7 @@ public sealed class Product : Entity, IAuditableEntity
 
         var (tid, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
 
-        return new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Product,
+        var product = new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Product,
             stockTrack, bp, bcp, description, unitOfMeasure, Normalize(ncm), Normalize(cest), origin,
             null, null, taxProfileTemplate.Id, overrideTaxProfile,
             overrideTaxProfile ? Normalize(defaultCfop) : null,
@@ -197,6 +206,12 @@ public sealed class Product : Entity, IAuditableEntity
             SupplierId = supplier?.Id,
             Supplier = supplier
         };
+
+        var pricesResult = product.ApplyPrices(prices, tenantLists);
+        if (!pricesResult.IsSuccess)
+            return pricesResult.Error;
+
+        return product;
     }
 
     public static Result<Product> CreateService(
@@ -242,9 +257,10 @@ public sealed class Product : Entity, IAuditableEntity
         };
     }
 
-    public Result UpdateProductFields(
+    public Result<ProductPriceChanges> UpdateProductFields(
         Guid categoryId, string name, string sku, bool stockTrack,
-        decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
+        decimal baseCostPrice, string? description, string unitOfMeasure,
         string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
@@ -252,35 +268,41 @@ public sealed class Product : Entity, IAuditableEntity
         Supplier? supplier = null)
     {
         if (Type != ItemType.Product)
-            return Result.Failure(Error.Validation("product.wrong_kind", "This catalog line is not a physical product."));
+            return Error.Validation("product.wrong_kind", "This catalog line is not a physical product.");
 
         if (!IsActive)
-            return Result.Failure(Error.Validation("product.inactive", "Inactive products cannot be updated."));
+            return Error.Validation("product.inactive", "Inactive products cannot be updated.");
 
-        var common = ValidateCommonFields(TenantId, categoryId, name, sku, basePrice, baseCostPrice);
+        var common = ValidateCommonFields(TenantId, categoryId, name, sku, BasePrice, baseCostPrice);
         if (!common.IsSuccess)
-            return Result.Failure(common.Error);
+            return common.Error;
 
         if (string.IsNullOrWhiteSpace(ncm))
-            return Result.Failure(Error.Validation("product.ncm_required", "NCM is required."));
+            return Error.Validation("product.ncm_required", "NCM is required.");
 
 
         var measureResult = ProductMeasure.Create(netWeight, grossWeight, width, height, length);
         if (!measureResult.IsSuccess)
-            return Result.Failure(measureResult.Error);
+            return measureResult.Error;
 
         var overrideResult = ValidateTaxOverride(taxProfileTemplate, ItemType.Product, overrideTaxProfile,
             pisCofinsCst, ivaCst, isSelectiveTax, defaultCfop, icmsCst, requireGoodsFields: true);
         if (!overrideResult.IsSuccess)
-            return overrideResult;
+            return overrideResult.Error;
 
-        var (_, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
+        // Last check before anything is assigned: the prices are validated as a whole and only then
+        // applied, so a rejected price leaves the product untouched (061 FR-013). BasePrice is
+        // written there too, as the mirror of the default-list price.
+        var pricesResult = ApplyPrices(prices, tenantLists);
+        if (!pricesResult.IsSuccess)
+            return pricesResult.Error;
+
+        var (_, cid, trimmedName, trimmedSku, _, bcp) = common.Value;
 
         CategoryId = cid;
         Name = trimmedName;
         Sku = trimmedSku;
         StockTrack = stockTrack;
-        BasePrice = bp;
         BaseCostPrice = bcp;
         Description = description;
         UnitOfMeasure = string.IsNullOrWhiteSpace(unitOfMeasure) ? "UN" : unitOfMeasure;
@@ -300,7 +322,7 @@ public sealed class Product : Entity, IAuditableEntity
         Supplier = supplier;
         Version++;
 
-        return Result.Success();
+        return pricesResult.Value;
     }
 
     public Result UpdateServiceFields(
@@ -356,9 +378,10 @@ public sealed class Product : Entity, IAuditableEntity
         return Result.Success();
     }
 
-    public Result UpdateProductWithVariants(
+    public Result<ProductPriceChanges> UpdateProductWithVariants(
         Guid categoryId, string name, string sku, bool stockTrack,
-        decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
+        decimal baseCostPrice, string? description, string unitOfMeasure,
         string? ncm, string? cest, string origin,
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
@@ -367,14 +390,18 @@ public sealed class Product : Entity, IAuditableEntity
         IReadOnlyList<VariantUpdateRequest> variantsToUpdate,
         Supplier? supplier = null)
     {
-        var fieldsResult = UpdateProductFields(categoryId, name, sku, stockTrack, basePrice, baseCostPrice,
+        var fieldsResult = UpdateProductFields(categoryId, name, sku, stockTrack, prices, tenantLists, baseCostPrice,
             description, unitOfMeasure, ncm, cest, origin, netWeight, grossWeight, width, height, length,
             taxProfileTemplate, overrideTaxProfile, defaultCfop, icmsCst, pisCofinsCst, ivaCst, isSelectiveTax,
             supplier);
         if (!fieldsResult.IsSuccess)
-            return fieldsResult;
+            return fieldsResult.Error;
 
-        return ApplyVariantChanges(variantsToAdd, variantsToUpdate);
+        var variantsResult = ApplyVariantChanges(variantsToAdd, variantsToUpdate);
+        if (!variantsResult.IsSuccess)
+            return variantsResult.Error;
+
+        return fieldsResult.Value;
     }
 
     public Result UpdateServiceWithVariants(
@@ -440,6 +467,151 @@ public sealed class Product : Entity, IAuditableEntity
         };
     }
 
+    /// <summary>
+    /// Replaces this product's prices with the submitted set (061 FR-012): submitted lists are
+    /// created or updated; prices on active lists that were left out are removed; prices on
+    /// inactive lists that were left out are kept. Nothing is changed unless every price is valid.
+    /// </summary>
+    public Result<ProductPriceChanges> SetPrices(
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists)
+    {
+        var result = ApplyPrices(prices, tenantLists);
+        if (result.IsSuccess)
+            Version++;
+
+        return result;
+    }
+
+    /// <summary>
+    /// Removes the price on one list. This is the only way to drop a price on an inactive list,
+    /// which <see cref="SetPrices"/> deliberately leaves alone. The default-list price cannot go:
+    /// it is the price the product sells at.
+    /// </summary>
+    public Result<ProductPrice> RemovePrice(Guid priceListId)
+    {
+        if (Type != ItemType.Product)
+            return Error.Validation("product.wrong_kind", "This catalog line is not a physical product.");
+
+        var price = Prices.FirstOrDefault(p => p.PriceListId == priceListId);
+        if (price is null)
+            return Error.NotFound("product.price_not_found", "This product has no price on that list.");
+
+        if (price.PriceList is null)
+            return Error.Unexpected("product.price_list_not_loaded",
+                $"The price lists of product '{Name}' were not loaded.");
+
+        if (price.PriceList.IsDefault)
+            return Error.Validation("product.default_price_required",
+                "The price on the default list is required and cannot be removed.");
+
+        Prices.Remove(price);
+        Version++;
+        return price;
+    }
+
+    /// <summary>
+    /// Re-points the legacy single price at this product's price on the store's (new) default list.
+    /// Called for every product when the default list changes, so <see cref="BasePrice"/> — still
+    /// read by sales, the POS and the offline catalog — keeps meaning "the default-list price"
+    /// (061 FR-020).
+    /// </summary>
+    public Result MirrorDefaultPrice(PriceList defaultList)
+    {
+        if (Type != ItemType.Product)
+            return Result.Failure(Error.Validation("product.wrong_kind", "This catalog line is not a physical product."));
+
+        if (defaultList.TenantId != TenantId || !defaultList.IsDefault)
+            return Result.Failure(Error.Validation("product.price_list_invalid", "That is not this store's default price list."));
+
+        var price = Prices.FirstOrDefault(p => p.PriceListId == defaultList.Id);
+        if (price is null)
+            return Result.Failure(Error.Conflict("product.default_price_required",
+                $"Product '{Name}' has no price on the default list."));
+
+        BasePrice = price.SalePrice;
+        return Result.Success();
+    }
+
+    private Result<ProductPriceChanges> ApplyPrices(
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists)
+    {
+        if (Type != ItemType.Product)
+            return Error.Validation("product.wrong_kind", "This catalog line is not a physical product.");
+
+        // Lists of another store are simply not this product's lists (FR-023).
+        var lists = tenantLists.Where(l => l.TenantId == TenantId).ToDictionary(l => l.Id);
+
+        var defaultList = lists.Values.FirstOrDefault(l => l.IsDefault);
+        if (defaultList is null)
+            return Error.Conflict("pricelist.default_missing",
+                "This store has no default price list. Create or choose one before saving products.");
+
+        if (prices.GroupBy(p => p.PriceListId).Any(g => g.Count() > 1))
+            return Error.Validation("product.price_duplicate_list",
+                "A product can have only one price per price list.");
+
+        foreach (var input in prices)
+        {
+            if (!lists.TryGetValue(input.PriceListId, out var list))
+                return Error.Validation("product.price_list_invalid",
+                    $"Price list '{input.PriceListId}' was not found.");
+
+            var validation = ProductPrice.Validate(input.SalePrice, input.MinPrice);
+            if (!validation.IsSuccess)
+                return Error.Validation(validation.Error.Code, $"Price list '{list.Name}': {validation.Error.Message}");
+
+            // A price on an inactive list is frozen: it may be resubmitted unchanged, but not
+            // created or given a new value until the list is reactivated.
+            var stored = Prices.FirstOrDefault(p => p.PriceListId == list.Id);
+            if (!list.IsActive && (stored is null || !stored.HasValues(input.SalePrice, input.MinPrice)))
+                return Error.Validation("product.price_list_inactive",
+                    $"Price list '{list.Name}' is inactive; its price cannot be set or changed.");
+        }
+
+        var defaultInput = prices.FirstOrDefault(p => p.PriceListId == defaultList.Id);
+        if (defaultInput is null)
+            return Error.Validation("product.default_price_required",
+                $"A price on the default list '{defaultList.Name}' is required.");
+
+        // Everything is valid — only now does the aggregate change (FR-013).
+        var added = new List<ProductPrice>();
+        var removed = new List<ProductPrice>();
+
+        foreach (var input in prices)
+        {
+            var stored = Prices.FirstOrDefault(p => p.PriceListId == input.PriceListId);
+            if (stored is not null)
+            {
+                stored.Change(input.SalePrice, input.MinPrice);
+                continue;
+            }
+
+            var price = new ProductPrice(TenantId, Id, input.PriceListId, input.SalePrice, input.MinPrice);
+            Prices.Add(price);
+            added.Add(price);
+        }
+
+        var submitted = prices.Select(p => p.PriceListId).ToHashSet();
+        foreach (var stored in Prices.ToList())
+        {
+            if (submitted.Contains(stored.PriceListId))
+                continue;
+
+            // Left out and on an active list: removed. Left out and on an inactive list: kept.
+            if (lists.TryGetValue(stored.PriceListId, out var list) && list.IsActive)
+            {
+                Prices.Remove(stored);
+                removed.Add(stored);
+            }
+        }
+
+        // The legacy single price stays as the mirror of the default-list price for as long as
+        // the column exists (FR-019, FR-020).
+        BasePrice = defaultInput.SalePrice;
+
+        return new ProductPriceChanges(added, removed);
+    }
+
     public Result Disable()
     {
         if (!IsActive)
@@ -482,7 +654,12 @@ public sealed class Product : Entity, IAuditableEntity
             return Error.Validation("variant.size_or_color_required", "Each variant must have at least one of Size or Color.");
         }
 
-        var validation = ProductVariant.Validate(StockTrack, BasePrice, BaseCostPrice,
+        // A product variant has no sale price of its own — it is priced by the product's price
+        // lists (061 FR-024). Only a service option keeps one.
+        if (Type != ItemType.Service)
+            price = null;
+
+        var validation = ProductVariant.Validate(Type, StockTrack, BasePrice, BaseCostPrice,
             sku, barcode, price, costPrice, stockQuantity, minStockQuantity);
         if (!validation.IsSuccess)
             return validation.Error;
@@ -544,7 +721,7 @@ public sealed class Product : Entity, IAuditableEntity
                 : "A variant with the same size and color already exists for this product."));
 
         var updateResult = variant.Update(size, color, optionName, sku, barcode, price, costPrice,
-            stockQuantity, minStockQuantity, StockTrack, BasePrice, BaseCostPrice);
+            stockQuantity, minStockQuantity, Type, StockTrack, BasePrice, BaseCostPrice);
         if (updateResult.IsSuccess)
             Version++;
 

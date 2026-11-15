@@ -1,4 +1,5 @@
 import { ProductMeasure } from './product.interface';
+import { ProductPriceInput } from './price-list.interface';
 
 export interface CreateProductVariantRequest {
   size?: string;
@@ -36,4 +37,7 @@ export interface CreateProductRequest {
   ivaCst?: string;
   isSelectiveTax?: boolean;
   supplierId?: string;
+
+  /** One sale price per price list. When absent the API reads `basePrice` as the default list's price. */
+  prices?: ProductPriceInput[];
 }

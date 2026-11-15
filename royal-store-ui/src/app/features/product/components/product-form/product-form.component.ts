@@ -4,6 +4,8 @@ import {
   computed,
   effect,
   inject,
+  signal,
+  untracked,
 } from '@angular/core';
 import {
   FormArray,
@@ -14,7 +16,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
+import { map, startWith } from 'rxjs';
+import { TranslatePipe } from '@ngx-translate/core';
+import { TabsModule } from 'primeng/tabs';
 import {
   ItemType,
   Product,
@@ -33,6 +37,15 @@ import { toggleControl } from '@app/shared/utils/toggle-control.utils';
 import { ProductLogisticsComponent } from '../product-logistics/product-logistics.component';
 import { TaxProfileTemplateFacade } from '@app/core/tax-profile-template/facade/tax-profile-template.facade';
 import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/tax-profile-template.interface';
+import { PriceListManagerComponent } from '../price-list-manager/price-list-manager.component';
+import { ProductPriceTableComponent } from '../product-price-table/product-price-table.component';
+import {
+  PriceList,
+  ProductPriceFormControls,
+} from '../../interfaces/price-list.interface';
+import { buildProductPriceGroup } from '../../utils/product-price-form.util';
+
+type ProductFormTab = 'details' | 'pricing';
 
 // Advanced fiscal controls driven by the tax profile template's override matrix.
 // `cest` is intentionally excluded — it's a free Product field, not template-driven.
@@ -49,6 +62,10 @@ import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/ta
     ProductFooterComponent,
     ProductVariantsComponent,
     ProductLogisticsComponent,
+    TranslatePipe,
+    TabsModule,
+    PriceListManagerComponent,
+    ProductPriceTableComponent,
   ],
   templateUrl: './product-form.component.html',
   styleUrl: './product-form.component.scss',
@@ -112,6 +129,60 @@ export class ProductFormComponent {
     return this.formGroup.controls.variants;
   }
 
+  protected readonly activeTab = signal<ProductFormTab>('details');
+
+  // TEMPORARY: the price lists live here only until their facade/store exist.
+  // They are tenant-wide (PriceLists), not part of the product, so the
+  // handlers below become facade calls and this signal a toSignal of the
+  // store. Ids are generated locally meanwhile, which is also why the footer
+  // does not send "prices" yet.
+  protected readonly priceLists = signal<PriceList[]>([
+    { id: crypto.randomUUID(), name: 'Padrão', isDefault: true, isActive: true },
+  ]);
+
+  // Zoneless: FormArray mutations (push/removeAt) are invisible to change
+  // detection, so the price table renders from this signal.
+  protected readonly priceGroups = signal<FormGroup<ProductPriceFormControls>[]>(
+    [],
+  );
+
+  protected readonly baseCostPrice = toSignal(
+    this.formGroup.controls.baseCostPrice.valueChanges.pipe(
+      startWith(this.formGroup.controls.baseCostPrice.value),
+    ),
+    { initialValue: this.formGroup.controls.baseCostPrice.value },
+  );
+
+  private readonly priceValues = toSignal(
+    this.formGroup.controls.prices.valueChanges.pipe(
+      startWith(null),
+      map(() => this.formGroup.controls.prices.getRawValue()),
+    ),
+    { initialValue: [] },
+  );
+
+  /** The tab badge: how many active lists carry a price of their own. */
+  protected readonly pricing = computed(() => {
+    const values = this.priceValues();
+    const activeIds = new Set(
+      this.priceLists()
+        .filter(list => list.isActive)
+        .map(list => list.id),
+    );
+    const active = values.filter(value => activeIds.has(value.priceListId));
+
+    return {
+      total: activeIds.size,
+      priced: active.filter(value => value.salePrice != null).length,
+      invalid: active.some(
+        value =>
+          value.salePrice != null &&
+          value.minPrice != null &&
+          value.minPrice > value.salePrice,
+      ),
+    };
+  });
+
   // Patch once per loaded item: re-patching on every store emission would
   // replay the type/tax cascades (and reset the tax template) each time a
   // variant is deleted.
@@ -143,6 +214,31 @@ export class ProductFormComponent {
     this.formGroup.controls.type.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(type => this.applyItemType(type as ItemType));
+
+    effect(() => this.syncPriceGroups(this.priceLists()));
+
+    // The default list's sale price and basePrice are the same figure shown
+    // in two tabs. Both directions compare before writing, so neither loops.
+    this.formGroup.controls.basePrice.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(basePrice => {
+        const salePrice = this.defaultPriceGroup()?.controls.salePrice;
+
+        if (salePrice && salePrice.value !== basePrice) {
+          salePrice.setValue(basePrice);
+        }
+      });
+
+    this.formGroup.controls.prices.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        const salePrice = this.defaultPriceGroup()?.controls.salePrice;
+        const basePrice = this.formGroup.controls.basePrice;
+
+        if (salePrice && salePrice.value !== basePrice.value) {
+          basePrice.setValue(salePrice.value);
+        }
+      });
 
     this.formGroup.controls.taxProfileTemplateId.valueChanges
       .pipe(takeUntilDestroyed())
@@ -176,6 +272,102 @@ export class ProductFormComponent {
     } else {
       this.productFacade.disableProduct(product.id);
     }
+  }
+
+  protected onTabChange(tab: string | number | undefined): void {
+    this.activeTab.set(tab === 'pricing' ? 'pricing' : 'details');
+  }
+
+  protected onPriceListAdd(name: string): void {
+    this.priceLists.update(lists => [
+      ...lists,
+      { id: crypto.randomUUID(), name, isDefault: false, isActive: true },
+    ]);
+  }
+
+  protected onPriceListRename({ id, name }: { id: string; name: string }): void {
+    this.priceLists.update(lists =>
+      lists.map(list => (list.id === id ? { ...list, name } : list)),
+    );
+  }
+
+  /** There is always exactly one default, and the default is always active. */
+  protected onPriceListDefaultChange(id: string): void {
+    this.priceLists.update(lists =>
+      lists.map(list => ({
+        ...list,
+        isDefault: list.id === id,
+        isActive: list.isActive || list.id === id,
+      })),
+    );
+  }
+
+  protected onPriceListActiveChange({
+    id,
+    active,
+  }: {
+    id: string;
+    active: boolean;
+  }): void {
+    this.priceLists.update(lists =>
+      lists.map(list =>
+        list.id === id && !list.isDefault ? { ...list, isActive: active } : list,
+      ),
+    );
+  }
+
+  protected onPriceListRemove(id: string): void {
+    this.priceLists.update(lists =>
+      lists.filter(list => list.id !== id || list.isDefault),
+    );
+  }
+
+  private defaultPriceGroup(): FormGroup<ProductPriceFormControls> | undefined {
+    const defaultId = untracked(this.priceLists).find(list => list.isDefault)?.id;
+
+    return this.formGroup.controls.prices.controls.find(
+      group => group.controls.priceListId.value === defaultId,
+    );
+  }
+
+  /**
+   * Keeps one price group per list: groups of removed lists go, new lists get
+   * an empty one. An inactive list keeps its group, so switching it back on
+   * brings its prices back.
+   */
+  private syncPriceGroups(lists: PriceList[]): void {
+    const prices = this.formGroup.controls.prices;
+    const basePrice = this.formGroup.controls.basePrice;
+
+    for (let index = prices.length - 1; index >= 0; index--) {
+      const listId = prices.at(index).controls.priceListId.value;
+
+      if (!lists.some(list => list.id === listId)) {
+        prices.removeAt(index);
+      }
+    }
+
+    for (const list of lists) {
+      const exists = prices.controls.some(
+        group => group.controls.priceListId.value === list.id,
+      );
+
+      if (!exists) {
+        prices.push(buildProductPriceGroup(list.id));
+      }
+    }
+
+    // A list just promoted to default either brings its own price along or,
+    // having none, takes the product's current sale price.
+    const salePrice = this.defaultPriceGroup()?.controls.salePrice;
+
+    if (salePrice && salePrice.value == null) {
+      salePrice.setValue(basePrice.value);
+    } else if (salePrice && salePrice.value !== basePrice.value) {
+      basePrice.setValue(salePrice.value);
+    }
+
+    this.priceGroups.set([...prices.controls]);
   }
 
   protected onItemTypeChange(type: ItemType): void {
@@ -290,6 +482,7 @@ export class ProductFormComponent {
       length: new FormControl(null, [Validators.min(0)]),
 
       variants: new FormArray<FormGroup<ProductVariantFormControls>>([]),
+      prices: new FormArray<FormGroup<ProductPriceFormControls>>([]),
     });
   }
 }

@@ -18,7 +18,8 @@ public sealed class EditProductValidator : AbstractValidator<EditProductCommand>
             .NotEmpty()
             .MaximumLength(50);
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0);
+        RuleFor(x => x).Custom((command, context) =>
+            ProductPriceInputs.ValidateShape(command.Prices, command.BasePrice, context));
         RuleFor(x => x.BaseCostPrice).GreaterThanOrEqualTo(0);
 
         When(x => x.Description is not null, () =>
@@ -67,22 +68,22 @@ public sealed class EditProductValidator : AbstractValidator<EditProductCommand>
         RuleForEach(x => x.VariantsToAdd).Custom((v, context) =>
         {
             var command = (EditProductCommand)context.InstanceToValidate;
-            ValidateVariant(v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.Price, v.CostPrice,
-                v.StockQuantity, v.MinStockQuantity, command.StockTrack, command.BasePrice, command.BaseCostPrice, context);
+            ValidateVariant(v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.CostPrice,
+                v.StockQuantity, v.MinStockQuantity, command.StockTrack, command.BaseCostPrice, context);
         });
 
         RuleForEach(x => x.VariantsToUpdate).Custom((v, context) =>
         {
             var command = (EditProductCommand)context.InstanceToValidate;
-            ValidateVariant(v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.Price, v.CostPrice,
-                v.StockQuantity, v.MinStockQuantity, command.StockTrack, command.BasePrice, command.BaseCostPrice, context);
+            ValidateVariant(v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.CostPrice,
+                v.StockQuantity, v.MinStockQuantity, command.StockTrack, command.BaseCostPrice, context);
         });
     }
 
     private static void ValidateVariant(
         string? size, string? color, string? optionName, string? sku, string? barcode,
-        decimal? price, decimal? costPrice, decimal? stockQuantity, decimal? minStockQuantity,
-        bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice,
+        decimal? costPrice, decimal? stockQuantity, decimal? minStockQuantity,
+        bool ownerStockTrack, decimal ownerBaseCostPrice,
         ValidationContext<EditProductCommand> context)
     {
         if (string.IsNullOrWhiteSpace(size) && string.IsNullOrWhiteSpace(color))
@@ -98,14 +99,6 @@ public sealed class EditProductValidator : AbstractValidator<EditProductCommand>
                 context.AddFailure("Stock quantity is required when stock is tracked.");
             if (!minStockQuantity.HasValue)
                 context.AddFailure("Minimum stock quantity is required when stock is tracked.");
-        }
-
-        if (price.HasValue)
-        {
-            if (price.Value < 0)
-                context.AddFailure("Variant price must be zero or greater.");
-            else if (price.Value < ownerBasePrice)
-                context.AddFailure("Variant price must be greater than the product's base price.");
         }
 
         if (costPrice.HasValue)

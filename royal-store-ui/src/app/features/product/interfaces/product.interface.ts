@@ -1,4 +1,5 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { ProductPriceFormControls } from './price-list.interface';
 
 export interface ProductCategoryOption {
   id: string;
@@ -137,4 +138,7 @@ export interface ProductFormControls {
   length: FormControl<number | null>;
 
   variants: FormArray<FormGroup<ProductVariantFormControls>>;
+
+  /** One group per price list; the default list's sale price mirrors `basePrice`. */
+  prices: FormArray<FormGroup<ProductPriceFormControls>>;
 }

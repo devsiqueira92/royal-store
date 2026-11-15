@@ -120,6 +120,12 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(ph => ph.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // One price per price list (061). Removing a product removes its prices on every list.
+        builder.HasMany(p => p.Prices)
+            .WithOne()
+            .HasForeignKey(pp => pp.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(p => new { p.TenantId, p.CategoryId });
 
         builder.HasIndex(p => new { p.TenantId, p.Sku }).IsUnique();

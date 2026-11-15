@@ -19,13 +19,23 @@ public sealed class ProductRepository : IProductRepository
     public async Task AddVariantAsync(ProductVariant variant, CancellationToken ct = default) =>
         await _context.ProductVariants.AddAsync(variant, ct);
 
+    public async Task AddPriceAsync(ProductPrice price, CancellationToken ct = default) =>
+        await _context.ProductPrices.AddAsync(price, ct);
+
+    public void RemovePrice(ProductPrice price) => _context.ProductPrices.Remove(price);
+
+    // Split query: variants, photos and prices are three collections on the same parent; in a
+    // single statement they would multiply each other's rows (5 variants x 3 photos x 3 price
+    // lists = 45 rows per product).
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Products
             .Include(p => p.Category)
             .Include(p => p.Supplier)
             .Include(p => p.Variants)
             .Include(p => p.Photos)
+            .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
             .Include(p => p.TaxProfileTemplate)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
     public async Task<IReadOnlyList<Product>> GetAllAsync(
@@ -37,7 +47,9 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Supplier)
             .Include(p => p.Variants)
             .Include(p => p.Photos)
+            .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
             .Include(p => p.TaxProfileTemplate)
+            .AsSplitQuery()
             .AsQueryable();
 
         if (isActive.HasValue)
@@ -99,7 +111,10 @@ public sealed class ProductRepository : IProductRepository
             .GroupBy(x => 1)
             .Select(g => new
             {
-                StockValue = g.Sum(x => (x.v.Price ?? x.p.BasePrice) * (x.v.StockQuantity ?? 0)),
+                // BasePrice is the product's price on the default list (061). A variant no longer
+                // has a sale price of its own, and a service option — the only kind that still
+                // does — never carries stock, so it contributed nothing to this sum before either.
+                StockValue = g.Sum(x => x.p.BasePrice * (x.v.StockQuantity ?? 0)),
                 TotalQuantity = g.Sum(x => x.v.StockQuantity ?? 0),
                 Result = g.Select(x => x.p.Id).Distinct().Count()
             })

@@ -72,7 +72,10 @@ public static class SaleItemEnricher
             productCode: variant.Barcode ?? product.Sku,
             quantity: line.Quantity,
             unitPrice: variant.EffectivePrice(product),
-            costPrice: variant.Price ?? product.BasePrice,
+            // Behaviour preserved from before price lists: the line's cost is fed the sale price.
+            // That looks like a defect (cost price expected) and is deliberately NOT changed here —
+            // see specs/061-product-price-lists/research.md, "Finding outside scope".
+            costPrice: variant.EffectivePrice(product),
             discountItem: 0m,
             catalog: catalog,
             fiscal: fiscal,
