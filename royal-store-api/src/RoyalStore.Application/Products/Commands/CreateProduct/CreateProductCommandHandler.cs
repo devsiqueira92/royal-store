@@ -16,6 +16,7 @@ public sealed class CreateProductCommandHandler
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly ISupplierRepository _supplierRepository;
+    private readonly IPriceListRepository _priceListRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -26,6 +27,7 @@ public sealed class CreateProductCommandHandler
         ICategoryRepository categoryRepository,
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
         ISupplierRepository supplierRepository,
+        IPriceListRepository priceListRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -35,6 +37,7 @@ public sealed class CreateProductCommandHandler
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _supplierRepository = supplierRepository;
+        _priceListRepository = priceListRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -63,9 +66,16 @@ public sealed class CreateProductCommandHandler
                 return Error.Validation("product.supplier_invalid", "Supplier not found or inactive.");
         }
 
+        // Every list of the store, active or not: the aggregate decides which ones may be priced.
+        var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
+
+        var prices = ProductPriceInputs.ForCreate(command.Prices, command.BasePrice, priceLists);
+        if (!prices.IsSuccess)
+            return prices.Error;
+
         var productResult = Product.CreateProduct(
             tenantId, command.CategoryId, command.Name, command.Sku, command.StockTrack,
-            command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
+            prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Ncm, command.Cest, command.Origin,
             command.NetWeight, command.GrossWeight, command.Width, command.Height, command.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
@@ -79,8 +89,9 @@ public sealed class CreateProductCommandHandler
 
         foreach (var v in command.Variants ?? [])
         {
+            // No sale price: a product variant is priced by the product's price lists (061 FR-024).
             var variantResult = product.AddVariant(tenantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode,
-                v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity);
+                null, v.CostPrice, v.StockQuantity, v.MinStockQuantity);
             if (!variantResult.IsSuccess)
                 return variantResult.Error;
         }

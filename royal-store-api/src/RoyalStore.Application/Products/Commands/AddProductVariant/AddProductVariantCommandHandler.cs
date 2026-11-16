@@ -42,6 +42,6 @@ public sealed class AddProductVariantCommandHandler
         await _productRepository.AddVariantAsync(variantResult.Value, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return ProductVariantResponse.From(variantResult.Value);
+        return ProductVariantResponse.From(variantResult.Value, product);
     }
 }

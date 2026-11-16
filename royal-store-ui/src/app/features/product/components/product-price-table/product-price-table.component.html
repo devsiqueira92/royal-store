@@ -1,0 +1,78 @@
+<section class="product-prices">
+  <h3 class="product-prices__title">
+    {{ 'product.productPrices.title' | translate }}
+  </h3>
+  <p class="product-prices__hint">
+    {{ 'product.productPrices.hint' | translate }}
+  </p>
+
+  <div class="product-prices__box">
+    <div class="product-prices__bar">
+      <span class="product-prices__caption">{{
+        'product.productPrices.caption' | translate
+      }}</span>
+      <span class="product-prices__count">
+        {{
+          'product.productPrices.count'
+            | translate: { priced: pricedCount(), total: priceLists().length }
+        }}
+      </span>
+    </div>
+
+    <div class="product-prices__row product-prices__row--head">
+      <span>{{ 'product.productPrices.list' | translate }}</span>
+      <span>{{ 'product.productPrices.salePrice' | translate }}</span>
+      <span class="product-prices__margin">{{
+        'product.productPrices.margin' | translate
+      }}</span>
+    </div>
+
+    <ng-container [formGroup]="form()">
+      <ng-container formArrayName="prices">
+        @for (group of groups(); track group.controls.priceListId.value) {
+          @let list = priceLists()[$index];
+          <div class="product-prices__row" [formGroup]="group">
+            <span class="product-prices__name">
+              {{ list.name }}
+              @if (list.isDefault) {
+                <span class="product-prices__tag">{{
+                  'product.priceLists.default' | translate
+                }}</span>
+              }
+              @if (list.discountPercentage !== null) {
+                <span class="product-prices__tag"
+                  >-{{ list.discountPercentage | number: '1.0-2' }}%</span
+                >
+              }
+            </span>
+            <app-input-number-field
+              class="product-prices__input"
+              controlName="salePrice"
+              [parentForm]="group"
+              [label]="
+                list.isDefault
+                  ? 'product.productPrices.required'
+                  : 'product.productPrices.usesDefault'
+              "
+            ></app-input-number-field>
+
+            @let margin = this.margin(group, list);
+            <span
+              class="product-prices__margin"
+              [class.product-prices__margin--fallback]="
+                usesDefault(group, list)
+              "
+              [class.product-prices__margin--negative]="(margin ?? 0) < 0"
+            >
+              @if (margin !== null) {
+                {{ margin | number: '1.0-0' }}%
+              } @else {
+                —
+              }
+            </span>
+          </div>
+        }
+      </ng-container>
+    </ng-container>
+  </div>
+</section>

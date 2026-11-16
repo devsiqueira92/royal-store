@@ -40,9 +40,10 @@
       [itemType]="itemType()"
     ></app-product-variants>
 
-    <!-- 0 === product -->
     @if (itemType() === 0) {
-      <app-product-logistics [formGroup]="formGroup"></app-product-logistics>
+      <app-product-logistics
+        [formGroup]="formGroup"
+      ></app-product-logistics>
     }
   }
 

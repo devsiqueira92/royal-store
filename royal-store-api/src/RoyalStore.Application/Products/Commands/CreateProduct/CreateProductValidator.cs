@@ -16,7 +16,8 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
             .NotEmpty()
             .MaximumLength(50);
 
-        RuleFor(x => x.BasePrice).GreaterThanOrEqualTo(0);
+        RuleFor(x => x).Custom((command, context) =>
+            ProductPriceInputs.ValidateShape(command.Prices, command.BasePrice, context));
         RuleFor(x => x.BaseCostPrice).GreaterThanOrEqualTo(0);
 
         When(x => x.Description is not null, () =>
@@ -80,14 +81,6 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                         context.AddFailure("Stock quantity is required when stock is tracked.");
                     if (!v.MinStockQuantity.HasValue)
                         context.AddFailure("Minimum stock quantity is required when stock is tracked.");
-                }
-
-                if (v.Price.HasValue)
-                {
-                    if (v.Price.Value < 0)
-                        context.AddFailure("Variant price must be zero or greater.");
-                    else if (v.Price.Value < command.BasePrice)
-                        context.AddFailure("Variant price must be greater than the product's base price.");
                 }
 
                 if (v.CostPrice.HasValue)

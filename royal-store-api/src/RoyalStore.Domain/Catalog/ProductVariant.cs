@@ -38,7 +38,7 @@ public sealed class ProductVariant : Entity
     }
 
     internal static Result Validate(
-        bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice,
+        ItemType ownerType, bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice,
         string? sku, string? barcode, decimal? price, decimal? costPrice,
         decimal? stockQuantity, decimal? minStockQuantity)
     {
@@ -63,7 +63,10 @@ public sealed class ProductVariant : Entity
         if (minStockQuantity is < 0)
             return Result.Failure(Error.Validation("variant.min_stock_negative", "Minimum stock quantity must be zero or greater."));
 
-        if (price.HasValue)
+        // Only a service option carries a sale price of its own. A product variant is priced by its
+        // product's price lists (061 FR-024), so whatever arrives here for a product is not a price
+        // and is not judged as one.
+        if (ownerType == ItemType.Service && price.HasValue)
         {
             if (price.Value < 0)
                 return Result.Failure(Error.Validation("variant.price_negative", "Price must be zero or greater."));
@@ -86,9 +89,9 @@ public sealed class ProductVariant : Entity
 
     public Result Update(string? size, string? color, string? optionName, string? sku, string? barcode,
         decimal? price, decimal? costPrice, decimal? stockQuantity, decimal? minStockQuantity,
-        bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice)
+        ItemType ownerType, bool ownerStockTrack, decimal ownerBasePrice, decimal ownerBaseCostPrice)
     {
-        var validation = Validate(ownerStockTrack, ownerBasePrice, ownerBaseCostPrice,
+        var validation = Validate(ownerType, ownerStockTrack, ownerBasePrice, ownerBaseCostPrice,
             sku, barcode, price, costPrice, stockQuantity, minStockQuantity);
         if (!validation.IsSuccess)
             return validation;
@@ -98,7 +101,12 @@ public sealed class ProductVariant : Entity
         OptionName = optionName?.Trim();
         Sku = sku?.Trim();
         Barcode = barcode?.Trim();
-        Price = price;
+
+        // A product variant's stored price is a leftover from before price lists: kept in the
+        // database, never read and never written (061 FR-027).
+        if (ownerType == ItemType.Service)
+            Price = price;
+
         CostPrice = costPrice;
         StockQuantity = stockQuantity;
         MinStockQuantity = minStockQuantity;
@@ -141,6 +149,11 @@ public sealed class ProductVariant : Entity
         return label.Length > 200 ? label[..200] : label;
     }
 
-    /// <summary>The price in force: the variant's own when set, otherwise the product's base price.</summary>
-    public decimal EffectivePrice(Product owner) => Price ?? owner.BasePrice;
+    /// <summary>
+    /// The price in force. A service option uses its own price when set, otherwise the service's
+    /// price. A product variant always uses its product's price — <see cref="Product.BasePrice"/>,
+    /// which mirrors the product's price on the store's default list (061 FR-020, FR-026).
+    /// </summary>
+    public decimal EffectivePrice(Product owner) =>
+        owner.Type == ItemType.Service ? Price ?? owner.BasePrice : owner.BasePrice;
 }

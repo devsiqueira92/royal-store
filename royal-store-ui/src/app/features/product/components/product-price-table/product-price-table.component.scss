@@ -1,0 +1,145 @@
+:host {
+  display: block;
+
+  .product-prices__title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
+
+  .product-prices__hint {
+    margin: 0.25rem 0 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .product-prices__cost {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .product-prices__cost-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: light-dark(var(--p-surface-600), var(--p-surface-300));
+  }
+
+  .product-prices__cost-hint {
+    flex: 1 1 12rem;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .product-prices__box {
+    border-radius: 0.75rem;
+    border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
+    background: light-dark(var(--p-surface-0), var(--p-surface-900));
+    overflow: hidden;
+  }
+
+  .product-prices__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem 0.75rem;
+    padding: 0.625rem 0.75rem;
+  }
+
+  .product-prices__caption,
+  .product-prices__row--head {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: light-dark(var(--p-surface-500), var(--p-surface-400));
+  }
+
+  .product-prices__count {
+    font-size: 0.6875rem;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .product-prices__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 9rem 3.5rem;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-top: 1px solid light-dark(var(--p-surface-100), var(--p-surface-800));
+
+    &--head {
+      padding-block: 0.5rem;
+    }
+
+    @media (max-width: 560px) {
+      grid-template-columns: minmax(0, 1fr) 6.5rem 2.75rem;
+    }
+  }
+
+  .product-prices__name {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
+
+  .product-prices__tag {
+    padding: 0.0625rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--p-primary-color);
+    background: light-dark(var(--p-primary-50), var(--p-surface-800));
+  }
+
+  :host ::ng-deep .product-prices__input {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .product-prices__margin {
+    text-align: right;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: light-dark(var(--p-green-600), var(--p-green-400));
+
+    &--fallback {
+      opacity: 0.55;
+    }
+
+    &--negative {
+      color: var(--p-red-500);
+    }
+  }
+
+  .product-prices__row--head .product-prices__margin {
+    color: inherit;
+  }
+
+  .product-prices__error {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: 0.6875rem;
+    text-align: right;
+    color: var(--p-red-500);
+  }
+
+  app-input-number-field {
+    ::ng-deep form {
+      margin-bottom: 0 !important;
+    }
+  }
+}

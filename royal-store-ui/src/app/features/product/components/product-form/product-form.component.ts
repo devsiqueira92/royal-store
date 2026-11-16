@@ -33,6 +33,7 @@ import { toggleControl } from '@app/shared/utils/toggle-control.utils';
 import { ProductLogisticsComponent } from '../product-logistics/product-logistics.component';
 import { TaxProfileTemplateFacade } from '@app/core/tax-profile-template/facade/tax-profile-template.facade';
 import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/tax-profile-template.interface';
+import { ProductPriceFormControls } from '../../interfaces/price-list.interface';
 
 // Advanced fiscal controls driven by the tax profile template's override matrix.
 // `cest` is intentionally excluded — it's a free Product field, not template-driven.
@@ -290,6 +291,7 @@ export class ProductFormComponent {
       length: new FormControl(null, [Validators.min(0)]),
 
       variants: new FormArray<FormGroup<ProductVariantFormControls>>([]),
+      prices: new FormArray<FormGroup<ProductPriceFormControls>>([]),
     });
   }
 }

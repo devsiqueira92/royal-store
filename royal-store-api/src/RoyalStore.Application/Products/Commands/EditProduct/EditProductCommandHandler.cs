@@ -16,6 +16,7 @@ public sealed class EditProductCommandHandler
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly ISupplierRepository _supplierRepository;
+    private readonly IPriceListRepository _priceListRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -26,6 +27,7 @@ public sealed class EditProductCommandHandler
         ICategoryRepository categoryRepository,
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
         ISupplierRepository supplierRepository,
+        IPriceListRepository priceListRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -35,6 +37,7 @@ public sealed class EditProductCommandHandler
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _supplierRepository = supplierRepository;
+        _priceListRepository = priceListRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -73,19 +76,26 @@ public sealed class EditProductCommandHandler
 
         var variantsToAdd = command.VariantsToAdd
             .Select(v => new NewVariantRequest(
-                v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
+                v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, null, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
             .ToList();
 
         var variantsToUpdate = command.VariantsToUpdate
             .Select(v => new VariantUpdateRequest(
-                v.VariantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.Price, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
+                v.VariantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, null, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
             .ToList();
 
         var existingVariantIds = product.Variants.Select(v => v.Id).ToHashSet();
 
+        // Every list of the store, active or not: the aggregate decides which ones may be priced.
+        var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
+
+        var prices = ProductPriceInputs.ForEdit(command.Prices, command.BasePrice, product, priceLists);
+        if (!prices.IsSuccess)
+            return prices.Error;
+
         var updateResult = product.UpdateProductWithVariants(
             command.CategoryId, command.Name, command.Sku, command.StockTrack,
-            command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
+            prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Ncm, command.Cest, command.Origin,
             command.Measure.NetWeight, command.Measure.GrossWeight, command.Measure.Width, command.Measure.Height, command.Measure.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
@@ -101,6 +111,14 @@ public sealed class EditProductCommandHandler
         foreach (var variant in newVariants)
             await _productRepository.AddVariantAsync(variant, cancellationToken);
 
+        // Same reason as the variants above: children added to an already-tracked aggregate are
+        // registered explicitly.
+        foreach (var price in updateResult.Value.Added)
+            await _productRepository.AddPriceAsync(price, cancellationToken);
+
+        foreach (var price in updateResult.Value.Removed)
+            _productRepository.RemovePrice(price);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var userId = _currentUserService.CurrentUserId ?? "unknown";
@@ -111,6 +129,8 @@ public sealed class EditProductCommandHandler
             userId,
             cancellationToken);
 
-        return ProductResponse.From(product);
+        // Re-read so the response carries each new price's list (name, default and active flags).
+        var saved = await _productRepository.GetByIdAsync(product.Id, cancellationToken);
+        return ProductResponse.From(saved!);
     }
 }

@@ -39,6 +39,6 @@ public sealed class UpdateProductVariantCommandHandler
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var variant = product.Variants.First(v => v.Id == command.VariantId);
-        return ProductVariantResponse.From(variant);
+        return ProductVariantResponse.From(variant, product);
     }
 }

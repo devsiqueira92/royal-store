@@ -38,7 +38,8 @@
       "expenses": "Despesas",
       "expenseCategories": "Categorias de despesa",
       "financialAccounts": "Contas financeiras",
-      "pricing": "Precificação"
+      "pricing": "Precificação",
+      "priceLists": "Listas de preço"
     }
   },
   "auth": {
@@ -154,7 +155,45 @@
       "status": "Status",
       "isActive": "Ativo"
     },
+    "priceLists": {
+      "title": "Listas de preço",
+      "hint": "Tabelas de preço nomeadas, compartilhadas por todo o catálogo — ex.: à vista, a prazo, promoção.",
+      "caption": "Listas de preço",
+      "default": "Padrão",
+      "isDefault": "Padrão",
+      "setDefault": "Definir",
+      "active": "Ativa",
+      "activeLabel": "Lista {{name}} ativa",
+      "name": "Nome",
+      "manage": "Gerenciar",
+      "done": "Concluir",
+      "add": "Adicionar lista",
+      "newPlaceholder": "Nova lista — ex.: Atacado",
+      "newLabel": "Nome da nova lista",
+      "remove": "Remover lista {{name}}",
+      "footnote": "As listas valem para todos os produtos. A lista padrão alimenta o PDV quando nenhuma outra é escolhida; listas inativas ficam ocultas nos produtos e no checkout."
+    },
+    "productPrices": {
+      "title": "Preços deste produto",
+      "hint": "A lista padrão espelha o preço de venda do Detalhe do produto. O preço mínimo limita o desconto que o vendedor pode dar no PDV.",
+      "costPrice": "Preço de custo",
+      "costPriceHint": "Calculado no Detalhe do produto (custo + composição). Base da margem de cada lista.",
+      "caption": "Preços de venda",
+      "count": "{{priced}} de {{total}} listas com preço · listas vazias usam o preço padrão",
+      "list": "Lista",
+      "salePrice": "Preço de venda",
+      "minPrice": "Preço mínimo · PDV",
+      "margin": "Margem",
+      "noLimit": "sem limite",
+      "usesDefault": "usa o padrão",
+      "required": "obrigatório",
+      "minAboveSale": "O preço mínimo não pode ser maior que o preço de venda."
+    },
     "form": {
+      "tabs": {
+        "details": "Detalhe do produto",
+        "pricing": "Precificação avançada"
+      },
       "title": "Novo produto",
       "edit": "Editar produto",
       "subtitle": "Detalhes do produto, classificação fiscal e variantes",
@@ -316,6 +355,46 @@
       "products": "{{count}} produtos",
       "edit": "Editar categoria",
       "delete": "Excluir categoria"
+    }
+  },
+  "priceList": {
+    "title": "Listas de preço",
+    "subtitle": "Configure as tabelas de preço do catálogo.",
+    "newPriceList": "Nova lista",
+    "empty": "Nenhuma lista de preço encontrada.",
+    "default": "Padrão",
+    "manual": "Manual",
+    "toggleActive": "Alternar ativo",
+    "edit": "Editar lista",
+    "columns": {
+      "name": "Nome",
+      "rule": "Regra",
+      "products": "Produtos",
+      "status": "Status"
+    },
+    "form": {
+      "createTitle": "Nova lista de preço",
+      "createSubtitle": "Crie uma tabela de preços para o catálogo.",
+      "editTitle": "Editar lista de preço",
+      "editSubtitle": "Renomeie ou configure a regra percentual.",
+      "section": {
+        "details": "Dados da lista",
+        "rule": "Regra percentual",
+        "paymentMethods": "Formas de pagamento"
+      },
+      "noPaymentMethods": "Nenhuma forma de pagamento ativa.",
+      "name": "Nome",
+      "namePlaceholder": "Ex.: À vista / Pix",
+      "ruleDesc": "Calcula automaticamente os preços como percentual de outra lista",
+      "addRule": "Adicionar regra",
+      "removeRule": "Remover regra",
+      "baseList": "Lista base",
+      "baseListPlaceholder": "Selecione a lista base",
+      "percentage": "Percentual (%)",
+      "percentageHint": "Ex.: 10 para 10% de desconto",
+      "cancel": "Cancelar",
+      "createSubmit": "Criar lista",
+      "submit": "Salvar"
     }
   },
   "seller": {

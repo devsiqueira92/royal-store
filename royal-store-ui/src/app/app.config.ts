@@ -59,6 +59,8 @@ import { supplierFeature } from './features/supplier/store/supplier.reducer';
 import { supplierStore } from './features/supplier/store/supplier.store';
 import { expenseFeature } from './features/expense/store/expense.reducer';
 import { expenseStore } from './features/expense/store/expense.store';
+import { priceListFeature } from './features/price-list/store/price-list.reducer';
+import { priceListStore } from './features/price-list/store/price-list.store';
 
 registerLocaleData(localeEn);
 
@@ -103,6 +105,7 @@ export const appConfig: ApplicationConfig = {
       [currentSellerFeature.name]: currentSellerFeature.reducer,
       [supplierFeature.name]: supplierFeature.reducer,
       [expenseFeature.name]: expenseFeature.reducer,
+      [priceListFeature.name]: priceListFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -123,6 +126,7 @@ export const appConfig: ApplicationConfig = {
       currentSellerStore,
       supplierStore,
       expenseStore,
+      priceListStore,
     ),
     provideAppInitializer(() => {
       inject(Store).dispatch(AuthActions.checkAuthProfile());

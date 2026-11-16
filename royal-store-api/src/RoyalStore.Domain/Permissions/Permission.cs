@@ -29,6 +29,7 @@ public enum Permission
     SystemManagerOverride,
 
     CatalogManageTaxProfiles,
+    CatalogManagePriceLists,
 
     ExpensesView,
     ExpensesCreate,

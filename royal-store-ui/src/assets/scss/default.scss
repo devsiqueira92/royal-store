@@ -12,8 +12,17 @@ html {
   /* Inter is loaded in index.html with display=swap; the system stack stays as
      the fallback so text paints immediately with matching metrics. */
   font-family:
-    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol';
   color-scheme: light;
 
   &.app-dark {
@@ -73,4 +82,10 @@ a {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.p-panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

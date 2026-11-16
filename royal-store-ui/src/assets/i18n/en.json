@@ -38,7 +38,8 @@
       "expenses": "Expenses",
       "expenseCategories": "Expense categories",
       "financialAccounts": "Financial accounts",
-      "pricing": "Pricing"
+      "pricing": "Pricing",
+      "priceLists": "Price lists"
     }
   },
   "auth": {
@@ -154,7 +155,45 @@
       "status": "Status",
       "isActive": "Active"
     },
+    "priceLists": {
+      "title": "Price lists",
+      "hint": "Named price tables shared across your catalog — e.g. cash, installments, promotion.",
+      "caption": "Price lists",
+      "default": "Default",
+      "isDefault": "Default",
+      "setDefault": "Set",
+      "active": "Active",
+      "activeLabel": "List {{name}} active",
+      "name": "Name",
+      "manage": "Manage",
+      "done": "Done",
+      "add": "Add list",
+      "newPlaceholder": "New list — e.g. Wholesale",
+      "newLabel": "New list name",
+      "remove": "Remove list {{name}}",
+      "footnote": "Lists are shared across all products. The default list feeds the POS when no other list is selected; inactive lists are hidden from products and checkout."
+    },
+    "productPrices": {
+      "title": "Prices for this product",
+      "hint": "The default list mirrors the sale price in Product details. Min price caps the discount a seller can give at the POS.",
+      "costPrice": "Cost price",
+      "costPriceHint": "Calculated in Product details (cost + composition). Basis for each list's margin.",
+      "caption": "Sale prices",
+      "count": "{{priced}} of {{total}} lists priced · empty lists fall back to default",
+      "list": "List",
+      "salePrice": "Sale price",
+      "minPrice": "Min price · POS",
+      "margin": "Margin",
+      "noLimit": "no limit",
+      "usesDefault": "uses default",
+      "required": "required",
+      "minAboveSale": "The minimum price cannot be higher than the sale price."
+    },
     "form": {
+      "tabs": {
+        "details": "Product details",
+        "pricing": "Advanced pricing"
+      },
       "title": "New product",
       "edit": "Edit product",
       "subtitle": "Product details, tax classification and variants",
@@ -316,6 +355,46 @@
       "products": "{{count}} products",
       "edit": "Edit category",
       "delete": "Delete category"
+    }
+  },
+  "priceList": {
+    "title": "Price lists",
+    "subtitle": "Configure the catalog's pricing tables.",
+    "newPriceList": "New list",
+    "empty": "No price lists found.",
+    "default": "Default",
+    "manual": "Manual",
+    "toggleActive": "Toggle active",
+    "edit": "Edit list",
+    "columns": {
+      "name": "Name",
+      "rule": "Rule",
+      "products": "Products",
+      "status": "Status"
+    },
+    "form": {
+      "createTitle": "New price list",
+      "createSubtitle": "Create a pricing table for the catalog.",
+      "editTitle": "Edit price list",
+      "editSubtitle": "Rename or configure the percentage rule.",
+      "section": {
+        "details": "List details",
+        "rule": "Percentage rule",
+        "paymentMethods": "Payment methods"
+      },
+      "noPaymentMethods": "No active payment methods.",
+      "name": "Name",
+      "namePlaceholder": "E.g.: Cash / Pix",
+      "ruleDesc": "Automatically calculates prices as a percentage of another list.",
+      "addRule": "Add rule",
+      "removeRule": "Remove rule",
+      "baseList": "Base list",
+      "baseListPlaceholder": "Select the base list",
+      "percentage": "Percentage (%)",
+      "percentageHint": "E.g.: 10 for 10% discount",
+      "cancel": "Cancel",
+      "createSubmit": "Create list",
+      "submit": "Save"
     }
   },
   "seller": {

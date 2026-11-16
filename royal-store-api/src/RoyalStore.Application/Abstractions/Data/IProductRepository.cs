@@ -6,6 +6,12 @@ public interface IProductRepository
 {
     Task AddAsync(Product product, CancellationToken ct = default);
     Task AddVariantAsync(ProductVariant variant, CancellationToken ct = default);
+
+    /// <summary>Registers a price added to an already-tracked product (see ProductPriceChanges).</summary>
+    Task AddPriceAsync(ProductPrice price, CancellationToken ct = default);
+
+    /// <summary>Registers the removal of a price taken off an already-tracked product.</summary>
+    void RemovePrice(ProductPrice price);
     Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetAllAsync(
         bool? isActive, Guid? categoryId, StockStatus? stockStatus, Guid? supplierId,

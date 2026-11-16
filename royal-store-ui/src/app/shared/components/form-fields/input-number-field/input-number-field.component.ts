@@ -1,5 +1,14 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { ReactiveFormsModule, UntypedFormGroup, Validators } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+} from '@angular/core';
+import {
+  ReactiveFormsModule,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { MessageModule } from 'primeng/message';
@@ -10,7 +19,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormErrorComponent } from '../form-error/form-error.component';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-input-number-field',
   imports: [
     ReactiveFormsModule,
@@ -48,9 +57,12 @@ export class InputNumberFieldComponent {
 
     if (this.mode() === 'percent') {
       const value = parseFloat(inputElement.value.replace(',', '.'));
-      this.parentForm().controls[this.controlName()].setValue(Number.isNaN(value) ? null : value, {
-        emitModelToViewChange: false,
-      });
+      this.parentForm().controls[this.controlName()].setValue(
+        Number.isNaN(value) ? null : value,
+        {
+          emitModelToViewChange: false,
+        },
+      );
       return;
     }
 

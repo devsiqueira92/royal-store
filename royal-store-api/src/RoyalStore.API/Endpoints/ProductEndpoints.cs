@@ -7,6 +7,7 @@ using RoyalStore.Application.Products.Commands.DisableProduct;
 using RoyalStore.Application.Products.Commands.EditProduct;
 using RoyalStore.Application.Products.Commands.EnableProduct;
 using RoyalStore.Application.Products.Commands.RemoveProductPhoto;
+using RoyalStore.Application.Products.Commands.RemoveProductPrice;
 using RoyalStore.Application.Products.Commands.RemoveProductVariant;
 using RoyalStore.Application.Products.Commands.SetProductCoverPhoto;
 using RoyalStore.Application.Products.Commands.UpdateProductVariant;
@@ -38,6 +39,8 @@ public sealed class ProductEndpoints : IEndpointDefinition
         routes.MapPut("{id:guid}/variants/{variantId:guid}", UpdateVariant);
         routes.MapDelete("variants/{variantId:guid}", RemoveVariant);
 
+        routes.MapDelete("{id:guid}/prices/{priceListId:guid}", RemovePrice);
+
         routes.MapPost("{id:guid}/photos", AddPhoto);
         routes.MapDelete("{id:guid}/photos/{photoId:guid}", RemovePhoto);
         routes.MapPatch("{id:guid}/photos/{photoId:guid}/cover", SetCoverPhoto);
@@ -60,6 +63,13 @@ public sealed class ProductEndpoints : IEndpointDefinition
     {
         var result = await mediator.Send(command with { Id = id }, ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> RemovePrice(
+        Guid id, Guid priceListId, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new RemoveProductPriceCommand(id, priceListId), ct);
+        return result.ToHttpResult(() => TypedResults.NoContent());
     }
 
     private static async Task<IResult> Disable(Guid id, IMediator mediator, CancellationToken ct)

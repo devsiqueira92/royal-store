@@ -1,5 +1,6 @@
 using MediatR;
 using RoyalStore.Application.Products.DTOs;
+using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Products.Commands.CreateProduct;
@@ -9,7 +10,8 @@ public record CreateProductCommand(
     string Name,
     string Sku,
     bool StockTrack,
-    decimal BasePrice,
+    // Deprecated (061): read only when Prices is absent, as one price on the default list.
+    decimal? BasePrice,
     decimal BaseCostPrice,
     string? Description,
     string UnitOfMeasure,
@@ -29,7 +31,9 @@ public record CreateProductCommand(
     string? PisCofinsCst = null,
     string? IvaCst = null,
     bool? IsSelectiveTax = null,
-    Guid? SupplierId = null) : IRequest<Result<ProductResponse>>;
+    Guid? SupplierId = null,
+    // One sale price per price list; the default list is mandatory (061 FR-010).
+    IReadOnlyList<ProductPriceInput>? Prices = null) : IRequest<Result<ProductResponse>>;
 
 public record CreateVariantRequest(
     string? Size,
@@ -37,7 +41,6 @@ public record CreateVariantRequest(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? Price,
     decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);

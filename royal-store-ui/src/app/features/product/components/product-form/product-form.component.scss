@@ -31,3 +31,36 @@ app-button {
   border-radius: 0.625rem;
   background: light-dark(var(--p-surface-50), var(--p-surface-800));
 }
+
+.product-form__tabs ::ng-deep {
+  .p-tablist-tab-list,
+  .p-tabpanels {
+    background: transparent;
+  }
+
+  .p-tabpanels {
+    padding: 1.125rem 0 0;
+  }
+}
+
+.product-form__tab-badge {
+  margin-left: 0.375rem;
+  padding: 0.0625rem 0.4375rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+  color: light-dark(var(--p-surface-600), var(--p-surface-300));
+
+  &--invalid {
+    background: light-dark(var(--p-red-50), var(--p-surface-800));
+    color: var(--p-red-500);
+  }
+}
+
+.product-form__pricing {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-bottom: 1.125rem;
+}

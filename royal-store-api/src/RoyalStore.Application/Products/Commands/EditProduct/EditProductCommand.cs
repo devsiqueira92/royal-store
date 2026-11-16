@@ -1,5 +1,6 @@
 using MediatR;
 using RoyalStore.Application.Products.DTOs;
+using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Products.Commands.EditProduct;
@@ -10,7 +11,6 @@ public sealed record VariantInput(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? Price,
     decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);
@@ -22,7 +22,6 @@ public sealed record VariantUpdateInput(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? Price,
     decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);
@@ -41,7 +40,8 @@ public record EditProductCommand(
     string Name,
     string Sku,
     bool StockTrack,
-    decimal BasePrice,
+    // Deprecated (061): read only when Prices is absent, as the new price on the default list.
+    decimal? BasePrice,
     decimal BaseCostPrice,
     string? Description,
     string UnitOfMeasure,
@@ -58,7 +58,9 @@ public record EditProductCommand(
     string? PisCofinsCst = null,
     string? IvaCst = null,
     bool? IsSelectiveTax = null,
-    Guid? SupplierId = null)
+    Guid? SupplierId = null,
+    // Replaces the product's price set: one sale price per price list (061 FR-012).
+    IReadOnlyList<ProductPriceInput>? Prices = null)
     : IRequest<Result<ProductResponse>>
 {
     public IReadOnlyList<VariantInput> VariantsToAdd { get; init; } = VariantsToAdd ?? [];

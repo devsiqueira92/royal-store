@@ -35,6 +35,7 @@ public static class PermissionCatalog
         new(Permission.SystemManagerOverride, "system.managerOverride", PermissionResource.System, "Manager override"),
 
         new(Permission.CatalogManageTaxProfiles, "catalog.manageTaxProfiles", PermissionResource.Catalog, "Manage tax profile templates"),
+        new(Permission.CatalogManagePriceLists, "catalog.managePriceLists", PermissionResource.Catalog, "Manage price lists"),
 
         new(Permission.ExpensesView, "expenses.view", PermissionResource.Expenses, "View operating expenses"),
         new(Permission.ExpensesCreate, "expenses.create", PermissionResource.Expenses, "Record and edit operating expenses"),

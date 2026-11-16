@@ -35,7 +35,8 @@ public record ProductResponse(
     IReadOnlyList<ProductPhotoResponse> Photos,
     IReadOnlyList<ProductVariantResponse> Variants,
     Guid? SupplierId,
-    string? SupplierName)
+    string? SupplierName,
+    IReadOnlyList<ProductPriceResponse> Prices)
 {
     public static ProductResponse From(Product product) =>
         new(product.Id, product.TenantId, product.CategoryId,
@@ -51,6 +52,11 @@ public record ProductResponse(
             product.Version,
             product.Photos.FirstOrDefault(p => p.IsCover)?.Url,
             product.Photos.Select(p => new ProductPhotoResponse(p.Id, p.Url, p.IsCover)).ToList(),
-            product.Variants.Select(ProductVariantResponse.From).ToList(),
-            product.SupplierId, product.Supplier?.Name);
+            product.Variants.Select(v => ProductVariantResponse.From(v, product)).ToList(),
+            product.SupplierId, product.Supplier?.Name,
+            product.Prices
+                .Select(price => ProductPriceResponse.From(price, product))
+                .OrderByDescending(p => p.IsDefault)
+                .ThenBy(p => p.PriceListName)
+                .ToList());
 }
