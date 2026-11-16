@@ -1,11 +1,13 @@
  using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.PriceLists.Commands.ClearPriceListRule;
 using RoyalStore.Application.PriceLists.Commands.CreatePriceList;
 using RoyalStore.Application.PriceLists.Commands.DeletePriceList;
 using RoyalStore.Application.PriceLists.Commands.RenamePriceList;
 using RoyalStore.Application.PriceLists.Commands.SetDefaultPriceList;
 using RoyalStore.Application.PriceLists.Commands.SetPriceListActive;
+using RoyalStore.Application.PriceLists.Commands.SetPriceListRule;
 using RoyalStore.Application.PriceLists.Queries.GetPriceLists;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Permissions;
@@ -34,6 +36,11 @@ public sealed class PriceListEndpoints : IEndpointDefinition
         routes.MapPatch("{id:guid}/activate", Activate).RequireAuthorization(manage);
         routes.MapPatch("{id:guid}/deactivate", Deactivate).RequireAuthorization(manage);
         routes.MapDelete("{id:guid}", Delete).RequireAuthorization(manage);
+
+        // The percentage rule (062) has its own routes on purpose: the rename route above takes a
+        // name and nothing else, so a client that knows nothing about rules cannot wipe one.
+        routes.MapPut("{id:guid}/rule", SetRule).RequireAuthorization(manage);
+        routes.MapDelete("{id:guid}/rule", ClearRule).RequireAuthorization(manage);
     }
 
     private static async Task<IResult> GetAll(
@@ -56,6 +63,19 @@ public sealed class PriceListEndpoints : IEndpointDefinition
         Guid id, RenamePriceListCommand command, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(command with { Id = id }, ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> SetRule(
+        Guid id, SetPriceListRuleCommand command, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(command with { Id = id }, ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> ClearRule(Guid id, IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new ClearPriceListRuleCommand(id), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

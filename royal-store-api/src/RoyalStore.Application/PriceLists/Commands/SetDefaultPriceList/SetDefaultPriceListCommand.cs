@@ -73,9 +73,10 @@ public sealed class SetDefaultPriceListCommandHandler
             return Error.NotFound("pricelist.not_found", "Price list was not found.");
 
         var counts = await _priceListRepository.GetProductCountsAsync(ct);
+        var storeLists = await _priceListRepository.GetAllAsync(null, ct);
 
         if (target.IsDefault)
-            return PriceListResponse.From(target, counts.GetValueOrDefault(target.Id));
+            return PriceListResponse.From(target, counts.GetValueOrDefault(target.Id), storeLists);
 
         var productsWithoutPrice = await _priceListRepository.CountProductsWithoutPriceAsync(target.Id, ct);
 
@@ -117,6 +118,6 @@ public sealed class SetDefaultPriceListCommandHandler
             "Default price list for tenant {TenantId} is now {PriceListId}; {ProductsRepriced} products re-mirrored.",
             _tenantContext.TenantId, target.Id, products.Count);
 
-        return PriceListResponse.From(target, counts.GetValueOrDefault(target.Id));
+        return PriceListResponse.From(target, counts.GetValueOrDefault(target.Id), storeLists);
     }
 }

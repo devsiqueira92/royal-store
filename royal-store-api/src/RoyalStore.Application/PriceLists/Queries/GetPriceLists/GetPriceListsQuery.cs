@@ -22,11 +22,16 @@ public sealed class GetPriceListsQueryHandler
     public async Task<Result<IReadOnlyList<PriceListResponse>>> Handle(
         GetPriceListsQuery query, CancellationToken cancellationToken)
     {
-        // Already ordered default first, then by name.
-        var lists = await _priceListRepository.GetAllAsync(query.IsActive, cancellationToken);
+        // Every list is loaded even when the result is narrowed: a base list's name and a list's
+        // dependents must be found whatever their state. Already ordered default first, then name.
+        var storeLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
         var counts = await _priceListRepository.GetProductCountsAsync(cancellationToken);
 
+        var lists = query.IsActive.HasValue
+            ? storeLists.Where(l => l.IsActive == query.IsActive.Value)
+            : storeLists;
+
         return Result<IReadOnlyList<PriceListResponse>>.Success(
-            [.. lists.Select(l => PriceListResponse.From(l, counts.GetValueOrDefault(l.Id)))]);
+            [.. lists.Select(l => PriceListResponse.From(l, counts.GetValueOrDefault(l.Id), storeLists))]);
     }
 }

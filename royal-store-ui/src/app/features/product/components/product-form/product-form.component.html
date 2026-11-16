@@ -1,88 +1,51 @@
 <form class="product-form" [formGroup]="formGroup">
-  <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" class="product-form__tabs">
-    <p-tablist>
-      <p-tab value="details">{{ 'product.form.tabs.details' | translate }}</p-tab>
-      <p-tab value="pricing">
-        {{ 'product.form.tabs.pricing' | translate }}
-        <span
-          class="product-form__tab-badge"
-          [class.product-form__tab-badge--invalid]="pricing().invalid"
-        >
-          {{ pricing().priced }}/{{ pricing().total }}
-        </span>
-      </p-tab>
-    </p-tablist>
+  @if (selectedProduct() !== null) {
+    <div class="product-form__active">
+      <app-toggle-field
+        [parentForm]="formGroup"
+        controlName="isActive"
+        titleKey="product.form.active"
+        subtitleKey="product.form.activeHint"
+      ></app-toggle-field>
+    </div>
+  }
 
-    <p-tabpanels>
-      <p-tabpanel value="details">
-        @if (selectedProduct() !== null) {
-          <div class="product-form__active">
-            <app-toggle-field
-              [parentForm]="formGroup"
-              controlName="isActive"
-              titleKey="product.form.active"
-              subtitleKey="product.form.activeHint"
-            ></app-toggle-field>
-          </div>
-        }
+  @if (!loading()) {
+    <app-item-type-selector
+      (valueChange)="onItemTypeChange($event)"
+      [disabled]="selectedProduct() !== null"
+    ></app-item-type-selector>
 
-        @if (!loading()) {
-          <app-item-type-selector
-            (valueChange)="onItemTypeChange($event)"
-            [disabled]="selectedProduct() !== null"
-          ></app-item-type-selector>
+    <app-product-detail
+      [formGroup]="formGroup"
+      [variants]="variants"
+      [itemType]="itemType()"
+    ></app-product-detail>
 
-          <app-product-detail
-            [formGroup]="formGroup"
-            [variants]="variants"
-            [itemType]="itemType()"
-          ></app-product-detail>
+    <app-product-pricing
+      [formGroup]="formGroup"
+      [variants]="variants"
+    ></app-product-pricing>
 
-          <app-product-pricing
-            [formGroup]="formGroup"
-            [variants]="variants"
-          ></app-product-pricing>
+    <app-product-taxes
+      [parentForm]="formGroup"
+      [itemType]="itemType()"
+      [templates]="taxTemplates()"
+      [helperText]="taxHelperText()"
+    ></app-product-taxes>
 
-          <app-product-taxes
-            [parentForm]="formGroup"
-            [itemType]="itemType()"
-            [templates]="taxTemplates()"
-            [helperText]="taxHelperText()"
-          ></app-product-taxes>
+    <app-product-variants
+      [formGroup]="formGroup"
+      [variants]="variants"
+      [itemType]="itemType()"
+    ></app-product-variants>
 
-          <app-product-variants
-            [formGroup]="formGroup"
-            [variants]="variants"
-            [itemType]="itemType()"
-          ></app-product-variants>
-
-          <!-- 0 === product -->
-          @if (itemType() === 0) {
-            <app-product-logistics [formGroup]="formGroup"></app-product-logistics>
-          }
-        }
-      </p-tabpanel>
-
-      <p-tabpanel value="pricing">
-        <div class="product-form__pricing">
-          <app-price-list-manager
-            [priceLists]="priceLists()"
-            (add)="onPriceListAdd($event)"
-            (rename)="onPriceListRename($event)"
-            (defaultChange)="onPriceListDefaultChange($event)"
-            (activeChange)="onPriceListActiveChange($event)"
-            (remove)="onPriceListRemove($event)"
-          />
-
-          <app-product-price-table
-            [priceLists]="priceLists()"
-            [priceGroups]="priceGroups()"
-            [costPrice]="baseCostPrice()"
-          />
-        </div>
-      </p-tabpanel>
-    </p-tabpanels>
-  </p-tabs>
+    @if (itemType() === 0) {
+      <app-product-logistics
+        [formGroup]="formGroup"
+      ></app-product-logistics>
+    }
+  }
 
   <app-product-footer
     [formGroup]="formGroup"

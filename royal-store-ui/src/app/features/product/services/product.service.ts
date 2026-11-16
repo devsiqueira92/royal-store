@@ -63,9 +63,7 @@ export class ProductService {
     return this.http.get<Product[]>(this.apiUrl, { params: httpParams });
   }
 
-  getSummary(
-    params?: GetProductsSummaryParams,
-  ): Observable<ProductsSummary> {
+  getSummary(params?: GetProductsSummaryParams): Observable<ProductsSummary> {
     let httpParams = new HttpParams();
     if (params?.categoryId !== undefined) {
       httpParams = httpParams.set('categoryId', params.categoryId);

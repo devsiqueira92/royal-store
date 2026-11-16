@@ -4,6 +4,16 @@
   icon="pi-dollar"
   [collapsedPanel]="false"
 >
+  <button
+    icon-actions
+    type="button"
+    class="calculator-icon"
+    [class.calculator-icon--active]="showPriceTable()"
+    (click)="togglePriceTable()"
+  >
+    <i class="pi pi-calculator"></i>
+  </button>
+
   <app-input-number-field
     controlName="productCost"
     [parentForm]="localFormGroup"
@@ -35,7 +45,9 @@
           class="cost-composition__description"
           type="text"
           formControlName="description"
-          [placeholder]="'product.form.costItemDescriptionPlaceholder' | translate"
+          [placeholder]="
+            'product.form.costItemDescriptionPlaceholder' | translate
+          "
           (blur)="onCostItemBlur()"
         />
 
@@ -63,11 +75,7 @@
       </div>
     }
 
-    <button
-      type="button"
-      class="cost-composition__add"
-      (click)="addCostItem()"
-    >
+    <button type="button" class="cost-composition__add" (click)="addCostItem()">
       <i class="pi pi-plus"></i>
       {{ 'product.form.addCost' | translate }}
     </button>
@@ -92,19 +100,25 @@
       (blurred)="onProfitMarginBlur()"
     ></app-input-number-field>
 
+    @if (!showPriceTable()) {
+      <app-input-number-field
+        controlName="basePrice"
+        [parentForm]="formGroup()"
+        label="product.form.price"
+        (blurred)="onBasePriceBlur()"
+      ></app-input-number-field>
+    }
     <app-input-number-field
-      controlName="basePrice"
-      [parentForm]="formGroup()"
-      label="product.form.price"
-      [min]="0"
-      [step]="0.01"
-      (blurred)="onBasePriceBlur()"
+      controlName="profitAmount"
+      [parentForm]="localFormGroup"
+      label="product.form.profit"
     ></app-input-number-field>
   </div>
 
-  <app-input-number-field
-    controlName="profitAmount"
-    [parentForm]="localFormGroup"
-    label="product.form.profit"
-  ></app-input-number-field>
+  @if (showPriceTable()) {
+    <app-product-price-table
+      [costPrice]="basePrice()"
+      [prices]="formGroup().controls.prices"
+    />
+  }
 </app-form-layout>

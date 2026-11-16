@@ -253,6 +253,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("BasePriceListId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -260,6 +263,10 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
+
+                    b.Property<decimal?>("DiscountPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -294,6 +301,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BasePriceListId");
+
                     b.HasIndex("TenantId")
                         .IsUnique()
                         .HasDatabaseName("IX_PriceLists_TenantId_Default")
@@ -304,7 +313,12 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasIndex("TenantId", "NormalizedName")
                         .IsUnique();
 
-                    b.ToTable("PriceLists", (string)null);
+                    b.ToTable("PriceLists", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_PriceLists_Rule_Complete", "(\"DiscountPercentage\" IS NULL) = (\"BasePriceListId\" IS NULL)");
+
+                            t.HasCheckConstraint("CK_PriceLists_Rule_NotSelf", "\"BasePriceListId\" <> \"Id\"");
+                        });
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
@@ -2542,6 +2556,14 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.PriceList", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.PriceList", null)
+                        .WithMany()
+                        .HasForeignKey("BasePriceListId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>

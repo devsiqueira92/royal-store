@@ -58,4 +58,9 @@ export class ProductsComponent implements OnInit {
       subtitle: 'product.form.subtitle',
     });
   }
+
+  ngOnDestroy(): void {
+    this.productFacade.clearSelectedProduct();
+    this.detailsSidebarService.closeDrawer();
+  }
 }

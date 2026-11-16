@@ -31,5 +31,8 @@ public interface IPriceListRepository
     /// </summary>
     Task<IReadOnlyList<Product>> GetProductsWithPriceOnAsync(Guid id, CancellationToken ct = default);
 
+    /// <summary>How many lists use this one as the base of their percentage rule (062 FR-009).</summary>
+    Task<int> CountListsBasedOnAsync(Guid id, CancellationToken ct = default);
+
     void Remove(PriceList priceList);
 }

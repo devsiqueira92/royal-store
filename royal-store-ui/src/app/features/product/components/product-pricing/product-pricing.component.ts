@@ -18,10 +18,12 @@ import { DecimalPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
+import { ProductPriceTableComponent } from '../product-price-table/product-price-table.component';
 import {
   ProductFormControls,
   ProductVariantFormControls,
 } from '../../interfaces/product.interface';
+import { ProductPriceFormControls } from '../../interfaces/price-list.interface';
 
 interface CostItemFormControls {
   description: FormControl<string | null>;
@@ -36,6 +38,7 @@ interface CostItemFormControls {
     DecimalPipe,
     FormLayoutComponent,
     InputNumberFieldComponent,
+    ProductPriceTableComponent,
   ],
   templateUrl: './product-pricing.component.html',
   styleUrl: './product-pricing.component.scss',
@@ -45,13 +48,20 @@ export class ProductPricingComponent {
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
 
+  protected readonly priceGroups = signal<
+    FormGroup<ProductPriceFormControls>[]
+  >([]);
+  protected readonly showPriceTable = signal(false);
+
+  protected togglePriceTable(): void {
+    this.showPriceTable.update(v => !v);
+  }
+
   // The product's base cost and the cost composition lines below it are
   // UI-only breakdown helpers — the backend still only stores the resulting
   // total (baseCostPrice). Neither is part of ProductFormControls.
   protected readonly productCost = new FormControl<number | null>(null);
-  protected readonly profitMarginPercent = new FormControl<number | null>(
-    null,
-  );
+  protected readonly profitMarginPercent = new FormControl<number | null>(null);
   protected readonly profitAmount = new FormControl<number | null>(null);
 
   protected readonly localFormGroup = new FormGroup({
@@ -67,11 +77,11 @@ export class ProductPricingComponent {
   // Zoneless app: mutating the FormArray (push/removeAt) is invisible to
   // change detection, so the template renders from this signal instead of
   // `costItems.controls`. Every mutation goes through `syncCostItemGroups`.
-  protected readonly costItemGroups = signal<
-    FormGroup<CostItemFormControls>[]
-  >([]);
+  protected readonly costItemGroups = signal<FormGroup<CostItemFormControls>[]>(
+    [],
+  );
 
-  private readonly basePrice = toSignal(
+  readonly basePrice = toSignal(
     toObservable(this.formGroup).pipe(
       switchMap(formGroup =>
         formGroup.controls.basePrice.valueChanges.pipe(
@@ -82,7 +92,7 @@ export class ProductPricingComponent {
     { initialValue: null as number | null },
   );
 
-  private readonly baseCostPrice = toSignal(
+  readonly baseCostPrice = toSignal(
     toObservable(this.formGroup).pipe(
       switchMap(formGroup =>
         formGroup.controls.baseCostPrice.valueChanges.pipe(
@@ -137,7 +147,9 @@ export class ProductPricingComponent {
       const cost = this.baseCostPrice();
 
       this.profitAmount.setValue(
-        price == null || cost == null ? null : price - cost,
+        price == null || cost == null
+          ? null
+          : Math.round((price - cost) * 100) / 100,
         { emitEvent: false },
       );
 

@@ -1,0 +1,76 @@
+<section class="price-lists-page">
+  <header class="price-lists-page__header">
+    <div>
+      <h1 class="price-lists-page__title">{{ 'priceList.title' | translate }}</h1>
+      <p class="price-lists-page__subtitle">{{ 'priceList.subtitle' | translate }}</p>
+    </div>
+    <p-button
+      [label]="'priceList.newPriceList' | translate"
+      icon="pi pi-plus"
+      (onClick)="createPriceList()"
+    />
+  </header>
+
+  <div class="price-lists-page__panel">
+    <p-table [value]="priceLists()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'priceList.columns.name' | translate }}</th>
+          <th>{{ 'priceList.columns.rule' | translate }}</th>
+          <th>{{ 'priceList.columns.products' | translate }}</th>
+          <th>{{ 'priceList.columns.status' | translate }}</th>
+          <th class="price-lists-page__action-col"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-priceList>
+        <tr>
+          <td>
+            <div class="price-list-cell">
+              <span class="price-list-cell__name">{{ priceList.name }}</span>
+              @if (priceList.isDefault) {
+                <p-tag
+                  [value]="'priceList.default' | translate"
+                  severity="info"
+                  styleClass="price-list-cell__tag"
+                />
+              }
+            </div>
+          </td>
+          <td>
+            @if (getRuleLabel(priceList); as rule) {
+              <span class="price-list-cell__rule">{{ rule }}</span>
+            } @else {
+              <span class="price-list-cell__manual">{{ 'priceList.manual' | translate }}</span>
+            }
+          </td>
+          <td>{{ priceList.productCount }}</td>
+          <td>
+            <app-switch
+              [checked]="priceList.isActive"
+              [disabled]="priceList.isDefault"
+              [ariaLabel]="'priceList.toggleActive' | translate"
+              (changed)="onActiveChange(priceList, $event)"
+            />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'priceList.edit' | translate"
+              (onClick)="editPriceList(priceList)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5">{{ 'priceList.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

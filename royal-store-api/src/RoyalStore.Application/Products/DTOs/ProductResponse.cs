@@ -55,7 +55,7 @@ public record ProductResponse(
             product.Variants.Select(v => ProductVariantResponse.From(v, product)).ToList(),
             product.SupplierId, product.Supplier?.Name,
             product.Prices
-                .Select(ProductPriceResponse.From)
+                .Select(price => ProductPriceResponse.From(price, product))
                 .OrderByDescending(p => p.IsDefault)
                 .ThenBy(p => p.PriceListName)
                 .ToList());

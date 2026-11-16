@@ -38,7 +38,8 @@
       "expenses": "Despesas",
       "expenseCategories": "Categorias de despesa",
       "financialAccounts": "Contas financeiras",
-      "pricing": "Precificação"
+      "pricing": "Precificação",
+      "priceLists": "Listas de preço"
     }
   },
   "auth": {
@@ -354,6 +355,46 @@
       "products": "{{count}} produtos",
       "edit": "Editar categoria",
       "delete": "Excluir categoria"
+    }
+  },
+  "priceList": {
+    "title": "Listas de preço",
+    "subtitle": "Configure as tabelas de preço do catálogo.",
+    "newPriceList": "Nova lista",
+    "empty": "Nenhuma lista de preço encontrada.",
+    "default": "Padrão",
+    "manual": "Manual",
+    "toggleActive": "Alternar ativo",
+    "edit": "Editar lista",
+    "columns": {
+      "name": "Nome",
+      "rule": "Regra",
+      "products": "Produtos",
+      "status": "Status"
+    },
+    "form": {
+      "createTitle": "Nova lista de preço",
+      "createSubtitle": "Crie uma tabela de preços para o catálogo.",
+      "editTitle": "Editar lista de preço",
+      "editSubtitle": "Renomeie ou configure a regra percentual.",
+      "section": {
+        "details": "Dados da lista",
+        "rule": "Regra percentual",
+        "paymentMethods": "Formas de pagamento"
+      },
+      "noPaymentMethods": "Nenhuma forma de pagamento ativa.",
+      "name": "Nome",
+      "namePlaceholder": "Ex.: À vista / Pix",
+      "ruleDesc": "Calcula automaticamente os preços como percentual de outra lista",
+      "addRule": "Adicionar regra",
+      "removeRule": "Remover regra",
+      "baseList": "Lista base",
+      "baseListPlaceholder": "Selecione a lista base",
+      "percentage": "Percentual (%)",
+      "percentageHint": "Ex.: 10 para 10% de desconto",
+      "cancel": "Cancelar",
+      "createSubmit": "Criar lista",
+      "submit": "Salvar"
     }
   },
   "seller": {

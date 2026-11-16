@@ -14,13 +14,24 @@ export interface PriceList {
 export interface ProductPriceInput {
   priceListId: string;
   salePrice: number;
-  /** Floor for the discount a seller can give at the POS. `null` = no limit. */
+}
+
+/** One sale price of a product on one list, as the API returns it. */
+export interface ProductPrice {
+  priceListId: string;
+  priceListName: string;
+  isDefault: boolean;
+  isActive: boolean;
+  salePrice: number | null;
   minPrice: number | null;
+  discountPercentage: number | null;
+  basePriceListId: string | null;
+  suggestedPrice: number | null;
+  ruleStatus: string;
 }
 
 export interface ProductPriceFormControls {
   priceListId: FormControl<string>;
   /** `null` on a non-default list means "falls back to the default list". */
   salePrice: FormControl<number | null>;
-  minPrice: FormControl<number | null>;
 }

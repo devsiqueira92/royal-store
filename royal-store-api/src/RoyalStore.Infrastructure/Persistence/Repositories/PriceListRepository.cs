@@ -66,5 +66,8 @@ public sealed class PriceListRepository : IPriceListRepository
             .Where(p => p.Type == ItemType.Product)
             .ToListAsync(ct);
 
+    public async Task<int> CountListsBasedOnAsync(Guid id, CancellationToken ct = default) =>
+        await _context.PriceLists.CountAsync(l => l.BasePriceListId == id, ct);
+
     public void Remove(PriceList priceList) => _context.PriceLists.Remove(priceList);
 }

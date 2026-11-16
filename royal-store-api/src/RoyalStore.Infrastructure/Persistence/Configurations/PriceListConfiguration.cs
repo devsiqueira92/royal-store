@@ -8,7 +8,15 @@ public sealed class PriceListConfiguration : IEntityTypeConfiguration<PriceList>
 {
     public void Configure(EntityTypeBuilder<PriceList> builder)
     {
-        builder.ToTable("PriceLists");
+        builder.ToTable("PriceLists", table =>
+        {
+            // The percentage rule (062) is all-or-nothing, and a list is never its own base. The
+            // domain enforces both; these keep a row that slipped past it from ever being stored.
+            table.HasCheckConstraint("CK_PriceLists_Rule_Complete",
+                "(\"DiscountPercentage\" IS NULL) = (\"BasePriceListId\" IS NULL)");
+            table.HasCheckConstraint("CK_PriceLists_Rule_NotSelf",
+                "\"BasePriceListId\" <> \"Id\"");
+        });
 
         builder.HasKey(e => e.Id);
 
@@ -41,5 +49,17 @@ public sealed class PriceListConfiguration : IEntityTypeConfiguration<PriceList>
             .HasDatabaseName("IX_PriceLists_TenantId_Default");
 
         builder.HasIndex(e => new { e.TenantId, e.IsActive });
+
+        // −100.00 … +999.99. Negative = discount, positive = surcharge.
+        builder.Property(e => e.DiscountPercentage).HasPrecision(5, 2);
+
+        // Restrict: a list other lists are calculated from cannot be deleted from under them
+        // (062 FR-009). No navigation — every use already has the store's lists in memory.
+        builder.HasOne<PriceList>()
+            .WithMany()
+            .HasForeignKey(e => e.BasePriceListId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(e => e.BasePriceListId);
     }
 }

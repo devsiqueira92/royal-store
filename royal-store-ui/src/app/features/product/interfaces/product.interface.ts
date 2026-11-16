@@ -1,5 +1,5 @@
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { ProductPriceFormControls } from './price-list.interface';
+import { ProductPrice, ProductPriceFormControls } from './price-list.interface';
 
 export interface ProductCategoryOption {
   id: string;
@@ -57,6 +57,7 @@ export interface Product {
   variants: ProductVariant[];
   supplierId?: string | null;
   supplierName?: string | null;
+  prices?: ProductPrice[];
 
   // Fiscal
   taxProfileTemplateId?: string;

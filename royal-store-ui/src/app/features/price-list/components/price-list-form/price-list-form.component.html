@@ -1,0 +1,71 @@
+<form class="price-list-form" [formGroup]="formGroup">
+  <app-form-layout
+    [title]="'priceList.form.section.details'"
+    [index]="1"
+    [collapsedPanel]="false"
+  >
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="priceList.form.name"
+      placeholder="priceList.form.namePlaceholder"
+    />
+
+    <app-select-field
+      controlName="basePriceListId"
+      [parentForm]="formGroup"
+      label="priceList.form.baseList"
+      [options]="baseOptions()"
+    ></app-select-field>
+
+    <app-input-number-field
+      controlName="discountPercentage"
+      [parentForm]="formGroup"
+      label="priceList.form.percentage"
+      mode="percent"
+      prefix="%"
+      [min]="0"
+    ></app-input-number-field>
+  </app-form-layout>
+
+  <!--
+  TODO: Make possible to use these selections on checkout. For now, we just show the available payment methods.
+  <app-form-layout
+    [title]="'priceList.form.section.paymentMethods'"
+    [index]="2"
+    [collapsedPanel]="false"
+  >
+    @if (activePaymentMethods().length === 0) {
+      <span class="price-list-form__empty-hint">
+        {{ 'priceList.form.noPaymentMethods' | translate }}
+      </span>
+    } @else {
+      <div class="price-list-form__payment-methods">
+        @for (method of activePaymentMethods(); track method.id) {
+          <label class="price-list-form__payment-option">
+            <p-checkbox
+              [value]="method.id"
+              formControlName="paymentMethodIds"
+            />
+            <span>{{ method.paymentMethod }}</span>
+          </label>
+        }
+      </div>
+    }
+  </app-form-layout> -->
+
+  <div class="price-list-form__footer">
+    <app-button
+      label="priceList.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    />
+    <app-button
+      [label]="
+        isCreateMode() ? 'priceList.form.createSubmit' : 'priceList.form.submit'
+      "
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    />
+  </div>
+</form>

@@ -30,7 +30,9 @@ public sealed class DeletePriceListCommandHandler
 
         var hasProductPrices = await _priceListRepository.HasProductPricesAsync(priceList.Id, cancellationToken);
 
-        var deletable = priceList.EnsureDeletable(hasProductPrices);
+        var listsBasedOnThis = await _priceListRepository.CountListsBasedOnAsync(priceList.Id, cancellationToken);
+
+        var deletable = priceList.EnsureDeletable(hasProductPrices, listsBasedOnThis);
         if (deletable.IsFailure)
             return deletable;
 

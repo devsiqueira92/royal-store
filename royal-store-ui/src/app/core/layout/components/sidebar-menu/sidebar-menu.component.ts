@@ -87,6 +87,7 @@ export class SidebarMenuComponent {
       items: [
         { labelKey: 'layout.nav.products', icon: 'pi pi-box', route: '/products' },
         { labelKey: 'layout.nav.categories', icon: 'pi pi-tags', route: '/categories' },
+        { labelKey: 'layout.nav.priceLists', icon: 'pi pi-list', route: '/price-lists' },
         { labelKey: 'layout.nav.suppliers', icon: 'pi pi-truck', route: '/suppliers' },
       ],
     },

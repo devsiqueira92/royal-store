@@ -532,6 +532,35 @@ public sealed class Product : Entity, IAuditableEntity
         return Result.Success();
     }
 
+    /// <summary>
+    /// Tells what the rule of a price's list suggests for this product today, and whether the stored
+    /// price is that amount (062 FR-020). Reads only — a stored price is never changed by a rule.
+    /// <para>
+    /// <see cref="PriceRuleStatus.Differs"/> means "not what the rule gives now": the price was
+    /// typed over, or the percentage or the base-list price changed since it was saved. Nothing is
+    /// stored to tell those apart.
+    /// </para>
+    /// </summary>
+    public PriceRuleEvaluation EvaluatePriceRule(ProductPrice price)
+    {
+        var list = price.PriceList;
+        if (list is null || !list.HasRule)
+            return PriceRuleEvaluation.None;
+
+        // Nothing to calculate from: this product is not priced on the base list.
+        var basePrice = Prices.FirstOrDefault(p => p.PriceListId == list.BasePriceListId);
+        if (basePrice is null)
+            return PriceRuleEvaluation.None;
+
+        var suggested = list.SuggestPrice(basePrice.SalePrice);
+        if (suggested is null)
+            return PriceRuleEvaluation.None;
+
+        return new PriceRuleEvaluation(
+            suggested,
+            price.SalePrice == suggested.Value ? PriceRuleStatus.Matches : PriceRuleStatus.Differs);
+    }
+
     private Result<ProductPriceChanges> ApplyPrices(
         IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists)
     {

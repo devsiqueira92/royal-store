@@ -67,6 +67,7 @@ public sealed class RenamePriceListCommandHandler
         }
 
         var counts = await _priceListRepository.GetProductCountsAsync(cancellationToken);
-        return PriceListResponse.From(priceList, counts.GetValueOrDefault(priceList.Id));
+        var storeLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
+        return PriceListResponse.From(priceList, counts.GetValueOrDefault(priceList.Id), storeLists);
     }
 }

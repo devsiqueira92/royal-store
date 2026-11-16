@@ -1,95 +1,140 @@
 import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  FormArray,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { map, merge, of, startWith, switchMap } from 'rxjs';
-import {
-  PriceList,
-  ProductPriceFormControls,
-} from '../../interfaces/price-list.interface';
+import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
+import { PriceListFacade } from '@app/features/price-list/facade/price-list.facade';
+import { PriceList } from '@app/features/price-list/interfaces/price-list.interface';
+import { ProductPriceFormControls } from '../../interfaces/price-list.interface';
+import { Product } from '../../interfaces/product.interface';
+import { ProductFacade } from '../../facade/product.facade';
+import { buildProductPriceGroup } from '../../utils/product-price-form.util';
 
-interface PriceEntry {
-  list: PriceList;
-  group: FormGroup<ProductPriceFormControls>;
-  /** Margin over the sale price, or over the default price when this list has none. */
-  margin: number | null;
-  /** The list has no price of its own and sells at the default one. */
-  usesDefault: boolean;
-  minAboveSale: boolean;
-}
+type PriceGroup = FormGroup<ProductPriceFormControls>;
 
-/**
- * The product's sale price on each active price list.
- *
- * Presentational: it edits the form groups it is given and never builds or
- * removes one — the parent keeps a group per list.
- */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-price-table',
-  imports: [DecimalPipe, FormsModule, ReactiveFormsModule, TranslatePipe, InputNumberModule],
+  imports: [
+    DecimalPipe,
+    FormsModule,
+    ReactiveFormsModule,
+    TranslatePipe,
+    InputNumberModule,
+    InputNumberFieldComponent,
+  ],
   templateUrl: './product-price-table.component.html',
   styleUrl: './product-price-table.component.scss',
 })
 export class ProductPriceTableComponent {
-  readonly priceLists = input.required<PriceList[]>();
-  readonly priceGroups = input.required<FormGroup<ProductPriceFormControls>[]>();
-  readonly costPrice = input<number | null>(null);
-
-  // Zoneless: a control changing value is invisible to change detection, so
-  // margins and counts are derived from the groups' value streams.
-  private readonly values = toSignal(
-    toObservable(this.priceGroups).pipe(
-      switchMap((groups) =>
-        groups.length
-          ? merge(...groups.map((group) => group.valueChanges)).pipe(
-              startWith(null),
-              map(() => groups.map((group) => group.getRawValue())),
-            )
-          : of([]),
-      ),
-    ),
-    { initialValue: [] },
-  );
-
-  protected readonly entries = computed<PriceEntry[]>(() => {
-    const values = this.values();
-    const groups = this.priceGroups();
-    const lists = this.priceLists();
-    const cost = this.costPrice();
-
-    const defaultId = lists.find((list) => list.isDefault)?.id;
-    const defaultPrice =
-      values.find((value) => value.priceListId === defaultId)?.salePrice ?? null;
-
-    return lists
-      .filter((list) => list.isActive)
-      .flatMap((list) => {
-        const group = groups.find((item) => item.controls.priceListId.value === list.id);
-        const value = values.find((item) => item.priceListId === list.id);
-
-        if (!group || !value) {
-          return [];
-        }
-
-        const price = value.salePrice ?? defaultPrice;
-
-        return [
-          {
-            list,
-            group,
-            margin: price && cost != null ? ((price - cost) / price) * 100 : null,
-            usesDefault: value.salePrice == null,
-            minAboveSale:
-              value.salePrice != null && value.minPrice != null && value.minPrice > value.salePrice,
-          },
-        ];
-      });
+  private readonly priceListFacade = inject(PriceListFacade);
+  protected readonly priceLists = toSignal(this.priceListFacade.priceLists$, {
+    initialValue: [],
   });
 
-  protected readonly pricedCount = computed(
-    () => this.entries().filter((entry) => !entry.usesDefault).length,
+  private readonly selectedProduct = toSignal(
+    inject(ProductFacade).selectedProduct$,
+    { initialValue: null as Product | null },
   );
+
+  protected readonly pricedCount = computed(
+    () =>
+      this.priceLists().filter(entry => entry.discountPercentage !== null)
+        .length,
+  );
+  readonly costPrice = input<number | null>(null);
+
+  /** The product form's `prices` array: this table fills it, the footer submits it. */
+  readonly prices = input.required<FormArray<PriceGroup>>();
+
+  protected readonly form = computed(
+    () => new FormGroup({ prices: this.prices() }),
+  );
+
+  // Zoneless: FormArray mutations are invisible to change detection, so the
+  // template renders from this signal. Every mutation goes through `syncPrices`.
+  protected readonly groups = signal<PriceGroup[]>([]);
+
+  constructor() {
+    this.priceListFacade.loadPriceLists();
+
+    effect(() => this.syncPrices());
+
+    inject(DestroyRef).onDestroy(() => this.prices().clear());
+  }
+
+  private syncPrices(): void {
+    const lists = this.priceLists();
+    this.costPrice();
+    const saved = this.selectedProduct()?.prices ?? [];
+    const array = this.prices();
+
+    untracked(() => {
+      array.clear();
+      lists.forEach(list => {
+        const savedPrice = saved.find(p => p.priceListId === list.id);
+        array.push(
+          buildProductPriceGroup(
+            list.id,
+            savedPrice ? savedPrice.salePrice : this.discountedPrice(list),
+          ),
+        );
+      });
+      this.groups.set([...array.controls]);
+    });
+  }
+
+  private discountedPrice(list: PriceList, depth = 0): number | null {
+    const cost = this.costPrice();
+    if (cost === null || list.discountPercentage === null) return cost;
+
+    const base = this.priceLists().find(l => l.id === list.basePriceListId);
+    const basePrice =
+      base && depth < this.priceLists().length
+        ? this.discountedPrice(base, depth + 1)
+        : cost;
+    if (basePrice === null) return null;
+
+    return (
+      Math.round(basePrice * (1 - list.discountPercentage / 100) * 100) / 100
+    );
+  }
+
+  protected effectiveSalePrice(
+    group: PriceGroup,
+    list: PriceList,
+  ): number | null {
+    const own = group.controls.salePrice.value;
+    if (own !== null || list.isDefault) return own;
+    const defaultIndex = this.priceLists().findIndex(l => l.isDefault);
+    return this.groups()[defaultIndex]?.controls.salePrice.value ?? null;
+  }
+
+  protected usesDefault(group: PriceGroup, list: PriceList): boolean {
+    return !list.isDefault && group.controls.salePrice.value === null;
+  }
+
+  protected margin(group: PriceGroup, list: PriceList): number | null {
+    const sale = this.effectiveSalePrice(group, list);
+    const cost = this.costPrice();
+    if (sale === null || sale <= 0 || cost === null) return null;
+    return ((sale - cost) / sale) * 100;
+  }
 }
