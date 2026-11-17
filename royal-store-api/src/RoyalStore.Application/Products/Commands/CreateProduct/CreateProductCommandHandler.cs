@@ -80,7 +80,7 @@ public sealed class CreateProductCommandHandler
             command.NetWeight, command.GrossWeight, command.Width, command.Height, command.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
-            supplier);
+            supplier, command.CostItems);
 
         if (!productResult.IsSuccess)
             return productResult.Error;

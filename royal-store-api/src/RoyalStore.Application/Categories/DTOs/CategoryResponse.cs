@@ -4,7 +4,6 @@ namespace RoyalStore.Application.Categories.DTOs;
 
 public record CategoryResponse(
     Guid Id,
-    Guid TenantId,
     string Name,
     string? Description,
     string? Color,
@@ -12,5 +11,5 @@ public record CategoryResponse(
     int ProductCount)
 {
     public static CategoryResponse From(Category category, int productCount = 0) =>
-        new(category.Id, category.TenantId, category.Name, category.Description, category.Color, category.IsActive, productCount);
+        new(category.Id, category.Name, category.Description, category.Color, category.IsActive, productCount);
 }

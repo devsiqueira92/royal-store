@@ -100,7 +100,7 @@ public sealed class EditProductCommandHandler
             command.Measure.NetWeight, command.Measure.GrossWeight, command.Measure.Width, command.Measure.Height, command.Measure.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
-            variantsToAdd, variantsToUpdate, supplier);
+            variantsToAdd, variantsToUpdate, command.CostItems, supplier);
 
         if (!updateResult.IsSuccess)
             return updateResult.Error;
@@ -111,13 +111,19 @@ public sealed class EditProductCommandHandler
         foreach (var variant in newVariants)
             await _productRepository.AddVariantAsync(variant, cancellationToken);
 
-        // Same reason as the variants above: children added to an already-tracked aggregate are
-        // registered explicitly.
-        foreach (var price in updateResult.Value.Added)
+        // Same reason as the variants above: children added to an already-tracked aggregate (prices,
+        // cost items) are registered explicitly.
+        foreach (var price in updateResult.Value.Prices.Added)
             await _productRepository.AddPriceAsync(price, cancellationToken);
 
-        foreach (var price in updateResult.Value.Removed)
+        foreach (var price in updateResult.Value.Prices.Removed)
             _productRepository.RemovePrice(price);
+
+        foreach (var item in updateResult.Value.CostItems.Added)
+            await _productRepository.AddCostItemAsync(item, cancellationToken);
+
+        foreach (var item in updateResult.Value.CostItems.Removed)
+            _productRepository.RemoveCostItem(item);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

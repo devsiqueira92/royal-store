@@ -36,7 +36,8 @@ public record ProductResponse(
     IReadOnlyList<ProductVariantResponse> Variants,
     Guid? SupplierId,
     string? SupplierName,
-    IReadOnlyList<ProductPriceResponse> Prices)
+    IReadOnlyList<ProductPriceResponse> Prices,
+    IReadOnlyList<ProductCostItemResponse> CostItems)
 {
     public static ProductResponse From(Product product) =>
         new(product.Id, product.TenantId, product.CategoryId,
@@ -58,5 +59,10 @@ public record ProductResponse(
                 .Select(price => ProductPriceResponse.From(price, product))
                 .OrderByDescending(p => p.IsDefault)
                 .ThenBy(p => p.PriceListName)
+                .ToList(),
+            // Ordered in memory, not by a filtered Include (063 research D4).
+            product.CostItems
+                .OrderBy(c => c.SortOrder)
+                .Select(ProductCostItemResponse.From)
                 .ToList());
 }

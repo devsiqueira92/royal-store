@@ -1,4 +1,7 @@
-import { CreateProductVariantRequest } from './create-product-request.interface';
+import {
+  CreateProductVariantRequest,
+  ProductCostItemInput,
+} from './create-product-request.interface';
 import { ProductMeasure } from './product.interface';
 import { ProductPriceInput } from './price-list.interface';
 
@@ -35,4 +38,10 @@ export interface UpdateProductRequest {
 
   /** Replaces the product's price set: one sale price per price list. */
   prices?: ProductPriceInput[];
+
+  /**
+   * The complete cost breakdown: lines with `id` are updated, lines without are added,
+   * saved lines left out are removed. Absent = saved lines untouched.
+   */
+  costItems?: ProductCostItemInput[];
 }

@@ -474,6 +474,58 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductCostItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("ProductCostItems", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_ProductCostItems_Value_NonNegative", "\"Value\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductPhoto", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2633,6 +2685,15 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Navigation("TaxProfileTemplate");
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductCostItem", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
+                        .WithMany("CostItems")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductPhoto", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Catalog.Product", null)
@@ -3131,6 +3192,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
                 {
+                    b.Navigation("CostItems");
+
                     b.Navigation("Photos");
 
                     b.Navigation("Prices");

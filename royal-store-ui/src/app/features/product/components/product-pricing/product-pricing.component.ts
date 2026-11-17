@@ -10,7 +10,6 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { startWith, switchMap } from 'rxjs';
@@ -20,15 +19,16 @@ import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
 import { ProductPriceTableComponent } from '../product-price-table/product-price-table.component';
 import {
+  ProductCostItemFormControls,
   ProductFormControls,
   ProductVariantFormControls,
 } from '../../interfaces/product.interface';
 import { ProductPriceFormControls } from '../../interfaces/price-list.interface';
-
-interface CostItemFormControls {
-  description: FormControl<string | null>;
-  value: FormControl<number | null>;
-}
+import {
+  buildProductCostItemGroup,
+  COST_ITEM_DESCRIPTION_MAX_LENGTH,
+  sumProductCostItems,
+} from '../../utils/product-cost-item-form.util';
 
 @Component({
   selector: 'app-product-pricing',
@@ -57,9 +57,11 @@ export class ProductPricingComponent {
     this.showPriceTable.update(v => !v);
   }
 
-  // The product's base cost and the cost composition lines below it are
-  // UI-only breakdown helpers — the backend still only stores the resulting
-  // total (baseCostPrice). Neither is part of ProductFormControls.
+  protected readonly descriptionMaxLength = COST_ITEM_DESCRIPTION_MAX_LENGTH;
+
+  // The product cost is a UI-only helper: the backend stores the total
+  // (baseCostPrice) and the composition lines (costItems), so the product
+  // cost is derived back as total minus lines when a product loads.
   protected readonly productCost = new FormControl<number | null>(null);
   protected readonly profitMarginPercent = new FormControl<number | null>(null);
   protected readonly profitAmount = new FormControl<number | null>(null);
@@ -70,16 +72,16 @@ export class ProductPricingComponent {
     profitAmount: this.profitAmount,
   });
 
-  private readonly costItems = new FormArray<FormGroup<CostItemFormControls>>(
-    [],
-  );
-
   // Zoneless app: mutating the FormArray (push/removeAt) is invisible to
   // change detection, so the template renders from this signal instead of
   // `costItems.controls`. Every mutation goes through `syncCostItemGroups`.
-  protected readonly costItemGroups = signal<FormGroup<CostItemFormControls>[]>(
-    [],
-  );
+  protected readonly costItemGroups = signal<
+    FormGroup<ProductCostItemFormControls>[]
+  >([]);
+
+  private get costItems(): FormArray<FormGroup<ProductCostItemFormControls>> {
+    return this.formGroup().controls.costItems;
+  }
 
   readonly basePrice = toSignal(
     toObservable(this.formGroup).pipe(
@@ -164,7 +166,7 @@ export class ProductPricingComponent {
   }
 
   protected addCostItem(): void {
-    this.costItems.push(this.buildCostItemGroup());
+    this.costItems.push(buildProductCostItemGroup());
     this.syncCostItemGroups();
   }
 
@@ -209,22 +211,22 @@ export class ProductPricingComponent {
     this.onBasePriceBlur();
   }
 
+  // The rows were already rebuilt by the form from the loaded product; only
+  // the product cost has to be derived back from the stored total.
   private seedPricing(): void {
-    const existingCostPrice = this.formGroup().controls.baseCostPrice.value;
-    this.productCost.setValue(existingCostPrice, { emitEvent: false });
-    this.costItems.clear();
     this.syncCostItemGroups();
-    this.recalculateCostPrice();
-  }
 
-  private buildCostItemGroup(
-    description: string | null = null,
-    value: number | null = null,
-  ): FormGroup<CostItemFormControls> {
-    return new FormGroup<CostItemFormControls>({
-      description: new FormControl(description, [Validators.maxLength(80)]),
-      value: new FormControl(value, [Validators.min(0)]),
-    });
+    const existingCostPrice = this.formGroup().controls.baseCostPrice.value;
+    const productCost =
+      existingCostPrice == null
+        ? null
+        : Math.round(
+            (existingCostPrice - sumProductCostItems(this.costItems.controls)) *
+              100,
+          ) / 100;
+
+    this.productCost.setValue(productCost, { emitEvent: false });
+    this.recalculateCostPrice();
   }
 
   private syncCostItemGroups(): void {
@@ -232,11 +234,12 @@ export class ProductPricingComponent {
   }
 
   private recalculateCostPrice(): void {
-    const composition = this.costItemGroups().reduce(
-      (sum, group) => sum + (group.controls.value.value ?? 0),
-      0,
-    );
-    const total = (this.productCost.value ?? 0) + composition;
+    const total =
+      Math.round(
+        ((this.productCost.value ?? 0) +
+          sumProductCostItems(this.costItemGroups())) *
+          100,
+      ) / 100;
     this.formGroup().controls.baseCostPrice.setValue(total);
   }
 

@@ -43,8 +43,12 @@
 
         <input
           class="cost-composition__description"
+          [class.cost-composition__description--invalid]="
+            costItemGroup.invalid && costItemGroup.touched
+          "
           type="text"
           formControlName="description"
+          [maxLength]="descriptionMaxLength"
           [placeholder]="
             'product.form.costItemDescriptionPlaceholder' | translate
           "

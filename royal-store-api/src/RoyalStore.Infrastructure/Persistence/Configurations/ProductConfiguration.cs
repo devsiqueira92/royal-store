@@ -126,6 +126,12 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasForeignKey(pp => pp.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Cost breakdown lines (063). Removing a product removes its lines.
+        builder.HasMany(p => p.CostItems)
+            .WithOne()
+            .HasForeignKey(c => c.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(p => new { p.TenantId, p.CategoryId });
 
         builder.HasIndex(p => new { p.TenantId, p.Sku }).IsUnique();
