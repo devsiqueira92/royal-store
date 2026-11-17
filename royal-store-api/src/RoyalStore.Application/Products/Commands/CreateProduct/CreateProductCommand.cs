@@ -33,7 +33,9 @@ public record CreateProductCommand(
     bool? IsSelectiveTax = null,
     Guid? SupplierId = null,
     // One sale price per price list; the default list is mandatory (061 FR-010).
-    IReadOnlyList<ProductPriceInput>? Prices = null) : IRequest<Result<ProductResponse>>;
+    IReadOnlyList<ProductPriceInput>? Prices = null,
+    // The product's cost breakdown; every line is new (063 FR-008).
+    IReadOnlyList<ProductCostItemInput>? CostItems = null) : IRequest<Result<ProductResponse>>;
 
 public record CreateVariantRequest(
     string? Size,

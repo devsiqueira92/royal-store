@@ -13,6 +13,13 @@ export interface CreateProductVariantRequest {
   minStockQuantity?: number;
 }
 
+/** One cost breakdown line. Mirrors the API's `ProductCostItemInput`; `id` null = new line. */
+export interface ProductCostItemInput {
+  id: string | null;
+  description: string;
+  value: number;
+}
+
 export interface CreateProductRequest {
   categoryId: string;
   name: string;
@@ -40,4 +47,7 @@ export interface CreateProductRequest {
 
   /** One sale price per price list. When absent the API reads `basePrice` as the default list's price. */
   prices?: ProductPriceInput[];
+
+  /** The cost breakdown; every line is new. */
+  costItems?: ProductCostItemInput[];
 }

@@ -60,7 +60,9 @@ public record EditProductCommand(
     bool? IsSelectiveTax = null,
     Guid? SupplierId = null,
     // Replaces the product's price set: one sale price per price list (061 FR-012).
-    IReadOnlyList<ProductPriceInput>? Prices = null)
+    IReadOnlyList<ProductPriceInput>? Prices = null,
+    // null = stored lines untouched; a list = the complete cost breakdown (063 FR-004, FR-005).
+    IReadOnlyList<ProductCostItemInput>? CostItems = null)
     : IRequest<Result<ProductResponse>>
 {
     public IReadOnlyList<VariantInput> VariantsToAdd { get; init; } = VariantsToAdd ?? [];

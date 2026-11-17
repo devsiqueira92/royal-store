@@ -43,6 +43,12 @@ public sealed class Product : Entity, IAuditableEntity
     /// <see cref="BasePrice"/> as their single price.</summary>
     public ICollection<ProductPrice> Prices { get; private set; } = [];
 
+    /// <summary>The product's cost breakdown (063): free-text lines with an amount, kept in the order
+    /// they were submitted. Informative only — <see cref="BaseCostPrice"/> is never derived from it.</summary>
+    public ICollection<ProductCostItem> CostItems { get; private set; } = [];
+
+    public const int MaxCostItems = 50;
+
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
     public DateTimeOffset UpdatedAt { get; set; }
@@ -167,7 +173,8 @@ public sealed class Product : Entity, IAuditableEntity
         decimal? netWeight, decimal? grossWeight, decimal? width, decimal? height, decimal? length,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
-        Supplier? supplier = null)
+        Supplier? supplier = null,
+        IReadOnlyList<ProductCostItemInput>? costItems = null)
     {
         // The sale price is no longer an input: it comes from the price lists and is mirrored into
         // BasePrice by ApplyPrices below.
@@ -210,6 +217,12 @@ public sealed class Product : Entity, IAuditableEntity
         var pricesResult = product.ApplyPrices(prices, tenantLists);
         if (!pricesResult.IsSuccess)
             return pricesResult.Error;
+
+        // A new product has no stored lines, so any submitted id fails as not found. The added
+        // lines join the new graph and need no explicit registration (063 research D6).
+        var costItemsResult = product.ApplyCostItems(costItems);
+        if (!costItemsResult.IsSuccess)
+            return costItemsResult.Error;
 
         return product;
     }
@@ -378,7 +391,7 @@ public sealed class Product : Entity, IAuditableEntity
         return Result.Success();
     }
 
-    public Result<ProductPriceChanges> UpdateProductWithVariants(
+    public Result<ProductChildChanges> UpdateProductWithVariants(
         Guid categoryId, string name, string sku, bool stockTrack,
         IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
         decimal baseCostPrice, string? description, string unitOfMeasure,
@@ -388,8 +401,18 @@ public sealed class Product : Entity, IAuditableEntity
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
         IReadOnlyList<NewVariantRequest> variantsToAdd,
         IReadOnlyList<VariantUpdateRequest> variantsToUpdate,
+        IReadOnlyList<ProductCostItemInput>? costItems,
         Supplier? supplier = null)
     {
+        // Checked before anything is assigned, so a rejected cost line leaves the product untouched
+        // (063 FR-012).
+        if (costItems is not null)
+        {
+            var costValidation = ValidateCostItems(costItems);
+            if (costValidation.IsFailure)
+                return costValidation.Error;
+        }
+
         var fieldsResult = UpdateProductFields(categoryId, name, sku, stockTrack, prices, tenantLists, baseCostPrice,
             description, unitOfMeasure, ncm, cest, origin, netWeight, grossWeight, width, height, length,
             taxProfileTemplate, overrideTaxProfile, defaultCfop, icmsCst, pisCofinsCst, ivaCst, isSelectiveTax,
@@ -401,7 +424,9 @@ public sealed class Product : Entity, IAuditableEntity
         if (!variantsResult.IsSuccess)
             return variantsResult.Error;
 
-        return fieldsResult.Value;
+        var costChanges = costItems is null ? ProductCostItemChanges.None : ReplaceCostItems(costItems);
+
+        return new ProductChildChanges(fieldsResult.Value, costChanges);
     }
 
     public Result UpdateServiceWithVariants(
@@ -480,6 +505,88 @@ public sealed class Product : Entity, IAuditableEntity
             Version++;
 
         return result;
+    }
+
+    /// <summary>
+    /// Replaces this product's cost breakdown with the submitted set (063 FR-004): lines with an id
+    /// are updated, lines without one are added, stored lines left out are removed. <c>null</c>
+    /// leaves the breakdown untouched (FR-005). Nothing changes unless every line is valid (FR-012).
+    /// Does not bump <see cref="Version"/>: callers already do.
+    /// </summary>
+    internal Result<ProductCostItemChanges> ApplyCostItems(IReadOnlyList<ProductCostItemInput>? items)
+    {
+        if (items is null)
+            return ProductCostItemChanges.None;
+
+        var validation = ValidateCostItems(items);
+        if (validation.IsFailure)
+            return validation.Error;
+
+        return ReplaceCostItems(items);
+    }
+
+    private Result ValidateCostItems(IReadOnlyList<ProductCostItemInput> items)
+    {
+        if (items.Count > MaxCostItems)
+            return Result.Failure(Error.Validation("product.cost_items_too_many",
+                $"A product can have at most {MaxCostItems} cost items."));
+
+        var seenIds = new HashSet<Guid>();
+        for (var i = 0; i < items.Count; i++)
+        {
+            var item = items[i];
+
+            var itemValidation = ProductCostItem.Validate(item.Description, item.Value);
+            if (itemValidation.IsFailure)
+                return Result.Failure(AttributeError(itemValidation.Error, $"Cost item {i + 1}"));
+
+            if (item.Id is not { } id)
+                continue;
+
+            if (!seenIds.Add(id))
+                return Result.Failure(Error.Validation("product.cost_item_duplicate",
+                    $"Cost item {i + 1}: each cost item may appear only once."));
+
+            // Lines of another product or another store are never in this collection.
+            if (CostItems.All(c => c.Id != id))
+                return Result.Failure(Error.NotFound("product.cost_item_not_found",
+                    $"Cost item {i + 1}: cost item not found for this product."));
+        }
+
+        return Result.Success();
+    }
+
+    private ProductCostItemChanges ReplaceCostItems(IReadOnlyList<ProductCostItemInput> items)
+    {
+        var added = new List<ProductCostItem>();
+        var removed = new List<ProductCostItem>();
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            var item = items[i];
+            var stored = item.Id is { } id ? CostItems.First(c => c.Id == id) : null;
+            if (stored is not null)
+            {
+                stored.Change(item.Description, item.Value, i);
+                continue;
+            }
+
+            var created = new ProductCostItem(TenantId, Id, item.Description, item.Value, i);
+            CostItems.Add(created);
+            added.Add(created);
+        }
+
+        var submitted = items.Where(i => i.Id.HasValue).Select(i => i.Id!.Value).ToHashSet();
+        foreach (var stored in CostItems.ToList())
+        {
+            if (submitted.Contains(stored.Id) || added.Contains(stored))
+                continue;
+
+            CostItems.Remove(stored);
+            removed.Add(stored);
+        }
+
+        return new ProductCostItemChanges(added, removed);
     }
 
     /// <summary>

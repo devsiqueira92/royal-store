@@ -68,6 +68,7 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<UnitMeasureOption> UnitMeasureOptions { get; set; } = null!;
     public DbSet<PriceList> PriceLists { get; set; } = null!;
     public DbSet<ProductPrice> ProductPrices { get; set; } = null!;
+    public DbSet<ProductCostItem> ProductCostItems { get; set; } = null!;
 
     public RoyalStoreContext(DbContextOptions<RoyalStoreContext> options, ITenantContext tenantContext)
         : base(options)
@@ -191,6 +192,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<ProductPrice>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<ProductCostItem>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<CostCenter>()
