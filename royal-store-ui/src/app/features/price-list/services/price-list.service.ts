@@ -5,7 +5,6 @@ import { environment } from '../../../../environments/environment';
 import {
   CreatePriceListRequest,
   PriceList,
-  RenamePriceListRequest,
   SetPriceListRuleRequest,
 } from '../interfaces/price-list.interface';
 
@@ -26,9 +25,9 @@ export class PriceListService {
     return this.http.post<PriceList>(this.apiUrl, request);
   }
 
-  rename(id: string, request: RenamePriceListRequest): Observable<PriceList> {
-    return this.http.put<PriceList>(`${this.apiUrl}/${id}`, request);
-  }
+  // rename(id: string, request: RenamePriceListRequest): Observable<PriceList> {
+  //   return this.http.put<PriceList>(`${this.apiUrl}/${id}`, request);
+  // }
 
   setDefault(id: string): Observable<PriceList> {
     return this.http.patch<PriceList>(`${this.apiUrl}/${id}/default`, {});

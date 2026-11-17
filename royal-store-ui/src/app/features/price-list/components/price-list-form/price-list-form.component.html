@@ -11,12 +11,14 @@
       placeholder="priceList.form.namePlaceholder"
     />
 
-    <app-select-field
-      controlName="basePriceListId"
-      [parentForm]="formGroup"
-      label="priceList.form.baseList"
-      [options]="baseOptions()"
-    ></app-select-field>
+    @if (!isDefault()) {
+      <app-select-field
+        controlName="basePriceListId"
+        [parentForm]="formGroup"
+        label="priceList.form.baseList"
+        [options]="allPriceLists()"
+      ></app-select-field>
+    }
 
     <app-input-number-field
       controlName="discountPercentage"
@@ -26,6 +28,16 @@
       prefix="%"
       [min]="0"
     ></app-input-number-field>
+
+    <!-- @if (!isCreateMode()) {
+      <app-toggle-field
+        [parentForm]="formGroup"
+        controlName="isDefault"
+        titleKey="priceList.form.isDefault"
+        subtitleKey="priceList.form.isDefaultHint"
+        [disabled]="isDefault() === true"
+      ></app-toggle-field>
+    } -->
   </app-form-layout>
 
   <!--

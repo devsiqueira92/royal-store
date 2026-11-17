@@ -391,8 +391,12 @@
       "baseList": "Base list",
       "baseListPlaceholder": "Select the base list",
       "percentage": "Percentage (%)",
+      "isDefault": "Default list",
+      "isDefaultHint": "Used when no other list is chosen. Only one list can be the default.",
       "percentageHint": "E.g.: 10 for 10% discount",
       "cancel": "Cancel",
+      "delete": "Delete list",
+      "deleteConfirm": "Delete the list \"{{name}}\"? This cannot be undone.",
       "createSubmit": "Create list",
       "submit": "Save"
     }

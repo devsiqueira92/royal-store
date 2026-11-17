@@ -1,8 +1,12 @@
 <section class="price-lists-page">
   <header class="price-lists-page__header">
     <div>
-      <h1 class="price-lists-page__title">{{ 'priceList.title' | translate }}</h1>
-      <p class="price-lists-page__subtitle">{{ 'priceList.subtitle' | translate }}</p>
+      <h1 class="price-lists-page__title">
+        {{ 'priceList.title' | translate }}
+      </h1>
+      <p class="price-lists-page__subtitle">
+        {{ 'priceList.subtitle' | translate }}
+      </p>
     </div>
     <p-button
       [label]="'priceList.newPriceList' | translate"
@@ -41,10 +45,13 @@
             @if (getRuleLabel(priceList); as rule) {
               <span class="price-list-cell__rule">{{ rule }}</span>
             } @else {
-              <span class="price-list-cell__manual">{{ 'priceList.manual' | translate }}</span>
+              <span class="price-list-cell__manual">{{
+                'priceList.manual' | translate
+              }}</span>
             }
           </td>
           <td>{{ priceList.productCount }}</td>
+
           <td>
             <app-switch
               [checked]="priceList.isActive"
@@ -53,7 +60,17 @@
               (changed)="onActiveChange(priceList, $event)"
             />
           </td>
-          <td>
+          <td class="action-columns">
+            <p-button
+              class="price-list-form__delete"
+              [class.list-default]="priceList.isDefault"
+              icon="pi pi-ban"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              [attr.aria-label]="'priceList.form.delete' | translate"
+              (onClick)="onDelete(priceList, $event)"
+            />
             <p-button
               icon="pi pi-pencil"
               [rounded]="true"

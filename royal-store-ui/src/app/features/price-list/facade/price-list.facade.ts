@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import {
   CreatePriceListRequest,
-  RenamePriceListRequest,
   SetPriceListRuleRequest,
 } from '../interfaces/price-list.interface';
 import { PriceListActions } from '../store/price-list.actions';
@@ -30,9 +29,9 @@ export class PriceListFacade {
     this.store.dispatch(PriceListActions.createPriceList({ request }));
   }
 
-  renamePriceList(id: string, request: RenamePriceListRequest): void {
-    this.store.dispatch(PriceListActions.renamePriceList({ id, request }));
-  }
+  // renamePriceList(id: string, request: RenamePriceListRequest): void {
+  //   this.store.dispatch(PriceListActions.renamePriceList({ id, request }));
+  // }
 
   setDefault(id: string): void {
     this.store.dispatch(PriceListActions.setDefaultPriceList({ id }));
@@ -52,10 +51,6 @@ export class PriceListFacade {
 
   setRule(id: string, request: SetPriceListRuleRequest): void {
     this.store.dispatch(PriceListActions.setPriceListRule({ id, request }));
-  }
-
-  clearRule(id: string): void {
-    this.store.dispatch(PriceListActions.clearPriceListRule({ id }));
   }
 
   selectPriceList(id: string): void {

@@ -16,9 +16,9 @@ export interface CreatePriceListRequest {
   discountPercentage?: number | null;
 }
 
-export interface RenamePriceListRequest {
-  name: string;
-}
+// export interface RenamePriceListRequest {
+//   name: string;
+// }
 
 export interface SetPriceListRuleRequest {
   basePriceListId: string;

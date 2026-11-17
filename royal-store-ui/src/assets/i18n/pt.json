@@ -391,8 +391,12 @@
       "baseList": "Lista base",
       "baseListPlaceholder": "Selecione a lista base",
       "percentage": "Percentual (%)",
+      "isDefault": "Lista padrão",
+      "isDefaultHint": "Usada quando nenhuma outra lista é escolhida. Só uma lista pode ser a padrão.",
       "percentageHint": "Ex.: 10 para 10% de desconto",
       "cancel": "Cancelar",
+      "delete": "Excluir lista",
+      "deleteConfirm": "Excluir a lista \"{{name}}\"? Esta ação não pode ser desfeita.",
       "createSubmit": "Criar lista",
       "submit": "Salvar"
     }

@@ -61,3 +61,14 @@
   font-size: 0.8125rem;
   color: light-dark(var(--p-surface-400), var(--p-surface-500));
 }
+
+.action-columns {
+  display: flex;
+  .list-default {
+    ::ng-deep button {
+      color: gray;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+  }
+}

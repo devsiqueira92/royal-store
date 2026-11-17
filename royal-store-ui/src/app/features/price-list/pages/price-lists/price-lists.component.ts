@@ -1,11 +1,12 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   OnInit,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -14,6 +15,10 @@ import { PriceList } from '../../interfaces/price-list.interface';
 import { PriceListFormComponent } from '../../components/price-list-form/price-list-form.component';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { SwitchComponent } from '@app/shared/components/switch/switch.component';
+import { ConfirmationService } from 'primeng/api';
+import { RadioButton } from 'primeng/radiobutton';
+import { FormsModule } from '@angular/forms';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
   imports: [
@@ -22,6 +27,8 @@ import { SwitchComponent } from '@app/shared/components/switch/switch.component'
     TagModule,
     TranslatePipe,
     SwitchComponent,
+    FormsModule,
+    RadioButtonModule,
   ],
   templateUrl: './price-lists.component.html',
   styleUrl: './price-lists.component.scss',
@@ -30,12 +37,18 @@ import { SwitchComponent } from '@app/shared/components/switch/switch.component'
 export class PriceListsComponent implements OnInit {
   private readonly facade = inject(PriceListFacade);
   private readonly sidebar = inject(DetailsSidebarService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
 
   protected readonly priceLists = toSignal(this.facade.priceLists$, {
     initialValue: [] as PriceList[],
   });
 
-  protected readonly isLoading = toSignal(this.facade.isLoading$, {
+  protected readonly defaultPriceListId = computed(
+    () => this.priceLists().find(p => p.isDefault)?.id ?? null,
+  );
+
+  protected readonly isLoading =toSignal(this.facade.isLoading$, {
     initialValue: false,
   });
 
@@ -84,5 +97,31 @@ export class PriceListsComponent implements OnInit {
     }
     const pct = priceList.discountPercentage;
     return `${pct}% · ${priceList.basePriceListName}`;
+  }
+
+  protected onDelete(priceList: PriceList, event: Event): void {
+    if (priceList.isDefault) {
+      return;
+    }
+    this.confirmationService.confirm({
+      target: event.currentTarget as EventTarget,
+      message: this.translateService.instant('priceList.form.deleteConfirm', {
+        name: priceList.name,
+      }),
+      icon: 'pi pi-info-circle',
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      acceptLabel: this.translateService.instant('priceList.form.delete'),
+      rejectLabel: this.translateService.instant('priceList.form.cancel'),
+      accept: () => {
+        this.facade.delete(priceList.id);
+        this.facade.clearSelectedPriceList();
+        this.sidebar.closeDrawer();
+      },
+    });
+  }
+
+  setDefaultPriceList(priceList: PriceList): void {
+    this.facade.setDefault(priceList.id);
   }
 }
