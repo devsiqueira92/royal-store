@@ -152,6 +152,40 @@
     }
   }
 
+  .pricing-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .pricing-summary__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .pricing-summary__label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
+  .pricing-summary__value {
+    font-size: 1.125rem;
+    font-variant-numeric: tabular-nums;
+    color: light-dark(var(--p-surface-900), var(--p-surface-0));
+  }
+
+  .info-icon {
+    margin-left: 0.25rem;
+    font-size: 0.75rem;
+    cursor: help;
+    color: light-dark(var(--p-surface-400), var(--p-surface-500));
+  }
+
   .calculator-icon {
     display: flex;
     align-items: center;

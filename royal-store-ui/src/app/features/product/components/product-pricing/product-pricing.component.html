@@ -66,18 +66,33 @@
     />
   }
 
-  <!-- Transforme essa seção em texto, adicione detalhes do basePrice +  -->
-  <div class="form__row form__row--2">
-    <app-input-number-field
-      controlName="baseCostPrice"
-      [parentForm]="formGroup()"
-      label="product.form.cost"
-    ></app-input-number-field>
+  <div class="pricing-summary">
+    <div class="pricing-summary__item">
+      <span class="pricing-summary__label">
+        {{ 'product.form.cost' | translate }}
+        <i
+          class="pi pi-info-circle info-icon"
+          [pTooltip]="costTooltip()"
+          tooltipPosition="top"
+        ></i>
+      </span>
+      <strong class="pricing-summary__value">
+        {{ baseCostPrice() ?? 0 | currency: 'BRL' }}
+      </strong>
+    </div>
 
-    <app-input-number-field
-      controlName="profitAmount"
-      [parentForm]="localFormGroup"
-      label="product.form.profit"
-    ></app-input-number-field>
+    <div class="pricing-summary__item">
+      <span class="pricing-summary__label">
+        {{ 'product.form.profitApproximate' | translate }}
+        <i
+          class="pi pi-info-circle info-icon"
+          [pTooltip]="'product.form.profitFormula' | translate"
+          tooltipPosition="top"
+        ></i>
+      </span>
+      <strong class="pricing-summary__value">{{
+        approximateProfit() ?? 0 | currency: 'BRL'
+      }}</strong>
+    </div>
   </div>
 </app-form-layout>

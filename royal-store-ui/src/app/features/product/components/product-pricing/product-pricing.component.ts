@@ -13,6 +13,9 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { CurrencyPipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TooltipModule } from 'primeng/tooltip';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { startWith, switchMap } from 'rxjs';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
@@ -33,6 +36,9 @@ const roundCents = (value: number): number => Math.round(value * 100) / 100;
   selector: 'app-product-pricing',
   imports: [
     ReactiveFormsModule,
+    TranslatePipe,
+    CurrencyPipe,
+    TooltipModule,
     FormLayoutComponent,
     InputNumberFieldComponent,
     SelectFieldComponent,
@@ -44,6 +50,8 @@ const roundCents = (value: number): number => Math.round(value * 100) / 100;
 })
 export class ProductPricingComponent {
   private readonly costCompositionFacade = inject(CostCompositionFacade);
+  private readonly translate = inject(TranslateService);
+  private readonly currency = new CurrencyPipe('pt-BR');
 
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
@@ -102,6 +110,48 @@ export class ProductPricingComponent {
     ),
     { initialValue: null as number | null },
   );
+
+  private readonly costCompositionIdValue = toSignal(
+    toObservable(this.formGroup).pipe(
+      switchMap(formGroup =>
+        formGroup.controls.costCompositionId.valueChanges.pipe(
+          startWith(formGroup.controls.costCompositionId.value),
+        ),
+      ),
+    ),
+    { initialValue: null as string | null },
+  );
+
+  protected readonly selectedComposition = computed(
+    () =>
+      this.costCompositions().find(
+        c => c.id === this.costCompositionIdValue(),
+      ) ?? null,
+  );
+
+  /** The cost typed in "Product cost": total minus the linked composition. */
+  protected readonly productCostPart = computed(() =>
+    roundCents(
+      (this.baseCostPrice() ?? 0) -
+        (this.selectedComposition()?.totalValue ?? 0),
+    ),
+  );
+
+  protected readonly costTooltip = computed(() => {
+    const format = (v: number): string =>
+      this.currency.transform(v, 'BRL') ?? '';
+    const composition = this.selectedComposition();
+    const base = `${this.translate.instant('product.form.productCost')}: ${format(this.productCostPart())}`;
+    return composition
+      ? `${base} + ${format(composition.totalValue)} (${composition.name})`
+      : base;
+  });
+
+  protected readonly approximateProfit = computed(() => {
+    const price = this.basePrice();
+    const cost = this.baseCostPrice();
+    return price == null || cost == null ? null : roundCents(price - cost);
+  });
 
   private readonly productId = toSignal(
     toObservable(this.formGroup).pipe(

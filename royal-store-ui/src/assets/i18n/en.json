@@ -286,6 +286,8 @@
       "removeCostItem": "Remove cost line",
       "profitMarginPercent": "Profit margin (%)",
       "profit": "Profit",
+      "profitApproximate": "Approximate profit",
+      "profitFormula": "Approximate profit value calculation",
       "promoPrice": "Promo price",
       "stockQty": "Stock qty",
       "minStock": "Min stock",

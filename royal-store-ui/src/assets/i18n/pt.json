@@ -286,6 +286,8 @@
       "removeCostItem": "Remover linha de custo",
       "profitMarginPercent": "Margem de lucro (%)",
       "profit": "Lucro",
+      "profitApproximate": "Lucro aproximado",
+      "profitFormula": "Calculo do valor aproximado",
       "promoPrice": "Preço promocional",
       "stockQty": "Qtd. em estoque",
       "minStock": "Estoque mínimo",
