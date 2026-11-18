@@ -18,12 +18,9 @@ import { startWith } from 'rxjs';
 import {
   ItemType,
   Product,
-  ProductCostItem,
-  ProductCostItemFormControls,
   ProductFormControls,
   ProductVariantFormControls,
 } from '../../interfaces/product.interface';
-import { buildProductCostItemGroup } from '../../utils/product-cost-item-form.util';
 import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
 import { ProductFacade } from '../../facade/product.facade';
 import { ItemTypeSelectorComponent } from '../item-type-selector/item-type-selector.component';
@@ -134,7 +131,6 @@ export class ProductFormComponent {
       // Rebuilt before the patch: patchValue only fills rows that already
       // exist, and ProductPricingComponent reseeds from these rows once the
       // id changes.
-      this.seedCostItems(product?.costItems ?? []);
       this.formGroup.patchValue({ ...product });
     });
 
@@ -183,14 +179,6 @@ export class ProductFormComponent {
       this.productFacade.enableProduct(product.id);
     } else {
       this.productFacade.disableProduct(product.id);
-    }
-  }
-
-  private seedCostItems(items: readonly ProductCostItem[]): void {
-    const costItems = this.formGroup.controls.costItems;
-    costItems.clear({ emitEvent: false });
-    for (const item of items) {
-      costItems.push(buildProductCostItemGroup(item), { emitEvent: false });
     }
   }
 
@@ -307,7 +295,7 @@ export class ProductFormComponent {
 
       variants: new FormArray<FormGroup<ProductVariantFormControls>>([]),
       prices: new FormArray<FormGroup<ProductPriceFormControls>>([]),
-      costItems: new FormArray<FormGroup<ProductCostItemFormControls>>([]),
+      costCompositionId: new FormControl<string | null>(null),
     });
   }
 }

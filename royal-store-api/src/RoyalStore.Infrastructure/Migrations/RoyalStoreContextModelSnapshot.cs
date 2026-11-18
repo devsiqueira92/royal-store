@@ -203,6 +203,57 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("Categories", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.CostCompositionList", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("TotalValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("CostCompositionLists", (string)null);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.OriginOption", b =>
                 {
                     b.Property<Guid>("Id")
@@ -480,6 +531,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CostCompositionListId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -492,9 +546,6 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("integer");
@@ -516,13 +567,13 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("CostCompositionListId");
 
                     b.HasIndex("TenantId");
 
-                    b.ToTable("ProductCostItems", null, t =>
+                    b.ToTable("CostCompositionItems", null, t =>
                         {
-                            t.HasCheckConstraint("CK_ProductCostItems_Value_NonNegative", "\"Value\" >= 0");
+                            t.HasCheckConstraint("CK_CostCompositionItems_Value_NonNegative", "\"Value\" >= 0");
                         });
                 });
 
@@ -2610,6 +2661,14 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.CostCompositionList", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
+                        .WithOne("CostComposition")
+                        .HasForeignKey("RoyalStore.Domain.Catalog.CostCompositionList", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.PriceList", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Catalog.PriceList", null)
@@ -2687,9 +2746,9 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.ProductCostItem", b =>
                 {
-                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
-                        .WithMany("CostItems")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("RoyalStore.Domain.Catalog.CostCompositionList", null)
+                        .WithMany("Items")
+                        .HasForeignKey("CostCompositionListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -3190,9 +3249,14 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Catalog.CostCompositionList", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
                 {
-                    b.Navigation("CostItems");
+                    b.Navigation("CostComposition");
 
                     b.Navigation("Photos");
 

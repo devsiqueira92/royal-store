@@ -1,0 +1,79 @@
+<section class="cost-compositions-page">
+  <header class="cost-compositions-page__header">
+    <div>
+      <h1 class="cost-compositions-page__title">
+        {{ 'costComposition.title' | translate }}
+      </h1>
+      <p class="cost-compositions-page__subtitle">
+        {{ 'costComposition.subtitle' | translate }}
+      </p>
+    </div>
+    <p-button
+      [label]="'costComposition.newCostComposition' | translate"
+      icon="pi pi-plus"
+      (onClick)="create()"
+    />
+  </header>
+
+  <div class="cost-compositions-page__panel">
+    <p-table [value]="costCompositions()" [loading]="isLoading()" dataKey="id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'costComposition.columns.name' | translate }}</th>
+          <th>{{ 'costComposition.columns.status' | translate }}</th>
+          <th>{{ 'costComposition.columns.createdAt' | translate }}</th>
+          <th>{{ 'costComposition.columns.items' | translate }}</th>
+          <th>{{ 'costComposition.columns.total' | translate }}</th>
+          <th class="cost-compositions-page__action-col"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-costComposition>
+        <tr>
+          <td class="cost-compositions-page__name">
+            {{ costComposition.name }}
+          </td>
+          <td>
+            @if (costComposition.productId) {
+              <p-tag
+                [value]="'costComposition.linked' | translate"
+                severity="info"
+              />
+            } @else {
+              <span>{{ 'costComposition.unlinked' | translate }}</span>
+            }
+          </td>
+          <td>{{ costComposition.createdAt | date: 'short' }}</td>
+          <td>{{ costComposition.numberItems }}</td>
+          <td class="cost-compositions-page__total">
+            {{ costComposition.totalValue | currency: 'BRL' }}
+          </td>
+          <td class="action-columns">
+            <p-button
+              icon="pi pi-ban"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              [attr.aria-label]="'costComposition.form.delete' | translate"
+              (onClick)="onDelete(costComposition, $event)"
+            />
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [attr.aria-label]="'costComposition.edit' | translate"
+              (onClick)="edit(costComposition)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6">{{ 'costComposition.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

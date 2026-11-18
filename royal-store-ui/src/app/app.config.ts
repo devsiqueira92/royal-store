@@ -61,6 +61,8 @@ import { expenseFeature } from './features/expense/store/expense.reducer';
 import { expenseStore } from './features/expense/store/expense.store';
 import { priceListFeature } from './features/price-list/store/price-list.reducer';
 import { priceListStore } from './features/price-list/store/price-list.store';
+import { costCompositionFeature } from './features/cost-composition/store/cost-composition.reducer';
+import { costCompositionStore } from './features/cost-composition/store/cost-composition.store';
 
 registerLocaleData(localeEn);
 
@@ -106,6 +108,7 @@ export const appConfig: ApplicationConfig = {
       [supplierFeature.name]: supplierFeature.reducer,
       [expenseFeature.name]: expenseFeature.reducer,
       [priceListFeature.name]: priceListFeature.reducer,
+      [costCompositionFeature.name]: costCompositionFeature.reducer,
     }),
     provideEffects(
       authStore,
@@ -127,6 +130,7 @@ export const appConfig: ApplicationConfig = {
       supplierStore,
       expenseStore,
       priceListStore,
+      costCompositionStore,
     ),
     provideAppInitializer(() => {
       inject(Store).dispatch(AuthActions.checkAuthProfile());

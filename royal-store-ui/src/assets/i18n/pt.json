@@ -39,7 +39,8 @@
       "expenseCategories": "Categorias de despesa",
       "financialAccounts": "Contas financeiras",
       "pricing": "Precificação",
-      "priceLists": "Listas de preço"
+      "priceLists": "Listas de preço",
+      "costCompositions": "Composição de custos"
     }
   },
   "auth": {
@@ -355,6 +356,44 @@
       "products": "{{count}} produtos",
       "edit": "Editar categoria",
       "delete": "Excluir categoria"
+    }
+  },
+  "costComposition": {
+    "title": "Composição de custos",
+    "subtitle": "Composições de custo reutilizáveis, vinculadas ou não a um produto.",
+    "newCostComposition": "Nova composição",
+    "empty": "Nenhuma composição de custo encontrada.",
+    "linked": "Vinculada",
+    "unlinked": "Sem vínculo",
+    "edit": "Editar composição",
+    "columns": {
+      "name": "Nome",
+      "status": "Vínculo",
+      "createdAt": "Criada em",
+      "items": "Itens",
+      "total": "Total"
+    },
+    "form": {
+      "createTitle": "Nova composição de custo",
+      "createSubtitle": "Liste as linhas de custo que somam o total.",
+      "editTitle": "Editar composição de custo",
+      "editSubtitle": "Adicione, altere ou remova linhas de custo.",
+      "section": {
+        "items": "Linhas de custo"
+      },
+      "description": "Descrição",
+      "name": "Nome",
+      "namePlaceholder": "ex.: Embalagem padrão",
+      "descriptionPlaceholder": "ex.: Embalagem",
+      "value": "Valor",
+      "addItem": "Adicionar linha",
+      "removeItem": "Remover linha",
+      "total": "Total",
+      "cancel": "Cancelar",
+      "delete": "Excluir composição",
+      "deleteConfirm": "Excluir esta composição de custo? Esta ação não pode ser desfeita.",
+      "createSubmit": "Criar composição",
+      "submit": "Salvar"
     }
   },
   "priceList": {

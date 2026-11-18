@@ -23,7 +23,6 @@ import {
   UpdateServiceVariantRequest,
 } from '../../interfaces/update-service-request.interface';
 import { toProductPriceInputs } from '../../utils/product-price-form.util';
-import { toProductCostItemInputs } from '../../utils/product-cost-item-form.util';
 import { ProductFacade } from '../../facade/product.facade';
 import { ServiceFacade } from '../../facade/service.facade';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -117,12 +116,6 @@ export class ProductFooterComponent {
       this.formGroup().controls.prices.controls,
     );
 
-    // Always sent: the form holds the full breakdown, so an empty list means
-    // "every line was removed".
-    const costItems = toProductCostItemInputs(
-      this.formGroup().controls.costItems.controls,
-    );
-
     const baseRequest = {
       categoryId: raw.categoryId ?? '',
       name: (raw.name ?? '').trim(),
@@ -153,7 +146,7 @@ export class ProductFooterComponent {
       // Backend does not read this yet; the frontend already sends it.
       // Omitted while the price table is closed so an edit never wipes saved prices.
       prices: prices.length ? prices : undefined,
-      costItems,
+      costCompositionId: raw.costCompositionId ?? null,
     };
 
     if (product) {

@@ -8,13 +8,16 @@ public sealed class ProductCostItemConfiguration : IEntityTypeConfiguration<Prod
 {
     public void Configure(EntityTypeBuilder<ProductCostItem> builder)
     {
-        builder.ToTable("ProductCostItems", table =>
-            table.HasCheckConstraint("CK_ProductCostItems_Value_NonNegative", "\"Value\" >= 0"));
+        // A new table, not the 063 one: "ProductCostItems" still holds the rows saved straight on
+        // products, which this feature must not delete (064 FR-023, research D3). It is no longer
+        // part of the model and nothing reads it.
+        builder.ToTable("CostCompositionItems", table =>
+            table.HasCheckConstraint("CK_CostCompositionItems_Value_NonNegative", "\"Value\" >= 0"));
 
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.TenantId).IsRequired();
-        builder.Property(e => e.ProductId).IsRequired();
+        builder.Property(e => e.CostCompositionListId).IsRequired();
 
         builder.Property(e => e.Description)
             .HasMaxLength(ProductCostItem.DescriptionMaxLength)
@@ -31,9 +34,9 @@ public sealed class ProductCostItemConfiguration : IEntityTypeConfiguration<Prod
         builder.Property(e => e.UpdatedAt).IsRequired();
         builder.Property(e => e.UpdatedBy).HasMaxLength(450).IsRequired();
 
-        // No unique index on (ProductId, SortOrder): a reorder renumbers lines inside one
+        // No unique index on (CostCompositionListId, SortOrder): a reorder renumbers lines inside one
         // SaveChanges and would hit transient duplicates (063 research D4).
-        builder.HasIndex(e => e.ProductId);
+        builder.HasIndex(e => e.CostCompositionListId);
         builder.HasIndex(e => e.TenantId);
     }
 }

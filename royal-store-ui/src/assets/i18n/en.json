@@ -39,7 +39,8 @@
       "expenseCategories": "Expense categories",
       "financialAccounts": "Financial accounts",
       "pricing": "Pricing",
-      "priceLists": "Price lists"
+      "priceLists": "Price lists",
+      "costCompositions": "Cost compositions"
     }
   },
   "auth": {
@@ -355,6 +356,44 @@
       "products": "{{count}} products",
       "edit": "Edit category",
       "delete": "Delete category"
+    }
+  },
+  "costComposition": {
+    "title": "Cost compositions",
+    "subtitle": "Reusable cost breakdowns, linked or not to a product.",
+    "newCostComposition": "New composition",
+    "empty": "No cost compositions found.",
+    "linked": "Linked",
+    "unlinked": "Unlinked",
+    "edit": "Edit composition",
+    "columns": {
+      "name": "Name",
+      "status": "Link",
+      "createdAt": "Created at",
+      "items": "Items",
+      "total": "Total"
+    },
+    "form": {
+      "createTitle": "New cost composition",
+      "createSubtitle": "List the cost lines that add up to the total.",
+      "editTitle": "Edit cost composition",
+      "editSubtitle": "Add, change or remove cost lines.",
+      "section": {
+        "items": "Cost lines"
+      },
+      "description": "Description",
+      "name": "Name",
+      "namePlaceholder": "e.g. Standard packaging",
+      "descriptionPlaceholder": "e.g. Packaging",
+      "value": "Value",
+      "addItem": "Add line",
+      "removeItem": "Remove line",
+      "total": "Total",
+      "cancel": "Cancel",
+      "delete": "Delete composition",
+      "deleteConfirm": "Delete this cost composition? This cannot be undone.",
+      "createSubmit": "Create composition",
+      "submit": "Save"
     }
   },
   "priceList": {

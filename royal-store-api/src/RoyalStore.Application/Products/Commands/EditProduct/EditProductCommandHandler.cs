@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
@@ -17,6 +18,8 @@ public sealed class EditProductCommandHandler
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly ISupplierRepository _supplierRepository;
     private readonly IPriceListRepository _priceListRepository;
+    private readonly ICostCompositionRepository _costCompositionRepository;
+    private readonly ILogger<EditProductCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -28,16 +31,20 @@ public sealed class EditProductCommandHandler
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
         ISupplierRepository supplierRepository,
         IPriceListRepository priceListRepository,
+        ICostCompositionRepository costCompositionRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ILogger<EditProductCommandHandler> logger)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _supplierRepository = supplierRepository;
         _priceListRepository = priceListRepository;
+        _costCompositionRepository = costCompositionRepository;
+        _logger = logger;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -74,6 +81,19 @@ public sealed class EditProductCommandHandler
                 return Error.Validation("product.supplier_invalid", "Supplier not found or inactive.");
         }
 
+        // The list this product has now, to tell after the save whether it changed (064 FR-016).
+        var previousCostCompositionId = product.CostComposition?.Id;
+
+        // Named by identifier. A list that does not exist, or belongs to another store (the tenant filter
+        // hides it), is refused before anything is created or changed (064 FR-017).
+        CostCompositionList? costComposition = null;
+        if (command.CostCompositionId.HasValue)
+        {
+            costComposition = await _costCompositionRepository.GetByIdAsync(command.CostCompositionId.Value, cancellationToken);
+            if (costComposition is null)
+                return Error.NotFound("costcomposition.not_found", "Cost composition was not found.");
+        }
+
         var variantsToAdd = command.VariantsToAdd
             .Select(v => new NewVariantRequest(
                 v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, null, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
@@ -100,7 +120,7 @@ public sealed class EditProductCommandHandler
             command.Measure.NetWeight, command.Measure.GrossWeight, command.Measure.Width, command.Measure.Height, command.Measure.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
-            variantsToAdd, variantsToUpdate, command.CostItems, supplier);
+            variantsToAdd, variantsToUpdate, costComposition, supplier);
 
         if (!updateResult.IsSuccess)
             return updateResult.Error;
@@ -111,21 +131,28 @@ public sealed class EditProductCommandHandler
         foreach (var variant in newVariants)
             await _productRepository.AddVariantAsync(variant, cancellationToken);
 
-        // Same reason as the variants above: children added to an already-tracked aggregate (prices,
-        // cost items) are registered explicitly.
-        foreach (var price in updateResult.Value.Prices.Added)
+        // Same reason as the variants above: children added to an already-tracked aggregate (prices)
+        // are registered explicitly.
+        foreach (var price in updateResult.Value.Added)
             await _productRepository.AddPriceAsync(price, cancellationToken);
 
-        foreach (var price in updateResult.Value.Prices.Removed)
+        foreach (var price in updateResult.Value.Removed)
             _productRepository.RemovePrice(price);
 
-        foreach (var item in updateResult.Value.CostItems.Added)
-            await _productRepository.AddCostItemAsync(item, cancellationToken);
-
-        foreach (var item in updateResult.Value.CostItems.Removed)
-            _productRepository.RemoveCostItem(item);
-
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        var currentCostCompositionId = product.CostComposition?.Id;
+        if (currentCostCompositionId != previousCostCompositionId)
+        {
+            _logger.LogInformation(
+                "Cost composition {CostCompositionId} linked to product {ProductId} for tenant {TenantId}.",
+                currentCostCompositionId, product.Id, _tenantContext.TenantId);
+
+            if (previousCostCompositionId.HasValue)
+                _logger.LogInformation(
+                    "Cost composition {PreviousCostCompositionId} is no longer linked to product {ProductId}; it stays stored.",
+                    previousCostCompositionId, product.Id);
+        }
 
         var userId = _currentUserService.CurrentUserId ?? "unknown";
         await _auditService.RecordAsync(

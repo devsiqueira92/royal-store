@@ -37,6 +37,7 @@ public record ProductResponse(
     Guid? SupplierId,
     string? SupplierName,
     IReadOnlyList<ProductPriceResponse> Prices,
+    Guid? CostCompositionId,
     IReadOnlyList<ProductCostItemResponse> CostItems)
 {
     public static ProductResponse From(Product product) =>
@@ -60,8 +61,10 @@ public record ProductResponse(
                 .OrderByDescending(p => p.IsDefault)
                 .ThenBy(p => p.PriceListName)
                 .ToList(),
-            // Ordered in memory, not by a filtered Include (063 research D4).
-            product.CostItems
+            product.CostComposition?.Id,
+            // Ordered in memory, not by a filtered Include (063 research D4). A product with no list
+            // gets an empty list, never a missing field (064 FR-021).
+            (product.CostComposition?.Items ?? [])
                 .OrderBy(c => c.SortOrder)
                 .Select(ProductCostItemResponse.From)
                 .ToList());

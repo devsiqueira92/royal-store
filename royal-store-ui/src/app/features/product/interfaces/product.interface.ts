@@ -58,8 +58,8 @@ export interface Product {
   supplierId?: string | null;
   supplierName?: string | null;
   prices?: ProductPrice[];
-  /** Cost breakdown lines, in saved order. Informative only — `baseCostPrice` is stored apart. */
-  costItems?: ProductCostItem[];
+  /** Linked cost composition; its `totalValue` is part of `baseCostPrice`. */
+  costCompositionId?: string | null;
 
   // Fiscal
   taxProfileTemplateId?: string;
@@ -90,20 +90,6 @@ export interface ProductVariant {
   costPrice?: number | null;
   stockQuantity?: number | null;
   minStockQuantity?: number | null;
-}
-
-/** One line of a product's cost breakdown, as the API returns it. */
-export interface ProductCostItem {
-  id: string;
-  description: string;
-  value: number;
-}
-
-export interface ProductCostItemFormControls {
-  /** `null` for a line not saved yet. */
-  id: FormControl<string | null>;
-  description: FormControl<string | null>;
-  value: FormControl<number | null>;
 }
 
 export interface ProductVariantFormControls {
@@ -159,6 +145,6 @@ export interface ProductFormControls {
   /** One group per price list; the default list's sale price mirrors `basePrice`. */
   prices: FormArray<FormGroup<ProductPriceFormControls>>;
 
-  /** The cost breakdown lines; their sum plus the product cost gives `baseCostPrice`. */
-  costItems: FormArray<FormGroup<ProductCostItemFormControls>>;
+  /** Optional cost composition; its total plus the product cost gives `baseCostPrice`. */
+  costCompositionId: FormControl<string | null>;
 }

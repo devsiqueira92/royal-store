@@ -34,8 +34,9 @@ public record CreateProductCommand(
     Guid? SupplierId = null,
     // One sale price per price list; the default list is mandatory (061 FR-010).
     IReadOnlyList<ProductPriceInput>? Prices = null,
-    // The product's cost breakdown; every line is new (063 FR-008).
-    IReadOnlyList<ProductCostItemInput>? CostItems = null) : IRequest<Result<ProductResponse>>;
+    // The cost composition list to link to the new product: the identifier returned by
+    // POST /api/cost-compositions. Absent = no composition (064 FR-013).
+    Guid? CostCompositionId = null) : IRequest<Result<ProductResponse>>;
 
 public record CreateVariantRequest(
     string? Size,

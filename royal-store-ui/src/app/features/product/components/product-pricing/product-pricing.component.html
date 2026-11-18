@@ -14,82 +14,27 @@
     <i class="pi pi-calculator"></i>
   </button>
 
-  <app-input-number-field
-    controlName="productCost"
-    [parentForm]="localFormGroup"
-    label="product.form.productCost"
-    [min]="0"
-    [step]="0.01"
-    (blurred)="onProductCostBlur()"
-  ></app-input-number-field>
+  <div class="form__row form__row--2">
+    <app-input-number-field
+      controlName="productCost"
+      [parentForm]="localFormGroup"
+      label="product.form.productCost"
+      [min]="0"
+      [step]="0.01"
+      (blurred)="onProductCostBlur()"
+    ></app-input-number-field>
 
-  <span class="cost-composition__label">
-    {{ 'product.form.costComposition' | translate }}
-    <span class="cost-composition__hint">
-      {{ 'product.form.costCompositionHint' | translate }}
-    </span>
-  </span>
-
-  <div class="cost-composition">
-    @for (
-      costItemGroup of costItemGroups();
-      track costItemGroup;
-      let i = $index
-    ) {
-      <div class="cost-composition__row" [formGroup]="costItemGroup">
-        <span class="cost-composition__index">{{
-          i + 1 | number: '2.0-0'
-        }}</span>
-
-        <input
-          class="cost-composition__description"
-          [class.cost-composition__description--invalid]="
-            costItemGroup.invalid && costItemGroup.touched
-          "
-          type="text"
-          formControlName="description"
-          [maxLength]="descriptionMaxLength"
-          [placeholder]="
-            'product.form.costItemDescriptionPlaceholder' | translate
-          "
-          (blur)="onCostItemBlur()"
-        />
-
-        <span class="cost-composition__value">
-          <span class="cost-composition__value-prefix">R$</span>
-          <input
-            type="number"
-            inputmode="decimal"
-            min="0"
-            step="0.01"
-            formControlName="value"
-            (input)="onCostItemInput()"
-            (blur)="onCostItemBlur()"
-          />
-        </span>
-
-        <button
-          type="button"
-          class="cost-composition__remove"
-          [attr.aria-label]="'product.form.removeCostItem' | translate"
-          (click)="removeCostItem(i)"
-        >
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-    }
-
-    <button type="button" class="cost-composition__add" (click)="addCostItem()">
-      <i class="pi pi-plus"></i>
-      {{ 'product.form.addCost' | translate }}
-    </button>
+    <app-select-field
+      controlName="costCompositionId"
+      [parentForm]="formGroup()"
+      label="product.form.costComposition"
+      [options]="costCompositionOptions()"
+      [loading]="isLoadingCostCompositions()"
+      [showClear]="true"
+      [filter]="true"
+      (onSelect)="onCostCompositionChange()"
+    ></app-select-field>
   </div>
-
-  <app-input-number-field
-    controlName="baseCostPrice"
-    [parentForm]="formGroup()"
-    label="product.form.cost"
-  ></app-input-number-field>
 
   <div class="form__row form__row--2">
     <app-input-number-field
@@ -112,11 +57,6 @@
         (blurred)="onBasePriceBlur()"
       ></app-input-number-field>
     }
-    <app-input-number-field
-      controlName="profitAmount"
-      [parentForm]="localFormGroup"
-      label="product.form.profit"
-    ></app-input-number-field>
   </div>
 
   @if (showPriceTable()) {
@@ -125,4 +65,19 @@
       [prices]="formGroup().controls.prices"
     />
   }
+
+  <!-- Transforme essa seção em texto, adicione detalhes do basePrice +  -->
+  <div class="form__row form__row--2">
+    <app-input-number-field
+      controlName="baseCostPrice"
+      [parentForm]="formGroup()"
+      label="product.form.cost"
+    ></app-input-number-field>
+
+    <app-input-number-field
+      controlName="profitAmount"
+      [parentForm]="localFormGroup"
+      label="product.form.profit"
+    ></app-input-number-field>
+  </div>
 </app-form-layout>
