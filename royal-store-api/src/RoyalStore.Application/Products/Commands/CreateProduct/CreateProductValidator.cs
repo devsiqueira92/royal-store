@@ -18,8 +18,10 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
 
         RuleFor(x => x).Custom((command, context) =>
             ProductPriceInputs.ValidateShape(command.Prices, command.BasePrice, context));
-        RuleFor(x => x).Custom((command, context) =>
-            ProductCostItemInputs.ValidateShape(command.CostItems, context));
+
+        RuleFor(x => x.CostCompositionId)
+            .NotEqual(Guid.Empty).When(x => x.CostCompositionId.HasValue)
+            .WithMessage("Cost composition id is invalid.");
         RuleFor(x => x.BaseCostPrice).GreaterThanOrEqualTo(0);
 
         When(x => x.Description is not null, () =>

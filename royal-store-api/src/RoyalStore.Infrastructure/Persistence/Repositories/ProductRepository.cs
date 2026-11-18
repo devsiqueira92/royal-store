@@ -24,14 +24,9 @@ public sealed class ProductRepository : IProductRepository
 
     public void RemovePrice(ProductPrice price) => _context.ProductPrices.Remove(price);
 
-    public async Task AddCostItemAsync(ProductCostItem item, CancellationToken ct = default) =>
-        await _context.ProductCostItems.AddAsync(item, ct);
-
-    public void RemoveCostItem(ProductCostItem item) => _context.ProductCostItems.Remove(item);
-
-    // Split query: variants, photos, prices and cost items are collections on the same parent; in
-    // a single statement they would multiply each other's rows (5 variants x 3 photos x 3 price
-    // lists = 45 rows per product, before cost items).
+    // Split query: variants, photos, prices and the cost composition's items are collections on the
+    // same parent; in a single statement they would multiply each other's rows (5 variants x 3
+    // photos x 3 price lists = 45 rows per product, before cost items).
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Products
             .Include(p => p.Category)
@@ -39,7 +34,7 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
-            .Include(p => p.CostItems)
+            .Include(p => p.CostComposition).ThenInclude(c => c!.Items)
             .Include(p => p.TaxProfileTemplate)
             .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
@@ -54,7 +49,7 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
-            .Include(p => p.CostItems)
+            .Include(p => p.CostComposition).ThenInclude(c => c!.Items)
             .Include(p => p.TaxProfileTemplate)
             .AsSplitQuery()
             .AsQueryable();

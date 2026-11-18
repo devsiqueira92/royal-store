@@ -13,12 +13,6 @@ public interface IProductRepository
     /// <summary>Registers the removal of a price taken off an already-tracked product.</summary>
     void RemovePrice(ProductPrice price);
 
-    /// <summary>Registers a cost line added to an already-tracked product (see ProductCostItemChanges).</summary>
-    Task AddCostItemAsync(ProductCostItem item, CancellationToken ct = default);
-
-    /// <summary>Registers the removal of a cost line taken off an already-tracked product.</summary>
-    void RemoveCostItem(ProductCostItem item);
-
     Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetAllAsync(
         bool? isActive, Guid? categoryId, StockStatus? stockStatus, Guid? supplierId,

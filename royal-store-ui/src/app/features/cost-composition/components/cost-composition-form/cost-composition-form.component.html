@@ -1,0 +1,72 @@
+<form class="cost-composition-form" [formGroup]="formGroup">
+  <app-form-layout
+    [title]="'costComposition.form.section.items'"
+    [index]="1"
+    [collapsedPanel]="false"
+  >
+    <app-input-field
+      controlName="name"
+      [parentForm]="formGroup"
+      label="costComposition.form.name"
+      placeholder="costComposition.form.namePlaceholder"
+    />
+
+    @for (group of items.controls; track group; let i = $index) {
+      <div class="cost-composition-form__row">
+        <app-input-field
+          class="cost-composition-form__description"
+          controlName="description"
+          [parentForm]="group"
+          label="costComposition.form.description"
+          placeholder="costComposition.form.descriptionPlaceholder"
+        />
+        <app-input-number-field
+          class="cost-composition-form__value"
+          controlName="value"
+          [parentForm]="group"
+          label="costComposition.form.value"
+          [min]="0"
+          [step]="0.01"
+        />
+        <p-button
+          icon="pi pi-times"
+          [rounded]="true"
+          [text]="true"
+          severity="danger"
+          [attr.aria-label]="'costComposition.form.removeItem' | translate"
+          (onClick)="removeItem(i)"
+        />
+      </div>
+    }
+
+    <p-button
+      icon="pi pi-plus"
+      severity="secondary"
+      [outlined]="true"
+      [label]="'costComposition.form.addItem' | translate"
+      (onClick)="addItem()"
+    />
+
+    <div class="cost-composition-form__total">
+      <span>{{ 'costComposition.form.total' | translate }}</span>
+      <strong>{{ total() | currency: 'BRL' }}</strong>
+    </div>
+  </app-form-layout>
+
+  <div class="cost-composition-form__footer">
+    <app-button
+      label="costComposition.form.cancel"
+      severity="secondary"
+      (onClick)="onClose()"
+    />
+    <app-button
+      [label]="
+        isCreateMode()
+          ? 'costComposition.form.createSubmit'
+          : 'costComposition.form.submit'
+      "
+      [disabled]="formGroup.invalid"
+      (onClick)="onSubmit()"
+    />
+  </div>
+</form>

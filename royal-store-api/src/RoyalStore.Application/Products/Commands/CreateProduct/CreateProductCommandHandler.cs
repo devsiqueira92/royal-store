@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Logging;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
@@ -17,6 +18,8 @@ public sealed class CreateProductCommandHandler
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly ISupplierRepository _supplierRepository;
     private readonly IPriceListRepository _priceListRepository;
+    private readonly ICostCompositionRepository _costCompositionRepository;
+    private readonly ILogger<CreateProductCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -28,16 +31,20 @@ public sealed class CreateProductCommandHandler
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
         ISupplierRepository supplierRepository,
         IPriceListRepository priceListRepository,
+        ICostCompositionRepository costCompositionRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        ILogger<CreateProductCommandHandler> logger)
     {
         _productRepository = productRepository;
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _supplierRepository = supplierRepository;
         _priceListRepository = priceListRepository;
+        _costCompositionRepository = costCompositionRepository;
+        _logger = logger;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -73,6 +80,16 @@ public sealed class CreateProductCommandHandler
         if (!prices.IsSuccess)
             return prices.Error;
 
+// Named by identifier. A list that does not exist, or belongs to another store (the tenant filter
+        // hides it), is refused before anything is created or changed (064 FR-017).
+        CostCompositionList? costComposition = null;
+        if (command.CostCompositionId.HasValue)
+        {
+            costComposition = await _costCompositionRepository.GetByIdAsync(command.CostCompositionId.Value, cancellationToken);
+            if (costComposition is null)
+                return Error.NotFound("costcomposition.not_found", "Cost composition was not found.");
+        }
+
         var productResult = Product.CreateProduct(
             tenantId, command.CategoryId, command.Name, command.Sku, command.StockTrack,
             prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
@@ -80,7 +97,7 @@ public sealed class CreateProductCommandHandler
             command.NetWeight, command.GrossWeight, command.Width, command.Height, command.Length,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.DefaultCfop, command.IcmsCst, command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
-            supplier, command.CostItems);
+            supplier, costComposition);
 
         if (!productResult.IsSuccess)
             return productResult.Error;
@@ -98,6 +115,11 @@ public sealed class CreateProductCommandHandler
 
         await _productRepository.AddAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (costComposition is not null)
+            _logger.LogInformation(
+                "Cost composition {CostCompositionId} linked to product {ProductId} for tenant {TenantId}.",
+                costComposition.Id, product.Id, tenantId);
 
         var userId = _currentUserService.CurrentUserId ?? "unknown";
         await _auditService.RecordAsync(
