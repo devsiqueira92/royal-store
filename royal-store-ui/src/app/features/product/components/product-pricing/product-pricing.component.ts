@@ -51,7 +51,12 @@ const roundCents = (value: number): number => Math.round(value * 100) / 100;
 export class ProductPricingComponent {
   private readonly costCompositionFacade = inject(CostCompositionFacade);
   private readonly translate = inject(TranslateService);
-  private readonly currency = new CurrencyPipe('pt-BR');
+  // Native Intl, not `new CurrencyPipe('pt-BR')`: the pipe needs Angular's pt-BR
+  // locale data registered (the app runs on en-US), otherwise it throws NG0701.
+  private readonly currency = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
 
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
@@ -138,8 +143,7 @@ export class ProductPricingComponent {
   );
 
   protected readonly costTooltip = computed(() => {
-    const format = (v: number): string =>
-      this.currency.transform(v, 'BRL') ?? '';
+    const format = (v: number): string => this.currency.format(v);
     const composition = this.selectedComposition();
     const base = `${this.translate.instant('product.form.productCost')}: ${format(this.productCostPart())}`;
     return composition

@@ -1,0 +1,95 @@
+<div class="label-element-properties" [formGroup]="form">
+  <span class="label-element-properties__title">
+    {{ 'product.labelDesigner.editor.properties.title' | translate }}
+    <span class="label-element-properties__field">
+      @if (fieldOption(); as option) {
+        @if (option.group === 'price') {
+          {{ 'product.labelDesigner.editor.priceFields' | translate }} ·
+        }
+        {{ option.labelKey | translate: option.labelParams }}
+      } @else {
+        {{ element().field }}
+      }
+    </span>
+  </span>
+
+  @if (canSwitchType) {
+    <div class="label-element-properties__alignment">
+      <span class="label-element-properties__label" id="label-element-type">
+        {{ 'product.labelDesigner.editor.properties.type' | translate }}
+      </span>
+      <p-selectbutton
+        formControlName="type"
+        [options]="typeOptions"
+        optionValue="value"
+        [allowEmpty]="false"
+        aria-labelledby="label-element-type"
+      >
+        <ng-template #item let-option>
+          <i [class]="option.icon"></i>
+          <span class="label-element-properties__option">{{ option.labelKey | translate }}</span>
+        </ng-template>
+      </p-selectbutton>
+    </div>
+  }
+
+  <div class="label-element-properties__row">
+    @if (!isBarcode) {
+      <app-input-number-field
+        controlName="fontSize"
+        [parentForm]="form"
+        label="product.labelDesigner.editor.properties.fontSize"
+        mode="decimal"
+        prefix=""
+        suffix="pt"
+        [min]="4"
+        [step]="0.5"
+      ></app-input-number-field>
+    }
+
+    <app-input-number-field
+      controlName="width"
+      [parentForm]="form"
+      label="product.labelDesigner.editor.properties.width"
+      mode="decimal"
+      prefix=""
+      suffix="mm"
+      [min]="1"
+      [step]="0.5"
+    ></app-input-number-field>
+
+    <app-input-number-field
+      controlName="height"
+      [parentForm]="form"
+      label="product.labelDesigner.editor.properties.height"
+      mode="decimal"
+      prefix=""
+      suffix="mm"
+      [min]="1"
+      [step]="0.5"
+    ></app-input-number-field>
+  </div>
+
+  @if (!isBarcode) {
+    <div class="label-element-properties__alignment">
+      <span class="label-element-properties__label" id="label-element-alignment">
+        {{ 'product.labelDesigner.editor.properties.alignment' | translate }}
+      </span>
+      <p-selectbutton
+        formControlName="alignment"
+        [options]="alignmentOptions"
+        optionValue="value"
+        [allowEmpty]="false"
+        aria-labelledby="label-element-alignment"
+      >
+        <ng-template #item let-option>
+          <i
+            [class]="option.icon"
+            [attr.title]="option.labelKey | translate"
+            [attr.aria-label]="option.labelKey | translate"
+          ></i>
+        </ng-template>
+      </p-selectbutton>
+    </div>
+  }
+</div>

@@ -1,0 +1,80 @@
+<div class="label-sheet-preview">
+  <div class="label-sheet-preview__canvas">
+    @if (hasPaper()) {
+      <svg
+        class="label-sheet-preview__svg"
+        [attr.viewBox]="viewBox()"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        [attr.aria-label]="'product.labelDesigner.preview.title' | translate"
+      >
+        <rect
+          class="sheet"
+          x="0"
+          y="0"
+          [attr.width]="spec().paperWidth"
+          [attr.height]="spec().paperHeight"
+        />
+        <rect
+          class="margin"
+          [attr.x]="printableArea().x"
+          [attr.y]="printableArea().y"
+          [attr.width]="printableArea().width"
+          [attr.height]="printableArea().height"
+        />
+        @for (cell of layout().cells; track $index) {
+          <rect
+            class="label"
+            [class.label--overflow]="cell.overflows"
+            [attr.x]="cell.x"
+            [attr.y]="cell.y"
+            [attr.width]="cell.width"
+            [attr.height]="cell.height"
+          />
+        }
+      </svg>
+    } @else {
+      <span class="label-sheet-preview__empty">
+        {{ 'product.labelDesigner.preview.empty' | translate }}
+      </span>
+    }
+  </div>
+
+  <dl class="label-sheet-preview__summary">
+    <div>
+      <dt>{{ 'product.labelDesigner.preview.paper' | translate }}</dt>
+      <dd>
+        {{ spec().paperWidth | number: '1.0-2' }} ×
+        {{ spec().paperHeight | number: '1.0-2' }} mm
+      </dd>
+    </div>
+    <div>
+      <dt>{{ 'product.labelDesigner.preview.grid' | translate }}</dt>
+      <dd>{{ spec().columns }} × {{ layout().rows }}</dd>
+    </div>
+    <div>
+      <dt>{{ 'product.labelDesigner.preview.perSheet' | translate }}</dt>
+      <dd>{{ labelsPerSheet() }}</dd>
+    </div>
+  </dl>
+
+  @if (layout().overflowsWidth) {
+    <p class="label-sheet-preview__warning">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{
+        'product.labelDesigner.preview.overflowWidth'
+          | translate
+            : {
+                used: (layout().usedWidth | number: '1.0-2'),
+                paper: (spec().paperWidth | number: '1.0-2'),
+              }
+      }}
+    </p>
+  }
+  @if (hasPaper() && layout().rows === 0) {
+    <p class="label-sheet-preview__warning">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ 'product.labelDesigner.preview.noRows' | translate }}
+    </p>
+  }
+</div>

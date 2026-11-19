@@ -10,4 +10,11 @@ export const PRODUCT_ROUTES: Routes = [
         m => m.LabelPrintComponent,
       ),
   },
+  {
+    path: 'labels/designer',
+    loadComponent: () =>
+      import('./pages/label-designer/label-designer.component').then(
+        m => m.LabelDesignerComponent,
+      ),
+  },
 ];

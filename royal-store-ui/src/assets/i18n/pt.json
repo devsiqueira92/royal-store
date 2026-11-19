@@ -317,6 +317,76 @@
       "cancel": "Cancelar",
       "submit": "Salvar produto"
     },
+    "labelDesigner": {
+      "title": "Impressão de etiquetas",
+      "subtitle": "Escolha o tipo de etiqueta e ajuste as medidas da folha.",
+      "labelType": "Tipo de etiqueta",
+      "save": "Salvar",
+      "editor": {
+        "title": "Editor de etiqueta",
+        "productFields": "Campos do produto",
+        "priceFields": "Preços disponíveis",
+        "noPriceLists": "Nenhuma lista de preço ativa.",
+        "noLabelSize": "Informe largura e altura da etiqueta para editá-la.",
+        "moveHint": "Clique num campo para editá-lo. Arraste para mover; arraste a borda direita, a inferior ou o canto para redimensionar; ou use as setas (Shift para passos maiores).",
+        "resizeWidthHint": "Arraste para alterar a largura",
+        "resizeHeightHint": "Arraste para alterar a altura",
+        "resizeBothHint": "Arraste para alterar largura e altura",
+        "properties": {
+          "title": "Campo",
+          "fontSize": "Tamanho da fonte",
+          "width": "Largura",
+          "height": "Altura",
+          "alignment": "Alinhamento",
+          "alignLeft": "Esquerda",
+          "alignCenter": "Centro",
+          "alignRight": "Direita",
+          "type": "Exibir como",
+          "typeText": "Texto",
+          "typeBarcode": "Código de barras"
+        },
+        "moveElement": "Mover {{field}}",
+        "sampleProduct": "Pré-visualizando com: {{name}}",
+        "mockProduct": "Pré-visualizando com dados de exemplo ({{name}}). Selecione produtos na tela de produtos para usar dados reais.",
+        "fields": {
+          "name": "Nome",
+          "description": "Descrição",
+          "sku": "SKU",
+          "barcode": "Código de barras",
+          "price": "{{name}}"
+        }
+      },
+      "paperType": {
+        "sheet": "Folha",
+        "roll": "Rolo"
+      },
+      "section": {
+        "sheet": "Folha",
+        "label": "Etiqueta"
+      },
+      "fields": {
+        "paperWidth": "Largura",
+        "paperHeight": "Altura",
+        "marginTop": "Margem superior",
+        "marginRight": "Margem direita",
+        "marginBottom": "Margem inferior",
+        "marginLeft": "Margem esquerda",
+        "columns": "Colunas",
+        "labelWidth": "Largura",
+        "labelHeight": "Altura",
+        "horizontalSpacing": "Espaçamento horizontal",
+        "verticalSpacing": "Espaçamento vertical"
+      },
+      "preview": {
+        "title": "Pré-visualização da folha",
+        "empty": "Informe largura e altura da folha para ver a pré-visualização.",
+        "paper": "Papel",
+        "grid": "Colunas × linhas",
+        "perSheet": "Etiquetas por folha",
+        "overflowWidth": "As colunas ocupam {{used}} mm, mas a folha tem {{paper}} mm de largura.",
+        "noRows": "Nenhuma linha cabe entre as margens superior e inferior."
+      }
+    },
     "labelPrint": {
       "back": "Voltar para produtos",
       "title": "Imprimir etiquetas",

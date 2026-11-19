@@ -40,7 +40,8 @@ export class InputNumberFieldComponent {
   controlName = input.required<string>();
   label = input<string>();
   id = input<string>();
-  mode = input<'currency' | 'percent'>('currency');
+  /** `decimal`: free fractional number (e.g. mm), parsed like `percent`. */
+  mode = input<'currency' | 'percent' | 'decimal'>('currency');
   min = input<number>();
   step = input<number>();
   prefix = input<string>('R$');
@@ -55,7 +56,7 @@ export class InputNumberFieldComponent {
     const inputElement = event.target as HTMLInputElement;
     if (!inputElement) return;
 
-    if (this.mode() === 'percent') {
+    if (this.mode() !== 'currency') {
       const value = parseFloat(inputElement.value.replace(',', '.'));
       this.parentForm().controls[this.controlName()].setValue(
         Number.isNaN(value) ? null : value,

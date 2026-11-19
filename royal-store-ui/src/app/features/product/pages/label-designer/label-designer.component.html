@@ -1,0 +1,59 @@
+<section class="label-designer-page">
+  <header class="label-designer-page__header">
+    <a routerLink=".." class="label-designer-page__back">
+      <i class="pi pi-arrow-left"></i>
+      {{ 'product.labelPrint.back' | translate }}
+    </a>
+    <div class="label-designer-page__heading">
+      <div>
+        <h1 class="label-designer-page__title">
+          {{ 'product.labelDesigner.title' | translate }}
+        </h1>
+        <p class="label-designer-page__subtitle">
+          {{ 'product.labelDesigner.subtitle' | translate }}
+        </p>
+      </div>
+      <app-button
+        label="product.labelDesigner.save"
+        icon="pi pi-save"
+        [disabled]="!selectedLabelType()"
+        (onClick)="onSave()"
+      ></app-button>
+    </div>
+  </header>
+
+  <div class="label-designer-page__layout">
+    <aside class="label-designer-page__panel label-designer-page__panel--left">
+      <app-label-format-panel
+        [selectionForm]="selectionForm"
+        [sheetForm]="sheetForm"
+        [labelTypeOptions]="labelTypeOptions()"
+        [paperType]="selectedLabelType()?.format?.paperType ?? null"
+        [loading]="isLoading()"
+      />
+    </aside>
+
+    <main class="label-designer-page__panel label-designer-page__center">
+      <h2 class="label-designer-page__panel-title">
+        {{ 'product.labelDesigner.editor.title' | translate }}
+      </h2>
+      <app-label-editor
+        [labelWidth]="layout().spec.labelWidth"
+        [labelHeight]="layout().spec.labelHeight"
+        [elements]="elements()"
+        [fieldOptions]="fieldOptions()"
+        [sampleProduct]="sampleProduct()"
+        [isMockProduct]="isMockProduct()"
+        (fieldToggled)="onFieldToggled($event)"
+        (elementChanged)="onElementChanged($event)"
+      />
+    </main>
+
+    <aside class="label-designer-page__panel label-designer-page__panel--right">
+      <h2 class="label-designer-page__panel-title">
+        {{ 'product.labelDesigner.preview.title' | translate }}
+      </h2>
+      <app-label-sheet-preview [layout]="layout()" />
+    </aside>
+  </div>
+</section>

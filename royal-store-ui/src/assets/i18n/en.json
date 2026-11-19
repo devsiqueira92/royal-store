@@ -317,6 +317,76 @@
       "cancel": "Cancel",
       "submit": "Save product"
     },
+    "labelDesigner": {
+      "title": "Label printing",
+      "subtitle": "Choose the label type and adjust the sheet measurements.",
+      "labelType": "Label type",
+      "save": "Save",
+      "editor": {
+        "title": "Label editor",
+        "productFields": "Product fields",
+        "priceFields": "Available prices",
+        "noPriceLists": "No active price lists.",
+        "noLabelSize": "Enter the label width and height to edit it.",
+        "moveHint": "Click a field to edit it. Drag to move, drag the right edge, bottom edge or corner to resize, or use the arrow keys (Shift for bigger steps).",
+        "resizeWidthHint": "Drag to change the width",
+        "resizeHeightHint": "Drag to change the height",
+        "resizeBothHint": "Drag to change width and height",
+        "properties": {
+          "title": "Field",
+          "fontSize": "Font size",
+          "width": "Width",
+          "height": "Height",
+          "alignment": "Alignment",
+          "alignLeft": "Left",
+          "alignCenter": "Center",
+          "alignRight": "Right",
+          "type": "Display as",
+          "typeText": "Text",
+          "typeBarcode": "Barcode"
+        },
+        "moveElement": "Move {{field}}",
+        "sampleProduct": "Preview with: {{name}}",
+        "mockProduct": "Preview with sample data ({{name}}). Select products on the products page to use real data.",
+        "fields": {
+          "name": "Name",
+          "description": "Description",
+          "sku": "SKU",
+          "barcode": "Barcode",
+          "price": "{{name}}"
+        }
+      },
+      "paperType": {
+        "sheet": "Sheet",
+        "roll": "Roll"
+      },
+      "section": {
+        "sheet": "Sheet",
+        "label": "Label"
+      },
+      "fields": {
+        "paperWidth": "Width",
+        "paperHeight": "Height",
+        "marginTop": "Top margin",
+        "marginRight": "Right margin",
+        "marginBottom": "Bottom margin",
+        "marginLeft": "Left margin",
+        "columns": "Columns",
+        "labelWidth": "Width",
+        "labelHeight": "Height",
+        "horizontalSpacing": "Horizontal spacing",
+        "verticalSpacing": "Vertical spacing"
+      },
+      "preview": {
+        "title": "Sheet preview",
+        "empty": "Enter the sheet width and height to see the preview.",
+        "paper": "Paper",
+        "grid": "Columns × rows",
+        "perSheet": "Labels per sheet",
+        "overflowWidth": "Columns need {{used}} mm but the sheet is {{paper}} mm wide.",
+        "noRows": "No row fits between the top and bottom margins."
+      }
+    },
     "labelPrint": {
       "back": "Back to products",
       "title": "Print labels",

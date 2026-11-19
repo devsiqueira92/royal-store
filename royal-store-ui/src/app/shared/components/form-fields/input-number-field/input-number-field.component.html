@@ -8,7 +8,7 @@
         class="w-100"
         pInputText
         type="text"
-        inputmode="numeric"
+        [attr.inputmode]="mode() === 'currency' ? 'numeric' : 'decimal'"
         [attr.min]="min()"
         [attr.step]="step()"
         [formControlName]="controlName()"

@@ -1,0 +1,204 @@
+:host {
+  display: block;
+}
+
+.label-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.label-editor__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label-editor__group-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.label-editor__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.label-editor__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid light-dark(var(--p-surface-300), var(--p-surface-600));
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: light-dark(var(--p-surface-700), var(--p-surface-200));
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+
+  .pi {
+    font-size: 0.6875rem;
+  }
+
+  &:hover {
+    border-color: var(--p-primary-color);
+    color: var(--p-primary-color);
+  }
+
+  &--active {
+    border-color: var(--p-primary-color);
+    background: var(--p-primary-color);
+    color: var(--p-primary-contrast-color, #fff);
+
+    &:hover {
+      color: var(--p-primary-contrast-color, #fff);
+    }
+  }
+}
+
+.label-editor__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem 1rem;
+  border-radius: 0.5rem;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+}
+
+.label-editor__canvas {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid light-dark(var(--p-surface-300), var(--p-surface-600));
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  // Labels are printed on white paper: keep dark text regardless of theme.
+  color: #111;
+}
+
+.label-editor__element {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  outline: 1px dashed rgb(0 0 0 / 0.15);
+  line-height: 1.1;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+
+  &:hover,
+  &:focus-visible {
+    outline: 1px solid var(--p-primary-color);
+    z-index: 1;
+  }
+
+  &--selected {
+    outline: 1px solid var(--p-primary-color);
+    background: color-mix(in srgb, var(--p-primary-color) 5%, transparent);
+    z-index: 1;
+  }
+
+  &--dragging {
+    cursor: grabbing;
+    outline: 1px solid var(--p-primary-color);
+    background: color-mix(in srgb, var(--p-primary-color) 8%, transparent);
+    z-index: 2;
+  }
+
+  // Children must not swallow the pointer (e.g. the barcode SVG); the resize handle must.
+  > *:not(.label-editor__resize) {
+    pointer-events: none;
+  }
+
+  &:hover .label-editor__resize,
+  &--selected .label-editor__resize {
+    opacity: 1;
+  }
+
+  &--barcode {
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+  }
+
+  app-label-barcode {
+    flex: 1;
+    min-height: 0;
+  }
+
+  ::ng-deep .label-barcode {
+    height: 100%;
+  }
+}
+
+.label-editor__resize {
+  position: absolute;
+  opacity: 0;
+  background: var(--p-primary-color);
+  transition: opacity 0.15s;
+
+  // Right edge.
+  &--x {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 5px;
+    cursor: ew-resize;
+  }
+
+  // Bottom edge.
+  &--y {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5px;
+    cursor: ns-resize;
+  }
+
+  // Bottom-right corner, above both edges.
+  &--xy {
+    right: 0;
+    bottom: 0;
+    width: 9px;
+    height: 9px;
+    cursor: nwse-resize;
+    z-index: 1;
+    border-top-left-radius: 2px;
+  }
+}
+
+.label-editor__text {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label-editor__barcode-value {
+  font-size: 0.5625rem;
+  letter-spacing: 0.05em;
+}
+
+.label-editor__position {
+  min-height: 1rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}
+
+.label-editor__hint {
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}

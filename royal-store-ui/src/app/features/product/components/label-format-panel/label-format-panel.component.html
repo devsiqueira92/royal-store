@@ -1,0 +1,68 @@
+<div class="label-format-panel">
+  <app-select-field
+    controlName="labelTypeId"
+    [parentForm]="selectionForm()"
+    label="product.labelDesigner.labelType"
+    [options]="labelTypeOptions()"
+    [loading]="loading()"
+    [filter]="true"
+  ></app-select-field>
+
+  @if (paperType() !== null) {
+    <div class="label-format-panel__paper-type">
+      <p-tag
+        severity="secondary"
+        [value]="
+          (paperType() === PaperType.Roll
+            ? 'product.labelDesigner.paperType.roll'
+            : 'product.labelDesigner.paperType.sheet'
+          ) | translate
+        "
+      />
+    </div>
+  }
+
+  <app-form-layout
+    title="product.labelDesigner.section.sheet"
+    icon="pi-file"
+    [index]="1"
+    [collapsedPanel]="false"
+  >
+    <div class="label-format-panel__grid">
+      @for (field of sheetFields; track field.controlName) {
+        <app-input-number-field
+          [controlName]="field.controlName"
+          [parentForm]="sheetForm()"
+          [label]="field.labelKey"
+          mode="decimal"
+          prefix=""
+          [suffix]="field.integer ? '' : 'mm'"
+          [min]="field.integer ? 1 : 0"
+          [step]="field.integer ? 1 : 0.1"
+        ></app-input-number-field>
+      }
+    </div>
+  </app-form-layout>
+
+  <app-form-layout
+    title="product.labelDesigner.section.label"
+    icon="pi-tag"
+    [index]="2"
+    [collapsedPanel]="false"
+  >
+    <div class="label-format-panel__grid">
+      @for (field of labelFields; track field.controlName) {
+        <app-input-number-field
+          [controlName]="field.controlName"
+          [parentForm]="sheetForm()"
+          [label]="field.labelKey"
+          mode="decimal"
+          prefix=""
+          suffix="mm"
+          [min]="0"
+          [step]="0.1"
+        ></app-input-number-field>
+      }
+    </div>
+  </app-form-layout>
+</div>
