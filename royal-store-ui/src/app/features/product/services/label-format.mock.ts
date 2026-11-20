@@ -111,6 +111,7 @@ const template = (
   id,
   name,
   labelFormatId,
+  sourceTemplateId: null,
   configuration: SAMPLE_CONFIGURATION,
   isDefault,
   isActive: true,

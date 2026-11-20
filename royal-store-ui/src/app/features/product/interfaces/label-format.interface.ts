@@ -57,11 +57,19 @@ export interface LabelTemplate {
   id: string;
   name: string;
   labelFormatId: string;
+  /** Pre-configuration the label started from, if any. */
+  sourceTemplateId: string | null;
   configuration: string;
   isDefault: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/** A saved label as `api/labels` returns it; identified by `template.id`. */
+export interface Label {
+  format: LabelFormat;
+  template: LabelTemplate;
 }
 
 /** A template joined with its format and parsed configuration — one dropdown entry. */
@@ -74,17 +82,32 @@ export interface LabelType {
 }
 
 /**
- * What the designer persists: the (possibly edited) sheet format and the template
- * whose `configuration` is the JSON string of a `LabelTemplateConfiguration`.
- * Endpoint still to be defined.
+ * What the designer persists: a new label, named by the user, built from a pre-configuration.
+ * Both ids are `null` (new rows); `sourceTemplateId` records which pre-configuration it started from.
+ * `configuration` is the JSON string of a `LabelTemplateConfiguration`.
+ * Body of `POST api/labels` and `PUT api/labels/{id}` (on update, send the stored ids).
  */
 export interface SaveLabelTemplateRequest {
-  format: Omit<LabelFormat, 'isSystem'>;
+  format: Omit<LabelFormat, 'isSystem' | 'id'> & { id: string | null };
   template: Pick<
     LabelTemplate,
-    'id' | 'name' | 'labelFormatId' | 'configuration' | 'isDefault' | 'isActive'
-  >;
+    'name' | 'configuration' | 'isDefault' | 'isActive' | 'sourceTemplateId'
+  > & {
+    id: string | null;
+    labelFormatId: string | null;
+  };
 }
+
+export type CreateLabelRequest = SaveLabelTemplateRequest;
+export type UpdateLabelRequest = SaveLabelTemplateRequest;
+
+/** Controls above the measurements: the label's own name and the pre-configuration loader. */
+export interface LabelDesignerSelectionControls {
+  name: FormControl<string | null>;
+  labelTypeId: FormControl<string | null>;
+}
+
+export const LABEL_NAME_MAX_LENGTH = 100;
 
 /** The editable numeric part of a `LabelFormat`. */
 export type LabelSheetSpec = Pick<

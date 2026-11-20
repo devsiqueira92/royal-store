@@ -9,14 +9,20 @@ namespace RoyalStore.Infrastructure.Persistence;
 /// </summary>
 public sealed class NpgsqlUniqueConstraintDetector : IUniqueConstraintDetector
 {
-    public bool IsUniqueViolation(Exception exception)
+    public bool IsUniqueViolation(Exception exception) => Find(exception) is not null;
+
+    /// <remarks>For a unique index PostgreSQL reports the index name as the constraint name.</remarks>
+    public bool IsUniqueViolation(Exception exception, string constraintName) =>
+        string.Equals(Find(exception)?.ConstraintName, constraintName, StringComparison.Ordinal);
+
+    private static PostgresException? Find(Exception exception)
     {
         for (var current = exception; current is not null; current = current.InnerException)
         {
-            if (current is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
-                return true;
+            if (current is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } violation)
+                return violation;
         }
 
-        return false;
+        return null;
     }
 }

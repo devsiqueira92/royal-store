@@ -152,6 +152,7 @@ public sealed class DependencyInjection : IInstallService
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IPriceListRepository, PriceListRepository>();
         services.AddScoped<ICostCompositionRepository, CostCompositionRepository>();
+        services.AddScoped<ILabelRepository, LabelRepository>();
         services.AddScoped<ITaxProfileTemplateRepository, TaxProfileTemplateRepository>();
         services.AddScoped<ITaxProfileTemplateUsageChecker, TaxProfileTemplateUsageChecker>();
         services.AddScoped<ISellerRepository, SellerRepository>();

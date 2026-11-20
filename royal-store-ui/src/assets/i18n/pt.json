@@ -40,7 +40,8 @@
       "financialAccounts": "Contas financeiras",
       "pricing": "Precificação",
       "priceLists": "Listas de preço",
-      "costCompositions": "Composição de custos"
+      "costCompositions": "Composição de custos",
+      "labels": "Etiquetas"
     }
   },
   "auth": {
@@ -317,10 +318,35 @@
       "cancel": "Cancelar",
       "submit": "Salvar produto"
     },
+    "labelList": {
+      "title": "Etiquetas",
+      "details": "Ver detalhes",
+      "subtitle": "Etiquetas salvas no designer, prontas para impressão.",
+      "newLabel": "Nova etiqueta",
+      "columns": {
+        "name": "Nome",
+        "paperType": "Papel",
+        "size": "Tamanho da etiqueta",
+        "columns": "Colunas",
+        "status": "Status",
+        "updatedAt": "Atualizada em"
+      },
+      "active": "Ativa",
+      "inactive": "Inativa",
+      "activate": "Ativar",
+      "deactivate": "Desativar",
+      "delete": "Excluir",
+      "cancel": "Cancelar",
+      "deleteConfirm": "Excluir esta etiqueta?",
+      "empty": "Nenhuma etiqueta cadastrada."
+    },
     "labelDesigner": {
       "title": "Impressão de etiquetas",
+      "editTitle": "Editar etiqueta",
       "subtitle": "Escolha o tipo de etiqueta e ajuste as medidas da folha.",
-      "labelType": "Tipo de etiqueta",
+      "name": "Nome da etiqueta",
+      "namePlaceholder": "Ex.: Gôndola A4 com preço",
+      "loadPreset": "Carregar pré-configuração",
       "save": "Salvar",
       "editor": {
         "title": "Editor de etiqueta",

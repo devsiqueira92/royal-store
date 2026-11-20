@@ -1,5 +1,7 @@
 import {
+  Label,
   LabelElement,
+  LabelPaperType,
   LabelSheetSpec,
   LabelTemplateConfiguration,
   LabelType,
@@ -28,12 +30,54 @@ const toStoredElement = (element: LabelElement): LabelElement => {
   return stored;
 };
 
+/** Identity and flags of the label being saved; everything the designer does not edit. */
+export interface LabelSaveContext {
+  /** `null` → new label (POST). */
+  formatId: string | null;
+  templateId: string | null;
+  paperType: LabelPaperType;
+  sourceTemplateId: string | null;
+  isDefault: boolean;
+  isActive: boolean;
+}
+
+/** A new label started from a pre-configuration. */
+export const saveContextFromPreset = (preset: LabelType): LabelSaveContext => ({
+  formatId: null,
+  templateId: null,
+  paperType: preset.format.paperType,
+  sourceTemplateId: preset.id,
+  isDefault: false,
+  isActive: true,
+});
+
+/** A stored label being edited; keeps its ids and flags. */
+export const saveContextFromLabel = (label: Label): LabelSaveContext => ({
+  formatId: label.format.id,
+  templateId: label.template.id,
+  paperType: label.format.paperType,
+  sourceTemplateId: label.template.sourceTemplateId,
+  isDefault: label.template.isDefault,
+  isActive: label.template.isActive,
+});
+
+/** Parses a stored `configuration`; an unreadable one yields no elements. */
+export const parseLabelConfiguration = (configuration: string): LabelElement[] => {
+  try {
+    const parsed = JSON.parse(configuration) as Partial<LabelTemplateConfiguration>;
+    return Array.isArray(parsed.elements) ? parsed.elements : [];
+  } catch {
+    return [];
+  }
+};
+
 /**
- * Builds the request for the label type being edited: the format with the
- * measurements from the left panel, and the template with the editor's elements.
+ * Builds the `{ format, template }` body for the label named `name`: the format with
+ * the measurements from the left panel and the template with the editor's elements.
  */
 export const buildSaveLabelTemplateRequest = (
-  labelType: LabelType,
+  context: LabelSaveContext,
+  name: string,
   spec: LabelSheetSpec,
   elements: readonly LabelElement[],
 ): SaveLabelTemplateRequest => {
@@ -44,19 +88,20 @@ export const buildSaveLabelTemplateRequest = (
 
   return {
     format: {
-      id: labelType.format.id,
-      name: labelType.format.name,
-      paperType: labelType.format.paperType,
-      isActive: labelType.format.isActive,
+      id: context.formatId,
+      name,
+      paperType: context.paperType,
+      isActive: context.isActive,
       ...spec,
     },
     template: {
-      id: labelType.id,
-      name: labelType.name,
-      labelFormatId: labelType.format.id,
+      id: context.templateId,
+      name,
+      labelFormatId: context.formatId,
+      sourceTemplateId: context.sourceTemplateId,
       configuration: JSON.stringify(configuration),
-      isDefault: labelType.isDefault,
-      isActive: true,
+      isDefault: context.isDefault,
+      isActive: context.isActive,
     },
   };
 };

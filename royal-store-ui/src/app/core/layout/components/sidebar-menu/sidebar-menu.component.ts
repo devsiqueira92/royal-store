@@ -85,7 +85,9 @@ export class SidebarMenuComponent {
       id: 'catalog',
       labelKey: 'layout.nav.catalog',
       items: [
-        { labelKey: 'layout.nav.products', icon: 'pi pi-box', route: '/products' },
+        // `exact`: keeps products from staying highlighted on the labels screen below it.
+        { labelKey: 'layout.nav.products', icon: 'pi pi-box', route: '/products', exact: true },
+        { labelKey: 'layout.nav.labels', icon: 'pi pi-print', route: '/products/labels/templates' },
         { labelKey: 'layout.nav.categories', icon: 'pi pi-tags', route: '/categories' },
         { labelKey: 'layout.nav.priceLists', icon: 'pi pi-list', route: '/price-lists' },
         { labelKey: 'layout.nav.costCompositions', icon: 'pi pi-calculator', route: '/cost-compositions' },

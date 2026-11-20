@@ -1,8 +1,15 @@
 <div class="label-format-panel">
+  <app-input-field
+    controlName="name"
+    [parentForm]="selectionForm()"
+    label="product.labelDesigner.name"
+    placeholder="product.labelDesigner.namePlaceholder"
+  ></app-input-field>
+
   <app-select-field
     controlName="labelTypeId"
     [parentForm]="selectionForm()"
-    label="product.labelDesigner.labelType"
+    label="product.labelDesigner.loadPreset"
     [options]="labelTypeOptions()"
     [loading]="loading()"
     [filter]="true"

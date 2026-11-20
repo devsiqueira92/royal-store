@@ -1,13 +1,16 @@
 <section class="label-designer-page">
   <header class="label-designer-page__header">
-    <a routerLink=".." class="label-designer-page__back">
+    <a routerLink="/products/labels/templates" class="label-designer-page__back">
       <i class="pi pi-arrow-left"></i>
       {{ 'product.labelPrint.back' | translate }}
     </a>
     <div class="label-designer-page__heading">
       <div>
         <h1 class="label-designer-page__title">
-          {{ 'product.labelDesigner.title' | translate }}
+          {{
+            (labelId ? 'product.labelDesigner.editTitle' : 'product.labelDesigner.title')
+              | translate
+          }}
         </h1>
         <p class="label-designer-page__subtitle">
           {{ 'product.labelDesigner.subtitle' | translate }}
@@ -16,7 +19,8 @@
       <app-button
         label="product.labelDesigner.save"
         icon="pi pi-save"
-        [disabled]="!selectedLabelType()"
+        [disabled]="!canSave()"
+        [loading]="isSaving()"
         (onClick)="onSave()"
       ></app-button>
     </div>
@@ -28,7 +32,7 @@
         [selectionForm]="selectionForm"
         [sheetForm]="sheetForm"
         [labelTypeOptions]="labelTypeOptions()"
-        [paperType]="selectedLabelType()?.format?.paperType ?? null"
+        [paperType]="paperType()"
         [loading]="isLoading()"
       />
     </aside>

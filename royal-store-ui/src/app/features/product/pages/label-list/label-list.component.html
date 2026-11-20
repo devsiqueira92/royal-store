@@ -1,0 +1,109 @@
+<section class="label-list-page">
+  <header class="label-list-page__header">
+    <div>
+      <h1 class="label-list-page__title">
+        {{ 'product.labelList.title' | translate }}
+      </h1>
+      <p class="label-list-page__subtitle">
+        {{ 'product.labelList.subtitle' | translate }}
+      </p>
+    </div>
+    <p-button
+      [label]="'product.labelList.newLabel' | translate"
+      icon="pi pi-plus"
+      routerLink="/products/labels/designer"
+    />
+  </header>
+
+  <div class="label-list-page__panel">
+    <p-table [value]="labels()" [loading]="isLoading()" dataKey="template.id">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'product.labelList.columns.name' | translate }}</th>
+          <th>{{ 'product.labelList.columns.paperType' | translate }}</th>
+          <th>{{ 'product.labelList.columns.size' | translate }}</th>
+          <th>{{ 'product.labelList.columns.columns' | translate }}</th>
+          <th>{{ 'product.labelList.columns.status' | translate }}</th>
+          <th>{{ 'product.labelList.columns.updatedAt' | translate }}</th>
+          <th class="label-list-page__action-col"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-label>
+        <tr>
+          <td class="label-list-page__name">{{ label.template.name }}</td>
+          <td>
+            {{
+              (label.format.paperType === PaperType.Roll
+                ? 'product.labelDesigner.paperType.roll'
+                : 'product.labelDesigner.paperType.sheet'
+              ) | translate
+            }}
+          </td>
+          <td class="label-list-page__numeric">
+            {{ label.format.labelWidth | number: '1.0-2' }} ×
+            {{ label.format.labelHeight | number: '1.0-2' }} mm
+          </td>
+          <td class="label-list-page__numeric">{{ label.format.columns }}</td>
+          <td>
+            <p-tag
+              [value]="
+                (label.template.isActive
+                  ? 'product.labelList.active'
+                  : 'product.labelList.inactive'
+                ) | translate
+              "
+              [severity]="label.template.isActive ? 'success' : 'secondary'"
+            />
+          </td>
+          <td>{{ label.template.updatedAt | date: 'short' }}</td>
+          <td class="action-columns">
+            <p-button
+              icon="pi pi-search"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [pTooltip]="'product.labelList.details' | translate"
+              [attr.aria-label]="'product.labelList.details' | translate"
+              [routerLink]="['/products/labels/designer', label.template.id]"
+            />
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              [pTooltip]="'product.labelList.delete' | translate"
+              [attr.aria-label]="'product.labelList.delete' | translate"
+              (onClick)="onDelete(label, $event)"
+            />
+            <p-button
+              [icon]="label.template.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              [pTooltip]="
+                (label.template.isActive
+                  ? 'product.labelList.deactivate'
+                  : 'product.labelList.activate'
+                ) | translate
+              "
+              [attr.aria-label]="
+                (label.template.isActive
+                  ? 'product.labelList.deactivate'
+                  : 'product.labelList.activate'
+                ) | translate
+              "
+              (onClick)="toggleActive(label)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7">{{ 'product.labelList.empty' | translate }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

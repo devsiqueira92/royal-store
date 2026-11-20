@@ -1773,6 +1773,180 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("RoyalStore.Domain.Labels.LabelFormat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Columns")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<decimal>("HorizontalSpacing")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<decimal>("LabelHeight")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal>("LabelWidth")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal>("MarginBottom")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal>("MarginLeft")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal>("MarginRight")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<decimal>("MarginTop")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("PaperHeight")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<int>("PaperType")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PaperWidth")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<decimal>("VerticalSpacing")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("LabelFormats", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LabelFormats_Columns_Range", "\"Columns\" BETWEEN 1 AND 20");
+
+                            t.HasCheckConstraint("CK_LabelFormats_Offsets_NonNegative", "\"HorizontalSpacing\" >= 0 AND \"VerticalSpacing\" >= 0 AND \"MarginTop\" >= 0 AND \"MarginRight\" >= 0 AND \"MarginBottom\" >= 0 AND \"MarginLeft\" >= 0");
+
+                            t.HasCheckConstraint("CK_LabelFormats_Sizes_Positive", "\"PaperWidth\" > 0 AND \"PaperHeight\" > 0 AND \"LabelWidth\" > 0 AND \"LabelHeight\" > 0");
+                        });
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Labels.LabelTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Configuration")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<Guid>("LabelFormatId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("SourceTemplateId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LabelFormatId")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LabelTemplates_TenantId_Default")
+                        .HasFilter("\"IsDefault\" = true");
+
+                    b.HasIndex("TenantId", "IsActive");
+
+                    b.HasIndex("TenantId", "NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("IX_LabelTemplates_TenantId_NormalizedName");
+
+                    b.ToTable("LabelTemplates", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_LabelTemplates_Default_Active", "NOT \"IsDefault\" OR \"IsActive\"");
+                        });
+                });
+
             modelBuilder.Entity("RoyalStore.Domain.Loyalty.CashbackEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2891,6 +3065,17 @@ namespace RoyalStore.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("SupplierId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("RoyalStore.Domain.Labels.LabelTemplate", b =>
+                {
+                    b.HasOne("RoyalStore.Domain.Labels.LabelFormat", "Format")
+                        .WithOne()
+                        .HasForeignKey("RoyalStore.Domain.Labels.LabelTemplate", "LabelFormatId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Format");
                 });
 
             modelBuilder.Entity("RoyalStore.Domain.Loyalty.CashbackRedemption", b =>

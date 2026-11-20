@@ -11,4 +11,10 @@ namespace RoyalStore.Application.Abstractions.Data;
 public interface IUniqueConstraintDetector
 {
     bool IsUniqueViolation(Exception exception);
+
+    /// <summary>
+    /// True when the failure is a violation of the named unique constraint or unique index — for a
+    /// save that can trip more than one (065 research D6).
+    /// </summary>
+    bool IsUniqueViolation(Exception exception, string constraintName);
 }

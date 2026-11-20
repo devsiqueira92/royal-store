@@ -8,6 +8,7 @@ using RoyalStore.Domain.Common;
 using RoyalStore.Domain.Expenses;
 using RoyalStore.Domain.Fiscal;
 using RoyalStore.Domain.Identity;
+using RoyalStore.Domain.Labels;
 using RoyalStore.Domain.Loyalty;
 using RoyalStore.Domain.Payments;
 using RoyalStore.Domain.Permissions;
@@ -70,6 +71,8 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<ProductPrice> ProductPrices { get; set; } = null!;
     public DbSet<ProductCostItem> ProductCostItems { get; set; } = null!;
     public DbSet<CostCompositionList> CostCompositionLists { get; set; } = null!;
+    public DbSet<LabelTemplate> LabelTemplates { get; set; } = null!;
+    public DbSet<LabelFormat> LabelFormats { get; set; } = null!;
 
     public RoyalStoreContext(DbContextOptions<RoyalStoreContext> options, ITenantContext tenantContext)
         : base(options)
@@ -199,6 +202,12 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<CostCompositionList>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<LabelTemplate>()
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+
+        modelBuilder.Entity<LabelFormat>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
         modelBuilder.Entity<CostCenter>()

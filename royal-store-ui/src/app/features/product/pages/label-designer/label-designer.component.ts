@@ -11,8 +11,14 @@ import { PriceListFacade } from '@app/features/price-list/facade/price-list.faca
 import { PriceList } from '@app/features/price-list/interfaces/price-list.interface';
 import { ButtonComponent } from '@app/shared/components/button/button.component';
 import { LabelEditorComponent } from '../../components/label-editor/label-editor.component';
-import { buildSaveLabelTemplateRequest } from '../../utils/label-template-payload.util';
+import {
+  buildSaveLabelTemplateRequest,
+  parseLabelConfiguration,
+  saveContextFromLabel,
+  saveContextFromPreset,
+} from '../../utils/label-template-payload.util';
 import { ProductFacade } from '../../facade/product.facade';
+import { LabelFacade } from '../../facade/label.facade';
 import { Product } from '../../interfaces/product.interface';
 import {
   buildLabelFieldOptions,
@@ -26,13 +32,16 @@ import {
 } from '../../utils/label-field.util';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map, startWith } from 'rxjs';
 import { Options } from '@app/shared/interceptors/options.interface';
 import { LabelFormatPanelComponent } from '../../components/label-format-panel/label-format-panel.component';
 import { LabelSheetPreviewComponent } from '../../components/label-sheet-preview/label-sheet-preview.component';
 import {
+  LABEL_NAME_MAX_LENGTH,
+  Label,
+  LabelDesignerSelectionControls,
   LabelElement,
   LabelFormat,
   LabelSheetFormControls,
@@ -47,8 +56,8 @@ const mm = (): FormControl<number | null> =>
 
 /**
  * New label printing screen (replaces `LabelPrintComponent` once complete).
- * Left: label type + sheet/label measurements. Center: label editor (to do).
- * Right: live outline of the sheet.
+ * Left: label name, pre-configuration loader and sheet/label measurements.
+ * Center: label editor. Right: live outline of the sheet.
  */
 @Component({
   imports: [
@@ -67,6 +76,23 @@ export class LabelDesignerComponent {
   private readonly labelFormatService = inject(LabelFormatService);
   private readonly productFacade = inject(ProductFacade);
   private readonly priceListFacade = inject(PriceListFacade);
+  private readonly labelFacade = inject(LabelFacade);
+  private readonly router = inject(Router);
+
+  /** Template id from `labels/designer/:id`; `null` → creating a new label. */
+  protected readonly labelId = inject(ActivatedRoute).snapshot.paramMap.get('id');
+
+  protected readonly isSaving = toSignal(this.labelFacade.isLoading$, { initialValue: false });
+
+  private readonly selectedLabel = toSignal(this.labelFacade.selectedLabel$, {
+    initialValue: null,
+  });
+
+  /** The stored label being edited, once `GET api/labels/{id}` answered. */
+  protected readonly editedLabel = computed<Label | null>(() => {
+    const label = this.selectedLabel();
+    return this.labelId && label?.template.id === this.labelId ? label : null;
+  });
 
   private readonly labelTypes$ = this.labelFormatService.getLabelTypes();
 
@@ -80,7 +106,11 @@ export class LabelDesignerComponent {
     (this.labelTypes() ?? []).map((t) => ({ code: t.id, description: t.name })),
   );
 
-  protected readonly selectionForm = new FormGroup({
+  protected readonly selectionForm = new FormGroup<LabelDesignerSelectionControls>({
+    name: new FormControl<string | null>(null, [
+      Validators.required,
+      Validators.maxLength(LABEL_NAME_MAX_LENGTH),
+    ]),
     labelTypeId: new FormControl<string | null>(null),
   });
 
@@ -143,16 +173,58 @@ export class LabelDesignerComponent {
   /** Elements of the label being edited; seeded from the chosen template's configuration. */
   protected readonly elements = signal<LabelElement[]>([]);
 
+  /** A loaded pre-configuration decides the paper; otherwise the stored label's. */
+  protected readonly paperType = computed(
+    () =>
+      this.selectedLabelType()?.format.paperType ?? this.editedLabel()?.format.paperType ?? null,
+  );
+
+  protected readonly canSave = computed(
+    () => !this.isSaving() && (this.editedLabel() !== null || this.selectedLabelType() !== null),
+  );
+
   constructor() {
     this.priceListFacade.loadPriceLists();
 
-    // Picking a label type loads its format into the editable fields
-    // and its configuration into the editor.
+    if (this.labelId) {
+      // Drop any previous selection so only this fetch fills the screen.
+      this.labelFacade.clearSelectedLabel();
+      this.labelFacade.loadLabel(this.labelId);
+    }
+
+    // Fill the screen once with the stored label's name, measurements and elements.
+    let applied = false;
+    effect(() => {
+      const label = this.editedLabel();
+      if (!label || applied) {
+        return;
+      }
+      applied = true;
+      untracked(() => {
+        this.selectionForm.controls.name.setValue(label.template.name);
+        this.applyFormat(label.format);
+        this.elements.set(
+          normalizeLabelElements(
+            parseLabelConfiguration(label.template.configuration),
+            this.priceLists(),
+          ),
+        );
+      });
+    });
+
+    // Back to the saved labels once the API accepts the new one.
+    this.labelFacade.saved$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => void this.router.navigateByUrl('/products/labels/templates'));
+
+    // Loading a pre-configuration fills the name (still editable), the measurements
+    // and the editor's elements.
     this.selectionForm.controls.labelTypeId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((id) => {
         const labelType = this.labelTypes()?.find((t) => t.id === id);
         if (labelType) {
+          this.selectionForm.controls.name.setValue(labelType.name);
           this.applyFormat(labelType.format);
           this.elements.set(
             normalizeLabelElements([...labelType.configuration.elements], this.priceLists()),
@@ -169,11 +241,11 @@ export class LabelDesignerComponent {
       );
     });
 
-    // Preselect the default (or first) type once the list arrives.
+    // New label: preselect the default (or first) type once the list arrives.
     effect(() => {
       const types = this.labelTypes();
       const control = this.selectionForm.controls.labelTypeId;
-      if (!types?.length || control.value) {
+      if (this.labelId || !types?.length || control.value) {
         return;
       }
       const initial = types.find((t) => t.isDefault) ?? types[0];
@@ -199,23 +271,36 @@ export class LabelDesignerComponent {
     );
   }
 
-  /** For now only logs what will be sent; no endpoint exists yet. */
+  /**
+   * Stored label → `PUT api/labels/{id}` (a pre-configuration loaded on top only changes
+   * its paper and source). New label → `POST api/labels` from the chosen pre-configuration.
+   */
   protected onSave(): void {
-    const labelType = this.selectedLabelType();
-    if (!labelType) {
+    const edited = this.editedLabel();
+    const preset = this.selectedLabelType();
+    const context = edited
+      ? {
+          ...saveContextFromLabel(edited),
+          ...(preset && { paperType: preset.format.paperType, sourceTemplateId: preset.id }),
+        }
+      : preset && saveContextFromPreset(preset);
+    if (!context) {
       return;
     }
-    if (this.sheetForm.invalid) {
+    if (this.selectionForm.invalid || this.sheetForm.invalid) {
+      this.selectionForm.markAllAsTouched();
       this.sheetForm.markAllAsTouched();
       return;
     }
 
-    const request = buildSaveLabelTemplateRequest(labelType, this.sheetSpec(), this.elements());
-    console.log('[label-designer] save request', request);
-    console.log(
-      '[label-designer] configuration (parsed)',
-      JSON.parse(request.template.configuration),
-    );
+    const name = (this.selectionForm.controls.name.value ?? '').trim();
+    const request = buildSaveLabelTemplateRequest(context, name, this.sheetSpec(), this.elements());
+
+    if (edited) {
+      this.labelFacade.update(edited.template.id, request);
+    } else {
+      this.labelFacade.create(request);
+    }
   }
 
   private applyFormat(format: LabelFormat): void {

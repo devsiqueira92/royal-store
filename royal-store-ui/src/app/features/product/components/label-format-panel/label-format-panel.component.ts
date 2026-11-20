@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { TranslatePipe } from '@ngx-translate/core';
 import { TagModule } from 'primeng/tag';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
@@ -7,15 +8,13 @@ import { InputNumberFieldComponent } from '@app/shared/components/form-fields/in
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
 import { Options } from '@app/shared/interceptors/options.interface';
 import {
+  LabelDesignerSelectionControls,
   LabelPaperType,
   LabelSheetFormControls,
 } from '../../interfaces/label-format.interface';
-import {
-  LABEL_FIELDS,
-  LABEL_SHEET_FIELDS,
-} from '../../utils/label-sheet-layout.util';
+import { LABEL_FIELDS, LABEL_SHEET_FIELDS } from '../../utils/label-sheet-layout.util';
 
-/** Presentational: label type dropdown + the sheet/label measurements form. */
+/** Presentational: label name, pre-configuration loader and the sheet/label measurements form. */
 @Component({
   selector: 'app-label-format-panel',
   imports: [
@@ -23,6 +22,7 @@ import {
     TranslatePipe,
     TagModule,
     FormLayoutComponent,
+    InputFieldComponent,
     InputNumberFieldComponent,
     SelectFieldComponent,
   ],
@@ -31,8 +31,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabelFormatPanelComponent {
-  selectionForm =
-    input.required<FormGroup<{ labelTypeId: FormControl<string | null> }>>();
+  selectionForm = input.required<FormGroup<LabelDesignerSelectionControls>>();
   sheetForm = input.required<FormGroup<LabelSheetFormControls>>();
   labelTypeOptions = input<Options[]>([]);
   paperType = input<LabelPaperType | null>(null);

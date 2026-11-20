@@ -40,7 +40,8 @@
       "financialAccounts": "Financial accounts",
       "pricing": "Pricing",
       "priceLists": "Price lists",
-      "costCompositions": "Cost compositions"
+      "costCompositions": "Cost compositions",
+      "labels": "Labels"
     }
   },
   "auth": {
@@ -317,10 +318,35 @@
       "cancel": "Cancel",
       "submit": "Save product"
     },
+    "labelList": {
+      "title": "Labels",
+      "details": "View details",
+      "subtitle": "Labels saved from the designer, ready to print.",
+      "newLabel": "New label",
+      "columns": {
+        "name": "Name",
+        "paperType": "Paper",
+        "size": "Label size",
+        "columns": "Columns",
+        "status": "Status",
+        "updatedAt": "Updated at"
+      },
+      "active": "Active",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "deleteConfirm": "Delete this label?",
+      "empty": "No labels saved yet."
+    },
     "labelDesigner": {
       "title": "Label printing",
+      "editTitle": "Edit label",
       "subtitle": "Choose the label type and adjust the sheet measurements.",
-      "labelType": "Label type",
+      "name": "Label name",
+      "namePlaceholder": "E.g.: Shelf A4 with price",
+      "loadPreset": "Load pre-configuration",
       "save": "Save",
       "editor": {
         "title": "Label editor",
