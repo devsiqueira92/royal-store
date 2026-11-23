@@ -23,6 +23,54 @@ export const loadLabels = createEffect(
   { functional: true },
 );
 
+export const loadConfigurations = createEffect(
+  (actions$ = inject(Actions), service = inject(LabelService)) =>
+    actions$.pipe(
+      ofType(LabelActions.loadConfigurations),
+      switchMap(() =>
+        service.getConfigurations().pipe(
+          map((configurations) => LabelActions.loadConfigurationsSuccess({ configurations })),
+          catchError((e: HttpErrorResponse) =>
+            of(LabelActions.loadConfigurationsFailure({ error: errorMsg(e) })),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
+export const loadPrintOptions = createEffect(
+  (actions$ = inject(Actions), service = inject(LabelService)) =>
+    actions$.pipe(
+      ofType(LabelActions.loadPrintOptions),
+      switchMap(() =>
+        service.getPrintOptions().pipe(
+          map((printOptions) => LabelActions.loadPrintOptionsSuccess({ printOptions })),
+          catchError((e: HttpErrorResponse) =>
+            of(LabelActions.loadPrintOptionsFailure({ error: errorMsg(e) })),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
+export const loadConfiguration = createEffect(
+  (actions$ = inject(Actions), service = inject(LabelService)) =>
+    actions$.pipe(
+      ofType(LabelActions.loadConfiguration),
+      switchMap(({ id }) =>
+        service.getById(id).pipe(
+          map((label) => LabelActions.loadConfigurationSuccess({ label })),
+          catchError((e: HttpErrorResponse) =>
+            of(LabelActions.loadConfigurationFailure({ error: errorMsg(e) })),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
 export const loadLabel = createEffect(
   (actions$ = inject(Actions), service = inject(LabelService)) =>
     actions$.pipe(

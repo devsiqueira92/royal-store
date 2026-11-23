@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RoyalStore.Application.Labels;
 using RoyalStore.Domain.Labels;
+using RoyalStore.Infrastructure.Seed;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -10,9 +11,15 @@ public sealed class LabelTemplateConfiguration : IEntityTypeConfiguration<LabelT
     public void Configure(EntityTypeBuilder<LabelTemplate> builder)
     {
         builder.ToTable("LabelTemplates", table =>
+        {
             // An inactive label is never the default (065 FR-009); the domain enforces it, this
             // keeps a row that slipped past it from ever being stored.
-            table.HasCheckConstraint("CK_LabelTemplates_Default_Active", "NOT \"IsDefault\" OR \"IsActive\""));
+            table.HasCheckConstraint("CK_LabelTemplates_Default_Active", "NOT \"IsDefault\" OR \"IsActive\"");
+
+            // A system configuration is never a store's default (066 FR-007).
+            table.HasCheckConstraint("CK_LabelTemplates_System_NotDefault",
+                "NOT (\"TenantId\" = '00000000-0000-0000-0000-000000000000' AND \"IsDefault\")");
+        });
 
         builder.HasKey(e => e.Id);
 
@@ -64,5 +71,8 @@ public sealed class LabelTemplateConfiguration : IEntityTypeConfiguration<LabelT
             .HasDatabaseName(LabelIndexNames.Default);
 
         builder.HasIndex(e => new { e.TenantId, e.IsActive });
+
+        // The system configurations (066 FR-009), inserted by migration after their formats.
+        builder.HasData(SystemLabelConfigurations.Templates);
     }
 }

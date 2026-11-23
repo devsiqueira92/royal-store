@@ -39,6 +39,10 @@ public sealed class UpdateLabelCommandHandler
         if (label is null)
             return Refused(command.Id, LabelErrors.NotFound);
 
+        // 066 FR-006: refused before any other check, and before a default swap could start.
+        if (label.IsSystem)
+            return Refused(label.Id, LabelTemplate.SystemReadOnly);
+
         var template = command.Template;
 
         // 065 FR-013: the format sent must be this label's own.

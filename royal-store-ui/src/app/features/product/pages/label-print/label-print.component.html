@@ -12,5 +12,29 @@
     </p>
   </header>
 
-  <app-label-print-preview [products]="labelProducts()"></app-label-print-preview>
+  <div class="label-print-page__selection">
+    <app-select-field
+      controlName="labelId"
+      [parentForm]="selectionForm"
+      label="product.labelPrint.selectLabel"
+      [options]="labelOptions()"
+      [loading]="isLoadingLabels()"
+      [filter]="true"
+    ></app-select-field>
+  </div>
+
+  @if (spec(); as spec) {
+    <app-label-sheet-print [spec]="spec" [elements]="elements()" [items]="items()" />
+  } @else if (!isLoadingLabels() && labelOptions().length === 0) {
+    <div class="label-print-page__empty">
+      {{ 'product.labelPrint.noLabels' | translate }}
+      <a routerLink="/products/labels/designer">
+        {{ 'product.labelPrint.createLabel' | translate }}
+      </a>
+    </div>
+  } @else {
+    <div class="label-print-page__empty">
+      {{ 'product.labelPrint.chooseLabel' | translate }}
+    </div>
+  }
 </section>

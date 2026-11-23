@@ -110,6 +110,10 @@
     z-index: 1;
   }
 
+  &--unreadable {
+    outline: 1px dashed var(--p-orange-500);
+  }
+
   &--dragging {
     cursor: grabbing;
     outline: 1px solid var(--p-primary-color);
@@ -186,8 +190,10 @@
   text-overflow: ellipsis;
 }
 
+// Size comes from the element's font size.
 .label-editor__barcode-value {
-  font-size: 0.5625rem;
+  flex: none;
+  line-height: 1;
   letter-spacing: 0.05em;
 }
 

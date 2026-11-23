@@ -33,10 +33,15 @@ public sealed class SetLabelActiveCommandHandler : IRequestHandler<SetLabelActiv
 
         var wasDefault = label.IsDefault;
 
-        if (command.IsActive)
-            label.Activate();
-        else
-            label.Deactivate();
+        var changed = command.IsActive ? label.Activate() : label.Deactivate();
+        if (changed.IsFailure)
+        {
+            // A system configuration (066 FR-006).
+            _logger.LogWarning(
+                "Label {LabelId} activation change refused for tenant {TenantId}: {ErrorCode}.",
+                label.Id, _tenantContext.TenantId, changed.Error.Code);
+            return changed;
+        }
 
         // Repeating the current state changes nothing, so this save writes nothing.
         await _unitOfWork.SaveChangesAsync(cancellationToken);

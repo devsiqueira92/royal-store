@@ -369,7 +369,11 @@
           "alignRight": "Direita",
           "type": "Exibir como",
           "typeText": "Texto",
-          "typeBarcode": "Código de barras"
+          "typeBarcode": "Código de barras",
+        "showValue": "Mostrar o número abaixo das barras",
+        "showLabel": "Mostrar o nome da lista antes do preço",
+        "barcodeReadable": "Legível na impressão: barras de {{module}} mm, {{width}} mm de largura.",
+        "barcodeTooNarrow": "Estreito demais para leitura após a impressão. Aumente a largura para pelo menos {{min}} mm."
         },
         "moveElement": "Mover {{field}}",
         "sampleProduct": "Pré-visualizando com: {{name}}",
@@ -416,7 +420,14 @@
     "labelPrint": {
       "back": "Voltar para produtos",
       "title": "Imprimir etiquetas",
-      "subtitle": "Pré-visualize e imprima uma folha de etiquetas de produtos",
+      "subtitle": "Escolha uma etiqueta salva e imprima para os produtos selecionados",
+      "selectLabel": "Configuração da etiqueta",
+      "chooseLabel": "Escolha uma configuração de etiqueta para ver a folha.",
+      "noLabels": "Nenhuma etiqueta ativa cadastrada.",
+      "createLabel": "Criar etiqueta",
+      "noProducts": "Nenhum produto selecionado: mostrando apenas o formato da folha.",
+      "noCells": "Esta configuração não comporta nenhuma etiqueta na folha. Revise as medidas.",
+      "perPage": "{{count}} por folha",
       "fieldsLegend": "Campos exibidos em cada etiqueta",
       "code": "Código",
       "field": {

@@ -1,0 +1,83 @@
+<div class="label-sheet-print">
+  <div class="label-sheet-print__toolbar">
+    <span class="label-sheet-print__summary">
+      {{ 'product.labelPrint.summary' | translate: { count: items().length, pages: pageCount() } }}
+      ·
+      {{ 'product.labelPrint.perPage' | translate: { count: labelsPerPage() } }}
+    </span>
+
+    <div class="label-sheet-print__actions">
+      <div class="label-sheet-print__zoom">
+        <button
+          type="button"
+          [attr.aria-label]="'product.labelPrint.zoomOut' | translate"
+          (click)="zoomOut()"
+        >
+          <i class="pi pi-minus"></i>
+        </button>
+        <span class="label-sheet-print__zoom-value">{{ zoomPercent() }}%</span>
+        <button
+          type="button"
+          [attr.aria-label]="'product.labelPrint.zoomIn' | translate"
+          (click)="zoomIn()"
+        >
+          <i class="pi pi-plus"></i>
+        </button>
+      </div>
+
+      <app-button
+        label="product.labelPrint.print"
+        icon="pi pi-print"
+        [disabled]="items().length === 0 || labelsPerPage() === 0"
+        (onClick)="print()"
+      ></app-button>
+    </div>
+  </div>
+
+  @if (labelsPerPage() === 0) {
+    <div class="label-sheet-print__notice label-sheet-print__notice--warn">
+      <i class="pi pi-exclamation-triangle"></i>
+      {{ 'product.labelPrint.noCells' | translate }}
+    </div>
+  } @else {
+    @if (items().length === 0) {
+      <div class="label-sheet-print__notice">
+        <i class="pi pi-info-circle"></i>
+        {{ 'product.labelPrint.noProducts' | translate }}
+      </div>
+    }
+
+    <div class="label-sheet-print__viewport">
+      <div class="label-print-sheets label-sheet-print__sheets" [style.zoom]="zoom()">
+        @for (sheet of sheets(); track sheet.key) {
+          <div class="label-sheet label-sheet-print__sheet" [style]="sheetStyle()">
+            @for (cell of sheet.cells; track cell.key) {
+              <div
+                class="label-sheet-print__cell"
+                [class.label-sheet-print__cell--empty]="cell.elements.length === 0"
+                [style]="cell.style"
+              >
+                @for (element of cell.elements; track $index) {
+                  <div
+                    class="label-sheet-print__element"
+                    [class.label-sheet-print__element--barcode]="element.type === 'barcode'"
+                    [style]="element.style"
+                  >
+                    @if (element.type === 'barcode') {
+                      <app-label-barcode [value]="element.text" [widthMm]="element.widthMm" />
+                      @if (element.showValue) {
+                        <span class="label-sheet-print__barcode-value">{{ element.text }}</span>
+                      }
+                    } @else {
+                      <span class="label-sheet-print__text">{{ element.text }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

@@ -6,7 +6,7 @@ using RoyalStore.Domain.Common;
 namespace RoyalStore.Application.Labels.Queries.GetLabels;
 
 public sealed class GetLabelsQueryHandler
-    : IRequestHandler<GetLabelsQuery, Result<IReadOnlyList<LabelResponse>>>
+    : IRequestHandler<GetLabelsQuery, Result<IReadOnlyList<LabelSummaryResponse>>>
 {
     private readonly ILabelRepository _labelRepository;
 
@@ -15,10 +15,10 @@ public sealed class GetLabelsQueryHandler
         _labelRepository = labelRepository;
     }
 
-    public async Task<Result<IReadOnlyList<LabelResponse>>> Handle(
+    public async Task<Result<IReadOnlyList<LabelSummaryResponse>>> Handle(
         GetLabelsQuery query, CancellationToken cancellationToken)
     {
-        var labels = await _labelRepository.GetAllAsync(query.IsActive, cancellationToken);
-        return Result<IReadOnlyList<LabelResponse>>.Success(labels.Select(LabelResponse.From).ToList());
+        var labels = await _labelRepository.GetSummariesAsync(query.IsActive, cancellationToken);
+        return Result<IReadOnlyList<LabelSummaryResponse>>.Success(labels);
     }
 }

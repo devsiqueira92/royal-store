@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -6,15 +6,17 @@ import { TagModule } from 'primeng/tag';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
-import { Options } from '@app/shared/interceptors/options.interface';
+import { LabelFacade } from '../../facade/label.facade';
 import {
   LabelDesignerSelectionControls,
   LabelPaperType,
   LabelSheetFormControls,
 } from '../../interfaces/label-format.interface';
-import { LABEL_FIELDS, LABEL_SHEET_FIELDS } from '../../utils/label-sheet-layout.util';
-
-/** Presentational: label name, pre-configuration loader and the sheet/label measurements form. */
+import {
+  LABEL_FIELDS,
+  LABEL_SHEET_FIELDS,
+} from '../../utils/label-sheet-layout.util';
+/** Label name, pre-configuration loader and the sheet/label measurements form. */
 @Component({
   selector: 'app-label-format-panel',
   imports: [
@@ -33,9 +35,16 @@ import { LABEL_FIELDS, LABEL_SHEET_FIELDS } from '../../utils/label-sheet-layout
 export class LabelFormatPanelComponent {
   selectionForm = input.required<FormGroup<LabelDesignerSelectionControls>>();
   sheetForm = input.required<FormGroup<LabelSheetFormControls>>();
-  labelTypeOptions = input<Options[]>([]);
   paperType = input<LabelPaperType | null>(null);
-  loading = input(false);
+
+  private readonly labelFacade = inject(LabelFacade);
+
+  protected readonly labelTypeOptions = this.labelFacade.configurations;
+  protected readonly loading = this.labelFacade.isLoadingConfigurations;
+
+  constructor() {
+    this.labelFacade.loadConfigurations();
+  }
 
   protected readonly sheetFields = LABEL_SHEET_FIELDS;
   protected readonly labelFields = LABEL_FIELDS;

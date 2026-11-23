@@ -33,8 +33,22 @@
     </div>
   }
 
+  @if (isBarcode) {
+    <label class="label-element-properties__check">
+      <p-checkbox formControlName="showValue" [binary]="true" inputId="label-element-show-value" />
+      <span>{{ 'product.labelDesigner.editor.properties.showValue' | translate }}</span>
+    </label>
+  }
+
+  @if (isPrice) {
+    <label class="label-element-properties__check">
+      <p-checkbox formControlName="showLabel" [binary]="true" inputId="label-element-show-label" />
+      <span>{{ 'product.labelDesigner.editor.properties.showLabel' | translate }}</span>
+    </label>
+  }
+
   <div class="label-element-properties__row">
-    @if (!isBarcode) {
+    @if (hasFont) {
       <app-input-number-field
         controlName="fontSize"
         [parentForm]="form"
@@ -69,6 +83,34 @@
       [step]="0.5"
     ></app-input-number-field>
   </div>
+
+  @if (barcodeGeometry(); as geometry) {
+    <p
+      class="label-element-properties__hint"
+      [class.label-element-properties__hint--warn]="!geometry.readable"
+    >
+      <i
+        class="pi"
+        [class.pi-check-circle]="geometry.readable"
+        [class.pi-exclamation-triangle]="!geometry.readable"
+      ></i>
+      @if (geometry.readable) {
+        {{
+          'product.labelDesigner.editor.properties.barcodeReadable'
+            | translate
+              : {
+                  module: (geometry.moduleMm | number: '1.2-2'),
+                  width: (geometry.widthMm | number: '1.1-1'),
+                }
+        }}
+      } @else {
+        {{
+          'product.labelDesigner.editor.properties.barcodeTooNarrow'
+            | translate: { min: (geometry.minWidthMm | number: '1.1-1') }
+        }}
+      }
+    </p>
+  }
 
   @if (!isBarcode) {
     <div class="label-element-properties__alignment">

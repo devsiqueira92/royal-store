@@ -2,15 +2,30 @@ import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import {
   CreateLabelRequest,
   Label,
+  LabelSummary,
   UpdateLabelRequest,
 } from '../interfaces/label-format.interface';
+import { Options } from '@app/shared/interceptors/options.interface';
 
 export const LabelActions = createActionGroup({
   source: 'Label',
   events: {
     'Load Labels': props<{ isActive?: boolean }>(),
-    'Load Labels Success': props<{ labels: Label[] }>(),
+    'Load Labels Success': props<{ labels: LabelSummary[] }>(),
     'Load Labels Failure': props<{ error: string }>(),
+
+    'Load Configurations': emptyProps(),
+    'Load Configurations Success': props<{ configurations: Options[] }>(),
+    'Load Configurations Failure': props<{ error: string }>(),
+
+    'Load Print Options': emptyProps(),
+    'Load Print Options Success': props<{ printOptions: Options[] }>(),
+    'Load Print Options Failure': props<{ error: string }>(),
+
+    'Load Configuration': props<{ id: string }>(),
+    'Load Configuration Success': props<{ label: Label }>(),
+    'Load Configuration Failure': props<{ error: string }>(),
+    'Clear Selected Configuration': emptyProps(),
 
     'Load Label': props<{ id: string }>(),
     'Load Label Success': props<{ label: Label }>(),
@@ -32,7 +47,6 @@ export const LabelActions = createActionGroup({
     'Delete Label Success': props<{ id: string }>(),
     'Delete Label Failure': props<{ error: string }>(),
 
-    'Select Label': props<{ id: string }>(),
     'Clear Selected Label': emptyProps(),
   },
 });

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RoyalStore.Domain.Labels;
+using RoyalStore.Infrastructure.Seed;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -19,6 +20,10 @@ public sealed class LabelFormatConfiguration : IEntityTypeConfiguration<LabelFor
             table.HasCheckConstraint("CK_LabelFormats_Offsets_NonNegative",
                 "\"HorizontalSpacing\" >= 0 AND \"VerticalSpacing\" >= 0 AND \"MarginTop\" >= 0 " +
                 "AND \"MarginRight\" >= 0 AND \"MarginBottom\" >= 0 AND \"MarginLeft\" >= 0");
+
+            // A format is a system one exactly when it belongs to no store (066 research D1).
+            table.HasCheckConstraint("CK_LabelFormats_System_Tenant",
+                "\"IsSystem\" = (\"TenantId\" = '00000000-0000-0000-0000-000000000000')");
         });
 
         builder.HasKey(e => e.Id);
@@ -54,5 +59,8 @@ public sealed class LabelFormatConfiguration : IEntityTypeConfiguration<LabelFor
         builder.Property(e => e.UpdatedBy).HasMaxLength(450).IsRequired();
 
         builder.HasIndex(e => e.TenantId);
+
+        // The system configurations (066 FR-009), inserted by migration.
+        builder.HasData(SystemLabelConfigurations.Formats);
     }
 }

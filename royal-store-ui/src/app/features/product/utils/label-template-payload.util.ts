@@ -4,7 +4,6 @@ import {
   LabelPaperType,
   LabelSheetSpec,
   LabelTemplateConfiguration,
-  LabelType,
   SaveLabelTemplateRequest,
 } from '../interfaces/label-format.interface';
 
@@ -27,6 +26,7 @@ const toStoredElement = (element: LabelElement): LabelElement => {
   if (element.alignment != null) stored.alignment = element.alignment;
   if (element.format != null) stored.format = element.format;
   if (element.showValue != null) stored.showValue = element.showValue;
+  if (element.showLabel != null) stored.showLabel = element.showLabel;
   return stored;
 };
 
@@ -41,12 +41,12 @@ export interface LabelSaveContext {
   isActive: boolean;
 }
 
-/** A new label started from a pre-configuration. */
-export const saveContextFromPreset = (preset: LabelType): LabelSaveContext => ({
+/** A new label started from a configuration (system one or another stored label). */
+export const saveContextFromPreset = (preset: Label): LabelSaveContext => ({
   formatId: null,
   templateId: null,
   paperType: preset.format.paperType,
-  sourceTemplateId: preset.id,
+  sourceTemplateId: preset.template.id,
   isDefault: false,
   isActive: true,
 });

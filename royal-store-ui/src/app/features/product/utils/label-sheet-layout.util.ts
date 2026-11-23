@@ -53,9 +53,7 @@ export const toLabelSheetSpec = (
  *   Y = MarginTop  + Row    × (LabelHeight + VerticalSpacing)
  * Rows are as many as fit between the top and bottom margins.
  */
-export const computeLabelSheetLayout = (
-  spec: LabelSheetSpec,
-): LabelSheetLayout => {
+export const computeLabelSheetLayout = (spec: LabelSheetSpec): LabelSheetLayout => {
   const {
     paperWidth,
     paperHeight,
@@ -71,18 +69,12 @@ export const computeLabelSheetLayout = (
   } = spec;
 
   const usedWidth =
-    marginLeft +
-    columns * labelWidth +
-    Math.max(columns - 1, 0) * horizontalSpacing +
-    marginRight;
+    marginLeft + columns * labelWidth + Math.max(columns - 1, 0) * horizontalSpacing + marginRight;
 
   const printableHeight = paperHeight - marginTop - marginBottom;
   const rows =
     labelHeight > 0 && printableHeight >= labelHeight
-      ? Math.floor(
-          (printableHeight + verticalSpacing + EPSILON) /
-            (labelHeight + verticalSpacing),
-        )
+      ? Math.floor((printableHeight + verticalSpacing + EPSILON) / (labelHeight + verticalSpacing))
       : 0;
 
   const rightLimit = paperWidth - marginRight + EPSILON;

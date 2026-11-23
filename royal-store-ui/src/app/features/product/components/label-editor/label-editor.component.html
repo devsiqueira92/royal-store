@@ -12,7 +12,11 @@
           [attr.aria-pressed]="isActive(option)"
           (click)="fieldToggled.emit(option)"
         >
-          <i class="pi" [class.pi-check]="isActive(option)" [class.pi-plus]="!isActive(option)"></i>
+          <i
+            class="pi"
+            [class.pi-check]="isActive(option)"
+            [class.pi-plus]="!isActive(option)"
+          ></i>
           {{ option.labelKey | translate: option.labelParams }}
         </button>
       }
@@ -30,7 +34,11 @@
           [attr.aria-pressed]="isActive(option)"
           (click)="fieldToggled.emit(option)"
         >
-          <i class="pi" [class.pi-check]="isActive(option)" [class.pi-plus]="!isActive(option)"></i>
+          <i
+            class="pi"
+            [class.pi-check]="isActive(option)"
+            [class.pi-plus]="!isActive(option)"
+          ></i>
           {{ option.labelKey | translate: option.labelParams }}
         </button>
       } @empty {
@@ -51,9 +59,16 @@
         @for (item of renderedElements(); track $index) {
           <div
             class="label-editor__element"
-            [class.label-editor__element--barcode]="item.element.type === 'barcode'"
-            [class.label-editor__element--selected]="selectedIndex() === item.index"
-            [class.label-editor__element--dragging]="dragPreview()?.index === item.index"
+            [class.label-editor__element--barcode]="
+              item.element.type === 'barcode'
+            "
+            [class.label-editor__element--selected]="
+              selectedIndex() === item.index
+            "
+            [class.label-editor__element--dragging]="
+              dragPreview()?.index === item.index
+            "
+            [class.label-editor__element--unreadable]="item.unreadable"
             [style]="item.style"
             [attr.title]="
               item.option
@@ -65,7 +80,8 @@
                 | translate
                   : {
                       field: item.option
-                        ? (item.option.labelKey | translate: item.option.labelParams)
+                        ? (item.option.labelKey
+                          | translate: item.option.labelParams)
                         : item.element.field,
                     }
             "
@@ -78,7 +94,11 @@
             (keydown)="onKeyDown($event, item.index)"
           >
             @if (item.element.type === 'barcode') {
-              <app-label-barcode [value]="item.text" />
+              <app-label-barcode
+                [value]="item.text"
+                [widthMm]="item.widthMm"
+                [pxPerMm]="scale()"
+              />
               @if (item.element.showValue) {
                 <span class="label-editor__barcode-value">{{ item.text }}</span>
               }
@@ -88,17 +108,23 @@
             <span
               class="label-editor__resize label-editor__resize--x"
               data-handle="resize-x"
-              [attr.title]="'product.labelDesigner.editor.resizeWidthHint' | translate"
+              [attr.title]="
+                'product.labelDesigner.editor.resizeWidthHint' | translate
+              "
             ></span>
             <span
               class="label-editor__resize label-editor__resize--y"
               data-handle="resize-y"
-              [attr.title]="'product.labelDesigner.editor.resizeHeightHint' | translate"
+              [attr.title]="
+                'product.labelDesigner.editor.resizeHeightHint' | translate
+              "
             ></span>
             <span
               class="label-editor__resize label-editor__resize--xy"
               data-handle="resize-xy"
-              [attr.title]="'product.labelDesigner.editor.resizeBothHint' | translate"
+              [attr.title]="
+                'product.labelDesigner.editor.resizeBothHint' | translate
+              "
             ></span>
           </div>
         }
@@ -106,7 +132,8 @@
       <span class="label-editor__position">
         @if (dragPreview(); as box) {
           x {{ box.x | number: '1.1-1' }} · y {{ box.y | number: '1.1-1' }} · w
-          {{ box.width | number: '1.1-1' }} · h {{ box.height | number: '1.1-1' }} mm
+          {{ box.width | number: '1.1-1' }} · h
+          {{ box.height | number: '1.1-1' }} mm
         } @else {
           {{ 'product.labelDesigner.editor.moveHint' | translate }}
         }
@@ -116,6 +143,7 @@
         <app-label-element-properties
           [element]="element"
           [fieldOption]="selectedOption()"
+          [barcodeGeometry]="selectedBarcode()"
           [labelWidth]="labelWidth()"
           [labelHeight]="labelHeight()"
           (changed)="onPropertiesChanged($event)"
@@ -129,10 +157,8 @@
 
     <span class="label-editor__hint">
       {{
-        (isMockProduct()
-          ? 'product.labelDesigner.editor.mockProduct'
-          : 'product.labelDesigner.editor.sampleProduct'
-        ) | translate: { name: sampleProduct().name }
+        'product.labelDesigner.editor.mockProduct'
+          | translate: { name: sampleProduct().name }
       }}
     </span>
   </div>

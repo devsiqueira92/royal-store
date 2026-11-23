@@ -1,4 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  OnInit,
+} from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -9,7 +14,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { LabelFacade } from '../../facade/label.facade';
-import { Label, LabelPaperType } from '../../interfaces/label-format.interface';
+import { LabelPaperType, LabelSummary } from '../../interfaces/label-format.interface';
 
 /** Saved labels (`GET api/labels`), with activate/deactivate and delete. */
 @Component({
@@ -32,8 +37,12 @@ export class LabelListComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translateService = inject(TranslateService);
 
-  protected readonly labels = toSignal(this.facade.labels$, { initialValue: [] as Label[] });
-  protected readonly isLoading = toSignal(this.facade.isLoading$, { initialValue: false });
+  protected readonly labels = toSignal(this.facade.labels$, {
+    initialValue: [] as LabelSummary[],
+  });
+  protected readonly isLoading = toSignal(this.facade.isLoading$, {
+    initialValue: false,
+  });
 
   protected readonly PaperType = LabelPaperType;
 
@@ -41,8 +50,8 @@ export class LabelListComponent implements OnInit {
     this.facade.loadLabels();
   }
 
-  protected toggleActive(label: Label): void {
-    const { id, isActive } = label.template;
+  protected toggleActive(label: LabelSummary): void {
+    const { id, isActive } = label;
     if (isActive) {
       this.facade.deactivate(id);
     } else {
@@ -50,7 +59,7 @@ export class LabelListComponent implements OnInit {
     }
   }
 
-  protected onDelete(label: Label, event: Event): void {
+  protected onDelete(label: LabelSummary, event: Event): void {
     this.confirmationService.confirm({
       target: event.currentTarget as EventTarget,
       message: this.translateService.instant('product.labelList.deleteConfirm'),
@@ -59,7 +68,7 @@ export class LabelListComponent implements OnInit {
       rejectButtonProps: { severity: 'secondary', outlined: true },
       acceptLabel: this.translateService.instant('product.labelList.delete'),
       rejectLabel: this.translateService.instant('product.labelList.cancel'),
-      accept: () => this.facade.delete(label.template.id),
+      accept: () => this.facade.delete(label.id),
     });
   }
 }

@@ -3,6 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DecimalPipe } from '@angular/common';
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
 import {
   LabelElement,
@@ -11,6 +13,7 @@ import {
 } from '../../interfaces/label-format.interface';
 import {
   canSwitchToBarcode,
+  isPriceField,
   LabelElementPatch,
   switchElementType,
   LabelFieldOption,
@@ -20,6 +23,7 @@ import {
   MIN_FONT_SIZE_PT,
   minHeightForFont,
 } from '../../utils/label-field.util';
+import { BarcodeGeometry, DEFAULT_BARCODE_VALUE_FONT_PT } from '../../utils/label-barcode.util';
 
 interface TypeOption {
   value: LabelElementType;
@@ -44,7 +48,14 @@ const round = (value: number, decimals = 1): number => {
  */
 @Component({
   selector: 'app-label-element-properties',
-  imports: [ReactiveFormsModule, TranslatePipe, SelectButtonModule, InputNumberFieldComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslatePipe,
+    DecimalPipe,
+    SelectButtonModule,
+    CheckboxModule,
+    InputNumberFieldComponent,
+  ],
   templateUrl: './label-element-properties.component.html',
   styleUrl: './label-element-properties.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +66,8 @@ export class LabelElementPropertiesComponent {
   fieldOption = input<LabelFieldOption | null>(null);
   labelWidth = input.required<number>();
   labelHeight = input.required<number>();
+  /** Bar sizing of a barcode element; drives the readability hint. */
+  barcodeGeometry = input<BarcodeGeometry | null>(null);
 
   changed = output<LabelElementPatch>();
 
@@ -107,6 +120,8 @@ export class LabelElementPropertiesComponent {
       nonNullable: true,
     }),
     type: new FormControl<LabelElementType>('text', { nonNullable: true }),
+    showValue: new FormControl<boolean>(false, { nonNullable: true }),
+    showLabel: new FormControl<boolean>(true, { nonNullable: true }),
   });
 
   constructor() {
@@ -114,13 +129,22 @@ export class LabelElementPropertiesComponent {
     // written, so a half-typed decimal ("2,") is not overwritten by its own echo.
     effect(() => {
       const element = this.element();
-      const { fontSize, width, height, alignment } = this.form.controls;
+      const { fontSize, width, height, alignment, showValue, showLabel } = this.form.controls;
       const next = {
-        fontSize: element.fontSize ?? 9,
+        fontSize:
+          element.fontSize ?? (element.type === 'barcode' ? DEFAULT_BARCODE_VALUE_FONT_PT : 9),
         width: element.width,
         height: element.height,
         alignment: element.alignment ?? 'left',
+        showValue: !!element.showValue,
+        showLabel: element.showLabel ?? true,
       };
+      if (showValue.value !== next.showValue) {
+        showValue.setValue(next.showValue, { emitEvent: false });
+      }
+      if (showLabel.value !== next.showLabel) {
+        showLabel.setValue(next.showLabel, { emitEvent: false });
+      }
       if (height.value !== next.height) {
         height.setValue(next.height, { emitEvent: false });
       }
@@ -142,6 +166,18 @@ export class LabelElementPropertiesComponent {
       const element = this.element();
       if (type !== element.type) {
         this.changed.emit(switchElementType(element, type, this.labelHeight()));
+      }
+    });
+
+    this.form.controls.showValue.valueChanges.pipe(takeUntilDestroyed()).subscribe((showValue) => {
+      if (showValue !== !!this.element().showValue) {
+        this.changed.emit({ showValue });
+      }
+    });
+
+    this.form.controls.showLabel.valueChanges.pipe(takeUntilDestroyed()).subscribe((showLabel) => {
+      if (showLabel !== (this.element().showLabel ?? true)) {
+        this.changed.emit({ showLabel });
       }
     });
 
@@ -171,6 +207,15 @@ export class LabelElementPropertiesComponent {
   /** SKU and barcode fields can be drawn as text or as a barcode. */
   protected get canSwitchType(): boolean {
     return canSwitchToBarcode(this.element().field);
+  }
+
+  protected get isPrice(): boolean {
+    return isPriceField(this.element().field);
+  }
+
+  /** Text elements always have a font; barcodes only when their digits are printed. */
+  protected get hasFont(): boolean {
+    return !this.isBarcode || !!this.element().showValue;
   }
 
   /** Grows the element's height when the font no longer fits, within the label. */

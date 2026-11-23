@@ -1,8 +1,5 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import {
-  ProductPriceFormControls,
-  ProductPriceInput,
-} from '../interfaces/price-list.interface';
+import { ProductPriceFormControls, ProductPriceInput } from '../interfaces/price-list.interface';
 
 export const buildProductPriceGroup = (
   priceListId: string,
@@ -18,5 +15,5 @@ export const toProductPriceInputs = (
   groups: readonly FormGroup<ProductPriceFormControls>[],
 ): ProductPriceInput[] =>
   groups
-    .map(group => group.getRawValue())
+    .map((group) => group.getRawValue())
     .filter((row): row is ProductPriceInput => row.salePrice != null);

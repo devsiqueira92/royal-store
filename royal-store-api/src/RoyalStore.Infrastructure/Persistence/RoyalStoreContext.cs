@@ -204,11 +204,13 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
         modelBuilder.Entity<CostCompositionList>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
 
+        // A store sees its own labels plus the shared system configurations, which belong to no
+        // store (TenantId = Guid.Empty) and are read-only in the domain (066 research D2).
         modelBuilder.Entity<LabelTemplate>()
-            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId || e.TenantId == Guid.Empty);
 
         modelBuilder.Entity<LabelFormat>()
-            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);
+            .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId || e.TenantId == Guid.Empty);
 
         modelBuilder.Entity<CostCenter>()
             .HasQueryFilter(e => e.TenantId == _tenantContext.TenantId);

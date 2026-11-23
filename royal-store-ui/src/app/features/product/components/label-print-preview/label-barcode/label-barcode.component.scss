@@ -3,8 +3,10 @@
   width: 100%;
 }
 
+// Width comes from the template. The designer and the print sheet set the height
+// to their element's box (::ng-deep there); the previous print screen keeps 5.5mm.
 .label-barcode {
   display: block;
-  width: 100%;
   height: 5.5mm;
+  margin: 0 auto;
 }

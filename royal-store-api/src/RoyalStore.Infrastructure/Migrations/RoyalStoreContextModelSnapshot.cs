@@ -1868,6 +1868,82 @@ namespace RoyalStore.Infrastructure.Migrations
                             t.HasCheckConstraint("CK_LabelFormats_Offsets_NonNegative", "\"HorizontalSpacing\" >= 0 AND \"VerticalSpacing\" >= 0 AND \"MarginTop\" >= 0 AND \"MarginRight\" >= 0 AND \"MarginBottom\" >= 0 AND \"MarginLeft\" >= 0");
 
                             t.HasCheckConstraint("CK_LabelFormats_Sizes_Positive", "\"PaperWidth\" > 0 AND \"PaperHeight\" > 0 AND \"LabelWidth\" > 0 AND \"LabelHeight\" > 0");
+
+                            t.HasCheckConstraint("CK_LabelFormats_System_Tenant", "\"IsSystem\" = (\"TenantId\" = '00000000-0000-0000-0000-000000000000')");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0066-0000000000f1"),
+                            Columns = 3,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "system",
+                            HorizontalSpacing = 2.5m,
+                            IsActive = true,
+                            IsSystem = true,
+                            LabelHeight = 38.1m,
+                            LabelWidth = 63.5m,
+                            MarginBottom = 15.15m,
+                            MarginLeft = 7.25m,
+                            MarginRight = 7.25m,
+                            MarginTop = 15.15m,
+                            Name = "A4 — 3 × 7 (63,5 × 38,1 mm)",
+                            PaperHeight = 297m,
+                            PaperType = 0,
+                            PaperWidth = 210m,
+                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedBy = "system",
+                            VerticalSpacing = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0066-0000000000f2"),
+                            Columns = 6,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "system",
+                            HorizontalSpacing = 2m,
+                            IsActive = true,
+                            IsSystem = true,
+                            LabelHeight = 18m,
+                            LabelWidth = 33m,
+                            MarginBottom = 12.7m,
+                            MarginLeft = 4m,
+                            MarginRight = 4m,
+                            MarginTop = 12.7m,
+                            Name = "Carta — 6 colunas (33 × 18 mm)",
+                            PaperHeight = 279m,
+                            PaperType = 0,
+                            PaperWidth = 216m,
+                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedBy = "system",
+                            VerticalSpacing = 0m
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0066-0000000000f3"),
+                            Columns = 3,
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "system",
+                            HorizontalSpacing = 2m,
+                            IsActive = true,
+                            IsSystem = true,
+                            LabelHeight = 21.3m,
+                            LabelWidth = 33m,
+                            MarginBottom = 2m,
+                            MarginLeft = 2m,
+                            MarginRight = 2m,
+                            MarginTop = 2m,
+                            Name = "Rolo térmico 3 colunas (33 × 21,3 mm)",
+                            PaperHeight = 300m,
+                            PaperType = 1,
+                            PaperWidth = 107m,
+                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedBy = "system",
+                            VerticalSpacing = 2m
                         });
                 });
 
@@ -1944,6 +2020,55 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.ToTable("LabelTemplates", null, t =>
                         {
                             t.HasCheckConstraint("CK_LabelTemplates_Default_Active", "NOT \"IsDefault\" OR \"IsActive\"");
+
+                            t.HasCheckConstraint("CK_LabelTemplates_System_NotDefault", "NOT (\"TenantId\" = '00000000-0000-0000-0000-000000000000' AND \"IsDefault\")");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0066-0000000000a1"),
+                            Configuration = "{\"version\":1,\"elements\":[{\"type\":\"text\",\"field\":\"product.name\",\"x\":1,\"y\":1.5,\"width\":61,\"height\":6.5,\"fontSize\":11,\"fontWeight\":\"bold\",\"alignment\":\"left\"},{\"type\":\"text\",\"field\":\"product.price\",\"x\":1,\"y\":14.5,\"width\":60.5,\"height\":7.5,\"fontSize\":14,\"fontWeight\":\"bold\",\"alignment\":\"center\",\"format\":\"currency\"},{\"type\":\"barcode\",\"field\":\"product.barcode\",\"x\":2.5,\"y\":25.5,\"width\":59.5,\"height\":11,\"format\":\"CODE128\",\"showValue\":true},{\"type\":\"text\",\"field\":\"product.sku\",\"x\":1,\"y\":8,\"width\":22,\"height\":5.5,\"fontSize\":6,\"fontWeight\":\"normal\",\"alignment\":\"left\"}]}",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            IsDefault = false,
+                            LabelFormatId = new Guid("00000000-0000-0000-0066-0000000000f1"),
+                            Name = "Gôndola A4 (3 colunas)",
+                            NormalizedName = "GÔNDOLA A4 (3 COLUNAS)",
+                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedBy = "system"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0066-0000000000a2"),
+                            Configuration = "{\"version\":1,\"elements\":[{\"type\":\"text\",\"field\":\"product.name\",\"x\":1,\"y\":0,\"width\":32,\"height\":5.5,\"fontSize\":6,\"fontWeight\":\"bold\",\"alignment\":\"left\"},{\"type\":\"text\",\"field\":\"product.price\",\"x\":1,\"y\":6,\"width\":32,\"height\":4,\"fontSize\":8,\"fontWeight\":\"bold\",\"alignment\":\"center\",\"format\":\"currency\"},{\"type\":\"barcode\",\"field\":\"product.barcode\",\"x\":2,\"y\":10,\"width\":30,\"height\":7.5,\"format\":\"CODE128\",\"showValue\":true}]}",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            IsDefault = false,
+                            LabelFormatId = new Guid("00000000-0000-0000-0066-0000000000f2"),
+                            Name = "Gôndola Carta (6 colunas)",
+                            NormalizedName = "GÔNDOLA CARTA (6 COLUNAS)",
+                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedBy = "system"
+                        },
+                        new
+                        {
+                            Id = new Guid("00000000-0000-0000-0066-0000000000a3"),
+                            Configuration = "{\"version\":1,\"elements\":[{\"type\":\"text\",\"field\":\"product.name\",\"x\":1,\"y\":0,\"width\":30.5,\"height\":6.5,\"fontSize\":6,\"fontWeight\":\"bold\",\"alignment\":\"left\"},{\"type\":\"text\",\"field\":\"product.price\",\"x\":1,\"y\":6.5,\"width\":16,\"height\":5.5,\"fontSize\":8,\"fontWeight\":\"bold\",\"alignment\":\"center\",\"format\":\"currency\",\"showLabel\":false},{\"type\":\"barcode\",\"field\":\"product.sku\",\"x\":0.5,\"y\":14,\"width\":32,\"height\":6.5,\"fontSize\":4.5,\"format\":\"CODE128\",\"showValue\":true}]}",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            IsDefault = false,
+                            LabelFormatId = new Guid("00000000-0000-0000-0066-0000000000f3"),
+                            Name = "Rolo térmico 3 colunas (33 × 21,3)",
+                            NormalizedName = "ROLO TÉRMICO 3 COLUNAS (33 × 21,3)",
+                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedBy = "system"
                         });
                 });
 

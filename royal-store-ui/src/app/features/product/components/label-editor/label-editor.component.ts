@@ -21,6 +21,10 @@ import {
   resolveLabelFieldText,
 } from '../../utils/label-field.util';
 import { LabelBarcodeComponent } from '../label-print-preview/label-barcode/label-barcode.component';
+import {
+  computeBarcodeGeometry,
+  DEFAULT_BARCODE_VALUE_FONT_PT,
+} from '../../utils/label-barcode.util';
 import { LabelElementPropertiesComponent } from '../label-element-properties/label-element-properties.component';
 
 /** Canvas width in px the label is scaled to (height follows the aspect ratio). */
@@ -37,6 +41,10 @@ interface RenderedElement {
   option: LabelFieldOption | null;
   index: number;
   text: string;
+  /** Live width in mm; sizes the barcode's bars. */
+  widthMm: number;
+  /** Barcode too narrow to scan once printed. */
+  unreadable: boolean;
   style: Record<string, string>;
 }
 
@@ -77,7 +85,12 @@ const round2 = (value: number): number => Math.round(value * 100) / 100;
  */
 @Component({
   selector: 'app-label-editor',
-  imports: [TranslatePipe, DecimalPipe, LabelBarcodeComponent, LabelElementPropertiesComponent],
+  imports: [
+    TranslatePipe,
+    DecimalPipe,
+    LabelBarcodeComponent,
+    LabelElementPropertiesComponent,
+  ],
   templateUrl: './label-editor.component.html',
   styleUrl: './label-editor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,7 +102,6 @@ export class LabelEditorComponent {
   fieldOptions = input.required<LabelFieldOption[]>();
   sampleProduct = input.required<LabelSampleProduct>();
   /** True when the sample is the built-in mock, not a product picked by the user. */
-  isMockProduct = input(false);
 
   fieldToggled = output<LabelFieldOption>();
   /** Emitted once per drag/resize (on release), per arrow-key press and per property edit. */
@@ -121,17 +133,19 @@ export class LabelEditorComponent {
   protected readonly dragPreview = signal<DragPreview | null>(null);
 
   protected readonly productFields = computed(() =>
-    this.fieldOptions().filter((o) => o.group === 'product'),
+    this.fieldOptions().filter(o => o.group === 'product'),
   );
 
   protected readonly priceFields = computed(() =>
-    this.fieldOptions().filter((o) => o.group === 'price'),
+    this.fieldOptions().filter(o => o.group === 'price'),
   );
 
-  private readonly activeFields = computed(() => new Set(this.elements().map((e) => e.field)));
+  private readonly activeFields = computed(
+    () => new Set(this.elements().map(e => e.field)),
+  );
 
   private readonly optionsByField = computed(
-    () => new Map(this.fieldOptions().map((o) => [o.field, o] as const)),
+    () => new Map(this.fieldOptions().map(o => [o.field, o] as const)),
   );
 
   /** Readable name source for the properties panel (e.g. the price list's name). */
@@ -140,8 +154,18 @@ export class LabelEditorComponent {
     return element ? (this.optionsByField().get(element.field) ?? null) : null;
   });
 
+  /** Bar sizing of the selected barcode, for the properties panel's readability hint. */
+  protected readonly selectedBarcode = computed(() => {
+    const element = this.selectedElement();
+    if (element?.type !== 'barcode') {
+      return null;
+    }
+    const text = resolveLabelFieldText(element.field, this.sampleProduct());
+    return computeBarcodeGeometry(text, element.width);
+  });
+
   /** px per mm. */
-  private readonly scale = computed(() => {
+  protected readonly scale = computed(() => {
     const w = this.labelWidth();
     const h = this.labelHeight();
     if (w <= 0 || h <= 0) {
@@ -165,21 +189,35 @@ export class LabelEditorComponent {
 
     return this.elements().map((element, index) => {
       const box = preview?.index === index ? preview : element;
+      const isBarcode = element.type === 'barcode';
+      const text = resolveLabelFieldText(
+        element.field,
+        product,
+        element.showLabel ?? true,
+      );
+      const fontSize =
+        element.fontSize ?? (isBarcode ? DEFAULT_BARCODE_VALUE_FONT_PT : 9);
       return {
         element,
         index,
         option: options.get(element.field) ?? null,
-        text: resolveLabelFieldText(element.field, product),
+        text,
+        widthMm: box.width,
+        unreadable:
+          isBarcode &&
+          computeBarcodeGeometry(text, box.width)?.readable === false,
         style: {
           left: `${box.x * scale}px`,
           top: `${box.y * scale}px`,
           width: `${box.width * scale}px`,
           height: `${box.height * scale}px`,
-          'font-size': `${(element.fontSize ?? 9) * MM_PER_PT * scale}px`,
+          'font-size': `${fontSize * MM_PER_PT * scale}px`,
           'font-weight': element.fontWeight === 'bold' ? '700' : '400',
-          'text-align': element.alignment ?? 'left',
-          'justify-content':
-            element.alignment === 'center'
+          'text-align': element.alignment ?? (isBarcode ? 'center' : 'left'),
+          // Barcodes stack bars and digits in a column: centre them vertically.
+          'justify-content': isBarcode
+            ? 'center'
+            : element.alignment === 'center'
               ? 'center'
               : element.alignment === 'right'
                 ? 'flex-end'
@@ -253,8 +291,14 @@ export class LabelEditorComponent {
 
     this.dragPreview.set({
       ...origin,
-      width: mode === 'resize-y' ? origin.width : this.clampWidth(origin.x, origin.width + dx),
-      height: mode === 'resize-x' ? origin.height : this.clampHeight(origin.y, origin.height + dy),
+      width:
+        mode === 'resize-y'
+          ? origin.width
+          : this.clampWidth(origin.x, origin.width + dx),
+      height:
+        mode === 'resize-x'
+          ? origin.height
+          : this.clampHeight(origin.y, origin.height + dy),
     });
   }
 
@@ -305,7 +349,11 @@ export class LabelEditorComponent {
     }
     event.preventDefault();
     this.selectedIndex.set(index);
-    const next = this.clampPosition(index, element.x + move[0], element.y + move[1]);
+    const next = this.clampPosition(
+      index,
+      element.x + move[0],
+      element.y + move[1],
+    );
     if (next.x !== element.x || next.y !== element.y) {
       this.emitChange(index, next);
     }
@@ -325,7 +373,11 @@ export class LabelEditorComponent {
   }
 
   /** Snaps to the grid and keeps the whole element inside the label. */
-  private clampPosition(index: number, x: number, y: number): { x: number; y: number } {
+  private clampPosition(
+    index: number,
+    x: number,
+    y: number,
+  ): { x: number; y: number } {
     const element = this.elements()[index];
     const maxX = Math.max(this.labelWidth() - element.width, 0);
     const maxY = Math.max(this.labelHeight() - element.height, 0);
@@ -337,12 +389,16 @@ export class LabelEditorComponent {
   /** Snaps to the grid, at least the minimum width, never past the label's right edge. */
   private clampWidth(x: number, width: number): number {
     const maxWidth = Math.max(this.labelWidth() - x, MIN_ELEMENT_WIDTH_MM);
-    return round2(Math.min(Math.max(snap(width), MIN_ELEMENT_WIDTH_MM), maxWidth));
+    return round2(
+      Math.min(Math.max(snap(width), MIN_ELEMENT_WIDTH_MM), maxWidth),
+    );
   }
 
   /** Snaps to the grid, at least the minimum height, never past the label's bottom edge. */
   private clampHeight(y: number, height: number): number {
     const maxHeight = Math.max(this.labelHeight() - y, MIN_ELEMENT_HEIGHT_MM);
-    return round2(Math.min(Math.max(snap(height), MIN_ELEMENT_HEIGHT_MM), maxHeight));
+    return round2(
+      Math.min(Math.max(snap(height), MIN_ELEMENT_HEIGHT_MM), maxHeight),
+    );
   }
 }

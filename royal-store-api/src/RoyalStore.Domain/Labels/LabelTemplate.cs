@@ -15,6 +15,12 @@ public sealed class LabelTemplate : Entity, IAuditableEntity
     public const int ConfigurationMaxLength = 65_536;
     public const int SourceTemplateIdMaxLength = 100;
 
+    /// <summary>The owner of the system configurations (066): no store. Shared, read-only rows.</summary>
+    public static readonly Guid SystemTenantId = Guid.Empty;
+
+    public static readonly Error SystemReadOnly =
+        Error.Conflict("label.system_read_only", "System label configurations cannot be changed.");
+
     public Guid TenantId { get; private set; }
     public string Name { get; private set; } = string.Empty;
 
@@ -37,6 +43,9 @@ public sealed class LabelTemplate : Entity, IAuditableEntity
     public bool IsDefault { get; private set; }
 
     public bool IsActive { get; private set; }
+
+    /// <summary>A configuration that comes with the system, shared by every store and read-only (066 FR-006).</summary>
+    public bool IsSystem => TenantId == SystemTenantId;
 
     public DateTimeOffset CreatedAt { get; set; }
     public string CreatedBy { get; set; } = string.Empty;
@@ -156,6 +165,9 @@ public sealed class LabelTemplate : Entity, IAuditableEntity
         bool isDefault,
         bool isActive)
     {
+        if (IsSystem)
+            return Result.Failure(SystemReadOnly);
+
         var errors = Check(name, configuration, sourceTemplateId, isDefault, isActive);
         if (errors.Count > 0)
             return Result.Failure(errors[0]);
@@ -170,20 +182,31 @@ public sealed class LabelTemplate : Entity, IAuditableEntity
         return Result.Success();
     }
 
-    /// <summary>Idempotent (spec US4 scenario 3).</summary>
-    public void Activate()
+    /// <summary>Idempotent (spec US4 scenario 3). Refused for a system configuration (066 FR-006).</summary>
+    public Result Activate()
     {
+        if (IsSystem)
+            return Result.Failure(SystemReadOnly);
+
         IsActive = true;
         Format.SetActive(true);
+        return Result.Success();
     }
 
     /// <summary>Idempotent. An inactive label cannot be the default, so the mark goes too (FR-014).</summary>
-    public void Deactivate()
+    public Result Deactivate()
     {
+        if (IsSystem)
+            return Result.Failure(SystemReadOnly);
+
         IsActive = false;
         IsDefault = false;
         Format.SetActive(false);
+        return Result.Success();
     }
+
+    /// <summary>A system configuration cannot be deleted (066 FR-006).</summary>
+    public Result EnsureRemovable() => IsSystem ? Result.Failure(SystemReadOnly) : Result.Success();
 
     /// <summary>Clears the default mark — the first of the two saves of a default swap (065 research D7).</summary>
     public void UnmarkDefault() => IsDefault = false;

@@ -1,6 +1,6 @@
 import { PriceList } from '@app/features/price-list/interfaces/price-list.interface';
 import { LabelElement, LabelElementType } from '../interfaces/label-format.interface';
-import { Product } from '../interfaces/product.interface';
+import { Product, ProductVariant } from '../interfaces/product.interface';
 
 /** 1 pt = 0.3528 mm. */
 export const MM_PER_PT = 0.3528;
@@ -23,6 +23,7 @@ export type LabelElementPatch = Partial<
     | 'alignment'
     | 'format'
     | 'showValue'
+    | 'showLabel'
   >
 >;
 
@@ -50,7 +51,8 @@ export const switchElementType = (
     return {
       type,
       format: 'CODE128',
-      showValue: true,
+      // Bars only until the user asks for the digits.
+      showValue: false,
       fontSize: undefined,
       fontWeight: undefined,
       alignment: undefined,
@@ -154,14 +156,14 @@ export const buildLabelFieldOptions = (priceLists: readonly PriceList[]): LabelF
 ];
 
 /**
- * Turns the first product chosen on the products page into preview data.
+ * Turns a product (one of its variants; the first by default) into label data.
  * Variant-level sku/barcode win over the product's, same as `toLabelProducts`.
  */
 export const toLabelSampleProduct = (
   product: Product,
   priceLists: readonly PriceList[],
+  variant: ProductVariant | undefined = product.variants[0],
 ): LabelSampleProduct => {
-  const variant = product.variants[0];
   const byList = new Map((product.prices ?? []).map((p) => [p.priceListId, p] as const));
 
   return {
@@ -236,7 +238,19 @@ export const normalizeLabelElements = (
   return changed ? normalized : (elements as LabelElement[]);
 };
 
-export const resolveLabelFieldText = (field: string, product: LabelSampleProduct): string => {
+/** Price fields: `field` of a price list (or the legacy default-price field). */
+export const isPriceField = (field: string): boolean =>
+  field === DEFAULT_PRICE_FIELD || field.startsWith(PRICE_FIELD_PREFIX);
+
+/**
+ * The text an element shows for `product`. Prices read "List name: R$ 0,00",
+ * or just "R$ 0,00" with `showLabel` false.
+ */
+export const resolveLabelFieldText = (
+  field: string,
+  product: LabelSampleProduct,
+  showLabel = true,
+): string => {
   switch (field) {
     case 'product.name':
       return product.name;
@@ -248,13 +262,13 @@ export const resolveLabelFieldText = (field: string, product: LabelSampleProduct
       return product.barcode;
   }
 
-  if (field === DEFAULT_PRICE_FIELD || field.startsWith(PRICE_FIELD_PREFIX)) {
+  if (isPriceField(field)) {
     const price = findPrice(field, product);
     if (!price) {
       return '';
     }
     const value = price.value == null ? '—' : currency.format(price.value);
-    return `${price.priceListName}: ${value}`;
+    return showLabel ? `${price.priceListName}: ${value}` : value;
   }
 
   return field;
@@ -290,13 +304,13 @@ export const createLabelElement = (
   };
 
   return option.type === 'barcode'
-    ? { ...base, type: 'barcode', format: 'CODE128', showValue: true }
+    ? { ...base, type: 'barcode', format: 'CODE128', showValue: false }
     : {
         ...base,
         type: 'text',
         fontSize: defaults.fontSize,
         fontWeight: defaults.fontWeight,
         alignment: 'center',
-        ...(option.group === 'price' ? { format: 'currency' } : {}),
+        ...(option.group === 'price' ? { format: 'currency', showLabel: true } : {}),
       };
 };

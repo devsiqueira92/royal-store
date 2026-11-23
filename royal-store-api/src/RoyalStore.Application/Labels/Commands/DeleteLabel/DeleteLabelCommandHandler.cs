@@ -31,6 +31,16 @@ public sealed class DeleteLabelCommandHandler : IRequestHandler<DeleteLabelComma
         if (label is null)
             return Result.Failure(LabelErrors.NotFound);
 
+        var removable = label.EnsureRemovable();
+        if (removable.IsFailure)
+        {
+            // A system configuration (066 FR-006).
+            _logger.LogWarning(
+                "Label {LabelId} deletion refused for tenant {TenantId}: {ErrorCode}.",
+                label.Id, _tenantContext.TenantId, removable.Error.Code);
+            return removable;
+        }
+
         _labelRepository.Remove(label);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

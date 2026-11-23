@@ -1,8 +1,4 @@
-import {
-  Product,
-  ProductVariant,
-  StockStatus,
-} from '../interfaces/product.interface';
+import { Product, ProductVariant, StockStatus } from '../interfaces/product.interface';
 
 export function getVariantStatus(variant: ProductVariant): StockStatus {
   if (variant.stockQuantity == null) {
@@ -13,10 +9,7 @@ export function getVariantStatus(variant: ProductVariant): StockStatus {
     return 'outOfStock';
   }
 
-  if (
-    variant.minStockQuantity != null &&
-    variant.stockQuantity <= variant.minStockQuantity
-  ) {
+  if (variant.minStockQuantity != null && variant.stockQuantity <= variant.minStockQuantity) {
     return 'lowStock';
   }
 

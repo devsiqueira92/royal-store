@@ -6,6 +6,11 @@ import { CreateLabelRequest, UpdateLabelRequest } from '../interfaces/label-form
 import { LabelActions } from '../store/label.actions';
 import {
   selectActiveLabels,
+  selectLabelConfigurations,
+  selectLabelConfigurationsIsLoading,
+  selectLabelPrintOptions,
+  selectLabelPrintOptionsIsLoading,
+  selectLabelSelectedConfiguration,
   selectLabelError,
   selectLabelIsLoading,
   selectLabels,
@@ -20,6 +25,11 @@ export class LabelFacade {
   labels$ = this.store.select(selectLabels);
   activeLabels$ = this.store.select(selectActiveLabels);
   selectedLabel$ = this.store.select(selectSelectedLabel);
+  configurations = this.store.selectSignal(selectLabelConfigurations);
+  isLoadingConfigurations = this.store.selectSignal(selectLabelConfigurationsIsLoading);
+  selectedConfiguration = this.store.selectSignal(selectLabelSelectedConfiguration);
+  printOptions = this.store.selectSignal(selectLabelPrintOptions);
+  isLoadingPrintOptions = this.store.selectSignal(selectLabelPrintOptionsIsLoading);
   isLoading$ = this.store.select(selectLabelIsLoading);
   error$ = this.store.select(selectLabelError);
 
@@ -32,6 +42,25 @@ export class LabelFacade {
   /** `isActive` omitted → every label. */
   loadLabels(isActive?: boolean): void {
     this.store.dispatch(LabelActions.loadLabels({ isActive }));
+  }
+
+  /** `GET api/labels/configurations`: system configurations + store's active labels. */
+  loadConfigurations(): void {
+    this.store.dispatch(LabelActions.loadConfigurations());
+  }
+
+  /** `GET api/labels/print-options`: store's active labels (default first) + system configurations. */
+  loadPrintOptions(): void {
+    this.store.dispatch(LabelActions.loadPrintOptions());
+  }
+
+  /** Full label of a configuration picked as starting point. */
+  loadConfiguration(id: string): void {
+    this.store.dispatch(LabelActions.loadConfiguration({ id }));
+  }
+
+  clearSelectedConfiguration(): void {
+    this.store.dispatch(LabelActions.clearSelectedConfiguration());
   }
 
   loadLabel(id: string): void {
@@ -56,10 +85,6 @@ export class LabelFacade {
 
   delete(id: string): void {
     this.store.dispatch(LabelActions.deleteLabel({ id }));
-  }
-
-  selectLabel(id: string): void {
-    this.store.dispatch(LabelActions.selectLabel({ id }));
   }
 
   clearSelectedLabel(): void {

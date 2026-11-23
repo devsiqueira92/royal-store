@@ -1,7 +1,10 @@
 import {
   createLabel,
   deleteLabel,
+  loadConfiguration,
+  loadConfigurations,
   loadLabel,
+  loadPrintOptions,
   loadLabels,
   setLabelActive,
   updateLabel,
@@ -9,6 +12,9 @@ import {
 
 export const labelStore = {
   loadLabels,
+  loadConfigurations,
+  loadConfiguration,
+  loadPrintOptions,
   loadLabel,
   createLabel,
   updateLabel,

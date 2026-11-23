@@ -16,7 +16,7 @@
   </header>
 
   <div class="label-list-page__panel">
-    <p-table [value]="labels()" [loading]="isLoading()" dataKey="template.id">
+    <p-table [value]="labels()!" [loading]="isLoading()" dataKey="id">
       <ng-template #header>
         <tr>
           <th>{{ 'product.labelList.columns.name' | translate }}</th>
@@ -31,32 +31,32 @@
 
       <ng-template #body let-label>
         <tr>
-          <td class="label-list-page__name">{{ label.template.name }}</td>
+          <td class="label-list-page__name">{{ label.name }}</td>
           <td>
             {{
-              (label.format.paperType === PaperType.Roll
+              (label.paperType === PaperType.Roll
                 ? 'product.labelDesigner.paperType.roll'
                 : 'product.labelDesigner.paperType.sheet'
               ) | translate
             }}
           </td>
           <td class="label-list-page__numeric">
-            {{ label.format.labelWidth | number: '1.0-2' }} ×
-            {{ label.format.labelHeight | number: '1.0-2' }} mm
+            {{ label.labelWidth | number: '1.0-2' }} ×
+            {{ label.labelHeight | number: '1.0-2' }} mm
           </td>
-          <td class="label-list-page__numeric">{{ label.format.columns }}</td>
+          <td class="label-list-page__numeric">{{ label.columns }}</td>
           <td>
             <p-tag
               [value]="
-                (label.template.isActive
+                (label.isActive
                   ? 'product.labelList.active'
                   : 'product.labelList.inactive'
                 ) | translate
               "
-              [severity]="label.template.isActive ? 'success' : 'secondary'"
+              [severity]="label.isActive ? 'success' : 'secondary'"
             />
           </td>
-          <td>{{ label.template.updatedAt | date: 'short' }}</td>
+          <td>{{ label.updatedAt | date: 'short' }}</td>
           <td class="action-columns">
             <p-button
               icon="pi pi-search"
@@ -65,7 +65,7 @@
               severity="secondary"
               [pTooltip]="'product.labelList.details' | translate"
               [attr.aria-label]="'product.labelList.details' | translate"
-              [routerLink]="['/products/labels/designer', label.template.id]"
+              [routerLink]="['/products/labels/designer', label.id]"
             />
             <p-button
               icon="pi pi-trash"
@@ -77,18 +77,18 @@
               (onClick)="onDelete(label, $event)"
             />
             <p-button
-              [icon]="label.template.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
+              [icon]="label.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
               [rounded]="true"
               [text]="true"
               severity="secondary"
               [pTooltip]="
-                (label.template.isActive
+                (label.isActive
                   ? 'product.labelList.deactivate'
                   : 'product.labelList.activate'
                 ) | translate
               "
               [attr.aria-label]="
-                (label.template.isActive
+                (label.isActive
                   ? 'product.labelList.deactivate'
                   : 'product.labelList.activate'
                 ) | translate

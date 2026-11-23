@@ -43,7 +43,10 @@ export interface LabelElement {
   alignment?: LabelElementAlignment;
   /** `currency` for text, symbology (e.g. `CODE128`) for barcodes. */
   format?: string;
+  /** Barcodes: print the code's digits under the bars. Absent → bars only. */
   showValue?: boolean;
+  /** Prices: prefix the price list's name ("À vista: R$ 100,00"). Absent → shown. */
+  showLabel?: boolean;
 }
 
 /** Parsed form of `LabelTemplate.configuration`. */
@@ -72,13 +75,16 @@ export interface Label {
   template: LabelTemplate;
 }
 
-/** A template joined with its format and parsed configuration — one dropdown entry. */
-export interface LabelType {
+/** One listing row as `GET api/labels` returns it. Full label: `GET api/labels/{id}`. */
+export interface LabelSummary {
   id: string;
   name: string;
-  isDefault: boolean;
-  format: LabelFormat;
-  configuration: LabelTemplateConfiguration;
+  paperType: LabelPaperType;
+  labelWidth: number;
+  labelHeight: number;
+  columns: number;
+  isActive: boolean;
+  updatedAt: string;
 }
 
 /**

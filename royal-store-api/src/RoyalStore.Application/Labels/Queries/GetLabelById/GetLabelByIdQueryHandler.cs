@@ -17,7 +17,7 @@ public sealed class GetLabelByIdQueryHandler : IRequestHandler<GetLabelByIdQuery
     public async Task<Result<LabelResponse>> Handle(GetLabelByIdQuery query, CancellationToken cancellationToken)
     {
         // Another store's label is filtered out by the tenant query filter: same answer as a
-        // missing one (065 FR-017).
+        // missing one (065 FR-017). System configurations open for every store (066 FR-005).
         var label = await _labelRepository.GetByIdAsync(query.Id, cancellationToken);
         if (label is null)
             return LabelErrors.NotFound;
