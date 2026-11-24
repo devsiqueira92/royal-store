@@ -347,6 +347,12 @@
       "name": "Label name",
       "namePlaceholder": "E.g.: Shelf A4 with price",
       "loadPreset": "Load pre-configuration",
+      "changePreset": {
+        "header": "Change pre-configuration",
+        "message": "On confirm, the label's current measurements and fields are discarded and replaced by the chosen pre-configuration's. To keep the current selections, click Back.",
+        "confirm": "Confirm",
+        "back": "Back"
+      },
       "save": "Save",
       "editor": {
         "title": "Label editor",

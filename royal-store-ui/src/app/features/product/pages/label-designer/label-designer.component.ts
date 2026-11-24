@@ -33,7 +33,9 @@ import {
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 import { map, startWith } from 'rxjs';
 import { LabelFormatPanelComponent } from '../../components/label-format-panel/label-format-panel.component';
 import { LabelSheetPreviewComponent } from '../../components/label-sheet-preview/label-sheet-preview.component';
@@ -67,6 +69,7 @@ const mm = (): FormControl<number | null> =>
     LabelFormatPanelComponent,
     LabelSheetPreviewComponent,
     LabelEditorComponent,
+    ConfirmDialog,
   ],
   templateUrl: './label-designer.component.html',
   styleUrl: './label-designer.component.scss',
@@ -77,6 +80,11 @@ export class LabelDesignerComponent {
   private readonly priceListFacade = inject(PriceListFacade);
   private readonly labelFacade = inject(LabelFacade);
   private readonly router = inject(Router);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly translateService = inject(TranslateService);
+
+  /** Key of this page's confirm dialog, so the app-wide confirm popup ignores it. */
+  protected readonly labelTypeConfirmKey = 'labelDesignerLabelType';
 
   /** Template id from `labels/designer/:id`; `null` → creating a new label. */
   protected readonly labelId =
@@ -127,17 +135,16 @@ export class LabelDesignerComponent {
     marginLeft: mm(),
   });
 
-  private readonly labelTypeId = toSignal(
-    this.selectionForm.controls.labelTypeId.valueChanges.pipe(
-      startWith(this.selectionForm.controls.labelTypeId.value),
-    ),
-    { initialValue: null as string | null },
-  );
+  /**
+   * Configuration in effect: the stored label's source while editing, then the last pick
+   * applied (confirmed, in edit mode). "Voltar" on the confirm dialog reverts the dropdown to it.
+   */
+  private readonly appliedLabelTypeId = signal<string | null>(null);
 
-  /** Full label of the picked configuration, once `GET api/labels/{id}` answered. */
+  /** Full label of the applied configuration, once `GET api/labels/{id}` answered. */
   protected readonly selectedConfiguration = computed<Label | null>(() => {
     const configuration = this.loadedConfiguration();
-    const id = this.labelTypeId();
+    const id = this.appliedLabelTypeId();
     return id && configuration?.template.id === id ? configuration : null;
   });
 
@@ -205,7 +212,7 @@ export class LabelDesignerComponent {
       this.labelFacade.loadLabel(this.labelId);
     }
 
-    // Fill the screen once with the stored label's name, measurements and elements.
+    // Fill the screen once with the stored label's name, configuration, measurements and elements.
     let applied = false;
     effect(() => {
       const label = this.editedLabel();
@@ -215,6 +222,12 @@ export class LabelDesignerComponent {
       applied = true;
       untracked(() => {
         this.selectionForm.controls.name.setValue(label.template.name);
+        // Shows the stored source without loading it over the label's own layout.
+        this.appliedLabelTypeId.set(label.template.sourceTemplateId);
+        this.selectionForm.controls.labelTypeId.setValue(
+          label.template.sourceTemplateId,
+          { emitEvent: false },
+        );
         this.applyFormat(label.format);
         this.elements.set(
           normalizeLabelElements(
@@ -232,26 +245,26 @@ export class LabelDesignerComponent {
         () => void this.router.navigateByUrl('/products/labels/templates'),
       );
 
-    // Picking a configuration fetches its full label.
+    // Picking a configuration fetches its full label; while editing, only once the user
+    // confirms that the current measurements and elements are discarded.
     this.selectionForm.controls.labelTypeId.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(id => {
-        if (id) {
-          this.labelFacade.loadConfiguration(id);
+        if (this.editedLabel()) {
+          this.confirmLabelTypeChange(id);
         } else {
-          this.labelFacade.clearSelectedConfiguration();
+          this.applyLabelType(id);
         }
       });
 
-    // Once it arrives it fills the name (still editable), the measurements and the
-    // editor's elements.
+    // Once it arrives it fills the measurements and the editor's elements. The name is
+    // left to the user.
     effect(() => {
       const configuration = this.selectedConfiguration();
       if (!configuration) {
         return;
       }
       untracked(() => {
-        this.selectionForm.controls.name.setValue(configuration.template.name);
         this.applyFormat(configuration.format);
         this.elements.set(
           normalizeLabelElements(
@@ -281,6 +294,37 @@ export class LabelDesignerComponent {
         return;
       }
       untracked(() => control.setValue(initial.code));
+    });
+  }
+
+  private applyLabelType(id: string | null): void {
+    this.appliedLabelTypeId.set(id);
+    if (id) {
+      this.labelFacade.loadConfiguration(id);
+    } else {
+      this.labelFacade.clearSelectedConfiguration();
+    }
+  }
+
+  /** Edit mode: "Confirmar" applies the pick; "Voltar" (or closing) restores the previous one. */
+  private confirmLabelTypeChange(id: string | null): void {
+    const t = (key: string): string =>
+      this.translateService.instant(`product.labelDesigner.changePreset.${key}`);
+    this.confirmationService.confirm({
+      key: this.labelTypeConfirmKey,
+      header: t('header'),
+      message: t('message'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: t('confirm'),
+      rejectLabel: t('back'),
+      acceptButtonProps: { severity: 'danger' },
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => this.applyLabelType(id),
+      reject: () =>
+        this.selectionForm.controls.labelTypeId.setValue(
+          this.appliedLabelTypeId(),
+          { emitEvent: false },
+        ),
     });
   }
 

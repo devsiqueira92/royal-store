@@ -347,6 +347,12 @@
       "name": "Nome da etiqueta",
       "namePlaceholder": "Ex.: Gôndola A4 com preço",
       "loadPreset": "Carregar pré-configuração",
+      "changePreset": {
+        "header": "Trocar pré-configuração",
+        "message": "Ao confirmar, as medidas e os campos atuais da etiqueta serão descartados e substituídos pelos da pré-configuração escolhida. Para manter as seleções atuais, clique em Voltar.",
+        "confirm": "Confirmar",
+        "back": "Voltar"
+      },
       "save": "Salvar",
       "editor": {
         "title": "Editor de etiqueta",
