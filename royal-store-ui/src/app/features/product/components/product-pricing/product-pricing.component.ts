@@ -23,7 +23,7 @@ import { InputNumberFieldComponent } from '@app/shared/components/form-fields/in
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
 import { Options } from '@app/shared/interceptors/options.interface';
 import { CostCompositionFacade } from '@app/features/cost-composition/facade/cost-composition.facade';
-import { CostComposition } from '@app/features/cost-composition/interfaces/cost-composition.interface';
+import { CostCompositionSummary } from '@app/features/cost-composition/interfaces/cost-composition.interface';
 import { ProductPriceTableComponent } from '../product-price-table/product-price-table.component';
 import {
   ProductFormControls,
@@ -69,7 +69,7 @@ export class ProductPricingComponent {
 
   private readonly costCompositions = toSignal(
     this.costCompositionFacade.costCompositions$,
-    { initialValue: [] as CostComposition[] },
+    { initialValue: [] as CostCompositionSummary[] },
   );
 
   protected readonly costCompositionOptions = computed<Options[]>(() =>

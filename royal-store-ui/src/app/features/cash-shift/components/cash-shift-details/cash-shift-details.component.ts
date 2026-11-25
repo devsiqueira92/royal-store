@@ -18,16 +18,17 @@ import { CashShiftSummaryComponent } from '../cash-shift-summary/cash-shift-summ
 import { CashMovementFormComponent } from '../cash-movement-form/cash-movement-form.component';
 import { CashMovementListComponent } from '../cash-movement-list/cash-movement-list.component';
 import { CloseShiftFormComponent } from '../close-shift-form/close-shift-form.component';
+import { DetailLayoutComponent } from '@app/shared/components/layouts/detail-layout/detail-layout.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-cash-shift-details',
   imports: [
     TranslatePipe,
     CashShiftSummaryComponent,
     CashMovementFormComponent,
     CashMovementListComponent,
     CloseShiftFormComponent,
+    DetailLayoutComponent,
   ],
   templateUrl: './cash-shift-details.component.html',
   styleUrl: './cash-shift-details.component.scss',

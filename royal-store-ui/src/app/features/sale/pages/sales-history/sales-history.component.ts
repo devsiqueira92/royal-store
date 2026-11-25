@@ -15,7 +15,11 @@ export class SalesHistoryComponent implements OnInit {
   private readonly saleFacade = inject(SaleFacade);
 
   private readonly sales = toSignal(this.saleFacade.sales$, { initialValue: [] });
-  protected readonly totalSales = computed(() => this.sales().length);
+  private readonly hasMore = toSignal(this.saleFacade.salesHasMore$, { initialValue: false });
+  /** Sales loaded so far (the paged list has no total, 067); "30+" while more pages exist. */
+  protected readonly totalSales = computed(
+    () => `${this.sales().length}${this.hasMore() ? '+' : ''}`,
+  );
 
   ngOnInit(): void {
     this.saleFacade.loadSales();

@@ -15,6 +15,9 @@ import {
   selectIsLoadingProducts,
   selectSales,
   selectIsLoadingSales,
+  selectIsLoadingMoreSales,
+  selectSalesHasMore,
+  selectSalesLoadMoreFailed,
   selectSaleDetails,
   selectIsLoadingSaleDetails,
   selectSaleReceipt,
@@ -36,6 +39,9 @@ export class SaleFacade {
   isLoadingProducts$ = this.store.select(selectIsLoadingProducts);
   sales$ = this.store.select(selectSales);
   isLoadingSales$ = this.store.select(selectIsLoadingSales);
+  isLoadingMoreSales$ = this.store.select(selectIsLoadingMoreSales);
+  salesHasMore$ = this.store.select(selectSalesHasMore);
+  salesLoadMoreFailed$ = this.store.select(selectSalesLoadMoreFailed);
   saleDetails$ = this.store.select(selectSaleDetails);
   isLoadingSaleDetails$ = this.store.select(selectIsLoadingSaleDetails);
   saleReceipt$ = this.store.select(selectSaleReceipt);
@@ -143,8 +149,14 @@ export class SaleFacade {
     this.store.dispatch(SaleActions.loadPosProducts({ categoryId }));
   }
 
+  /** (Re)starts the sales history with these filters: first page. */
   loadSales(params?: GetSalesListParams): void {
     this.store.dispatch(SaleActions.loadSales({ params }));
+  }
+
+  /** Next page of the sales history; ignored while loading or when there is none. */
+  loadMoreSales(): void {
+    this.store.dispatch(SaleActions.loadMoreSales());
   }
 
   loadSaleDetails(saleId: string): void {

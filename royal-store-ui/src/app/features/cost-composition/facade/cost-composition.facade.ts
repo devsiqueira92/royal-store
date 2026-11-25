@@ -9,6 +9,7 @@ import {
   selectCostCompositions,
   selectError,
   selectIsLoading,
+  selectIsLoadingSelected,
   selectSelectedCostComposition,
 } from '../store/cost-composition.selectors';
 
@@ -19,6 +20,7 @@ export class CostCompositionFacade {
   costCompositions$ = this.store.select(selectCostCompositions);
   selectedCostComposition$ = this.store.select(selectSelectedCostComposition);
   isLoading$ = this.store.select(selectIsLoading);
+  isLoadingSelected$ = this.store.select(selectIsLoadingSelected);
   error$ = this.store.select(selectError);
 
   loadCostCompositions(): void {
@@ -41,8 +43,9 @@ export class CostCompositionFacade {
     this.store.dispatch(CostCompositionActions.deleteCostComposition({ id }));
   }
 
-  selectCostComposition(id: string): void {
-    this.store.dispatch(CostCompositionActions.selectCostComposition({ id }));
+  /** Loads the full list (with lines) into the selected slot. */
+  loadCostComposition(id: string): void {
+    this.store.dispatch(CostCompositionActions.loadCostComposition({ id }));
   }
 
   clearSelectedCostComposition(): void {

@@ -2,7 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
+  untracked,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -64,10 +66,10 @@ export class CostCompositionFormComponent {
     initialValue: null as CostComposition | null,
   });
 
-  protected readonly nameControl = new FormControl<string | null>(
-    this.selected()?.name ?? null,
-    [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)],
-  );
+  protected readonly nameControl = new FormControl<string | null>(null, [
+    Validators.required,
+    Validators.maxLength(NAME_MAX_LENGTH),
+  ]);
 
   protected readonly items = new FormArray<FormGroup<CostItemControls>>([]);
   protected readonly formGroup = new FormGroup({
@@ -88,8 +90,32 @@ export class CostCompositionFormComponent {
     { initialValue: 0 },
   );
 
+  /** Edit mode waits for GET api/cost-compositions/{id} before it can be saved. */
+  protected readonly canSubmit = computed(
+    () => this.isCreateMode() || this.selected() !== null,
+  );
+
+  /** Id of the composition the form was last filled from; avoids refilling over user edits. */
+  private filledId: string | null = null;
+
   constructor() {
-    this.selected()?.items.forEach(i => this.addItem(i));
+    this.addItem();
+
+    // Edit mode: the full composition (with lines) arrives after the drawer opens.
+    effect(() => {
+      const selected = this.selected();
+      if (this.isCreateMode() || !selected || selected.id === this.filledId) {
+        return;
+      }
+      untracked(() => this.fill(selected));
+    });
+  }
+
+  private fill(composition: CostComposition): void {
+    this.filledId = composition.id;
+    this.nameControl.setValue(composition.name);
+    this.items.clear();
+    (composition.items ?? []).forEach(i => this.addItem(i));
     if (this.items.length === 0) {
       this.addItem();
     }
@@ -121,6 +147,9 @@ export class CostCompositionFormComponent {
   }
 
   protected onSubmit(): void {
+    if (!this.canSubmit()) {
+      return;
+    }
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
       return;

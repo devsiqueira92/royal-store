@@ -1,11 +1,16 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
-import { CostComposition } from '../interfaces/cost-composition.interface';
+import {
+  CostComposition,
+  CostCompositionSummary,
+  toCostCompositionSummary,
+} from '../interfaces/cost-composition.interface';
 import { CostCompositionActions as A } from './cost-composition.actions';
 
 export interface CostCompositionState {
-  costCompositions: CostComposition[];
+  costCompositions: CostCompositionSummary[];
   selectedCostComposition: CostComposition | null;
   isLoading: boolean;
+  isLoadingSelected: boolean;
   error: string | null;
 }
 
@@ -13,6 +18,7 @@ const initialState: CostCompositionState = {
   costCompositions: [],
   selectedCostComposition: null,
   isLoading: false,
+  isLoadingSelected: false,
   error: null,
 };
 
@@ -48,7 +54,10 @@ export const costCompositionFeature = createFeature({
       A.createCostCompositionSuccess,
       (state, { costComposition }): CostCompositionState => ({
         ...state,
-        costCompositions: [...state.costCompositions, costComposition],
+        costCompositions: [
+          ...state.costCompositions,
+          toCostCompositionSummary(costComposition),
+        ],
         isLoading: false,
       }),
     ),
@@ -60,7 +69,9 @@ export const costCompositionFeature = createFeature({
       (state, { costComposition }): CostCompositionState => ({
         ...state,
         costCompositions: state.costCompositions.map(c =>
-          c.id === costComposition.id ? costComposition : c,
+          c.id === costComposition.id
+            ? toCostCompositionSummary(costComposition)
+            : c,
         ),
         selectedCostComposition:
           state.selectedCostComposition?.id === costComposition.id
@@ -87,11 +98,28 @@ export const costCompositionFeature = createFeature({
     on(A.deleteCostCompositionFailure, failed),
 
     on(
-      A.selectCostComposition,
-      (state, { id }): CostCompositionState => ({
+      A.loadCostComposition,
+      (state): CostCompositionState => ({
         ...state,
-        selectedCostComposition:
-          state.costCompositions.find(c => c.id === id) ?? null,
+        selectedCostComposition: null,
+        isLoadingSelected: true,
+        error: null,
+      }),
+    ),
+    on(
+      A.loadCostCompositionSuccess,
+      (state, { costComposition }): CostCompositionState => ({
+        ...state,
+        selectedCostComposition: costComposition,
+        isLoadingSelected: false,
+      }),
+    ),
+    on(
+      A.loadCostCompositionFailure,
+      (state, { error }): CostCompositionState => ({
+        ...state,
+        isLoadingSelected: false,
+        error,
       }),
     ),
     on(
@@ -99,6 +127,7 @@ export const costCompositionFeature = createFeature({
       (state): CostCompositionState => ({
         ...state,
         selectedCostComposition: null,
+        isLoadingSelected: false,
       }),
     ),
   ),

@@ -1,3 +1,4 @@
+import { createSelector } from '@ngrx/store';
 import { saleFeature } from './sale.reducer';
 
 export const {
@@ -6,8 +7,7 @@ export const {
   selectError,
   selectPosProducts,
   selectIsLoadingProducts,
-  selectSales,
-  selectIsLoadingSales,
+  selectSalesList,
   selectSaleDetails,
   selectIsLoadingSaleDetails,
   selectSaleReceipt,
@@ -15,3 +15,15 @@ export const {
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
 } = saleFeature;
+
+export const selectSales = createSelector(selectSalesList, list => list.items);
+export const selectIsLoadingSales = createSelector(selectSalesList, list => list.isLoading);
+export const selectIsLoadingMoreSales = createSelector(
+  selectSalesList,
+  list => list.isLoadingMore,
+);
+export const selectSalesHasMore = createSelector(selectSalesList, list => list.hasMore);
+export const selectSalesLoadMoreFailed = createSelector(
+  selectSalesList,
+  list => list.loadMoreFailed,
+);

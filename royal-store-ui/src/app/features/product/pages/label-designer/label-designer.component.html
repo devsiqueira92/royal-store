@@ -1,38 +1,33 @@
 <p-confirmdialog [key]="labelTypeConfirmKey" />
 
-<section class="label-designer-page">
-  <header class="label-designer-page__header">
-    <a
-      routerLink="/products/labels/templates"
-      class="label-designer-page__back"
-    >
-      <i class="pi pi-arrow-left"></i>
-      {{ 'product.labelPrint.back' | translate }}
-    </a>
-    <div class="label-designer-page__heading">
-      <div>
-        <h1 class="label-designer-page__title">
-          {{
-            (labelId
-              ? 'product.labelDesigner.editTitle'
-              : 'product.labelDesigner.title'
-            ) | translate
-          }}
-        </h1>
-        <p class="label-designer-page__subtitle">
-          {{ 'product.labelDesigner.subtitle' | translate }}
-        </p>
-      </div>
-      <app-button
-        label="product.labelDesigner.save"
-        icon="pi pi-save"
-        [disabled]="!canSave()"
-        [loading]="isSaving()"
-        (onClick)="onSave()"
-      ></app-button>
+<app-detail-layout
+  [router]="['/products/labels/templates']"
+  title="product.labelDesigner.title"
+  subtitle="product.labelDesigner.subtitle"
+  backText="product.labelPrint.back"
+>
+  <div class="label-designer-page__heading" actions-panel>
+    <div>
+      <h1 class="label-designer-page__title">
+        {{
+          (labelId
+            ? 'product.labelDesigner.editTitle'
+            : 'product.labelDesigner.title'
+          ) | translate
+        }}
+      </h1>
+      <p class="label-designer-page__subtitle">
+        {{ 'product.labelDesigner.subtitle' | translate }}
+      </p>
     </div>
-  </header>
-
+    <app-button
+      label="product.labelDesigner.save"
+      icon="pi pi-save"
+      [disabled]="!canSave()"
+      [loading]="isSaving()"
+      (onClick)="onSave()"
+    ></app-button>
+  </div>
   <div class="label-designer-page__layout">
     <aside class="label-designer-page__panel label-designer-page__panel--left">
       <app-label-format-panel
@@ -64,4 +59,4 @@
       <app-label-sheet-preview [layout]="layout()" />
     </aside>
   </div>
-</section>
+</app-detail-layout>

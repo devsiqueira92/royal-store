@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   CostComposition,
+  CostCompositionSummary,
   CreateCostCompositionRequest,
   UpdateCostCompositionRequest,
 } from '../interfaces/cost-composition.interface';
@@ -13,8 +14,8 @@ export class CostCompositionService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/api/cost-compositions`;
 
-  getAll(): Observable<CostComposition[]> {
-    return this.http.get<CostComposition[]>(this.apiUrl);
+  getAll(): Observable<CostCompositionSummary[]> {
+    return this.http.get<CostCompositionSummary[]>(this.apiUrl);
   }
 
   getUnlinked(): Observable<CostComposition[]> {

@@ -1,0 +1,16 @@
+<main class="details-panel">
+  <header class="details__header">
+    <div>
+      <a class="details__back" [routerLink]="router()">
+        <i class="pi pi-arrow-left"></i>
+        {{ backText() | translate }}
+      </a>
+      <h1 class="details__title">{{ title() | translate }}</h1>
+      <p class="details__subtitle">{{ subtitle() | translate }}</p>
+    </div>
+
+    <ng-content select="[actions-panel]"></ng-content>
+  </header>
+
+  <ng-content></ng-content>
+</main>

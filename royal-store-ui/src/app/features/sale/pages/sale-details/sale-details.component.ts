@@ -19,20 +19,20 @@ import { SalePartiesComponent } from '../../components/sale-parties/sale-parties
 import { SaleItemsComponent } from '../../components/sale-items/sale-items.component';
 import { SaleFiscalComponent } from '../../components/sale-fiscal/sale-fiscal.component';
 import { FiscalReceiptPreviewComponent } from '../../components/fiscal-receipt-preview/fiscal-receipt-preview.component';
+import { DetailLayoutComponent } from '@app/shared/components/layouts/detail-layout/detail-layout.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-sale-details',
   imports: [
-    RouterLink,
     TranslatePipe,
     DialogModule,
-    ButtonComponent,
     SaleTotalsComponent,
     SalePartiesComponent,
     SaleItemsComponent,
     SaleFiscalComponent,
     FiscalReceiptPreviewComponent,
+    DetailLayoutComponent,
+    ButtonComponent,
   ],
   templateUrl: './sale-details.component.html',
   styleUrl: './sale-details.component.scss',

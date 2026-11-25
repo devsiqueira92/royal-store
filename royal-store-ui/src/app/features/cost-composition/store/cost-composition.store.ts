@@ -1,5 +1,6 @@
 import {
   loadCostCompositions,
+  loadCostComposition,
   createCostComposition,
   updateCostComposition,
   deleteCostComposition,
@@ -7,6 +8,7 @@ import {
 
 export const costCompositionStore = {
   loadCostCompositions,
+  loadCostComposition,
   createCostComposition,
   updateCostComposition,
   deleteCostComposition,

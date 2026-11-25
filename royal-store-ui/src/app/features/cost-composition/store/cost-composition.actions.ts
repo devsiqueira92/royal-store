@@ -1,6 +1,7 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import {
   CostComposition,
+  CostCompositionSummary,
   CreateCostCompositionRequest,
   UpdateCostCompositionRequest,
 } from '../interfaces/cost-composition.interface';
@@ -10,7 +11,7 @@ export const CostCompositionActions = createActionGroup({
   events: {
     'Load Cost Compositions': emptyProps(),
     'Load Cost Compositions Success': props<{
-      costCompositions: CostComposition[];
+      costCompositions: CostCompositionSummary[];
     }>(),
     'Load Cost Compositions Failure': props<{ error: string }>(),
 
@@ -35,7 +36,12 @@ export const CostCompositionActions = createActionGroup({
     'Delete Cost Composition Success': props<{ id: string }>(),
     'Delete Cost Composition Failure': props<{ error: string }>(),
 
-    'Select Cost Composition': props<{ id: string }>(),
+    /** Full list (with lines) for the edit form: GET api/cost-compositions/{id}. */
+    'Load Cost Composition': props<{ id: string }>(),
+    'Load Cost Composition Success': props<{
+      costComposition: CostComposition;
+    }>(),
+    'Load Cost Composition Failure': props<{ error: string }>(),
     'Clear Selected Cost Composition': emptyProps(),
   },
 });

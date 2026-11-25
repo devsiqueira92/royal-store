@@ -8,6 +8,7 @@ import { GetSalesListParams } from '../interfaces/get-sales-list-params.interfac
 import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
 import { SaleReceipt } from '../interfaces/sale-receipt.interface';
+import { CursorPage } from '@app/shared/interfaces/cursor-page.interface';
 
 export const SaleActions = createActionGroup({
   source: 'Sale',
@@ -19,9 +20,12 @@ export const SaleActions = createActionGroup({
     'Load Pos Products': props<{ categoryId?: string }>(),
     'Load Pos Products Success': props<{ products: PosProduct[] }>(),
     'Load Pos Products Failure': props<{ error: string }>(),
+    /** (Re)starts the list with these filters: first page. */
     'Load Sales': props<{ params?: GetSalesListParams }>(),
-    'Load Sales Success': props<{ sales: SaleListItem[] }>(),
-    'Load Sales Failure': props<{ error: string }>(),
+    /** Next page of the current list (infinite scroll). */
+    'Load More Sales': emptyProps(),
+    'Load Sales Success': props<{ page: CursorPage<SaleListItem>; append: boolean }>(),
+    'Load Sales Failure': props<{ error: string; append: boolean }>(),
     'Load Sale Details': props<{ saleId: string }>(),
     'Load Sale Details Success': props<{ saleDetails: SaleDetails }>(),
     'Load Sale Details Failure': props<{ error: string }>(),

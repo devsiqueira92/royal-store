@@ -30,14 +30,12 @@ public interface ISaleRepository
     /// classification as <see cref="GetShiftSalesTotalsAsync"/>. Shifts with no sales are absent.</summary>
     Task<IReadOnlyDictionary<Guid, ShiftSalesTotals>> GetSalesTotalsByShiftAsync(CancellationToken ct = default);
 
-    /// <summary>Every sale of the current tenant, newest first, with the seller's display name
-    /// already resolved. All filters are optional and combine with AND; text filters are already
-    /// normalized by the caller.</summary>
-    Task<IReadOnlyList<SaleWithNamesProjection>> GetAllAsync(
-        string? normalizedSellerName = null,
-        string? normalizedCustomerName = null,
-        DateOnly? soldFrom = null,
-        DateOnly? soldTo = null,
-        FulfillmentMode? fulfillmentMode = null,
+    /// <summary>Up to <paramref name="take"/> sales of the current tenant matching <paramref name="filter"/>,
+    /// newest first (SoldAt, then Id, both descending), strictly after <paramref name="after"/> in that
+    /// order (<c>null</c> → from the newest), with the seller's display name already resolved (067).</summary>
+    Task<IReadOnlyList<SaleWithNamesProjection>> GetPageAsync(
+        SalesListFilter filter,
+        SalesListCursor? after,
+        int take,
         CancellationToken ct = default);
 }

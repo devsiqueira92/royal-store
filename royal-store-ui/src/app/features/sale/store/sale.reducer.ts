@@ -5,6 +5,12 @@ import { RegisterSaleResponse } from '../interfaces/register-sale-response.inter
 import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
 import { SaleReceipt } from '../interfaces/sale-receipt.interface';
+import { GetSalesListParams } from '../interfaces/get-sales-list-params.interface';
+import {
+  initialPagedListState,
+  pagedList,
+  PagedListState,
+} from '@app/shared/utils/paged-list-state.util';
 import { SaleActions } from './sale.actions';
 
 export interface SaleState {
@@ -12,8 +18,8 @@ export interface SaleState {
   lastSyncResult: SyncSalesResponse | null;
   posProducts: PosProduct[];
   isLoadingProducts: boolean;
-  sales: SaleListItem[];
-  isLoadingSales: boolean;
+  /** Sales history, cursor-paged for infinite scroll (067). */
+  salesList: PagedListState<SaleListItem, GetSalesListParams>;
   saleDetails: SaleDetails | null;
   isLoadingSaleDetails: boolean;
   saleReceipt: SaleReceipt | null;
@@ -28,8 +34,7 @@ export const initialSaleState: SaleState = {
   lastSyncResult: null,
   posProducts: [],
   isLoadingProducts: false,
-  sales: [],
-  isLoadingSales: false,
+  salesList: initialPagedListState<SaleListItem, GetSalesListParams>(),
   saleDetails: null,
   isLoadingSaleDetails: false,
   saleReceipt: null,
@@ -77,19 +82,22 @@ export const saleFeature = createFeature({
       isLoadingProducts: false,
       error,
     })),
-    on(SaleActions.loadSales, (state): SaleState => ({
+    on(SaleActions.loadSales, (state, { params }): SaleState => ({
       ...state,
-      isLoadingSales: true,
+      salesList: pagedList.firstPageRequested(state.salesList, params),
       error: null,
     })),
-    on(SaleActions.loadSalesSuccess, (state, { sales }): SaleState => ({
+    on(SaleActions.loadMoreSales, (state): SaleState => ({
       ...state,
-      sales,
-      isLoadingSales: false,
+      salesList: pagedList.nextPageRequested(state.salesList),
     })),
-    on(SaleActions.loadSalesFailure, (state, { error }): SaleState => ({
+    on(SaleActions.loadSalesSuccess, (state, { page, append }): SaleState => ({
       ...state,
-      isLoadingSales: false,
+      salesList: pagedList.pageLoaded(state.salesList, page, append),
+    })),
+    on(SaleActions.loadSalesFailure, (state, { error, append }): SaleState => ({
+      ...state,
+      salesList: pagedList.pageFailed(state.salesList, append),
       error,
     })),
     on(SaleActions.loadSaleDetails, (state, { saleId }): SaleState => ({

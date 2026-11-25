@@ -1,30 +1,21 @@
 @if (cashShift(); as shift) {
-  <section class="cash-shift-details">
-    <header class="cash-shift-details__header">
-      <div>
-        <h1 class="cash-shift-details__title">
-          {{ 'cashShift.page.title' | translate }}
-        </h1>
-        <p class="cash-shift-details__subtitle">
-          {{ 'cashShift.page.subtitle' | translate }}
-        </p>
-      </div>
-
-      <div class="cash-shift-details__meta">
-        <span
-          class="cash-shift-details__badge"
-          [class.cash-shift-details__badge--closed]="!isOpen()"
-          >{{
-            (isOpen()
-              ? 'cashShift.page.shiftOpen'
-              : 'cashShift.page.shiftClosed'
-            ) | translate
-          }}</span
-        >
-        <span class="cash-shift-details__reference">{{ shiftMeta() }}</span>
-      </div>
-    </header>
-
+  <app-detail-layout
+    [router]="['/cash-shift']"
+    title="cashShift.page.title"
+    subtitle="cashShift.page.subtitle"
+    backText="cashShift.page.back"
+  >
+    <div actions-panel class="cash-shift-details__meta">
+      <span
+        class="cash-shift-details__badge"
+        [class.cash-shift-details__badge--closed]="!isOpen()"
+        >{{
+          (isOpen() ? 'cashShift.page.shiftOpen' : 'cashShift.page.shiftClosed')
+            | translate
+        }}</span
+      >
+      <span class="cash-shift-details__reference">{{ shiftMeta() }}</span>
+    </div>
     <app-cash-shift-summary [cashShift]="shift"></app-cash-shift-summary>
 
     <div class="cash-shift-details__grid">
@@ -46,5 +37,5 @@
         (confirmed)="closeShift($event)"
       ></app-close-shift-form>
     </div>
-  </section>
+  </app-detail-layout>
 }
