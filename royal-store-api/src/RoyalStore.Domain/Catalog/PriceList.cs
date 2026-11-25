@@ -96,7 +96,19 @@ public sealed class PriceList : Entity, IAuditableEntity
     public static IReadOnlyList<PriceList> SeedDefaults(Guid tenantId) =>
         [new PriceList(Guid.NewGuid(), tenantId, DefaultListName, isDefault: true)];
 
- 
+    /// <summary>Any list can be renamed, the default one included. Uniqueness within the store is
+    /// checked by the caller against <see cref="NormalizedName"/>.</summary>
+    public Result Rename(string name)
+    {
+        var validName = ValidateName(name);
+        if (validName.IsFailure)
+            return Result.Failure(validName.Error);
+
+        Name = validName.Value;
+        NormalizedName = Normalize(validName.Value);
+        return Result.Success();
+    }
+
     public Result Activate()
     {
         if (IsActive)
@@ -221,6 +233,13 @@ public sealed class PriceList : Entity, IAuditableEntity
         DiscountPercentage = percentage;
         BasePriceListId = baseList.Id;
         return Result.Success();
+    }
+
+    /// <summary>Back to manual pricing. No product price is affected.</summary>
+    public void ClearRule()
+    {
+        DiscountPercentage = null;
+        BasePriceListId = null;
     }
 
     /// <summary>

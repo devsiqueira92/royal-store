@@ -5,7 +5,7 @@ import {
   activatePriceList,
   deactivatePriceList,
   deletePriceList,
-  setPriceListRule,
+  updatePriceList,
 } from './price-list.effects';
 
 export const priceListStore = {
@@ -15,5 +15,5 @@ export const priceListStore = {
   activatePriceList,
   deactivatePriceList,
   deletePriceList,
-  setPriceListRule,
+  updatePriceList,
 };

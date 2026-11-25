@@ -5,7 +5,7 @@ import { environment } from '../../../../environments/environment';
 import {
   CreatePriceListRequest,
   PriceList,
-  SetPriceListRuleRequest,
+  UpdatePriceListRequest,
 } from '../interfaces/price-list.interface';
 
 @Injectable({ providedIn: 'root' })
@@ -25,9 +25,9 @@ export class PriceListService {
     return this.http.post<PriceList>(this.apiUrl, request);
   }
 
-  // rename(id: string, request: RenamePriceListRequest): Observable<PriceList> {
-  //   return this.http.put<PriceList>(`${this.apiUrl}/${id}`, request);
-  // }
+  update(id: string, request: UpdatePriceListRequest): Observable<PriceList> {
+    return this.http.put<PriceList>(`${this.apiUrl}/${id}`, request);
+  }
 
   setDefault(id: string): Observable<PriceList> {
     return this.http.patch<PriceList>(`${this.apiUrl}/${id}/default`, {});
@@ -43,13 +43,5 @@ export class PriceListService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  setRule(id: string, request: SetPriceListRuleRequest): Observable<PriceList> {
-    return this.http.put<PriceList>(`${this.apiUrl}/${id}/rule`, request);
-  }
-
-  clearRule(id: string): Observable<PriceList> {
-    return this.http.delete<PriceList>(`${this.apiUrl}/${id}/rule`);
   }
 }

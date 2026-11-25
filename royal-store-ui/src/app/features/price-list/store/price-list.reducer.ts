@@ -65,10 +65,6 @@ export const priceListFeature = createFeature({
       }),
     ),
 
-    // on(PriceListActions.renamePriceList, (state): PriceListState => ({
-    //   ...state, isLoading: true, error: null,
-    // })),
-
     on(PriceListActions.setDefaultPriceList, (state): PriceListState => ({
       ...state,
       isLoading: true,
@@ -177,13 +173,13 @@ export const priceListFeature = createFeature({
       }),
     ),
 
-    on(PriceListActions.setPriceListRule, (state): PriceListState => ({
+    on(PriceListActions.updatePriceList, (state): PriceListState => ({
       ...state,
       isLoading: true,
       error: null,
     })),
     on(
-      PriceListActions.setPriceListRuleSuccess,
+      PriceListActions.updatePriceListSuccess,
       (state, { priceList }): PriceListState => ({
         ...state,
         priceLists: state.priceLists.map(p =>
@@ -197,7 +193,7 @@ export const priceListFeature = createFeature({
       }),
     ),
     on(
-      PriceListActions.setPriceListRuleFailure,
+      PriceListActions.updatePriceListFailure,
       (state, { error }): PriceListState => ({
         ...state,
         isLoading: false,

@@ -16,11 +16,9 @@ export interface CreatePriceListRequest {
   discountPercentage?: number | null;
 }
 
-// export interface RenamePriceListRequest {
-//   name: string;
-// }
-
-export interface SetPriceListRuleRequest {
-  basePriceListId: string;
-  discountPercentage: number;
+/** PUT api/price-lists/{id}: name and rule in one request. Rule fields both null = no rule. */
+export interface UpdatePriceListRequest {
+  name: string;
+  basePriceListId: string | null;
+  discountPercentage: number | null;
 }

@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
 import {
   CreatePriceListRequest,
-  SetPriceListRuleRequest,
+  UpdatePriceListRequest,
 } from '../interfaces/price-list.interface';
 import { PriceListActions } from '../store/price-list.actions';
 import {
@@ -29,9 +29,10 @@ export class PriceListFacade {
     this.store.dispatch(PriceListActions.createPriceList({ request }));
   }
 
-  // renamePriceList(id: string, request: RenamePriceListRequest): void {
-  //   this.store.dispatch(PriceListActions.renamePriceList({ id, request }));
-  // }
+  /** Name and rule in a single PUT. */
+  updatePriceList(id: string, request: UpdatePriceListRequest): void {
+    this.store.dispatch(PriceListActions.updatePriceList({ id, request }));
+  }
 
   setDefault(id: string): void {
     this.store.dispatch(PriceListActions.setDefaultPriceList({ id }));
@@ -47,10 +48,6 @@ export class PriceListFacade {
 
   delete(id: string): void {
     this.store.dispatch(PriceListActions.deletePriceList({ id }));
-  }
-
-  setRule(id: string, request: SetPriceListRuleRequest): void {
-    this.store.dispatch(PriceListActions.setPriceListRule({ id, request }));
   }
 
   selectPriceList(id: string): void {

@@ -44,22 +44,6 @@ export const createPriceList = createEffect(
   { functional: true },
 );
 
-// export const renamePriceList = createEffect(
-//   (actions$ = inject(Actions), service = inject(PriceListService)) =>
-//     actions$.pipe(
-//       ofType(PriceListActions.renamePriceList),
-//       switchMap(({ id, request }) =>
-//         service.rename(id, request).pipe(
-//           map(priceList => PriceListActions.renamePriceListSuccess({ priceList })),
-//           catchError((e: HttpErrorResponse) =>
-//             of(PriceListActions.renamePriceListFailure({ error: errorMsg(e) })),
-//           ),
-//         ),
-//       ),
-//     ),
-//   { functional: true },
-// );
-
 export const setDefaultPriceList = createEffect(
   (actions$ = inject(Actions), service = inject(PriceListService)) =>
     actions$.pipe(
@@ -136,18 +120,18 @@ export const deletePriceList = createEffect(
   { functional: true },
 );
 
-export const setPriceListRule = createEffect(
+export const updatePriceList = createEffect(
   (actions$ = inject(Actions), service = inject(PriceListService)) =>
     actions$.pipe(
-      ofType(PriceListActions.setPriceListRule),
+      ofType(PriceListActions.updatePriceList),
       switchMap(({ id, request }) =>
-        service.setRule(id, request).pipe(
+        service.update(id, request).pipe(
           map(priceList =>
-            PriceListActions.setPriceListRuleSuccess({ priceList }),
+            PriceListActions.updatePriceListSuccess({ priceList }),
           ),
           catchError((e: HttpErrorResponse) =>
             of(
-              PriceListActions.setPriceListRuleFailure({ error: errorMsg(e) }),
+              PriceListActions.updatePriceListFailure({ error: errorMsg(e) }),
             ),
           ),
         ),

@@ -2,7 +2,7 @@ import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import {
   CreatePriceListRequest,
   PriceList,
-  SetPriceListRuleRequest,
+  UpdatePriceListRequest,
 } from '../interfaces/price-list.interface';
 
 export const PriceListActions = createActionGroup({
@@ -32,12 +32,12 @@ export const PriceListActions = createActionGroup({
     'Delete Price List Success': props<{ id: string }>(),
     'Delete Price List Failure': props<{ error: string }>(),
 
-    'Set Price List Rule': props<{
+    'Update Price List': props<{
       id: string;
-      request: SetPriceListRuleRequest;
+      request: UpdatePriceListRequest;
     }>(),
-    'Set Price List Rule Success': props<{ priceList: PriceList }>(),
-    'Set Price List Rule Failure': props<{ error: string }>(),
+    'Update Price List Success': props<{ priceList: PriceList }>(),
+    'Update Price List Failure': props<{ error: string }>(),
 
     'Select Price List': props<{ id: string }>(),
     'Clear Selected Price List': emptyProps(),

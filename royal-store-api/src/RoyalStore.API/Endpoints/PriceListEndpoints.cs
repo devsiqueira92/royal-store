@@ -5,7 +5,7 @@ using RoyalStore.Application.PriceLists.Commands.CreatePriceList;
 using RoyalStore.Application.PriceLists.Commands.DeletePriceList;
 using RoyalStore.Application.PriceLists.Commands.SetDefaultPriceList;
 using RoyalStore.Application.PriceLists.Commands.SetPriceListActive;
-using RoyalStore.Application.PriceLists.Commands.SetPriceListRule;
+using RoyalStore.Application.PriceLists.Commands.UpdatePriceList;
 using RoyalStore.Application.PriceLists.Queries.GetPriceLists;
 using RoyalStore.Domain.Const;
 using RoyalStore.Domain.Permissions;
@@ -29,14 +29,12 @@ public sealed class PriceListEndpoints : IEndpointDefinition
         var manage = PolicyNames.Permission(Permission.CatalogManagePriceLists);
 
         routes.MapPost("", Create).RequireAuthorization(manage);
+        // Name and percentage rule in one request (the default list included).
+        routes.MapPut("{id:guid}", Update).RequireAuthorization(manage);
         routes.MapPatch("{id:guid}/default", SetDefault).RequireAuthorization(manage);
         routes.MapPatch("{id:guid}/activate", Activate).RequireAuthorization(manage);
         routes.MapPatch("{id:guid}/deactivate", Deactivate).RequireAuthorization(manage);
         routes.MapDelete("{id:guid}", Delete).RequireAuthorization(manage);
-
-        // The percentage rule (062) has its own routes on purpose: the rename route above takes a
-        // name and nothing else, so a client that knows nothing about rules cannot wipe one.
-        routes.MapPut("{id:guid}/rule", SetRule).RequireAuthorization(manage);
     }
 
     private static async Task<IResult> GetAll(
@@ -55,9 +53,8 @@ public sealed class PriceListEndpoints : IEndpointDefinition
         return result.ToHttpResult(r => TypedResults.Created($"/api/price-lists/{r.Id}", r));
     }
 
-
-    private static async Task<IResult> SetRule(
-        Guid id, SetPriceListRuleCommand command, IMediator mediator, CancellationToken ct)
+    private static async Task<IResult> Update(
+        Guid id, UpdatePriceListCommand command, IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(command with { Id = id }, ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));

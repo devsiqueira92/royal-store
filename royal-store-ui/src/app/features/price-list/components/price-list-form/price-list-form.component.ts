@@ -130,9 +130,10 @@ export class PriceListFormComponent {
         discountPercentage: discountPercentage,
       });
     } else {
-      this.facade.setRule(id!, {
-        basePriceListId: basePriceListId!,
-        discountPercentage: discountPercentage!,
+      this.facade.updatePriceList(id!, {
+        name: (name ?? '').trim(),
+        basePriceListId: basePriceListId ?? null,
+        discountPercentage: discountPercentage ?? null,
       });
 
       // if (isDefault && !this.isDefault()) {

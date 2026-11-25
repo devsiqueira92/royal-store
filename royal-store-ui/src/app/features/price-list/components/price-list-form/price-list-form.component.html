@@ -18,16 +18,17 @@
         label="priceList.form.baseList"
         [options]="allPriceLists()"
       ></app-select-field>
-    }
 
-    <app-input-number-field
-      controlName="discountPercentage"
-      [parentForm]="formGroup"
-      label="priceList.form.percentage"
-      mode="percent"
-      prefix="%"
-      [min]="0"
-    ></app-input-number-field>
+      <!-- The default list only has its name edited: a rule needs a base list. -->
+      <app-input-number-field
+        controlName="discountPercentage"
+        [parentForm]="formGroup"
+        label="priceList.form.percentage"
+        mode="percent"
+        prefix="%"
+        [min]="0"
+      ></app-input-number-field>
+    }
 
     <!-- @if (!isCreateMode()) {
       <app-toggle-field
