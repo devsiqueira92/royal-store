@@ -4,5 +4,6 @@ export const {
   selectCostCompositions,
   selectSelectedCostComposition,
   selectIsLoading,
+  selectIsLoadingSelected,
   selectError,
 } = costCompositionFeature;

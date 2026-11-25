@@ -197,15 +197,25 @@ public sealed class SaleRepository : ISaleRepository
     // Seller name resolved with the same profile-first, login-name-fallback rule
     // CashShiftRepository.GetAllWithMovementTotalsAsync already uses for "which store user did this" —
     // both lookups are already-null-safe against a null UserId (057 research Decision 2).
-    public async Task<IReadOnlyList<SaleWithNamesProjection>> GetAllAsync(
-        string? normalizedSellerName = null,
-        string? normalizedCustomerName = null,
-        DateOnly? soldFrom = null,
-        DateOnly? soldTo = null,
-        FulfillmentMode? fulfillmentMode = null,
+    public async Task<IReadOnlyList<SaleWithNamesProjection>> GetPageAsync(
+        SalesListFilter filter,
+        SalesListCursor? after,
+        int take,
         CancellationToken ct = default)
     {
+        var (normalizedSellerName, normalizedCustomerName, soldFrom, soldTo, fulfillmentMode) = filter;
         var query = _context.Sales.AsNoTracking().AsQueryable();
+
+        // Keyset: strictly after the last sale delivered, as a row-value comparison
+        // ("SoldAt", "Id") < (@soldAt, @id) — matches the ORDER BY below and the
+        // (TenantId, SoldAt, Id) index, so every page costs the same (067 FR-007, SC-002).
+        if (after is not null)
+        {
+            var afterSoldAt = DateTime.SpecifyKind(after.SoldAt, DateTimeKind.Utc);
+            var afterId = after.Id;
+            query = query.Where(s => EF.Functions.LessThan(
+                ValueTuple.Create(s.SoldAt, s.Id), ValueTuple.Create(afterSoldAt, afterId)));
+        }
 
         // Day-range bounds on SoldAt, inclusive on both ends (057 research Decision 4). SoldAt is
         // stored as "timestamp with time zone"; Npgsql requires Kind=Utc, never Unspecified (the
@@ -247,6 +257,8 @@ public sealed class SaleRepository : ISaleRepository
         // constructed SaleWithNamesProjection, same issue as the seller-name filter above.
         return await query
             .OrderByDescending(s => s.SoldAt)
+            .ThenByDescending(s => s.Id)
+            .Take(take)
             .Select(s => new SaleWithNamesProjection(
                 s.Id,
                 _context.Profiles.Where(p => p.UserId == s.UserId).Select(p => p.FullName).FirstOrDefault()

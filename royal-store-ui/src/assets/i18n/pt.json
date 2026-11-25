@@ -2,6 +2,7 @@
   "yes": "Sim",
   "no": "Não",
   "or": "ou",
+  "back": "Voltar",
   "layout": {
     "header": {
       "darkMode": "Ativar modo escuro",
@@ -376,10 +377,10 @@
           "type": "Exibir como",
           "typeText": "Texto",
           "typeBarcode": "Código de barras",
-        "showValue": "Mostrar o número abaixo das barras",
-        "showLabel": "Mostrar o nome da lista antes do preço",
-        "barcodeReadable": "Legível na impressão: barras de {{module}} mm, {{width}} mm de largura.",
-        "barcodeTooNarrow": "Estreito demais para leitura após a impressão. Aumente a largura para pelo menos {{min}} mm."
+          "showValue": "Mostrar o número abaixo das barras",
+          "showLabel": "Mostrar o nome da lista antes do preço",
+          "barcodeReadable": "Legível na impressão: barras de {{module}} mm, {{width}} mm de largura.",
+          "barcodeTooNarrow": "Estreito demais para leitura após a impressão. Aumente a largura para pelo menos {{min}} mm."
         },
         "moveElement": "Mover {{field}}",
         "sampleProduct": "Pré-visualizando com: {{name}}",
@@ -424,7 +425,7 @@
       }
     },
     "labelPrint": {
-      "back": "Voltar para produtos",
+      "back": "Voltar para lista de etiquetas",
       "title": "Imprimir etiquetas",
       "subtitle": "Escolha uma etiqueta salva e imprima para os produtos selecionados",
       "selectLabel": "Configuração da etiqueta",
@@ -616,6 +617,10 @@
       "title": "Histórico de vendas",
       "subtitle": "{{count}} vendas",
       "empty": "Nenhuma venda encontrada.",
+      "loadingMore": "Carregando mais vendas...",
+      "loadMoreFailed": "Não foi possível carregar mais vendas.",
+      "retry": "Tentar novamente",
+      "endOfList": "Todas as vendas foram carregadas.",
       "filters": {
         "sellerNamePlaceholder": "Buscar por vendedor...",
         "customerNamePlaceholder": "Buscar por cliente...",
@@ -640,7 +645,7 @@
     "details": {
       "title": "Detalhes da venda",
       "subtitle": "Referência {{reference}}",
-      "back": "← Voltar ao histórico",
+      "back": "Voltar ao histórico",
       "notFound": "Venda não encontrada.",
       "printReceipt": "Imprimir cupom",
       "groups": {
@@ -924,6 +929,7 @@
     "eyebrow": "Turno de caixa",
     "closeShift": "Fechar turno",
     "page": {
+      "back": "Voltar a lista de turnos",
       "title": "Turno de caixa",
       "subtitle": "Abra a gaveta, registre suplementos e sangrias e, depois, confira e feche.",
       "shiftOpen": "Turno aberto",

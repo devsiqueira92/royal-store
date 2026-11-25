@@ -137,5 +137,8 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         builder.HasIndex(e => e.TenantId);
         builder.HasIndex(e => e.CashShiftId);
+
+        // Keyset paging of the sales list, newest first (067): (TenantId, SoldAt, Id) scanned backwards.
+        builder.HasIndex(e => new { e.TenantId, e.SoldAt, e.Id });
     }
 }

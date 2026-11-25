@@ -65,7 +65,7 @@
           ? 'costComposition.form.createSubmit'
           : 'costComposition.form.submit'
       "
-      [disabled]="formGroup.invalid"
+      [disabled]="formGroup.invalid || !canSubmit()"
       (onClick)="onSubmit()"
     />
   </div>

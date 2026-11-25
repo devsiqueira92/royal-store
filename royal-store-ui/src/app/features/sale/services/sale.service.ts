@@ -11,6 +11,11 @@ import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { GetSalesListParams } from '../interfaces/get-sales-list-params.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
 import { SaleReceipt } from '../interfaces/sale-receipt.interface';
+import {
+  CursorPage,
+  CursorPageParams,
+} from '@app/shared/interfaces/cursor-page.interface';
+import { withCursorPageParams } from '@app/shared/utils/cursor-page-params.util';
 
 @Injectable({
   providedIn: 'root',
@@ -36,8 +41,12 @@ export class SaleService {
     return this.http.get<PosProduct[]>(`${this.apiUrl}/products`, { params });
   }
 
-  getAll(params?: GetSalesListParams): Observable<SaleListItem[]> {
-    let httpParams = new HttpParams();
+  /** One page of the store's sales, newest first (067); `page` absent → first page. */
+  getAll(
+    params?: GetSalesListParams,
+    page?: CursorPageParams,
+  ): Observable<CursorPage<SaleListItem>> {
+    let httpParams = withCursorPageParams(new HttpParams(), page);
     if (params?.sellerName) {
       httpParams = httpParams.set('seller-name', params.sellerName);
     }
@@ -54,7 +63,9 @@ export class SaleService {
       httpParams = httpParams.set('fulfillment-mode', params.fulfillmentMode);
     }
 
-    return this.http.get<SaleListItem[]>(this.apiUrl, { params: httpParams });
+    return this.http.get<CursorPage<SaleListItem>>(this.apiUrl, {
+      params: httpParams,
+    });
   }
 
   getById(id: string): Observable<SaleDetails> {

@@ -13,7 +13,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { CostCompositionFacade } from '../../facade/cost-composition.facade';
-import { CostComposition } from '../../interfaces/cost-composition.interface';
+import { CostCompositionSummary } from '../../interfaces/cost-composition.interface';
 import { CostCompositionFormComponent } from '../../components/cost-composition-form/cost-composition-form.component';
 
 @Component({
@@ -30,7 +30,7 @@ export class CostCompositionsComponent implements OnInit {
 
   protected readonly costCompositions = toSignal(
     this.facade.costCompositions$,
-    { initialValue: [] as CostComposition[] },
+    { initialValue: [] as CostCompositionSummary[] },
   );
 
   protected readonly isLoading = toSignal(this.facade.isLoading$, {
@@ -50,8 +50,8 @@ export class CostCompositionsComponent implements OnInit {
     });
   }
 
-  protected edit(costComposition: CostComposition): void {
-    this.facade.selectCostComposition(costComposition.id);
+  protected edit(costComposition: CostCompositionSummary): void {
+    this.facade.loadCostComposition(costComposition.id);
     this.sidebar.openDrawer(CostCompositionFormComponent, {
       title: 'costComposition.form.editTitle',
       subtitle: 'costComposition.form.editSubtitle',
@@ -59,7 +59,10 @@ export class CostCompositionsComponent implements OnInit {
     });
   }
 
-  protected onDelete(costComposition: CostComposition, event: Event): void {
+  protected onDelete(
+    costComposition: CostCompositionSummary,
+    event: Event,
+  ): void {
     this.confirmationService.confirm({
       target: event.currentTarget as EventTarget,
       message: this.translateService.instant(

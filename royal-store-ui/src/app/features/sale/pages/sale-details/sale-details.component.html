@@ -1,27 +1,17 @@
 @if (sale(); as data) {
-  <section class="sale-details">
-    <header class="sale-details__header">
-      <div>
-        <a class="sale-details__back" routerLink="/sales/history">{{
-          'sale.details.back' | translate
-        }}</a>
-        <h1 class="sale-details__title">
-          {{ 'sale.details.title' | translate }}
-        </h1>
-        <p class="sale-details__subtitle">
-          {{
-            'sale.details.subtitle' | translate: { reference: reference() }
-          }}
-        </p>
-      </div>
-
-      <app-button
-        icon="pi pi-print"
-        label="sale.details.printReceipt"
-        severity="secondary"
-        (onClick)="showReceiptPreview.set(true)"
-      ></app-button>
-    </header>
+  <app-detail-layout
+    [router]="['/sales/history']"
+    title="sale.details.title"
+    [subtitle]="'sale.details.subtitle' | translate: { reference: reference() }"
+    backText="sale.details.back"
+  >
+    <app-button
+      actions-panel
+      icon="pi pi-print"
+      label="sale.details.printReceipt"
+      severity="secondary"
+      (onClick)="showReceiptPreview.set(true)"
+    ></app-button>
 
     <section class="sale-details__group">
       <h2 class="sale-details__group-title">
@@ -50,7 +40,7 @@
       </h2>
       <app-sale-fiscal [items]="data.items"></app-sale-fiscal>
     </section>
-  </section>
+  </app-detail-layout>
 } @else if (!isLoading()) {
   <section class="sale-details">
     <p class="sale-details__not-found">
@@ -68,7 +58,8 @@
   [style]="{ width: '28rem', maxWidth: '95vw' }"
   (visibleChange)="$event || closeReceiptPreview()"
 >
-  @if (sale(); as data) {
+  <!-- Mounted only while open: the preview loads api/sales/{id}/receipt on creation. -->
+  @if (showReceiptPreview() && sale(); as data) {
     <app-fiscal-receipt-preview
       [saleId]="data.id"
       (closed)="closeReceiptPreview()"

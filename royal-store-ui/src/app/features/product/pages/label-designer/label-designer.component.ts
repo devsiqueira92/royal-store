@@ -52,6 +52,7 @@ import {
   computeLabelSheetLayout,
   toLabelSheetSpec,
 } from '../../utils/label-sheet-layout.util';
+import { DetailLayoutComponent } from '@app/shared/components/layouts/detail-layout/detail-layout.component';
 
 const mm = (): FormControl<number | null> =>
   new FormControl<number | null>(0, [Validators.required, Validators.min(0)]);
@@ -70,6 +71,7 @@ const mm = (): FormControl<number | null> =>
     LabelSheetPreviewComponent,
     LabelEditorComponent,
     ConfirmDialog,
+    DetailLayoutComponent,
   ],
   templateUrl: './label-designer.component.html',
   styleUrl: './label-designer.component.scss',
@@ -309,7 +311,9 @@ export class LabelDesignerComponent {
   /** Edit mode: "Confirmar" applies the pick; "Voltar" (or closing) restores the previous one. */
   private confirmLabelTypeChange(id: string | null): void {
     const t = (key: string): string =>
-      this.translateService.instant(`product.labelDesigner.changePreset.${key}`);
+      this.translateService.instant(
+        `product.labelDesigner.changePreset.${key}`,
+      );
     this.confirmationService.confirm({
       key: this.labelTypeConfirmKey,
       header: t('header'),

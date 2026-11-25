@@ -32,6 +32,30 @@ export const loadCostCompositions = createEffect(
   { functional: true },
 );
 
+export const loadCostComposition = createEffect(
+  (actions$ = inject(Actions), service = inject(CostCompositionService)) =>
+    actions$.pipe(
+      ofType(CostCompositionActions.loadCostComposition),
+      switchMap(({ id }) =>
+        service.getById(id).pipe(
+          map(costComposition =>
+            CostCompositionActions.loadCostCompositionSuccess({
+              costComposition,
+            }),
+          ),
+          catchError((e: HttpErrorResponse) =>
+            of(
+              CostCompositionActions.loadCostCompositionFailure({
+                error: errorMsg(e),
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
 export const createCostComposition = createEffect(
   (actions$ = inject(Actions), service = inject(CostCompositionService)) =>
     actions$.pipe(

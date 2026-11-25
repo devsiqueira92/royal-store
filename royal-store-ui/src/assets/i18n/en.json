@@ -2,6 +2,7 @@
   "yes": "Sim",
   "no": "No",
   "or": "or",
+  "back": "Back",
   "layout": {
     "header": {
       "darkMode": "Switch to dark mode",
@@ -376,10 +377,10 @@
           "type": "Display as",
           "typeText": "Text",
           "typeBarcode": "Barcode",
-        "showValue": "Show the code number under the bars",
-        "showLabel": "Show the price list name before the price",
-        "barcodeReadable": "Readable when printed: {{module}} mm bars, {{width}} mm wide.",
-        "barcodeTooNarrow": "Too narrow to scan once printed. Widen it to at least {{min}} mm."
+          "showValue": "Show the code number under the bars",
+          "showLabel": "Show the price list name before the price",
+          "barcodeReadable": "Readable when printed: {{module}} mm bars, {{width}} mm wide.",
+          "barcodeTooNarrow": "Too narrow to scan once printed. Widen it to at least {{min}} mm."
         },
         "moveElement": "Move {{field}}",
         "sampleProduct": "Preview with: {{name}}",
@@ -424,7 +425,7 @@
       }
     },
     "labelPrint": {
-      "back": "Back to products",
+      "back": "Back to labels list",
       "title": "Print labels",
       "subtitle": "Pick a saved label and print it for the selected products",
       "selectLabel": "Label configuration",
@@ -616,6 +617,10 @@
       "title": "Sales history",
       "subtitle": "{{count}} sales",
       "empty": "No sales found.",
+      "loadingMore": "Loading more sales...",
+      "loadMoreFailed": "Could not load more sales.",
+      "retry": "Try again",
+      "endOfList": "All sales loaded.",
       "filters": {
         "sellerNamePlaceholder": "Search by seller...",
         "customerNamePlaceholder": "Search by customer...",
@@ -640,7 +645,7 @@
     "details": {
       "title": "Sale details",
       "subtitle": "Reference {{reference}}",
-      "back": "← Back to history",
+      "back": "Back to history",
       "notFound": "Sale not found.",
       "printReceipt": "Print receipt",
       "groups": {
@@ -924,6 +929,7 @@
     "eyebrow": "Cash Shift",
     "closeShift": "Close shift",
     "page": {
+      "back": "Back to shift list",
       "title": "Cash shift",
       "subtitle": "Open the drawer, log supplements and sangrias, then count down and close.",
       "shiftOpen": "Shift open",

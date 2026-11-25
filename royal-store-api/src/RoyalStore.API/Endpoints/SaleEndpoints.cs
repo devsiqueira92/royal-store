@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using RoyalStore.API.Extensions;
+using RoyalStore.Application.Common.Pagination;
 using RoyalStore.Application.Loyalty.Commands.ReverseSaleCashback;
 using RoyalStore.Application.Sales.Commands.RegisterSale;
 using RoyalStore.Application.Sales.Queries.GetPosProducts;
@@ -46,11 +47,14 @@ public sealed class SaleEndpoints : IEndpointDefinition
         [FromQuery(Name = "sold-from")] DateOnly? soldFrom,
         [FromQuery(Name = "sold-to")] DateOnly? soldTo,
         [FromQuery(Name = "fulfillment-mode")] string? fulfillmentMode,
+        [FromQuery(Name = "cursor")] string? cursor,
+        [FromQuery(Name = "page-size")] int? pageSize,
         IMediator mediator,
         CancellationToken ct)
     {
         var result = await mediator.Send(
-            new GetSalesListQuery(sellerName, customerName, soldFrom, soldTo, fulfillmentMode), ct);
+            new GetSalesListQuery(sellerName, customerName, soldFrom, soldTo, fulfillmentMode,
+                new PageRequest(cursor, pageSize)), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

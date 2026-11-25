@@ -2614,6 +2614,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("TenantId", "SoldAt", "Id");
+
                     b.ToTable("Sales", (string)null);
                 });
 
