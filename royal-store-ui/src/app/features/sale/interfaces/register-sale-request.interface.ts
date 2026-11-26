@@ -22,6 +22,8 @@ export interface RegisterSalePaymentRequest {
 }
 
 export interface RegisterSaleCheckoutRequest {
+  /** Price list the lines are charged on; null → the store's default list. */
+  priceListId: string | null;
   customer: RegisterSaleCustomerRef | null;
   useCashback: boolean;
   fulfillment: FulfillmentDetails;

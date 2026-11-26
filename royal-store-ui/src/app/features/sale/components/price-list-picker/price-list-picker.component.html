@@ -1,0 +1,43 @@
+<section class="price-list-picker">
+  <span class="price-list-picker__label">{{
+    'sale.checkout.priceList.label' | translate
+  }}</span>
+
+  @if (loading()) {
+    <p-skeleton height="2.75rem" />
+    <p-skeleton height="2.75rem" />
+  } @else {
+    <div class="price-list-picker__list" role="radiogroup">
+      @for (option of options(); track option.priceListId) {
+        <button
+          type="button"
+          class="price-list-picker__row"
+          [class.price-list-picker__row--selected]="
+            option.priceListId === selectedId()
+          "
+          (click)="select(option.priceListId)"
+        >
+          <p-radiobutton
+            name="priceList"
+            [inputId]="'priceList-' + option.priceListId"
+            [value]="option.priceListId"
+            [ngModel]="selectedId()"
+          />
+          <span class="price-list-picker__name">
+            {{ option.name }}
+            @if (option.isDefault) {
+              <small>{{ 'sale.checkout.priceList.default' | translate }}</small>
+            }
+          </span>
+          <span class="price-list-picker__subtotal">{{
+            option.subtotal | currency
+          }}</span>
+        </button>
+      } @empty {
+        <p class="price-list-picker__empty">
+          {{ 'sale.checkout.priceList.empty' | translate }}
+        </p>
+      }
+    </div>
+  }
+</section>

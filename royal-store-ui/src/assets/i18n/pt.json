@@ -730,6 +730,11 @@
     },
     "checkout": {
       "eyebrow": "Finalizar pedido",
+      "priceList": {
+        "label": "Lista de preços",
+        "default": "Padrão da loja",
+        "empty": "Nenhuma lista de preços ativa."
+      },
       "back": "← Voltar",
       "cancel": "Cancelar",
       "next": "Continuar",

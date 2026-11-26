@@ -610,6 +610,26 @@ public sealed class Product : Entity, IAuditableEntity
     }
 
     /// <summary>
+    /// The price this product sells for on <paramref name="list"/>: the price saved on that list; else,
+    /// for a list with a percentage rule, what the rule suggests from the base-list price; else the
+    /// default-list price. Null only when the product has no price to fall back on at all.
+    /// Requires <see cref="Prices"/> loaded with their <see cref="ProductPrice.PriceList"/>.
+    /// </summary>
+    public decimal? SalePriceOn(PriceList list)
+    {
+        var stored = Prices.FirstOrDefault(p => p.PriceListId == list.Id);
+        if (stored is not null)
+            return stored.SalePrice;
+
+        if (list.HasRule
+            && Prices.FirstOrDefault(p => p.PriceListId == list.BasePriceListId) is { } basePrice
+            && list.SuggestPrice(basePrice.SalePrice) is { } suggested)
+            return suggested;
+
+        return Prices.FirstOrDefault(p => p.PriceList.IsDefault)?.SalePrice;
+    }
+
+    /// <summary>
     /// Tells what the rule of a price's list suggests for this product today, and whether the stored
     /// price is that amount (062 FR-020). Reads only — a stored price is never changed by a rule.
     /// <para>

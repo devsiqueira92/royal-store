@@ -244,6 +244,7 @@ export class SalesComponent implements OnInit {
         productId: item.productId,
       })),
       checkout: {
+        priceListId: checkout.priceListId,
         customer: checkout.customer ? { id: checkout.customer.id } : null,
         useCashback: checkout.useCashback,
         fulfillment: checkout.fulfillment,

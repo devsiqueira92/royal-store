@@ -24,7 +24,10 @@ import {
   selectIsLoadingSaleReceipt,
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
+  selectPriceListOptions,
+  selectIsLoadingPriceListOptions,
 } from '../store/sale.selectors';
+import { SalePricingItem } from '../interfaces/sale-price-list-option.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -48,6 +51,8 @@ export class SaleFacade {
   isLoadingSaleReceipt$ = this.store.select(selectIsLoadingSaleReceipt);
   isRegisteringSale$ = this.store.select(selectIsRegisteringSale);
   lastRegisterSaleResult$ = this.store.select(selectLastRegisterSaleResult);
+  priceListOptions$ = this.store.select(selectPriceListOptions);
+  isLoadingPriceListOptions$ = this.store.select(selectIsLoadingPriceListOptions);
 
   // All active products for the selected category are loaded upfront (no pagination — see
   // loadPosProducts), so search just filters that in-memory list client-side, the same way the
@@ -181,6 +186,14 @@ export class SaleFacade {
 
   clearRegisterSaleResult(): void {
     this.store.dispatch(SaleActions.clearRegisterSaleResult());
+  }
+
+  loadPriceListOptions(items: SalePricingItem[]): void {
+    this.store.dispatch(SaleActions.loadPriceListOptions({ items }));
+  }
+
+  clearPriceListOptions(): void {
+    this.store.dispatch(SaleActions.clearPriceListOptions());
   }
 }
 

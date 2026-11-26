@@ -167,13 +167,21 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.TaxProfileTemplate)
-            .Where(p => p.IsActive);
+            // POS shows the price on the store's default list only: ProductPrices joined to
+            // PriceLists filtered by IsDefault. Products.BasePrice and ProductVariants.Price/CostPrice
+            // are not read for the displayed price.
+            .Include(p => p.Prices.Where(pp => pp.PriceList.IsDefault))
+                .ThenInclude(pp => pp.PriceList)
+            .Where(p => p.IsActive && p.Prices.Any(pp => pp.PriceList.IsDefault));
 
         if (categoryId.HasValue)
             query = query.Where(p => p.CategoryId == categoryId.Value);
 
+        // Split query: Variants, Photos and Prices are sibling collections; one statement would
+        // multiply their rows per product.
         return await query
             .OrderBy(p => p.Name)
+            .AsSplitQuery()
             .ToListAsync(ct);
     }
 
@@ -185,10 +193,28 @@ public sealed class ProductRepository : IProductRepository
 
         // Tracked, not AsNoTracking: RegisterSaleCommandHandler debits stock on these same
         // instances right after enriching the sale lines, and needs EF to pick up that change.
+        // Prices (with their list) are loaded so each line is charged on the checkout's price list.
         return await _context.Products
             .Include(p => p.Variants.Where(v => variantIds.Contains(v.Id)))
             .Include(p => p.TaxProfileTemplate)
+            .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
             .Where(p => p.IsActive && p.Variants.Any(v => variantIds.Contains(v.Id)))
+            .AsSplitQuery()
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Product>> GetForPricingAsync(
+        IReadOnlyCollection<Guid> variantIds, CancellationToken ct = default)
+    {
+        if (variantIds.Count == 0)
+            return [];
+
+        return await _context.Products
+            .AsNoTracking()
+            .Include(p => p.Variants.Where(v => variantIds.Contains(v.Id)))
+            .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
+            .Where(p => p.IsActive && p.Variants.Any(v => variantIds.Contains(v.Id)))
+            .AsSplitQuery()
             .ToListAsync(ct);
     }
 }

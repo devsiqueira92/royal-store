@@ -9,6 +9,10 @@ import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
 import { SaleReceipt } from '../interfaces/sale-receipt.interface';
 import { CursorPage } from '@app/shared/interfaces/cursor-page.interface';
+import {
+  SalePriceListOption,
+  SalePricingItem,
+} from '../interfaces/sale-price-list-option.interface';
 
 export const SaleActions = createActionGroup({
   source: 'Sale',
@@ -38,5 +42,9 @@ export const SaleActions = createActionGroup({
     'Register Sale Success': props<{ response: RegisterSaleResponse }>(),
     'Register Sale Failure': props<{ error: string }>(),
     'Clear Register Sale Result': emptyProps(),
+    'Load Price List Options': props<{ items: SalePricingItem[] }>(),
+    'Load Price List Options Success': props<{ options: SalePriceListOption[] }>(),
+    'Load Price List Options Failure': props<{ error: string }>(),
+    'Clear Price List Options': emptyProps(),
   },
 });

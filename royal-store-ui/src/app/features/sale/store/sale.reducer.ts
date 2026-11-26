@@ -11,6 +11,7 @@ import {
   pagedList,
   PagedListState,
 } from '@app/shared/utils/paged-list-state.util';
+import { SalePriceListOption } from '../interfaces/sale-price-list-option.interface';
 import { SaleActions } from './sale.actions';
 
 export interface SaleState {
@@ -26,6 +27,9 @@ export interface SaleState {
   isLoadingSaleReceipt: boolean;
   isRegisteringSale: boolean;
   lastRegisterSaleResult: RegisterSaleResponse | null;
+  /** Price lists offered at checkout, each with the current cart priced on it. */
+  priceListOptions: SalePriceListOption[];
+  isLoadingPriceListOptions: boolean;
   error: string | null;
 }
 
@@ -41,6 +45,8 @@ export const initialSaleState: SaleState = {
   isLoadingSaleReceipt: false,
   isRegisteringSale: false,
   lastRegisterSaleResult: null,
+  priceListOptions: [],
+  isLoadingPriceListOptions: false,
   error: null,
 };
 
@@ -158,6 +164,26 @@ export const saleFeature = createFeature({
     on(SaleActions.clearRegisterSaleResult, (state): SaleState => ({
       ...state,
       lastRegisterSaleResult: null,
+    })),
+    on(SaleActions.loadPriceListOptions, (state): SaleState => ({
+      ...state,
+      priceListOptions: [],
+      isLoadingPriceListOptions: true,
+    })),
+    on(SaleActions.loadPriceListOptionsSuccess, (state, { options }): SaleState => ({
+      ...state,
+      priceListOptions: options,
+      isLoadingPriceListOptions: false,
+    })),
+    // Not written to `error`: the checkout dialog reads that one as a failed registration.
+    on(SaleActions.loadPriceListOptionsFailure, (state): SaleState => ({
+      ...state,
+      isLoadingPriceListOptions: false,
+    })),
+    on(SaleActions.clearPriceListOptions, (state): SaleState => ({
+      ...state,
+      priceListOptions: [],
+      isLoadingPriceListOptions: false,
     })),
   ),
 });

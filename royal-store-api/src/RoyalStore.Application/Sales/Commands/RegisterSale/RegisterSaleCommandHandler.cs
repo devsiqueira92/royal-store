@@ -33,6 +33,7 @@ public sealed class RegisterSaleCommandHandler
     private readonly ICurrentUserService _currentUserService;
     private readonly IFiscalReceiptQueue _fiscalQueue;
     private readonly ICashShiftRepository _cashShiftRepository;
+    private readonly IPriceListRepository _priceListRepository;
 
     public RegisterSaleCommandHandler(
         ISaleRepository saleRepository,
@@ -45,7 +46,8 @@ public sealed class RegisterSaleCommandHandler
         ITenantContext tenantContext,
         ICurrentUserService currentUserService,
         IFiscalReceiptQueue fiscalQueue,
-        ICashShiftRepository cashShiftRepository)
+        ICashShiftRepository cashShiftRepository,
+        IPriceListRepository priceListRepository)
     {
         _saleRepository = saleRepository;
         _productRepository = productRepository;
@@ -58,6 +60,7 @@ public sealed class RegisterSaleCommandHandler
         _currentUserService = currentUserService;
         _fiscalQueue = fiscalQueue;
         _cashShiftRepository = cashShiftRepository;
+        _priceListRepository = priceListRepository;
     }
 
     public async Task<Result<RegisterSaleResponse>> Handle(
@@ -102,10 +105,15 @@ public sealed class RegisterSaleCommandHandler
                     $"Customer {checkout.Customer.Id} was not found.");
         }
 
+        var priceListResult = await ResolvePriceListAsync(checkout.PriceListId, tenantId, cancellationToken);
+        if (priceListResult.IsFailure)
+            return priceListResult.Error;
+
         var saleId = Guid.NewGuid();
         var soldAt = DateTime.UtcNow;
 
-        var itemsResult = await BuildItemsAsync(command.Items, tenantId, saleId, soldAt, cancellationToken);
+        var itemsResult = await BuildItemsAsync(
+            command.Items, priceListResult.Value, tenantId, saleId, soldAt, cancellationToken);
         if (itemsResult.IsFailure)
             return itemsResult.Error;
 
@@ -269,8 +277,8 @@ public sealed class RegisterSaleCommandHandler
     }
 
     private async Task<Result<(List<SaleItem> Items, decimal Subtotal, decimal TaxAmount)>> BuildItemsAsync(
-        IReadOnlyList<RegisterSaleItem> requestItems, Guid tenantId, Guid saleId, DateTime soldAt,
-        CancellationToken cancellationToken)
+        IReadOnlyList<RegisterSaleItem> requestItems, PriceList priceList, Guid tenantId, Guid saleId,
+        DateTime soldAt, CancellationToken cancellationToken)
     {
         var variantIds = requestItems.Select(i => i.VariantId).ToList();
         var products = await _productRepository.GetForCheckoutAsync(variantIds, cancellationToken);
@@ -307,7 +315,11 @@ public sealed class RegisterSaleCommandHandler
 
             var ibptTax = ResolveTax(product, ibptByCode);
 
-            var itemResult = SaleItemEnricher.Enrich(line, tenantId, saleId, product, variant, ibptTax);
+            if (product.SalePriceOn(priceList) is not { } unitPrice)
+                return Error.Validation("sale.price_not_found",
+                    $"Product '{product.Name}' has no price on the default list.");
+
+            var itemResult = SaleItemEnricher.Enrich(line, tenantId, saleId, product, variant, unitPrice, ibptTax);
             if (itemResult.IsFailure)
                 return itemResult.Error;
 
@@ -323,6 +335,27 @@ public sealed class RegisterSaleCommandHandler
         }
 
         return (items, subtotal, taxAmount);
+    }
+
+    /// <summary>The list the sale is charged on: the requested one when it is an active list of this
+    /// store, the store's default list when none was requested.</summary>
+    private async Task<Result<PriceList>> ResolvePriceListAsync(
+        Guid? priceListId, Guid tenantId, CancellationToken cancellationToken)
+    {
+        var list = priceListId is { } id
+            ? await _priceListRepository.GetByIdAsync(id, cancellationToken)
+            : await _priceListRepository.GetDefaultAsync(cancellationToken);
+
+        if (list is null || list.TenantId != tenantId)
+            return Error.Validation("sale.price_list_not_found",
+                priceListId is null
+                    ? "This store has no default price list."
+                    : $"Price list {priceListId} was not found.");
+
+        if (!list.IsActive)
+            return Error.Validation("sale.price_list_inactive", $"Price list '{list.Name}' is not active.");
+
+        return list;
     }
 
     /// <summary>Per-item tax-burden amount: the federal share (national or imported, whichever
