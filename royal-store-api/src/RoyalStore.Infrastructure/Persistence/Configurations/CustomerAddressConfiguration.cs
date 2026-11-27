@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RoyalStore.Domain.Customers;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -16,15 +17,17 @@ public sealed class CustomerAddressConfiguration : IEntityTypeConfiguration<Cust
         builder.Property(e => e.CustomerId).IsRequired();
 
         // Every address field is optional (045 clarification). ZipCode is stored digits-only and
-        // State as the upper-case UF, so their lengths are exact rather than maximums.
+        // State as the upper-case UF, so their lengths are exact rather than maximums. Zip code,
+        // neighborhood, city and state stay plaintext for routing/reporting; the fields that pin
+        // down the household are encrypted (the domain enforces their plaintext limits).
         builder.Property(e => e.ZipCode).HasMaxLength(PostalAddress.ZipCodeLength);
-        builder.Property(e => e.Street).HasMaxLength(PostalAddress.StreetMaxLength);
-        builder.Property(e => e.Number).HasMaxLength(PostalAddress.NumberMaxLength);
+        builder.Property(e => e.Street).IsEncrypted();
+        builder.Property(e => e.Number).IsEncrypted();
         builder.Property(e => e.Neighborhood).HasMaxLength(PostalAddress.NeighborhoodMaxLength);
         builder.Property(e => e.City).HasMaxLength(PostalAddress.CityMaxLength);
         builder.Property(e => e.State).HasMaxLength(PostalAddress.StateLength);
-        builder.Property(e => e.Complement).HasMaxLength(PostalAddress.ComplementMaxLength);
-        builder.Property(e => e.AdditionalInfo).HasMaxLength(PostalAddress.AdditionalInfoMaxLength);
+        builder.Property(e => e.Complement).IsEncrypted();
+        builder.Property(e => e.AdditionalInfo).IsEncrypted();
 
         builder.Property(e => e.IsDefaultDelivery)
             .HasDefaultValue(false)

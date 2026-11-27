@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Domain.Suppliers;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -18,14 +20,14 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
             .HasMaxLength(150)
             .IsRequired();
 
-        builder.Property(s => s.Cnpj)
-            .HasMaxLength(14);
+        // The document accepts a CPF too (DocumentValidator), so a sole-trader supplier's is PII:
+        // encrypted, with uniqueness on its blind index. Phone and street address likewise.
+        builder.Property(s => s.Cnpj).IsEncrypted();
+        builder.HasBlindIndex(nameof(Supplier.Cnpj), BlindIndexKind.Digits);
 
-        builder.Property(s => s.Phone)
-            .HasMaxLength(20);
+        builder.Property(s => s.Phone).IsEncrypted();
 
-        builder.Property(s => s.Address)
-            .HasMaxLength(200);
+        builder.Property(s => s.Address).IsEncrypted();
 
         builder.Property(s => s.City)
             .HasMaxLength(100);
@@ -40,9 +42,10 @@ public sealed class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.Property(s => s.UpdatedAt).IsRequired();
         builder.Property(s => s.UpdatedBy).HasMaxLength(450).IsRequired();
 
-        builder.HasIndex(s => new { s.TenantId, s.Cnpj })
+        var cnpjHash = BlindIndex.PropertyName(nameof(Supplier.Cnpj));
+        builder.HasIndex(nameof(Supplier.TenantId), cnpjHash)
             .IsUnique()
-            .HasFilter("\"Cnpj\" IS NOT NULL");
+            .HasFilter($"\"{cnpjHash}\" IS NOT NULL");
 
         builder.HasIndex(s => s.TenantId);
     }

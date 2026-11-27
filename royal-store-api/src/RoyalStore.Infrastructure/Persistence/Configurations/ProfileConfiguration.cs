@@ -1,12 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Profiles;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
 public sealed class ProfileConfiguration : IEntityTypeConfiguration<Profile>
 {
+    private static readonly string CpfHash = BlindIndex.PropertyName(nameof(Profile.Cpf));
+    private static readonly string EmailHash = BlindIndex.PropertyName(nameof(Profile.Email));
+
     public void Configure(EntityTypeBuilder<Profile> builder)
     {
         builder.ToTable("Profiles");
@@ -21,14 +26,15 @@ public sealed class ProfileConfiguration : IEntityTypeConfiguration<Profile>
             .HasMaxLength(150)
             .IsRequired();
 
-        builder.Property(p => p.Phone)
-            .HasMaxLength(20);
+        // PII, encrypted at rest. CPF and email are unique per tenant, enforced on their blind
+        // indexes (the ciphertext is randomized, so it can't be compared).
+        builder.Property(p => p.Phone).IsEncrypted();
 
-        builder.Property(p => p.Cpf)
-            .HasMaxLength(11);
+        builder.Property(p => p.Cpf).IsEncrypted();
+        builder.HasBlindIndex(nameof(Profile.Cpf), BlindIndexKind.Digits);
 
-        builder.Property(p => p.Email)
-            .HasMaxLength(256);
+        builder.Property(p => p.Email).IsEncrypted();
+        builder.HasBlindIndex(nameof(Profile.Email), BlindIndexKind.Email);
 
         builder.Property(p => p.CompletedAt);
 
@@ -44,13 +50,13 @@ public sealed class ProfileConfiguration : IEntityTypeConfiguration<Profile>
 
         builder.HasIndex(p => p.UserId).IsUnique();
 
-        builder.HasIndex(p => new { p.TenantId, p.Cpf })
+        builder.HasIndex(nameof(Profile.TenantId), CpfHash)
             .IsUnique()
-            .HasFilter("\"Cpf\" IS NOT NULL");
+            .HasFilter($"\"{CpfHash}\" IS NOT NULL");
 
-        builder.HasIndex(p => new { p.TenantId, p.Email })
+        builder.HasIndex(nameof(Profile.TenantId), EmailHash)
             .IsUnique()
-            .HasFilter("\"Email\" IS NOT NULL");
+            .HasFilter($"\"{EmailHash}\" IS NOT NULL");
 
         builder.HasIndex(p => p.TenantId);
     }

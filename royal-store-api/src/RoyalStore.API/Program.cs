@@ -32,6 +32,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseRateLimiter();
 
+await PiiEncryptionBackfillSeeder.BackfillAsync(app.Services);
 await DatabaseSeeder.SeedRolesAsync(app.Services);
 await ExpenseCategorySeeder.SeedDefaultsForExistingTenantsAsync(app.Services);
 await PriceListBackfillSeeder.BackfillAsync(app.Services);

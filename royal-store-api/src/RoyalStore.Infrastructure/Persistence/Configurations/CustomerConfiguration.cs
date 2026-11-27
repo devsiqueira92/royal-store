@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Domain.Customers;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -18,16 +20,15 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasMaxLength(150)
             .IsRequired();
 
-        // Stored normalised to digits only, so a CPF is 11 characters and a CNPJ 14. Optional: a
-        // customer can be registered without one.
-        builder.Property(e => e.Document)
-            .HasMaxLength(14);
+        // PII, encrypted at rest (text columns; the domain enforces the plaintext limits). Document
+        // is normalised to digits (CPF 11 / CNPJ 14) and optional; lookups and the per-tenant
+        // uniqueness rule go through its blind index, never the ciphertext.
+        builder.Property(e => e.Document).IsEncrypted();
+        builder.HasBlindIndex(nameof(Customer.Document), BlindIndexKind.Digits);
 
-        builder.Property(e => e.Phone)
-            .HasMaxLength(20);
+        builder.Property(e => e.Phone).IsEncrypted();
 
-        builder.Property(e => e.BirthDate)
-            .HasColumnType("date");
+        builder.Property(e => e.BirthDate).IsEncrypted();
 
         builder.Property(e => e.TermsAccepted)
             .HasDefaultValue(false)
@@ -46,7 +47,7 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(e => e.UpdatedBy).HasMaxLength(450).IsRequired();
 
         builder.HasIndex(e => e.TenantId);
-        builder.HasIndex(e => new { e.TenantId, e.Document }).IsUnique();
+        builder.HasIndex(nameof(Customer.TenantId), BlindIndex.PropertyName(nameof(Customer.Document))).IsUnique();
 
         // Bumped by every address change; protects the one-default rule across concurrent requests
         // (045 research Decision 4).

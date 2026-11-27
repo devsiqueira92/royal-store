@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RoyalStore.Domain.Customers;
 using RoyalStore.Domain.Identity;
 using RoyalStore.Domain.Sales;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 
 namespace RoyalStore.Infrastructure.Persistence.Configurations;
 
@@ -99,10 +100,11 @@ public sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         // Delivery/pickup address — frozen at sale time, every column nullable. The required
         // navigation (same as SalePayment.Card) makes an all-NULL row load as SaleAddress.Empty, not null.
+        // Street and number are encrypted (customer PII); city and zip code stay plaintext for routing.
         builder.OwnsOne(e => e.Address, address =>
         {
-            address.Property(a => a.Street).HasColumnName("AddressStreet").HasMaxLength(SaleAddress.StreetMaxLength);
-            address.Property(a => a.Number).HasColumnName("AddressNumber").HasMaxLength(SaleAddress.NumberMaxLength);
+            address.Property(a => a.Street).HasColumnName("AddressStreet").IsEncrypted();
+            address.Property(a => a.Number).HasColumnName("AddressNumber").IsEncrypted();
             address.Property(a => a.City).HasColumnName("AddressCity").HasMaxLength(SaleAddress.CityMaxLength);
             address.Property(a => a.ZipCode).HasColumnName("AddressZipCode").HasMaxLength(SaleAddress.ZipCodeMaxLength);
         });

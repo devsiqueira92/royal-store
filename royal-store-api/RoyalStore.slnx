@@ -5,4 +5,7 @@
     <Project Path="src/RoyalStore.Domain/RoyalStore.Domain.csproj" />
     <Project Path="src/RoyalStore.Infrastructure/RoyalStore.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RoyalStore.Infrastructure.Tests/RoyalStore.Infrastructure.Tests.csproj" />
+  </Folder>
 </Solution>

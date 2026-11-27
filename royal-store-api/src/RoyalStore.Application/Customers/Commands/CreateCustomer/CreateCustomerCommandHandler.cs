@@ -48,7 +48,7 @@ public sealed class CreateCustomerCommandHandler
             var documentExists = await _customerRepository.ExistsByDocumentAsync(normalizedDocument, null, cancellationToken);
             if (documentExists)
                 return Error.Conflict("customer.document_conflict",
-                    $"A customer with document '{command.Document}' is already registered.");
+                    "A customer with this document is already registered.");
         }
 
         // Optional address list, saved with the customer or not at all (046 FR-002). Validated before

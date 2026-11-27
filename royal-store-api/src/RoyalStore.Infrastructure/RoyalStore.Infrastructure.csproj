@@ -26,4 +26,8 @@
     <ProjectReference Include="..\RoyalStore.Application\RoyalStore.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="RoyalStore.Infrastructure.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -31,6 +31,12 @@ internal static class SerilogExtensions
                     options.MaskProperties.Add(new MaskProperty { Name = "SecretKey" });
                     options.MaskProperties.Add(new MaskProperty { Name = "AccessToken" });
                     options.MaskProperties.Add(new MaskProperty { Name = "RefreshToken" });
+
+                    // PII encrypted at rest must not leak back out through structured logs.
+                    foreach (var pii in (string[])["Document", "Cpf", "Cnpj", "Phone", "Email", "BirthDate",
+                                 "Street", "Complement", "AdditionalInfo", "Address",
+                                 "MasterKey", "BlindIndexKey"])
+                        options.MaskProperties.Add(new MaskProperty { Name = pii });
                 })
                 .WriteTo.Console();
 

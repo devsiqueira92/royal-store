@@ -6,6 +6,8 @@ namespace RoyalStore.Infrastructure.Persistence.Repositories;
 
 public sealed class CustomerRepository : ICustomerRepository
 {
+    private const string DocumentHash = nameof(Customer.Document) + "Hash";
+
     private readonly RoyalStoreContext _context;
 
     public CustomerRepository(RoyalStoreContext context)
@@ -32,9 +34,13 @@ public sealed class CustomerRepository : ICustomerRepository
     public async Task AddAddressAsync(CustomerAddress address, CancellationToken ct = default) =>
         await _context.CustomerAddresses.AddAsync(address, ct);
 
-    public async Task<Customer?> GetByDocumentAsync(Guid tenantId, string normalizedDocument, CancellationToken ct = default) =>
-        await _context.Customers.FirstOrDefaultAsync(
-            c => c.TenantId == tenantId && c.Document == normalizedDocument && c.IsActive, ct);
+    // Document is encrypted with a random nonce, so it's matched on its blind index instead.
+    public async Task<Customer?> GetByDocumentAsync(Guid tenantId, string normalizedDocument, CancellationToken ct = default)
+    {
+        var hash = _context.ComputeBlindIndex<Customer>(nameof(Customer.Document), normalizedDocument);
+        return await _context.Customers.FirstOrDefaultAsync(
+            c => c.TenantId == tenantId && EF.Property<string?>(c, DocumentHash) == hash && c.IsActive, ct);
+    }
 
     public async Task<IReadOnlyList<Customer>> GetAllAsync(bool includeInactive = false, CancellationToken ct = default)
     {
@@ -48,9 +54,12 @@ public sealed class CustomerRepository : ICustomerRepository
         return await query.ToListAsync(ct);
     }
 
-    public async Task<bool> ExistsByDocumentAsync(string normalizedDocument, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Customers.AnyAsync(
-            c => c.Document == normalizedDocument && (excludeId == null || c.Id != excludeId), ct);
+    public async Task<bool> ExistsByDocumentAsync(string normalizedDocument, Guid? excludeId, CancellationToken ct = default)
+    {
+        var hash = _context.ComputeBlindIndex<Customer>(nameof(Customer.Document), normalizedDocument);
+        return await _context.Customers.AnyAsync(
+            c => EF.Property<string?>(c, DocumentHash) == hash && (excludeId == null || c.Id != excludeId), ct);
+    }
 
     public Task UpdateAsync(Customer customer, CancellationToken ct = default)
     {

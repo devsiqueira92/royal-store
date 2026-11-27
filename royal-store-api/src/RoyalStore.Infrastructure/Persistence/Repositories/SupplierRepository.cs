@@ -7,6 +7,8 @@ namespace RoyalStore.Infrastructure.Persistence.Repositories;
 
 public sealed class SupplierRepository : ISupplierRepository
 {
+    private const string CnpjHash = nameof(Supplier.Cnpj) + "Hash";
+
     private readonly RoyalStoreContext _context;
 
     public SupplierRepository(RoyalStoreContext context)
@@ -30,10 +32,14 @@ public sealed class SupplierRepository : ISupplierRepository
         return await query.ToListAsync(ct);
     }
 
-    public async Task<bool> ExistsByCnpjAsync(string cnpj, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Suppliers.AnyAsync(
-            s => s.Cnpj == cnpj && (excludeId == null || s.Id != excludeId),
+    // The document is encrypted with a random nonce, so it's matched on its blind index.
+    public async Task<bool> ExistsByCnpjAsync(string cnpj, Guid? excludeId, CancellationToken ct = default)
+    {
+        var hash = _context.ComputeBlindIndex<Supplier>(nameof(Supplier.Cnpj), cnpj);
+        return await _context.Suppliers.AnyAsync(
+            s => EF.Property<string?>(s, CnpjHash) == hash && (excludeId == null || s.Id != excludeId),
             ct);
+    }
 
     public Task UpdateAsync(Supplier supplier, CancellationToken ct = default)
     {

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Customers;
@@ -18,12 +20,14 @@ using RoyalStore.Domain.Sales;
 using RoyalStore.Domain.Sellers;
 using RoyalStore.Domain.Suppliers;
 using RoyalStore.Domain.Tenants;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 
 namespace RoyalStore.Infrastructure.Persistence;
 
-public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWork
+public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWork, IEncryptedDbContext
 {
     private readonly ITenantContext _tenantContext;
+    private readonly IEncryptionService _encryption;
 
     public DbSet<Tenant> Tenants { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
@@ -74,10 +78,34 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
     public DbSet<LabelTemplate> LabelTemplates { get; set; } = null!;
     public DbSet<LabelFormat> LabelFormats { get; set; } = null!;
 
-    public RoyalStoreContext(DbContextOptions<RoyalStoreContext> options, ITenantContext tenantContext)
+    public RoyalStoreContext(
+        DbContextOptions<RoyalStoreContext> options,
+        ITenantContext tenantContext,
+        IEncryptionService encryption)
         : base(options)
     {
         _tenantContext = tenantContext;
+        _encryption = encryption;
+    }
+
+    IEncryptionService IEncryptedDbContext.Encryption => _encryption;
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+        optionsBuilder.ReplaceService<IModelCacheKeyFactory, EncryptionModelCacheKeyFactory>();
+
+    /// <summary>Blind index of <paramref name="value"/> for <typeparamref name="TEntity"/>'s
+    /// <paramref name="sourceProperty"/>, normalized exactly as the stored one (the kind is read from
+    /// the mapping, so a query can't drift from it). Compare against
+    /// <c>EF.Property&lt;string?&gt;(e, BlindIndex.PropertyName(sourceProperty))</c>.</summary>
+    public string ComputeBlindIndex<TEntity>(string sourceProperty, string value)
+    {
+        var entityType = Model.FindEntityType(typeof(TEntity))
+            ?? throw new InvalidOperationException($"{typeof(TEntity).Name} is not mapped.");
+
+        var index = BlindIndex.Describe(entityType).FirstOrDefault(i => i.SourceProperty == sourceProperty)
+            ?? throw new InvalidOperationException($"{typeof(TEntity).Name}.{sourceProperty} has no blind index.");
+
+        return _encryption.ComputeBlindIndex(value, index.Kind);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
@@ -108,6 +136,9 @@ public sealed class RoyalStoreContext : IdentityDbContext<UserEntity>, IUnitOfWo
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AssemblyReference).Assembly);
+
+        // After the configurations: they mark encrypted properties, this attaches the converters.
+        modelBuilder.ApplyEncryption(_encryption);
 
         modelBuilder.HasDbFunction(typeof(RoyalStoreContext).GetMethod(nameof(NormalizeSearchText))!);
 

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Infrastructure.Persistence;
 
 #nullable disable
@@ -853,8 +854,9 @@ namespace RoyalStore.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateOnly?>("BirthDate")
-                        .HasColumnType("date");
+                    b.Property<string>("BirthDate")
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -865,8 +867,14 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(450)");
 
                     b.Property<string>("Document")
-                        .HasMaxLength(14)
-                        .HasColumnType("character varying(14)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
+
+                    b.Property<string>("DocumentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasAnnotation("RoyalStore:BlindIndexKind", BlindIndexKind.Digits)
+                        .HasAnnotation("RoyalStore:BlindIndexSource", "Document");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -882,8 +890,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -911,7 +919,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("TenantId", "Document")
+                    b.HasIndex("TenantId", "DocumentHash")
                         .IsUnique();
 
                     b.ToTable("Customers", (string)null);
@@ -924,16 +932,16 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("AdditionalInfo")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Complement")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -961,16 +969,16 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Number")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<string>("State")
                         .HasMaxLength(2)
                         .HasColumnType("character varying(2)");
 
                     b.Property<string>("Street")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -2324,8 +2332,14 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Cpf")
-                        .HasMaxLength(11)
-                        .HasColumnType("character varying(11)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
+
+                    b.Property<string>("CpfHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasAnnotation("RoyalStore:BlindIndexKind", BlindIndexKind.Digits)
+                        .HasAnnotation("RoyalStore:BlindIndexSource", "Cpf");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2336,8 +2350,14 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(450)");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
+
+                    b.Property<string>("EmailHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasAnnotation("RoyalStore:BlindIndexKind", BlindIndexKind.Email)
+                        .HasAnnotation("RoyalStore:BlindIndexSource", "Email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -2345,8 +2365,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -2371,13 +2391,13 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.HasIndex("TenantId", "Cpf")
+                    b.HasIndex("TenantId", "CpfHash")
                         .IsUnique()
-                        .HasFilter("\"Cpf\" IS NOT NULL");
+                        .HasFilter("\"CpfHash\" IS NOT NULL");
 
-                    b.HasIndex("TenantId", "Email")
+                    b.HasIndex("TenantId", "EmailHash")
                         .IsUnique()
-                        .HasFilter("\"Email\" IS NOT NULL");
+                        .HasFilter("\"EmailHash\" IS NOT NULL");
 
                     b.ToTable("Profiles", (string)null);
                 });
@@ -2791,16 +2811,22 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Address")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("Cnpj")
-                        .HasMaxLength(14)
-                        .HasColumnType("character varying(14)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
+
+                    b.Property<string>("CnpjHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasAnnotation("RoyalStore:BlindIndexKind", BlindIndexKind.Digits)
+                        .HasAnnotation("RoyalStore:BlindIndexSource", "Cnpj");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -2819,8 +2845,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("character varying(150)");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -2841,9 +2867,9 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("TenantId", "Cnpj")
+                    b.HasIndex("TenantId", "CnpjHash")
                         .IsUnique()
-                        .HasFilter("\"Cnpj\" IS NOT NULL");
+                        .HasFilter("\"CnpjHash\" IS NOT NULL");
 
                     b.ToTable("Suppliers", (string)null);
                 });
@@ -2864,8 +2890,14 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.Property<string>("Document")
                         .IsRequired()
-                        .HasMaxLength(14)
-                        .HasColumnType("character varying(14)");
+                        .HasColumnType("text")
+                        .HasAnnotation("RoyalStore:Encrypted", true);
+
+                    b.Property<string>("DocumentHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasAnnotation("RoyalStore:BlindIndexKind", BlindIndexKind.Digits)
+                        .HasAnnotation("RoyalStore:BlindIndexSource", "Document");
 
                     b.Property<int>("DocumentType")
                         .HasColumnType("integer");
@@ -2888,7 +2920,7 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Document")
+                    b.HasIndex("DocumentHash")
                         .IsUnique();
 
                     b.ToTable("Tenants", (string)null);
@@ -3259,14 +3291,14 @@ namespace RoyalStore.Infrastructure.Migrations
                                 .HasColumnName("AddressCity");
 
                             b1.Property<string>("Number")
-                                .HasMaxLength(20)
-                                .HasColumnType("character varying(20)")
-                                .HasColumnName("AddressNumber");
+                                .HasColumnType("text")
+                                .HasColumnName("AddressNumber")
+                                .HasAnnotation("RoyalStore:Encrypted", true);
 
                             b1.Property<string>("Street")
-                                .HasMaxLength(200)
-                                .HasColumnType("character varying(200)")
-                                .HasColumnName("AddressStreet");
+                                .HasColumnType("text")
+                                .HasColumnName("AddressStreet")
+                                .HasAnnotation("RoyalStore:Encrypted", true);
 
                             b1.Property<string>("ZipCode")
                                 .HasMaxLength(20)

@@ -7,6 +7,9 @@ namespace RoyalStore.Infrastructure.Persistence.Repositories;
 
 public sealed class ProfileRepository : IProfileRepository
 {
+    private const string CpfHash = nameof(Profile.Cpf) + "Hash";
+    private const string EmailHash = nameof(Profile.Email) + "Hash";
+
     private readonly RoyalStoreContext _context;
 
     public ProfileRepository(RoyalStoreContext context)
@@ -42,15 +45,22 @@ public sealed class ProfileRepository : IProfileRepository
         return profiles.ToDictionary(p => p.UserId);
     }
 
-    public async Task<bool> ExistsByCpfAsync(string cpf, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Profiles.AnyAsync(
-            p => p.Cpf == cpf && (excludeId == null || p.Id != excludeId),
+    // CPF and email are encrypted with a random nonce, so they're matched on their blind indexes.
+    public async Task<bool> ExistsByCpfAsync(string cpf, Guid? excludeId, CancellationToken ct = default)
+    {
+        var hash = _context.ComputeBlindIndex<Profile>(nameof(Profile.Cpf), cpf);
+        return await _context.Profiles.AnyAsync(
+            p => EF.Property<string?>(p, CpfHash) == hash && (excludeId == null || p.Id != excludeId),
             ct);
+    }
 
-    public async Task<bool> ExistsByEmailAsync(string email, Guid? excludeId, CancellationToken ct = default) =>
-        await _context.Profiles.AnyAsync(
-            p => p.Email == email && (excludeId == null || p.Id != excludeId),
+    public async Task<bool> ExistsByEmailAsync(string email, Guid? excludeId, CancellationToken ct = default)
+    {
+        var hash = _context.ComputeBlindIndex<Profile>(nameof(Profile.Email), email);
+        return await _context.Profiles.AnyAsync(
+            p => EF.Property<string?>(p, EmailHash) == hash && (excludeId == null || p.Id != excludeId),
             ct);
+    }
 
     public Task UpdateAsync(Profile profile, CancellationToken ct = default)
     {

@@ -23,6 +23,7 @@ using RoyalStore.Infrastructure.Catalog;
 using RoyalStore.Infrastructure.Email;
 using RoyalStore.Infrastructure.Identity;
 using RoyalStore.Infrastructure.Persistence;
+using RoyalStore.Infrastructure.Persistence.Encryption;
 using RoyalStore.Infrastructure.Persistence.Interceptors;
 using RoyalStore.Infrastructure.Persistence.Loyalty;
 using RoyalStore.Infrastructure.Persistence.Repositories;
@@ -47,7 +48,9 @@ public sealed class DependencyInjection : IInstallService
         services.AddDbContext<RoyalStoreContext>((sp, options) =>
         {
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
-            options.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditInterceptor>(),
+                sp.GetRequiredService<BlindIndexInterceptor>());
         });
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<RoyalStoreContext>());
