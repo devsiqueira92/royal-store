@@ -1,5 +1,6 @@
 import { ProductPrice } from '../interfaces/price-list.interface';
 import {
+  applyPercentageRule,
   buildProductPriceGroup,
   defaultSalePrice,
   toProductPriceInputs,
@@ -71,5 +72,23 @@ describe('product-price-form.util', () => {
     });
 
     expect(inputs).toEqual([{ priceListId: 'd', salePrice: 20, minPrice: null }]);
+  });
+});
+
+describe('applyPercentageRule', () => {
+  it('takes a negative percentage off the base price', () => {
+    expect(applyPercentageRule(100, -5)).toBe(95);
+  });
+
+  it('adds a positive percentage on top of the base price', () => {
+    expect(applyPercentageRule(220.32, 8)).toBe(237.95);
+  });
+
+  it('rounds half away from zero, like the API', () => {
+    expect(applyPercentageRule(0.5, 5)).toBe(0.53);
+  });
+
+  it('makes the item free at −100%', () => {
+    expect(applyPercentageRule(42, -100)).toBe(0);
   });
 });

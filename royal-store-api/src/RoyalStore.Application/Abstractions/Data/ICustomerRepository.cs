@@ -15,6 +15,16 @@ public interface ICustomerRepository
     Task AddAddressAsync(CustomerAddress address, CancellationToken ct = default);
     Task<Customer?> GetByDocumentAsync(Guid tenantId, string normalizedDocument, CancellationToken ct = default);
     Task<IReadOnlyList<Customer>> GetAllAsync(bool includeInactive = false, CancellationToken ct = default);
+
+    /// <summary>
+    /// Active customers, ordered by name, with <c>LoyaltyTier</c> loaded and untracked. Each filter
+    /// is optional and they combine with OR: <paramref name="normalizedName"/> is a substring of the
+    /// normalized name (<see cref="Common.TextSearchNormalizer"/>); <paramref name="digits"/> equals
+    /// the full document or phone (both encrypted, so only an exact match through their blind index).
+    /// With no filter at all, the first <paramref name="take"/> customers by name.
+    /// </summary>
+    Task<IReadOnlyList<Customer>> SearchActiveAsync(
+        string? normalizedName, string? digits, int take, CancellationToken ct = default);
     Task<bool> ExistsByDocumentAsync(string normalizedDocument, Guid? excludeId, CancellationToken ct = default);
     Task UpdateAsync(Customer customer, CancellationToken ct = default);
 }

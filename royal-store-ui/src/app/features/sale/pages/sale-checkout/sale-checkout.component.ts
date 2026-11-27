@@ -13,13 +13,7 @@ import { NonNullableFormBuilder } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import {
-  combineLatest,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  startWith,
-} from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, startWith } from 'rxjs';
 import {
   CheckoutDiscountLine,
   CheckoutResult,
@@ -58,22 +52,8 @@ import { FiscalReceiptPreviewComponent } from '../../components/fiscal-receipt-p
 
 type CheckoutPhase = 'checkout' | 'receipt';
 
-const onlyDigits = (value: string): string => value.replace(/\D/g, '');
-
-function matches(customer: Customer, term: string): boolean {
-  const text = term.trim().toLowerCase();
-  if (!text) {
-    return true;
-  }
-
-  const digits = onlyDigits(text);
-  const phone = customer.phone ?? '';
-
-  return (
-    customer.name.toLowerCase().includes(text) ||
-    (!!digits && phone.includes(digits))
-  );
-}
+/** Quiet time after the last keystroke before the customer search hits the API. */
+const CUSTOMER_SEARCH_DEBOUNCE_MS = 300;
 
 /** Back to the POS, where the cart is still waiting (or, after a sale, a new one starts). */
 const POS_ROUTE = ['/sales'];
@@ -182,30 +162,19 @@ export class SaleCheckoutComponent implements OnInit {
   );
 
   protected readonly search = this.fb.control('');
-  private readonly customerId = this.fb.control<string | null>(null);
   private readonly useCashbackControl = this.fb.control(false);
 
-  private readonly customers$ = this.customerFacade.customers$;
-
-  protected readonly filteredCustomers = toSignal(
-    combineLatest([
-      this.customers$,
-      this.search.valueChanges.pipe(
-        startWith(''),
-        debounceTime(200),
-        distinctUntilChanged(),
-      ),
-    ]).pipe(map(([list, term]) => list.filter(item => matches(item, term)))),
-    { initialValue: [] as Customer[] },
+  /** Up to 5 active customers matching the search, straight from the API. */
+  protected readonly customers = toSignal(this.customerFacade.searchResults$, {
+    initialValue: [] as Customer[],
+  });
+  protected readonly isSearchingCustomers = toSignal(
+    this.customerFacade.isSearching$,
+    { initialValue: false },
   );
 
-  protected readonly selectedCustomer = toSignal(
-    combineLatest([
-      this.customers$,
-      this.customerId.valueChanges.pipe(startWith(null)),
-    ]).pipe(map(([list, id]) => list.find(item => item.id === id) ?? null)),
-    { initialValue: null as Customer | null },
-  );
+  /** Kept on its own: the search results change under it as soon as the term does. */
+  protected readonly selectedCustomer = signal<Customer | null>(null);
 
   protected readonly useCashback = toSignal(
     this.useCashbackControl.valueChanges.pipe(startWith(false)),
@@ -366,8 +335,6 @@ export class SaleCheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.customerFacade.loadCustomers();
-
     this.saleFacade.loadPriceListOptions(
       this.cart().items.map(({ variantId, quantity }) => ({ variantId, quantity })),
     );
@@ -375,22 +342,20 @@ export class SaleCheckoutComponent implements OnInit {
     this.destroyRef.onDestroy(() => {
       this.saleFacade.clearPriceListOptions();
       this.saleFacade.clearRegisterSaleResult();
+      this.customerFacade.clearCustomerSearch();
+      this.customerFacade.clearCashbackBalance();
     });
 
-    // A balance belongs to one customer, so switching customers drops the toggle and
-    // refetches the usable cashback for whoever is now selected.
-    this.customerId.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(id => {
-        this.useCashbackControl.setValue(false);
-
-        if (id) {
-          this.customerFacade.loadCashbackBalance(id);
-        } else {
-          this.customerFacade.clearCashbackBalance();
-          this.search.setValue('');
-        }
-      });
+    // One request per pause in typing; the first page (blank term) loads right away.
+    this.search.valueChanges
+      .pipe(
+        debounceTime(CUSTOMER_SEARCH_DEBOUNCE_MS),
+        map(term => term.trim()),
+        startWith(''),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(term => this.customerFacade.searchCustomers(term));
   }
 
   /** Kept in the cart store, so it survives a trip back to the POS. */
@@ -402,8 +367,25 @@ export class SaleCheckoutComponent implements OnInit {
     this.pickedPriceListId.set(id);
   }
 
+  /**
+   * A balance belongs to one customer, so any change drops the cashback toggle and refetches the
+   * usable balance of whoever is now selected. Clearing the customer brings the search back blank.
+   */
   protected selectCustomer(id: string | null): void {
-    this.customerId.setValue(id);
+    const customer = this.customers().find(item => item.id === id) ?? null;
+    if (customer?.id === this.selectedCustomer()?.id) {
+      return;
+    }
+
+    this.selectedCustomer.set(customer);
+    this.useCashbackControl.setValue(false);
+
+    if (customer) {
+      this.customerFacade.loadCashbackBalance(customer.id);
+    } else {
+      this.customerFacade.clearCashbackBalance();
+      this.search.setValue('');
+    }
   }
 
   protected toggleCashback(enabled: boolean): void {

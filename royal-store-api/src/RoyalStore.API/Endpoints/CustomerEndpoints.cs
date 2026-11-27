@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using RoyalStore.API.Extensions;
 using RoyalStore.Application.Customers.Commands.AddCustomerAddress;
@@ -12,6 +13,7 @@ using RoyalStore.Application.Customers.Queries.GetCustomerById;
 using RoyalStore.Application.Customers.Queries.GetCustomerCashbackBalance;
 using RoyalStore.Application.Customers.Queries.GetCustomerCashbackHistory;
 using RoyalStore.Application.Customers.Queries.GetCustomers;
+using RoyalStore.Application.Customers.Queries.SearchCustomers;
 using RoyalStore.Domain.Const;
 
 namespace RoyalStore.API.Endpoints;
@@ -34,6 +36,7 @@ public sealed class CustomerEndpoints : IEndpointDefinition
         routes.MapPatch("{id:guid}/addresses/{addressId:guid}/reactivate", ReactivateAddress).RequireAuthorization(PolicyNames.AdminOrManager);
 
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.StaffRead);
+        routes.MapGet("search", Search).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}/cashback-balance", GetCashbackBalance).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}/cashback-history", GetCashbackHistory).RequireAuthorization(PolicyNames.StaffRead);
@@ -110,6 +113,16 @@ public sealed class CustomerEndpoints : IEndpointDefinition
     private static async Task<IResult> GetAll(IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new GetCustomersQuery(), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    /// <summary>Up to 5 active customers matching <paramref name="search"/> on name, document or phone.</summary>
+    private static async Task<IResult> Search(
+        [FromQuery] string? search,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(new SearchCustomersQuery(search), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 

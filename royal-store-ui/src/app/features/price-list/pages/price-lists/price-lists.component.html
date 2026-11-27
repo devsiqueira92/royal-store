@@ -42,8 +42,11 @@
             </div>
           </td>
           <td>
-            @if (getRuleLabel(priceList); as rule) {
-              <span class="price-list-cell__rule">{{ rule }}</span>
+            @if (hasRule(priceList)) {
+              <span class="price-list-cell__rule">
+                {{ priceList.discountPercentage | signedPercent }} ·
+                {{ priceList.basePriceListName }}
+              </span>
             } @else {
               <span class="price-list-cell__manual">{{
                 'priceList.manual' | translate

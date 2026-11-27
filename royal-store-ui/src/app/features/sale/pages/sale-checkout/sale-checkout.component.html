@@ -46,7 +46,8 @@
             </span>
           </h3>
           <app-customer-picker
-            [customers]="filteredCustomers()"
+            [customers]="customers()"
+            [loading]="isSearchingCustomers()"
             [search]="search"
             [selected]="selectedCustomer()"
             [cashbackRate]="totals().loyaltyRate"

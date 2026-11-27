@@ -183,3 +183,23 @@ export const loadCashbackHistory = createEffect(
     functional: true,
   },
 );
+
+// switchMap: a newer term cancels the request still in flight, so results never arrive out of order.
+export const searchCustomers = createEffect(
+  (actions$ = inject(Actions), customerService = inject(CustomerService)) => {
+    return actions$.pipe(
+      ofType(CustomerActions.searchCustomers),
+      switchMap(({ search }) =>
+        customerService.search(search).pipe(
+          map(customers => CustomerActions.searchCustomersSuccess({ customers })),
+          catchError(error =>
+            of(CustomerActions.searchCustomersFailure({ error: toError(error) })),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);

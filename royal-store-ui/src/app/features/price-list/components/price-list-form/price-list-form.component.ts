@@ -34,6 +34,11 @@ import { InputNumberFieldComponent } from '@app/shared/components/form-fields/in
 import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
 import { map } from 'rxjs';
 
+/** −100% makes the item free; anything lower would be negative (API: PriceList.MinDiscountPercentage). */
+const MIN_RULE_PERCENTAGE = -100;
+/** API: PriceList.MaxDiscountPercentage. */
+const MAX_RULE_PERCENTAGE = 999.99;
+
 interface PriceListFormControls {
   id?: FormControl<string | null>;
   name?: FormControl<string | null>;
@@ -153,7 +158,11 @@ export class PriceListFormComponent {
         Validators.maxLength(100),
       ]),
       basePriceListId: new FormControl(null),
-      discountPercentage: new FormControl(null),
+      // Negative = discount, positive = surcharge; same range as the API's PriceList.SetRule.
+      discountPercentage: new FormControl(null, [
+        Validators.min(MIN_RULE_PERCENTAGE),
+        Validators.max(MAX_RULE_PERCENTAGE),
+      ]),
       isDefault: new FormControl(null),
       isActive: new FormControl(null),
       // paymentMethodIds: new FormControl<string[]>([]),

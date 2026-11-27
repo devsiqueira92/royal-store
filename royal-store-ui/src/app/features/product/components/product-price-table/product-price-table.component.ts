@@ -22,10 +22,17 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
 import { PriceListFacade } from '@app/features/price-list/facade/price-list.facade';
 import { PriceList } from '@app/features/price-list/interfaces/price-list.interface';
-import { ProductPriceFormControls } from '../../interfaces/price-list.interface';
+import {
+  ProductPrice,
+  ProductPriceFormControls,
+} from '../../interfaces/price-list.interface';
 import { Product } from '../../interfaces/product.interface';
 import { ProductFacade } from '../../facade/product.facade';
-import { buildProductPriceGroup } from '../../utils/product-price-form.util';
+import { SignedPercentPipe } from '@app/shared/pipes/signed-percent.pipe';
+import {
+  applyPercentageRule,
+  buildProductPriceGroup,
+} from '../../utils/product-price-form.util';
 
 type PriceGroup = FormGroup<ProductPriceFormControls>;
 
@@ -39,6 +46,7 @@ type PriceGroup = FormGroup<ProductPriceFormControls>;
     TranslatePipe,
     InputNumberModule,
     InputNumberFieldComponent,
+    SignedPercentPipe,
   ],
   templateUrl: './product-price-table.component.html',
   styleUrl: './product-price-table.component.scss',
@@ -93,7 +101,7 @@ export class ProductPriceTableComponent {
         array.push(
           buildProductPriceGroup(
             list.id,
-            savedPrice ? savedPrice.salePrice : this.discountedPrice(list),
+            savedPrice ? savedPrice.salePrice : this.suggestedPrice(list, saved),
           ),
         );
       });
@@ -101,20 +109,31 @@ export class ProductPriceTableComponent {
     });
   }
 
-  private discountedPrice(list: PriceList, depth = 0): number | null {
+  /**
+   * What a list's price starts at when the product has none saved on it. A hand-priced list starts
+   * at the cost; a list with a rule applies it to its base list's price — the product's saved price
+   * there, else that list's own starting price. Same formula as the API's `PriceList.SuggestPrice`:
+   * `base × (1 + percentage ÷ 100)`, so −5 is 5% off and +8 is 8% more.
+   */
+  private suggestedPrice(
+    list: PriceList,
+    saved: ProductPrice[],
+    depth = 0,
+  ): number | null {
     const cost = this.costPrice();
-    if (cost === null || list.discountPercentage === null) return cost;
+    if (list.discountPercentage === null || list.basePriceListId === null) {
+      return cost;
+    }
 
     const base = this.priceLists().find(l => l.id === list.basePriceListId);
     const basePrice =
-      base && depth < this.priceLists().length
-        ? this.discountedPrice(base, depth + 1)
-        : cost;
+      saved.find(p => p.priceListId === list.basePriceListId)?.salePrice ??
+      (base && depth < this.priceLists().length
+        ? this.suggestedPrice(base, saved, depth + 1)
+        : cost);
     if (basePrice === null) return null;
 
-    return (
-      Math.round(basePrice * (1 - list.discountPercentage / 100) * 100) / 100
-    );
+    return applyPercentageRule(basePrice, list.discountPercentage);
   }
 
   protected effectiveSalePrice(

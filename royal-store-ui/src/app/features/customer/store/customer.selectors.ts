@@ -8,5 +8,7 @@ export const {
   selectIsLoading,
   selectIsLoadingHistory,
   selectIsLoadingBalance,
+  selectSearchResults,
+  selectIsSearching,
   selectError,
 } = customerFeature;

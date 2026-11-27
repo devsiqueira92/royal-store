@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
@@ -6,6 +6,7 @@ import { Customer } from '../interfaces/customer.interface';
 import { CreateCustomerRequest } from '../interfaces/create-customer-request.interface';
 import { UpdateCustomerRequest } from '../interfaces/update-customer-request.interface';
 import { CashbackEntry } from '../interfaces/cashback-entry.interface';
+import { CustomerSearchItem } from '../interfaces/customer-search-item.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,12 @@ export class CustomerService {
 
   getAll(): Observable<Customer[]> {
     return this.http.get<Customer[]>(this.apiUrl);
+  }
+
+  /** Up to 5 active customers matching the term on name, document or phone. */
+  search(search: string): Observable<CustomerSearchItem[]> {
+    const params = search ? new HttpParams().set('search', search) : undefined;
+    return this.http.get<CustomerSearchItem[]>(`${this.apiUrl}/search`, { params });
   }
 
   getById(id: string): Observable<Customer> {

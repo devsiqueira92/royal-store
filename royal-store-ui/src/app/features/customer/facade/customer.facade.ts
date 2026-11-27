@@ -13,6 +13,8 @@ import {
   selectIsLoading,
   selectIsLoadingHistory,
   selectIsLoadingBalance,
+  selectSearchResults,
+  selectIsSearching,
   selectError,
 } from '../store/customer.selectors';
 
@@ -31,6 +33,8 @@ export class CustomerFacade {
   isLoadingHistory$ = this.store.select(selectIsLoadingHistory);
   isLoadingBalance$ = this.store.select(selectIsLoadingBalance);
   error$ = this.store.select(selectError);
+  searchResults$ = this.store.select(selectSearchResults);
+  isSearching$ = this.store.select(selectIsSearching);
 
   saved$ = this.actions$.pipe(
     ofType(
@@ -74,6 +78,15 @@ export class CustomerFacade {
 
   clearCashbackBalance(): void {
     this.store.dispatch(CustomerActions.clearCashbackBalance());
+  }
+
+  /** Debounce before calling: each call is one request (the previous one is cancelled). */
+  searchCustomers(search: string): void {
+    this.store.dispatch(CustomerActions.searchCustomers({ search }));
+  }
+
+  clearCustomerSearch(): void {
+    this.store.dispatch(CustomerActions.clearCustomerSearch());
   }
 
   clearSelectedCustomer(): void {

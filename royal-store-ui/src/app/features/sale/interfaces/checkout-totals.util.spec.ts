@@ -12,8 +12,6 @@ const customer = (cashbackPercentage: number): Customer => ({
   loyaltyTierId: 't1',
   loyaltyTierName: 'Gold',
   loyaltyTierCashbackPercentage: cashbackPercentage,
-  isActive: true,
-  cashbackBalance: null,
 });
 
 const method = (paymentMethod: string, paymentType: string): PaymentMethod => ({

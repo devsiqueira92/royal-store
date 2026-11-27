@@ -7,6 +7,7 @@ namespace RoyalStore.Infrastructure.Persistence.Repositories;
 public sealed class CustomerRepository : ICustomerRepository
 {
     private const string DocumentHash = nameof(Customer.Document) + "Hash";
+    private const string PhoneHash = nameof(Customer.Phone) + "Hash";
 
     private readonly RoyalStoreContext _context;
 
@@ -52,6 +53,44 @@ public sealed class CustomerRepository : ICustomerRepository
             query = query.Where(c => c.IsActive);
 
         return await query.ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Customer>> SearchActiveAsync(
+        string? normalizedName, string? digits, int take, CancellationToken ct = default)
+    {
+        var query = _context.Customers
+            .AsNoTracking()
+            .Include(c => c.LoyaltyTier)
+            .Where(c => c.IsActive);
+
+        var byName = !string.IsNullOrEmpty(normalizedName);
+
+        if (string.IsNullOrEmpty(digits))
+        {
+            if (byName)
+                query = query.Where(c => RoyalStoreContext.NormalizeSearchText(c.Name).Contains(normalizedName!));
+        }
+        else
+        {
+            // Document and phone are encrypted with a random nonce: only their blind indexes compare.
+            var documentHash = _context.ComputeBlindIndex<Customer>(nameof(Customer.Document), digits);
+            var phoneHash = _context.ComputeBlindIndex<Customer>(nameof(Customer.Phone), digits);
+
+            query = byName
+                ? query.Where(c =>
+                    RoyalStoreContext.NormalizeSearchText(c.Name).Contains(normalizedName!)
+                    || EF.Property<string?>(c, DocumentHash) == documentHash
+                    || EF.Property<string?>(c, PhoneHash) == phoneHash)
+                : query.Where(c =>
+                    EF.Property<string?>(c, DocumentHash) == documentHash
+                    || EF.Property<string?>(c, PhoneHash) == phoneHash);
+        }
+
+        return await query
+            .OrderBy(c => c.Name)
+            .ThenBy(c => c.Id)
+            .Take(take)
+            .ToListAsync(ct);
     }
 
     public async Task<bool> ExistsByDocumentAsync(string normalizedDocument, Guid? excludeId, CancellationToken ct = default)

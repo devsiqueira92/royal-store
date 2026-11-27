@@ -1,6 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { Customer } from '../interfaces/customer.interface';
 import { CashbackEntry } from '../interfaces/cashback-entry.interface';
+import { CustomerSearchItem } from '../interfaces/customer-search-item.interface';
 import { CustomerActions } from './customer.actions';
 
 export interface CustomerState {
@@ -11,6 +12,9 @@ export interface CustomerState {
   isLoading: boolean;
   isLoadingHistory: boolean;
   isLoadingBalance: boolean;
+  /** Results of the checkout customer search (at most 5). */
+  searchResults: CustomerSearchItem[];
+  isSearching: boolean;
   error: string | null;
 }
 
@@ -22,6 +26,8 @@ export const initialCustomerState: CustomerState = {
   isLoading: false,
   isLoadingHistory: false,
   isLoadingBalance: false,
+  searchResults: [],
+  isSearching: false,
   error: null,
 };
 
@@ -156,6 +162,29 @@ export const customerFeature = createFeature({
       ...state,
       cashbackBalance: null,
       isLoadingBalance: false,
+    })),
+    on(CustomerActions.searchCustomers, (state): CustomerState => ({
+      ...state,
+      isSearching: true,
+    })),
+    on(
+      CustomerActions.searchCustomersSuccess,
+      (state, { customers }): CustomerState => ({
+        ...state,
+        searchResults: customers,
+        isSearching: false,
+      }),
+    ),
+    // Not written to `error`: a failed lookup just shows no results, it is not a screen error.
+    on(CustomerActions.searchCustomersFailure, (state): CustomerState => ({
+      ...state,
+      searchResults: [],
+      isSearching: false,
+    })),
+    on(CustomerActions.clearCustomerSearch, (state): CustomerState => ({
+      ...state,
+      searchResults: [],
+      isSearching: false,
     })),
     on(CustomerActions.clearSelectedCustomer, (state): CustomerState => ({
       ...state,

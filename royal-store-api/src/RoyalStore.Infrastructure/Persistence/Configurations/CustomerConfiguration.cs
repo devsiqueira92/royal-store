@@ -26,7 +26,10 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(e => e.Document).IsEncrypted();
         builder.HasBlindIndex(nameof(Customer.Document), BlindIndexKind.Digits);
 
+        // Blind-indexed (digits only) so the checkout can find a customer by phone; not unique —
+        // relatives often share one.
         builder.Property(e => e.Phone).IsEncrypted();
+        builder.HasBlindIndex(nameof(Customer.Phone), BlindIndexKind.Digits);
 
         builder.Property(e => e.BirthDate).IsEncrypted();
 
@@ -48,6 +51,7 @@ public sealed class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.HasIndex(e => e.TenantId);
         builder.HasIndex(nameof(Customer.TenantId), BlindIndex.PropertyName(nameof(Customer.Document))).IsUnique();
+        builder.HasIndex(nameof(Customer.TenantId), BlindIndex.PropertyName(nameof(Customer.Phone)));
 
         // Bumped by every address change; protects the one-default rule across concurrent requests
         // (045 research Decision 4).

@@ -26,8 +26,11 @@
         label="priceList.form.percentage"
         mode="percent"
         prefix="%"
-        [min]="0"
+        [min]="-100"
       ></app-input-number-field>
+      <small class="price-list-form__hint">
+        {{ 'priceList.form.percentageHint' | translate }}
+      </small>
     }
 
     <!-- @if (!isCreateMode()) {

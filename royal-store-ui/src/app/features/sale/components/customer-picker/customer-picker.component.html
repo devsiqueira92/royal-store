@@ -13,9 +13,6 @@
           {{ customer.loyaltyTierName }}
         </span>
       </span>
-      @if (customer.phone) {
-        <span class="customer-picker__meta">{{ customer.phone }}</span>
-      }
     </span>
     <p-button
       icon="pi pi-arrow-right-arrow-left"
@@ -69,7 +66,9 @@
   }
 } @else {
   <p-iconfield class="customer-picker__search">
-    <p-inputicon class="pi pi-search" />
+    <p-inputicon
+      [class]="loading() ? 'pi pi-spin pi-spinner' : 'pi pi-search'"
+    />
     <input
       pInputText
       type="search"
@@ -80,8 +79,8 @@
     />
   </p-iconfield>
 
-  <ul class="customer-picker__results">
-    @for (customer of visibleCustomers(); track customer.id) {
+  <ul class="customer-picker__results" [attr.aria-busy]="loading()">
+    @for (customer of customers(); track customer.id) {
       <li>
         <button
           type="button"
@@ -101,9 +100,6 @@
                 {{ customer.loyaltyTierName }}
               </span>
             </span>
-            @if (customer.phone) {
-              <span class="customer-picker__meta">{{ customer.phone }}</span>
-            }
           </span>
           @if (customer.loyaltyTierCashbackPercentage > 0) {
             <span class="customer-picker__rate">
@@ -121,18 +117,17 @@
         </button>
       </li>
     } @empty {
-      <li class="customer-picker__empty">
-        {{ 'sale.checkout.customer.notFound' | translate }}
-      </li>
+      @if (!loading()) {
+        <li class="customer-picker__empty">
+          {{ 'sale.checkout.customer.notFound' | translate }}
+        </li>
+      }
     }
   </ul>
 
-  @if (hiddenCount() > 0) {
+  @if (mayHaveMore()) {
     <p class="customer-picker__note">
-      {{
-        'sale.checkout.customer.moreResults'
-          | translate: { count: hiddenCount() }
-      }}
+      {{ 'sale.checkout.customer.moreResults' | translate }}
     </p>
   }
 

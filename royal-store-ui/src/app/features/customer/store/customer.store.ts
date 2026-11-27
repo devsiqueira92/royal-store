@@ -7,6 +7,7 @@ import {
   reactivateCustomer,
   loadCashbackHistory,
   loadCashbackBalance,
+  searchCustomers,
 } from './customer.effects';
 
 export const customerStore = {
@@ -18,4 +19,5 @@ export const customerStore = {
   reactivateCustomer,
   loadCashbackHistory,
   loadCashbackBalance,
+  searchCustomers,
 };

@@ -84,3 +84,14 @@ export const toProductPriceInputs = ({
     ? [...others, toInput(defaultPriceListId, basePrice)]
     : others;
 };
+
+/**
+ * A price-list percentage rule applied to a base price: `base × (1 + percentage ÷ 100)`, so a
+ * negative percentage is a discount (−5 → 5% off) and a positive one a surcharge (+8 → 8% more).
+ * Rounded to cents half away from zero, exactly like the API's `PriceList.SuggestPrice`.
+ */
+export function applyPercentageRule(basePrice: number, percentage: number): number {
+  const raw = basePrice * (1 + percentage / 100);
+  // EPSILON keeps binary noise (e.g. 1.005 stored as 1.00499…) from rounding the wrong way.
+  return (Math.sign(raw) * Math.round((Math.abs(raw) + Number.EPSILON) * 100)) / 100;
+}

@@ -119,7 +119,11 @@ public sealed class RoyalStoreModelEncryptionTests
         Assert.Equal(
             context.ComputeBlindIndex<Profile>(nameof(Profile.Email), "a@b.com"),
             context.ComputeBlindIndex<Profile>(nameof(Profile.Email), " A@B.com "));
+        Assert.Equal(
+            context.ComputeBlindIndex<Customer>(nameof(Customer.Phone), "11987654321"),
+            context.ComputeBlindIndex<Customer>(nameof(Customer.Phone), "(11) 98765-4321"));
+        // Encrypted but never looked up, so it has no blind index to compute.
         Assert.Throws<InvalidOperationException>(() =>
-            context.ComputeBlindIndex<Customer>(nameof(Customer.Phone), "1"));
+            context.ComputeBlindIndex<Customer>(nameof(Customer.BirthDate), "1"));
     }
 }

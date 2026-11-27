@@ -40,20 +40,16 @@
                 }}</span>
               }
               @if (list.discountPercentage !== null) {
-                <span class="product-prices__tag"
-                  >-{{ list.discountPercentage | number: '1.0-2' }}%</span
-                >
+                <span class="product-prices__tag">{{
+                  list.discountPercentage | signedPercent
+                }}</span>
               }
             </span>
             <app-input-number-field
               class="product-prices__input"
               controlName="salePrice"
               [parentForm]="group"
-              [label]="
-                list.isDefault
-                  ? 'product.productPrices.required'
-                  : 'product.productPrices.usesDefault'
-              "
+              [label]="''"
             ></app-input-number-field>
 
             @let margin = this.margin(group, list);

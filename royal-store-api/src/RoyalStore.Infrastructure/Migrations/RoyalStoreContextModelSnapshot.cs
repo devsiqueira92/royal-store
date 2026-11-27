@@ -893,6 +893,12 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasAnnotation("RoyalStore:Encrypted", true);
 
+                    b.Property<string>("PhoneHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasAnnotation("RoyalStore:BlindIndexKind", BlindIndexKind.Digits)
+                        .HasAnnotation("RoyalStore:BlindIndexSource", "Phone");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -921,6 +927,8 @@ namespace RoyalStore.Infrastructure.Migrations
 
                     b.HasIndex("TenantId", "DocumentHash")
                         .IsUnique();
+
+                    b.HasIndex("TenantId", "PhoneHash");
 
                     b.ToTable("Customers", (string)null);
                 });

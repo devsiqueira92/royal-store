@@ -19,6 +19,7 @@ import { ConfirmationService } from 'primeng/api';
 import { RadioButton } from 'primeng/radiobutton';
 import { FormsModule } from '@angular/forms';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { SignedPercentPipe } from '@app/shared/pipes/signed-percent.pipe';
 
 @Component({
   imports: [
@@ -29,6 +30,7 @@ import { RadioButtonModule } from 'primeng/radiobutton';
     SwitchComponent,
     FormsModule,
     RadioButtonModule,
+    SignedPercentPipe,
   ],
   templateUrl: './price-lists.component.html',
   styleUrl: './price-lists.component.scss',
@@ -88,15 +90,11 @@ export class PriceListsComponent implements OnInit {
     }
   }
 
-  protected getRuleLabel(priceList: PriceList): string | null {
-    if (
-      priceList.discountPercentage == null ||
-      priceList.basePriceListName == null
-    ) {
-      return null;
-    }
-    const pct = priceList.discountPercentage;
-    return `${pct}% · ${priceList.basePriceListName}`;
+  protected hasRule(priceList: PriceList): boolean {
+    return (
+      priceList.discountPercentage != null &&
+      priceList.basePriceListName != null
+    );
   }
 
   protected onDelete(priceList: PriceList, event: Event): void {

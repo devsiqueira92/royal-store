@@ -15,8 +15,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SwitchComponent } from '@app/shared/components/switch/switch.component';
 import { Customer } from '../../interfaces/customer.interface';
 
-/** How many matches are listed at once; past it the cashier refines the search. */
-const VISIBLE_RESULTS = 6;
+/** Page size of the customer search API: a full page means there may be more matches. */
+const SEARCH_PAGE_SIZE = 5;
 
 /**
  * Picks who the sale is for — no customer is a valid counter sale. Once one is picked, it shows the
@@ -40,7 +40,10 @@ const VISIBLE_RESULTS = 6;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerPickerComponent {
+  /** Search results, at most one page of the API. */
   customers = input.required<Customer[]>();
+  /** A search request is in flight. */
+  loading = input<boolean>(false);
   search = input.required<FormControl<string>>();
   selected = input<Customer | null>(null);
   /** Tier cashback as a 0..1 rate. */
@@ -54,11 +57,8 @@ export class CustomerPickerComponent {
   customerSelected = output<string | null>();
   cashbackToggled = output<boolean>();
 
-  protected readonly visibleCustomers = computed(() =>
-    this.customers().slice(0, VISIBLE_RESULTS),
-  );
-  protected readonly hiddenCount = computed(() =>
-    Math.max(this.customers().length - VISIBLE_RESULTS, 0),
+  protected readonly mayHaveMore = computed(
+    () => this.customers().length >= SEARCH_PAGE_SIZE,
   );
 
   protected initial(name: string): string {

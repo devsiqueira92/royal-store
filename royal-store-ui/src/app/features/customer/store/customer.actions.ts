@@ -3,6 +3,7 @@ import { Customer } from '../interfaces/customer.interface';
 import { CreateCustomerRequest } from '../interfaces/create-customer-request.interface';
 import { UpdateCustomerRequest } from '../interfaces/update-customer-request.interface';
 import { CashbackEntry } from '../interfaces/cashback-entry.interface';
+import { CustomerSearchItem } from '../interfaces/customer-search-item.interface';
 
 export const CustomerActions = createActionGroup({
   source: 'Customer',
@@ -33,5 +34,9 @@ export const CustomerActions = createActionGroup({
     'Load Cashback Balance Failure': props<{ error: string }>(),
     'Clear Cashback Balance': emptyProps(),
     'Clear Selected Customer': emptyProps(),
+    'Search Customers': props<{ search: string }>(),
+    'Search Customers Success': props<{ customers: CustomerSearchItem[] }>(),
+    'Search Customers Failure': props<{ error: string }>(),
+    'Clear Customer Search': emptyProps(),
   },
 });

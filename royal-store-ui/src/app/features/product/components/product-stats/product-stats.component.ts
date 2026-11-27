@@ -10,9 +10,9 @@ import { ProductFacade } from '../../facade/product.facade';
 import { StockStatus } from '../../interfaces/product.interface';
 import { getStockStatus } from '../../utils/product-stock-status.util';
 
-const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
+const compactCurrencyFormatter = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
-  currency: 'USD',
+  currency: 'BRL',
   notation: 'compact',
   maximumFractionDigits: 1,
 });

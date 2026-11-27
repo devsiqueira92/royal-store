@@ -71,3 +71,11 @@
 .price-list-form__delete {
   margin-right: auto;
 }
+
+.price-list-form__hint {
+  display: block;
+  margin: -0.75rem 0 1rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+}

@@ -5,6 +5,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZonelessChangeDetection,
   LOCALE_ID,
+  DEFAULT_CURRENCY_CODE,
 } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import { provideRouter } from '@angular/router';
@@ -140,6 +141,8 @@ export const appConfig: ApplicationConfig = {
       inject(Store).dispatch(AuthActions.checkAuthProfile());
     }),
     { provide: LOCALE_ID, useValue: 'en-US' },
+    // Every `| currency` without an explicit code shows Brazilian reais (R$), not dollars.
+    { provide: DEFAULT_CURRENCY_CODE, useValue: 'BRL' },
     DialogService,
     DynamicDialogRef,
     MessageService,
