@@ -39,6 +39,9 @@
 
 .pos__search {
   width: 100%;
+  p-inputicon {
+    z-index: 0;
+  }
 }
 
 .pos__search input {

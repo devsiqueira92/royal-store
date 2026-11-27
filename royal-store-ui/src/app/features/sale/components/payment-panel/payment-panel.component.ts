@@ -4,14 +4,17 @@ import {
   DestroyRef,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   output,
 } from '@angular/core';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  AbstractControl,
   NonNullableFormBuilder,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { map, startWith } from 'rxjs';
@@ -25,9 +28,11 @@ import {
   SelectablePaymentMethod,
   toSelectableOptions,
 } from '../../interfaces/payment-method-option.const';
+import { isCashShort } from '../../interfaces/cash-change.util';
 import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
 import { PaymentMethodListComponent } from '../payment-method-list/payment-method-list.component';
 import { CardPaymentFormComponent } from '../card-payment-form/card-payment-form.component';
+import { CashPaymentFormComponent } from '../cash-payment-form/cash-payment-form.component';
 
 @Component({
   selector: 'app-payment-panel',
@@ -35,6 +40,7 @@ import { CardPaymentFormComponent } from '../card-payment-form/card-payment-form
     ReactiveFormsModule,
     PaymentMethodListComponent,
     CardPaymentFormComponent,
+    CashPaymentFormComponent,
   ],
   templateUrl: './payment-panel.component.html',
   styleUrl: './payment-panel.component.scss',
@@ -47,6 +53,8 @@ export class PaymentPanelComponent implements OnInit {
 
   total = input<number>(0);
   base = input<number>(0);
+  /** Accessible name of the method picker, owned by the section heading around it. */
+  labelledBy = input<string | null>(null);
 
   paymentChange = output<PaymentState>();
 
@@ -56,6 +64,10 @@ export class PaymentPanelComponent implements OnInit {
       flag: this.fb.control<CardFlag | null>(null, Validators.required),
       installments: this.fb.control<number>(1, Validators.required),
     }),
+    // Optional — an exact payment needs no typing — but never less than what is due.
+    cashReceived: this.fb.control<number | null>(null, (control: AbstractControl) =>
+      this.validateCashReceived(control),
+    ),
   });
 
   /** Every active catalog method, in picker order. */
@@ -75,6 +87,15 @@ export class PaymentPanelComponent implements OnInit {
     () => this.methods().find(option => option.id === this.method()) ?? null,
   );
 
+  constructor() {
+    // The total moves with the chosen method's discount and the cashback toggle, so what was
+    // typed is checked again against the new amount due.
+    effect(() => {
+      this.total();
+      this.form.controls.cashReceived.updateValueAndValidity();
+    });
+  }
+
   ngOnInit(): void {
     this.paymentMethodFacade.loadPaymentMethods();
 
@@ -93,8 +114,15 @@ export class PaymentPanelComponent implements OnInit {
 
   private syncControls(): void {
     const option = this.selectedOption();
-    const { card } = this.form.controls;
+    const { card, cashReceived } = this.form.controls;
     const options = { emitEvent: false };
+
+    if (option?.isCash) {
+      cashReceived.enable(options);
+    } else {
+      cashReceived.reset(null, options);
+      cashReceived.disable(options);
+    }
 
     if (option?.cardType) {
       card.enable(options);
@@ -111,7 +139,7 @@ export class PaymentPanelComponent implements OnInit {
   }
 
   private snapshot(): PaymentState {
-    const { method, card } = this.form.getRawValue();
+    const { method, card, cashReceived } = this.form.getRawValue();
     const option = this.selectedOption();
 
     const details: PaymentDetails = {
@@ -125,8 +153,15 @@ export class PaymentPanelComponent implements OnInit {
             installments: option.cardType === 'credit' ? card.installments : 1,
           }
         : null,
+      cashReceived: option?.isCash ? cashReceived : null,
     };
 
     return { valid: this.form.valid, details };
+  }
+
+  private validateCashReceived(control: AbstractControl): ValidationErrors | null {
+    return isCashShort(control.value as number | null, this.total())
+      ? { cashShort: true }
+      : null;
   }
 }

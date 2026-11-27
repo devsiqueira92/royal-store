@@ -6,34 +6,6 @@
     <span class="summary__value">{{ subtotal() | currency }}</span>
   </div>
 
-  <div class="summary__row summary__row--discount">
-    <span class="summary__label">{{
-      'sale.current.discount' | translate
-    }}</span>
-    <div class="summary__discount-controls">
-      <p-selectbutton
-        [options]="modeOptions"
-        optionLabel="label"
-        optionValue="value"
-        [allowEmpty]="false"
-        [ngModel]="discountMode()"
-        (ngModelChange)="discountModeChange.emit($event)"
-      />
-      <p-inputnumber
-        [ngModel]="discountValue()"
-        (ngModelChange)="onValueChange($event)"
-        [min]="0"
-        [inputStyle]="{ width: '3.25rem' }"
-        [allowEmpty]="false"
-        mode="decimal"
-        [minFractionDigits]="2"
-        [maxFractionDigits]="2"
-      />
-    </div>
-    <span class="summary__value summary__value--negative">
-      −{{ discountAmount() | currency }}
-    </span>
-  </div>
   <div class="summary__row summary__row--tax">
     <span class="summary__label">
       {{

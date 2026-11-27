@@ -1,4 +1,3 @@
-import { FormControl, FormGroup } from '@angular/forms';
 import { PaymentEntry } from './payment.interface';
 import { Customer } from './customer.interface';
 
@@ -19,6 +18,15 @@ export interface CheckoutTotals {
   total: number;
 }
 
+/** One deduction listed between the subtotal and the total of the checkout summary. */
+export interface CheckoutDiscountLine {
+  /** Translation key of the row label. */
+  label: string;
+  /** Rate shown next to the label (0..1) when the deduction is a percentage; null otherwise. */
+  rate: number | null;
+  amount: number;
+}
+
 /** Wire shape of `RegisterSaleAddress`; every field is optional on the API. */
 export interface SaleAddress {
   street: string | null;
@@ -31,19 +39,6 @@ export interface FulfillmentDetails {
   mode: FulfillmentMode;
   branchId: string | null;
   address: SaleAddress | null;
-}
-
-export interface SaleAddressFormControls {
-  zipCode: FormControl<string | null>;
-  street: FormControl<string | null>;
-  number: FormControl<string | null>;
-  city: FormControl<string | null>;
-}
-
-export interface FulfillmentFormControls {
-  // Which of the selected customer's addresses fills `address`; never sent.
-  customerAddressId: FormControl<string | null>;
-  address: FormGroup<SaleAddressFormControls>;
 }
 
 export interface CheckoutResult {

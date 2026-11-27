@@ -9,6 +9,8 @@ import { SaleListItem } from '../interfaces/sale-list-item.interface';
 import { SaleDetails } from '../interfaces/sale-details.interface';
 import { SaleReceipt } from '../interfaces/sale-receipt.interface';
 import { CursorPage } from '@app/shared/interfaces/cursor-page.interface';
+import { SaleLineItem } from '../interfaces/sale-line-item.interface';
+import { DiscountMode } from '../interfaces/sale-totals.interface';
 import {
   SalePriceListOption,
   SalePricingItem,
@@ -46,5 +48,8 @@ export const SaleActions = createActionGroup({
     'Load Price List Options Success': props<{ options: SalePriceListOption[] }>(),
     'Load Price List Options Failure': props<{ error: string }>(),
     'Clear Price List Options': emptyProps(),
+    'Set Cart Items': props<{ items: SaleLineItem[] }>(),
+    'Set Cart Discount': props<{ value: number; mode: DiscountMode }>(),
+    'Clear Cart': emptyProps(),
   },
 });

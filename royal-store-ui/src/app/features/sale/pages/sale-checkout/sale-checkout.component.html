@@ -1,103 +1,120 @@
-<p-dialog
-  styleClass="checkout-dialog"
-  [visible]="open()"
-  [modal]="true"
-  [draggable]="false"
-  [dismissableMask]="true"
-  [style]="{ width: '32rem', maxWidth: '95vw' }"
-  (visibleChange)="$event || close()"
+<app-detail-layout
+  [router]="posRoute"
+  [title]="
+    phase() === 'receipt' ? 'sale.checkout.receipt.title' : 'sale.checkout.title'
+  "
+  [subtitle]="
+    phase() === 'receipt'
+      ? ''
+      : ('sale.checkout.subtitle' | translate: { count: unitCount() })
+  "
+  backText="sale.checkout.backToSale"
 >
-  <ng-template #header>
-    <div class="checkout-dialog__title">
-      <span>{{ 'sale.checkout.eyebrow' | translate }}</span>
-      <h2>{{ steps[step() - 1].title | translate }}</h2>
-    </div>
-  </ng-template>
-
-  <app-checkout-steps [steps]="steps" [current]="step()" />
-
-  <!-- Panels stay mounted so stepping back and forth never drops what was typed. -->
-  <div class="checkout-dialog__body">
-    <app-price-list-picker
-      [class.checkout-dialog__panel--hidden]="step() !== 1"
-      [options]="priceListOptions()"
-      [selectedId]="selectedPriceList()?.priceListId ?? null"
-      [loading]="isLoadingPriceLists()"
-      (selected)="selectPriceList($event)"
+  @if (receiptSaleId(); as saleId) {
+    <app-fiscal-receipt-preview
+      [saleId]="saleId"
+      [cashbackEarned]="cashbackCredited()"
+      [cashReceived]="cashReceived()"
+      (closed)="leave()"
     />
-
-    <app-customer-step
-      [class.checkout-dialog__panel--hidden]="step() !== 1"
-      [customers]="filteredCustomers()"
-      [search]="search"
-      [selectedId]="customerId()"
-      (customerSelected)="selectCustomer($event)"
-    />
-
-    <app-payment-step
-      [class.checkout-dialog__panel--hidden]="step() !== 2"
-      [customer]="selectedCustomer()"
-      [loyaltyRate]="totals().loyaltyRate"
-      [cashbackBalance]="cashbackBalance()"
-      [useCashback]="useCashback()"
-      [total]="totals().total"
-      [base]="totals().base"
-      (cashbackToggled)="toggleCashback($event)"
-      (paymentChange)="payment.set($event)"
-    />
-
-    <app-fulfillment-step
-      [class.checkout-dialog__panel--hidden]="step() !== 3"
-      [fulfillmentForm]="form.controls.fulfillment"
-      [hasCustomer]="!!customerId()"
-      [addresses]="customerAddresses()"
-    />
-
-    @if (step() === 4 && receiptSaleId(); as saleId) {
-      <app-fiscal-receipt-preview
-        [saleId]="saleId"
-        (closed)="close()"
-      />
-    }
-  </div>
-
-  <ng-template #footer>
-    @if (step() !== 4) {
-      <div class="checkout-dialog__footer">
-        <app-checkout-summary [totals]="totals()" />
-
-        <div class="checkout-dialog__actions">
-          <p-button
-            severity="secondary"
-            [outlined]="true"
-            [label]="
-              (step() === 1 ? 'sale.checkout.cancel' : 'sale.checkout.back')
-                | translate
-            "
-            [disabled]="awaitingResult()"
-            (onClick)="step() === 1 ? close() : back()"
+  } @else {
+    <div class="sale-checkout__layout" [attr.aria-busy]="awaitingResult()">
+      <div class="sale-checkout__main">
+        <section class="sale-checkout__section">
+          <h3 id="checkout-price-list" class="sale-checkout__heading">
+            <span class="sale-checkout__index" aria-hidden="true">1</span>
+            {{ 'sale.checkout.priceList.label' | translate }}
+          </h3>
+          <app-price-list-picker
+            labelledBy="checkout-price-list"
+            [options]="priceListOptions()"
+            [selectedId]="selectedPriceList()?.priceListId ?? null"
+            [loading]="isLoadingPriceLists()"
+            (selected)="selectPriceList($event)"
           />
+        </section>
 
-          @if (step() === 3) {
+        <section
+          class="sale-checkout__section"
+          aria-labelledby="checkout-customer"
+        >
+          <h3 id="checkout-customer" class="sale-checkout__heading">
+            <span class="sale-checkout__index" aria-hidden="true">2</span>
+            {{ 'sale.checkout.customer.title' | translate }}
+            <span class="sale-checkout__optional">
+              {{ 'sale.checkout.optional' | translate }}
+            </span>
+          </h3>
+          <app-customer-picker
+            [customers]="filteredCustomers()"
+            [search]="search"
+            [selected]="selectedCustomer()"
+            [cashbackRate]="totals().loyaltyRate"
+            [cashbackEarned]="cashbackEarned()"
+            [cashbackBalance]="cashbackBalance()"
+            [useCashback]="useCashback()"
+            (customerSelected)="selectCustomer($event)"
+            (cashbackToggled)="toggleCashback($event)"
+          />
+        </section>
+
+        <section class="sale-checkout__section">
+          <h3 id="checkout-payment" class="sale-checkout__heading">
+            <span class="sale-checkout__index" aria-hidden="true">3</span>
+            {{ 'sale.checkout.payment.title' | translate }}
+          </h3>
+          <app-payment-panel
+            labelledBy="checkout-payment"
+            [total]="totals().total"
+            [base]="totals().base"
+            (paymentChange)="payment.set($event)"
+          />
+        </section>
+      </div>
+
+      <aside class="sale-checkout__aside">
+        <app-checkout-summary
+          [items]="pricedItems()"
+          [totals]="totals()"
+          [discountValue]="discountValue()"
+          [discountMode]="discountMode()"
+          [discountLines]="discountLines()"
+          [savings]="savings()"
+          [priceListName]="selectedPriceList()?.name ?? null"
+          [cashbackEarned]="cashbackEarned()"
+          [installments]="installments()"
+          [cashReceived]="cashReceived()"
+          (discountChange)="changeDiscount($event.value, $event.mode)"
+        >
+          <div class="sale-checkout__actions">
             <p-button
+              styleClass="sale-checkout__confirm"
               icon="pi pi-check"
-              iconPos="right"
               [label]="'sale.checkout.confirm' | translate"
+              [badge]="shortcuts.confirm"
+              badgeSeverity="contrast"
               [loading]="awaitingResult()"
-              [disabled]="!canAdvance()"
+              [disabled]="!!blocker()"
               (onClick)="confirm()"
             />
-          } @else {
+            @if (blocker(); as reason) {
+              <p class="sale-checkout__blocker" aria-live="polite">
+                <i class="pi pi-info-circle" aria-hidden="true"></i>
+                {{ reason | translate }}
+              </p>
+            }
             <p-button
-              icon="pi pi-arrow-right"
-              iconPos="right"
-              [label]="'sale.checkout.next' | translate"
-              [disabled]="!canAdvance()"
-              (onClick)="next()"
+              severity="secondary"
+              [text]="true"
+              [label]="'sale.checkout.backToSale' | translate"
+              [badge]="shortcuts.leave"
+              badgeSeverity="secondary"
+              [disabled]="awaitingResult()"
+              (onClick)="leave()"
             />
-          }
-        </div>
-      </div>
-    }
-  </ng-template>
-</p-dialog>
+          </div>
+        </app-checkout-summary>
+      </aside>
+    </div>
+  }
+</app-detail-layout>

@@ -26,7 +26,11 @@ import {
   selectLastRegisterSaleResult,
   selectPriceListOptions,
   selectIsLoadingPriceListOptions,
+  selectCart,
+  selectCartItems,
 } from '../store/sale.selectors';
+import { SaleLineItem } from '../interfaces/sale-line-item.interface';
+import { DiscountMode } from '../interfaces/sale-totals.interface';
 import { SalePricingItem } from '../interfaces/sale-price-list-option.interface';
 
 @Injectable({
@@ -53,6 +57,8 @@ export class SaleFacade {
   lastRegisterSaleResult$ = this.store.select(selectLastRegisterSaleResult);
   priceListOptions$ = this.store.select(selectPriceListOptions);
   isLoadingPriceListOptions$ = this.store.select(selectIsLoadingPriceListOptions);
+  cart$ = this.store.select(selectCart);
+  cartItems$ = this.store.select(selectCartItems);
 
   // All active products for the selected category are loaded upfront (no pagination — see
   // loadPosProducts), so search just filters that in-memory list client-side, the same way the
@@ -190,6 +196,18 @@ export class SaleFacade {
 
   loadPriceListOptions(items: SalePricingItem[]): void {
     this.store.dispatch(SaleActions.loadPriceListOptions({ items }));
+  }
+
+  setCartItems(items: SaleLineItem[]): void {
+    this.store.dispatch(SaleActions.setCartItems({ items }));
+  }
+
+  setCartDiscount(value: number, mode: DiscountMode): void {
+    this.store.dispatch(SaleActions.setCartDiscount({ value, mode }));
+  }
+
+  clearCart(): void {
+    this.store.dispatch(SaleActions.clearCart());
   }
 
   clearPriceListOptions(): void {

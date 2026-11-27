@@ -29,6 +29,7 @@ const option = (
   priceListId: 'list',
   name: 'A Prazo',
   isDefault: false,
+  discountPercentage: null,
   subtotal: 0,
   lines: lines.map(line => ({ ...line, lineTotal: line.unitPrice })),
 });

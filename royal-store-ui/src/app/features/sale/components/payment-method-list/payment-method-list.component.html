@@ -1,29 +1,38 @@
-<div class="methods">
-  @for (option of methods(); track option.id) {
-    <button
-      type="button"
-      class="methods__row"
-      [class.methods__row--selected]="selected() === option.id"
-      (click)="methodSelected.emit(option.id)"
-    >
-      <span class="methods__icon"><i [class]="option.icon"></i></span>
-
-      <span class="methods__info">
-        <strong>
-          {{ option.labelIsKey ? (option.label | translate) : option.label }}
-        </strong>
-      </span>
-
-      @if (option.discount > 0) {
-        <span class="methods__discount">
-          <strong>−{{ option.discount }}%</strong>
-          <span>−{{ discountAmount(option.discount) | currency }}</span>
+@if (methods().length === 0) {
+  <p class="methods__empty">
+    <i class="pi pi-info-circle" aria-hidden="true"></i>
+    {{ 'sale.checkout.payment.empty' | translate }}
+  </p>
+} @else {
+  <div
+    class="methods"
+    role="radiogroup"
+    [attr.aria-labelledby]="labelledBy()"
+  >
+    @for (option of methods(); track option.id) {
+      <button
+        type="button"
+        role="radio"
+        class="methods__tile"
+        [attr.aria-checked]="selected() === option.id"
+        (click)="methodSelected.emit(option.id)"
+      >
+        <span class="methods__icon" aria-hidden="true">
+          <i [class]="option.icon"></i>
         </span>
-      }
 
-      @if (selected() === option.id) {
-        <i class="pi pi-check methods__check"></i>
-      }
-    </button>
-  }
-</div>
+        <span class="methods__label">
+          {{ option.labelIsKey ? (option.label | translate) : option.label }}
+        </span>
+
+        @if (option.discount > 0) {
+          <span class="methods__discount">
+            −{{ option.discount }}% · −{{
+              discountAmount(option.discount) | currency
+            }}
+          </span>
+        }
+      </button>
+    }
+  </div>
+}

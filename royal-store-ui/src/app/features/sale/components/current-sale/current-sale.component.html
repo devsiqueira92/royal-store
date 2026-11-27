@@ -33,32 +33,19 @@
   <footer class="current-sale__footer">
     <app-sale-summary
       [subtotal]="subtotal()"
-      [discountValue]="discountValue()"
-      [discountMode]="discountMode()"
-      [discountAmount]="discountAmount()"
       [taxPercent]="taxPercent()"
       [tax]="tax()"
       [total]="total()"
-      (discountValueChange)="discountValue.set($event)"
-      (discountModeChange)="discountMode.set($event)"
     ></app-sale-summary>
 
     <p-button
       class="current-sale__charge"
       icon="pi pi-check"
       [label]="('sale.current.charge' | translate) + ' ' + (total() | currency)"
+      [badge]="checkoutShortcut"
+      badgeSeverity="contrast"
       [disabled]="items().length === 0"
-      (onClick)="checkoutModalOpen()"
+      (onClick)="goToCheckout()"
     />
   </footer>
-
-  @if (checkoutOpen()) {
-    <app-checkout-dialog
-      [items]="items()"
-      [discountValue]="discountValue()"
-      [discountMode]="discountMode()"
-      (closed)="checkoutOpen.set(false)"
-      (confirmed)="onConfirmed($event)"
-    />
-  }
 </aside>

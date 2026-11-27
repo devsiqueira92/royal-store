@@ -1,66 +1,180 @@
-<div class="checkout-summary">
-  <div class="checkout-summary__total">
+<section class="summary" aria-labelledby="checkout-summary-title">
+  <header class="summary__header">
+    <h3 id="checkout-summary-title">
+      {{ 'sale.checkout.summary.title' | translate }}
+    </h3>
+    <span class="summary__count">
+      {{ 'sale.checkout.summary.units' | translate: { count: unitCount() } }}
+    </span>
+  </header>
+
+  @if (priceListName(); as name) {
+    <p class="summary__price-list">
+      <i class="pi pi-tag" aria-hidden="true"></i>
+      {{ name }}
+    </p>
+  }
+
+  <ul class="summary__items">
+    @for (item of visibleItems(); track item.variantId) {
+      <li class="summary__item">
+        <span class="summary__item-info">
+          <span class="summary__item-name">{{ item.name }}</span>
+          <span class="summary__item-meta">
+            @if (item.variantLabel) {
+              {{ item.variantLabel }} ·
+            }
+            {{ item.quantity }} × {{ item.unitPrice | currency }}
+          </span>
+        </span>
+        <span class="summary__money">
+          {{ item.unitPrice * item.quantity | currency }}
+        </span>
+      </li>
+    }
+  </ul>
+
+  @if (hiddenCount() > 0) {
+    <button
+      type="button"
+      class="summary__toggle"
+      [attr.aria-expanded]="expanded()"
+      (click)="toggleItems()"
+    >
+      {{
+        (expanded()
+          ? 'sale.checkout.summary.showLess'
+          : 'sale.checkout.summary.showAll'
+        ) | translate: { count: hiddenCount() }
+      }}
+      <i
+        class="pi"
+        [class.pi-chevron-down]="!expanded()"
+        [class.pi-chevron-up]="expanded()"
+        aria-hidden="true"
+      ></i>
+    </button>
+  }
+
+  <dl class="summary__rows">
+    <div class="summary__row">
+      <dt>{{ 'sale.checkout.summary.subtotal' | translate }}</dt>
+      <dd class="summary__money">{{ totals().subtotal | currency }}</dd>
+    </div>
+
+    <div class="summary__row summary__discount">
+      <dt>
+        <label for="checkout-summary-discount">
+          {{ 'sale.checkout.summary.saleDiscount' | translate }}
+        </label>
+      </dt>
+      <dd class="summary__discount-controls">
+        <p-selectbutton
+          [options]="modeOptions"
+          optionLabel="label"
+          optionValue="value"
+          [allowEmpty]="false"
+          [ariaLabelledBy]="'checkout-summary-discount'"
+          [ngModel]="discountMode()"
+          (ngModelChange)="changeDiscountMode($event)"
+        />
+        <p-inputnumber
+          inputId="checkout-summary-discount"
+          mode="decimal"
+          locale="en-US"
+          [ngModel]="discountValue()"
+          (ngModelChange)="changeDiscountValue($event)"
+          [min]="0"
+          [max]="discountMode() === 'percent' ? 100 : undefined"
+          [allowEmpty]="false"
+          [minFractionDigits]="discountMode() === 'percent' ? 0 : 2"
+          [maxFractionDigits]="2"
+          [suffix]="discountMode() === 'percent' ? '%' : ''"
+          [inputStyle]="{ width: '5.5rem' }"
+        />
+      </dd>
+    </div>
+
+    @if (totals().saleDiscount > 0) {
+      <div class="summary__row summary__row--discount">
+        <dt>{{ 'sale.checkout.summary.saleDiscountApplied' | translate }}</dt>
+        <dd class="summary__money">−{{ totals().saleDiscount | currency }}</dd>
+      </div>
+    }
+
+    @for (line of discountLines(); track line.label) {
+      <div class="summary__row summary__row--discount">
+        <dt>
+          {{ line.label | translate }}
+          @if (line.rate) {
+            ({{ line.rate | percent: '1.0-2' }})
+          }
+        </dt>
+        <dd class="summary__money">−{{ line.amount | currency }}</dd>
+      </div>
+    }
+  </dl>
+
+  <div class="summary__total" aria-live="polite" aria-atomic="true">
     <span>{{ 'sale.checkout.summary.total' | translate }}</span>
-    <strong>{{ totals().total | currency }}</strong>
+    <strong class="summary__money">{{ totals().total | currency }}</strong>
   </div>
 
-  <p-accordion class="checkout-summary__breakdown">
-    <p-accordion-panel value="breakdown">
-      <p-accordion-header>
-        {{ 'sale.checkout.summary.breakdown' | translate }}
-      </p-accordion-header>
-      <p-accordion-content>
-        <div class="checkout-summary__row">
-          <span>{{ 'sale.checkout.summary.discountTotal' | translate }}</span>
-          <span class="checkout-summary__value--negative">
-            −{{ totals().discountTotal | currency }}
-          </span>
-        </div>
+  @if (installments() > 1) {
+    <p class="summary__installments">
+      {{
+        'sale.checkout.payment.installment'
+          | translate
+            : { count: installments(), amount: (installmentAmount() | currency) }
+      }}
+    </p>
+  }
 
-        @if (totals().saleDiscount > 0) {
-          <div class="checkout-summary__row checkout-summary__row--nested">
-            <span>{{ 'sale.checkout.summary.saleDiscount' | translate }}</span>
-            <span>−{{ totals().saleDiscount | currency }}</span>
-          </div>
-        }
+  @if (change() !== null) {
+    <dl class="summary__rows summary__cash">
+      <div class="summary__row">
+        <dt>{{ 'sale.checkout.payment.cashReceived' | translate }}</dt>
+        <dd class="summary__money">{{ cashReceived() | currency }}</dd>
+      </div>
+      <div class="summary__row summary__row--change">
+        <dt>{{ 'sale.checkout.payment.cashChange' | translate }}</dt>
+        <dd class="summary__money">{{ change() | currency }}</dd>
+      </div>
+    </dl>
+  }
 
-        @if (totals().loyaltyDiscount > 0) {
-          <div class="checkout-summary__row checkout-summary__row--nested">
-            <span>
-              {{ 'sale.checkout.summary.loyaltyDiscount' | translate }}
-              ({{ totals().loyaltyRate | percent }})
-            </span>
-            <span>−{{ totals().loyaltyDiscount | currency }}</span>
-          </div>
-        }
+  @if (savings() > 0) {
+    <p class="summary__savings">
+      {{
+        'sale.checkout.summary.savings'
+          | translate: { amount: (savings() | currency) }
+      }}
+    </p>
+  }
 
-        @if (totals().paymentDiscount > 0) {
-          <div class="checkout-summary__row checkout-summary__row--nested">
-            <span>
-              {{ 'sale.checkout.summary.paymentDiscount' | translate }}
-              ({{ totals().paymentRate | percent }})
-            </span>
-            <span>−{{ totals().paymentDiscount | currency }}</span>
-          </div>
-        }
+  <p class="summary__tax">
+    <i class="pi pi-info-circle" aria-hidden="true"></i>
+    {{
+      'sale.checkout.summary.taxNotice'
+        | translate: { amount: (totals().tax | currency) }
+    }}
+  </p>
 
-        @if (totals().cashbackApplied > 0) {
-          <div class="checkout-summary__row checkout-summary__row--nested">
-            <span>{{ 'sale.checkout.summary.cashback' | translate }}</span>
-            <span>−{{ totals().cashbackApplied | currency }}</span>
-          </div>
-        }
+  @if (cashbackEarned() > 0) {
+    <p class="summary__earn">
+      <i class="pi pi-star-fill" aria-hidden="true"></i>
+      {{
+        'sale.checkout.summary.cashbackEarned'
+          | translate
+            : {
+                amount: (cashbackEarned() | currency),
+                rate: (totals().loyaltyRate | percent: '1.0-2'),
+              }
+      }}
+    </p>
+  }
 
-        <div class="checkout-summary__row">
-          <span>{{ 'sale.checkout.summary.tax' | translate }}</span>
-          <span>{{ totals().tax | currency }}</span>
-        </div>
-
-        <div class="checkout-summary__row">
-          <span>{{ 'sale.checkout.summary.subtotal' | translate }}</span>
-          <span>{{ totals().subtotal | currency }}</span>
-        </div>
-      </p-accordion-content>
-    </p-accordion-panel>
-  </p-accordion>
-</div>
+  <div class="summary__actions">
+    <ng-content />
+  </div>
+</section>

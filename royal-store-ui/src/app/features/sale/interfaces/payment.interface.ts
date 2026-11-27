@@ -2,7 +2,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 
 export type CardFlag = 'visa' | 'mastercard' | 'elo' | 'amex' | 'hipercard';
 
-export type CardPaymentType = 'credit' | 'debit';
+/** Card methods that ask for a brand; only `credit` is ever split into installments. */
+export type CardPaymentType = 'credit' | 'debit' | 'store';
 
 export interface PaymentOption<T> {
   label: string;
@@ -23,6 +24,8 @@ export interface PaymentDetails {
   /** The selected method's catalog discount as a 0..1 rate. */
   discountRate: number;
   card: CardPaymentDetails | null;
+  /** Cash handed over by the customer, to work out the change; null when not typed or not cash. */
+  cashReceived: number | null;
 }
 
 export interface PaymentState {
@@ -48,4 +51,5 @@ export type CardPaymentForm = FormGroup<{
 export type PaymentForm = FormGroup<{
   method: FormControl<string | null>;
   card: CardPaymentForm;
+  cashReceived: FormControl<number | null>;
 }>;

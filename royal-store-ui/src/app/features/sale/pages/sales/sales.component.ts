@@ -4,9 +4,11 @@ import {
   DestroyRef,
   inject,
   OnInit,
+  computed,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -17,8 +19,7 @@ import { CategoryFacade } from '@app/features/category/facade/category.facade';
 import { Category } from '@app/features/category/interfaces/category.interface';
 import { PosProduct } from '../../interfaces/pos-product.interface';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
-import { CheckoutResult } from '../../interfaces/checkout.interface';
-import { RegisterSaleRequest } from '../../interfaces/register-sale-request.interface';
+import { EMPTY_SALE_CART } from '../../interfaces/sale-cart.interface';
 import { SalesStatsComponent } from '../../components/sales-stats/sales-stats.component';
 import { CategoryFilterComponent } from '../../components/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -56,6 +57,8 @@ export class SalesComponent implements OnInit {
   private readonly translateService = inject(TranslateService);
   private readonly cashShiftFacade = inject(CashShiftFacade);
   private readonly dialogManagerService = inject(DialogManagerService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly products = toSignal(this.saleFacade.filteredPosProducts$, {
     initialValue: [] as PosProduct[],
@@ -73,31 +76,17 @@ export class SalesComponent implements OnInit {
   });
 
   protected readonly selectedCategoryId = signal<string | null>(null);
-  protected readonly items = signal<SaleLineItem[]>([]);
+  /** Lives in the store, so it is still here when the operator comes back from checkout. */
+  protected readonly cart = toSignal(this.saleFacade.cart$, {
+    initialValue: EMPTY_SALE_CART,
+  });
+  protected readonly items = computed(() => this.cart().items);
   protected readonly searchTerm = this.saleFacade.searchTerm;
 
   ngOnInit(): void {
     this.categoryFacade.loadCategories();
     this.saleFacade.loadPosProducts();
     this.loadCashShift();
-
-    this.saleFacade.lastRegisterSaleResult$
-      .pipe(
-        filter(result => !!result),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.items.set([]);
-        this.notificationService.success({
-          detail: this.translateService.instant('sale.current.chargeSuccess'),
-        });
-        // Refetch so stock debited by this sale — including any variant that just sold
-        // out — is reflected before the operator can add it to the next sale.
-        this.saleFacade.loadPosProducts(this.selectedCategoryId() ?? undefined);
-        // Left uncleared on purpose: the checkout dialog's own receipt step reads this
-        // same result reactively to know the sale it just confirmed has registered, and
-        // clearing it here could race that read against this very subscription.
-      });
   }
 
   protected onCategoryChange(categoryId: string | null): void {
@@ -116,7 +105,7 @@ export class SalesComponent implements OnInit {
 
     const maxQuantity = this.maxQuantity(product);
 
-    this.items.update(items => {
+    this.updateItems(items => {
       const existing = items.find(item => item.variantId === product.variantId);
       if (existing) {
         if (existing.quantity >= maxQuantity) {
@@ -170,7 +159,7 @@ export class SalesComponent implements OnInit {
       this.notifyStockLimit(product.productName, maxQuantity);
     }
 
-    this.items.update(items =>
+    this.updateItems(items =>
       items.map(item =>
         item.variantId === variantId
           ? { ...item, quantity: clampedQuantity }
@@ -180,9 +169,23 @@ export class SalesComponent implements OnInit {
   }
 
   protected removeItem(variantId: string): void {
-    this.items.update(items =>
+    this.updateItems(items =>
       items.filter(item => item.variantId !== variantId),
     );
+  }
+
+  protected goToCheckout(): void {
+    this.router.navigate(['checkout'], { relativeTo: this.route });
+  }
+
+  private updateItems(
+    update: (items: SaleLineItem[]) => SaleLineItem[],
+  ): void {
+    const current = this.items();
+    const next = update(current);
+    if (next !== current) {
+      this.saleFacade.setCartItems(next);
+    }
   }
 
   private findProduct(code: string) {
@@ -233,26 +236,6 @@ export class SalesComponent implements OnInit {
   }
 
   protected clearSale(): void {
-    this.items.set([]);
-  }
-
-  protected onCharge(checkout: CheckoutResult): void {
-    const request: RegisterSaleRequest = {
-      items: this.items().map(item => ({
-        variantId: item.variantId,
-        quantity: item.quantity,
-        productId: item.productId,
-      })),
-      checkout: {
-        priceListId: checkout.priceListId,
-        customer: checkout.customer ? { id: checkout.customer.id } : null,
-        useCashback: checkout.useCashback,
-        fulfillment: checkout.fulfillment,
-        payments: checkout.payments,
-        totals: checkout.totals,
-      },
-    };
-
-    this.saleFacade.registerSale(request);
+    this.saleFacade.clearCart();
   }
 }

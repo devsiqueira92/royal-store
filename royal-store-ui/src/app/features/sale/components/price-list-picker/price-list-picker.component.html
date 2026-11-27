@@ -1,43 +1,57 @@
-<section class="price-list-picker">
-  <span class="price-list-picker__label">{{
-    'sale.checkout.priceList.label' | translate
-  }}</span>
-
-  @if (loading()) {
-    <p-skeleton height="2.75rem" />
-    <p-skeleton height="2.75rem" />
-  } @else {
-    <div class="price-list-picker__list" role="radiogroup">
-      @for (option of options(); track option.priceListId) {
-        <button
-          type="button"
-          class="price-list-picker__row"
-          [class.price-list-picker__row--selected]="
-            option.priceListId === selectedId()
-          "
-          (click)="select(option.priceListId)"
-        >
-          <p-radiobutton
-            name="priceList"
-            [inputId]="'priceList-' + option.priceListId"
-            [value]="option.priceListId"
-            [ngModel]="selectedId()"
-          />
-          <span class="price-list-picker__name">
-            {{ option.name }}
-            @if (option.isDefault) {
-              <small>{{ 'sale.checkout.priceList.default' | translate }}</small>
-            }
+@if (loading()) {
+  <div class="price-list-picker" aria-busy="true">
+    <p-skeleton height="4.25rem" />
+    <p-skeleton height="4.25rem" />
+  </div>
+} @else {
+  <div
+    class="price-list-picker"
+    role="radiogroup"
+    [attr.aria-labelledby]="labelledBy()"
+  >
+    @for (tile of tiles(); track tile.option.priceListId) {
+      <button
+        type="button"
+        role="radio"
+        class="price-list-picker__tile"
+        [attr.aria-checked]="tile.option.priceListId === selectedId()"
+        (click)="select(tile.option.priceListId)"
+      >
+        <span class="price-list-picker__name">{{ tile.option.name }}</span>
+        <span class="price-list-picker__row">
+          <span class="price-list-picker__subtotal">
+            {{ tile.option.subtotal | currency }}
           </span>
-          <span class="price-list-picker__subtotal">{{
-            option.subtotal | currency
-          }}</span>
-        </button>
-      } @empty {
-        <p class="price-list-picker__empty">
-          {{ 'sale.checkout.priceList.empty' | translate }}
-        </p>
-      }
-    </div>
-  }
-</section>
+          @switch (tile.kind) {
+            @case ('discount') {
+              <span
+                class="price-list-picker__rule"
+                data-kind="discount"
+              >
+                −{{ tile.rate | percent: '1.0-2' }}
+              </span>
+            }
+            @case ('surcharge') {
+              <span
+                class="price-list-picker__rule"
+                data-kind="surcharge"
+              >
+                +{{ tile.rate | percent: '1.0-2' }}
+              </span>
+            }
+            @case ('default') {
+              <span class="price-list-picker__rule" data-kind="default">
+                {{ 'sale.checkout.priceList.default' | translate }}
+              </span>
+            }
+          }
+        </span>
+      </button>
+    } @empty {
+      <p class="price-list-picker__empty">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        {{ 'sale.checkout.priceList.empty' | translate }}
+      </p>
+    }
+  </div>
+}

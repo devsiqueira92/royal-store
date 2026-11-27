@@ -16,7 +16,10 @@ export const {
   selectLastRegisterSaleResult,
   selectPriceListOptions,
   selectIsLoadingPriceListOptions,
+  selectCart,
 } = saleFeature;
+
+export const selectCartItems = createSelector(selectCart, cart => cart.items);
 
 export const selectSales = createSelector(selectSalesList, list => list.items);
 export const selectIsLoadingSales = createSelector(selectSalesList, list => list.isLoading);

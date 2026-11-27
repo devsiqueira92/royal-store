@@ -128,9 +128,9 @@ public sealed class RegisterSaleCommandHandler
         var saleDiscount = checkout.Totals.SaleDiscount;
         var baseAmount = Math.Max(subtotal - saleDiscount, 0m);
 
-        var loyaltyDiscount = customer?.LoyaltyTier is not null
-            ? Math.Round(baseAmount * customer.LoyaltyTier.CashbackPercentage / 100m, 2)
-            : 0m;
+        // The tier's CashbackPercentage is what the customer *earns* back (accrued below), never a
+        // discount on this sale — it is shown at checkout for information only.
+        const decimal loyaltyDiscount = 0m;
 
         var paymentsResult = await ResolvePaymentsAsync(checkout.Payments, tenantId, cancellationToken);
         if (paymentsResult.IsFailure)
@@ -185,8 +185,11 @@ public sealed class RegisterSaleCommandHandler
         var totalAmount = amountDue - cashbackApplied;
 
         if (Math.Abs(tenderAmountSum - totalAmount) > Sale.ReconciliationTolerance)
+            // Both figures go in the message: the terminal computes the same total client-side, so
+            // a mismatch is almost always one side applying a rule the other doesn't.
             return Error.Validation("sale.payments_do_not_settle_total",
-                "Payment amounts must equal the sale total.");
+                $"Payment amounts ({tenderAmountSum:0.00}) must equal the sale total ({totalAmount:0.00}: " +
+                $"base {baseAmount:0.00}, payment discount {paymentDiscount:0.00}, cashback {cashbackApplied:0.00}).");
 
         SaleCustomerSnapshot? customerSnapshot = customer is null
             ? null

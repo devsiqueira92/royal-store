@@ -1,0 +1,57 @@
+// Shared look of the checkout dialog's selectable tiles (price lists, customers, payment methods,
+// card brands), so every picker has the same rest / hover / selected / focus states.
+
+$radius: var(--p-border-radius-md, 0.5rem);
+$border: light-dark(var(--p-surface-200), var(--p-surface-700));
+$surface: light-dark(var(--p-surface-0), var(--p-surface-900));
+$surface-muted: light-dark(var(--p-surface-50), var(--p-surface-800));
+$text: light-dark(var(--p-surface-900), var(--p-surface-0));
+$text-muted: light-dark(var(--p-surface-600), var(--p-surface-300));
+$selected-bg: light-dark(var(--p-primary-50), color-mix(in srgb, var(--p-primary-color) 16%, transparent));
+$success: light-dark(var(--p-green-700), var(--p-green-300));
+$success-bg: light-dark(var(--p-green-50), color-mix(in srgb, var(--p-green-500) 14%, transparent));
+
+@mixin tile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.75rem;
+  border: 1px solid $border;
+  border-radius: $radius;
+  background: $surface;
+  color: $text;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out,
+    box-shadow 150ms ease-out;
+
+  &:hover {
+    border-color: light-dark(var(--p-surface-300), var(--p-surface-500));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--p-primary-color);
+    outline-offset: 2px;
+  }
+
+  &[aria-checked='true'],
+  &[aria-pressed='true'] {
+    border-color: var(--p-primary-color);
+    background: $selected-bg;
+    box-shadow: inset 0 0 0 1px var(--p-primary-color);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@mixin money {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

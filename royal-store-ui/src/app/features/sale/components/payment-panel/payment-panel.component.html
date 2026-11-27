@@ -3,15 +3,22 @@
     [methods]="methods()"
     [selected]="method()"
     [base]="base()"
+    [labelledBy]="labelledBy()"
     (methodSelected)="selectMethod($event)"
   />
 
-  @if (selectedOption(); as option) {
-    @if (option.cardType) {
-      <app-card-payment-form
-        [form]="form.controls.card"
-        [showInstallments]="option.cardType === 'credit'"
-      />
-    }
+  @if (selectedOption()?.isCash) {
+    <app-cash-payment-form
+      [control]="form.controls.cashReceived"
+      [total]="total()"
+    />
+  }
+
+  @if (selectedOption()?.cardType; as cardType) {
+    <app-card-payment-form
+      [form]="form.controls.card"
+      [showInstallments]="cardType === 'credit'"
+      [total]="total()"
+    />
   }
 </div>

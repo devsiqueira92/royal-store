@@ -1,17 +1,105 @@
+@use '../checkout-tokens' as t;
+
 :host {
   display: block;
 }
 
-.fiscal-receipt-wrapper {
+.receipt-view {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  padding: 0.5rem 0;
+  max-width: 28rem;
+  margin: 0 auto;
 }
 
-// Sized to an 80mm thermal roll — matches the physical page set for printing
-// in custom.scss (`@page fiscal-receipt`), so the preview is WYSIWYG.
+.receipt-view__success {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.receipt-view__success-icon {
+  display: flex;
+  flex: 0 0 2.5rem;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: t.$success-bg;
+  color: t.$success;
+  font-size: 1.125rem;
+}
+
+.receipt-view__success-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-size: 0.8125rem;
+  color: t.$text-muted;
+
+  strong {
+    font-size: 1rem;
+    color: t.$text;
+  }
+}
+
+.receipt-view__earn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border-radius: t.$radius;
+  background: t.$success-bg;
+  color: t.$success;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.receipt-view__change {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid t.$border;
+  border-radius: t.$radius;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  strong {
+    @include t.money;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+}
+
+.receipt-view__paper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  border-radius: t.$radius;
+  background: light-dark(var(--p-surface-100), var(--p-surface-800));
+}
+
+.receipt-view__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 0.5rem;
+  width: 100%;
+
+  ::ng-deep .p-button {
+    width: 100%;
+  }
+}
+
+// Sized to an 80mm thermal roll — the page PrintService prints it on — so the
+// preview is WYSIWYG.
 .fiscal-receipt {
   width: 80mm;
   max-width: 100%;
@@ -102,19 +190,30 @@
   text-align: center;
 }
 
-.fiscal-receipt__actions {
-  display: flex;
-  gap: 0.5rem;
+.fiscal-receipt__notice {
+  font-size: 2.3mm;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .fiscal-receipt--status {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 20mm;
+  gap: 3mm;
+  min-height: 40mm;
+  font-family: inherit;
+  font-size: 0.875rem;
   text-align: center;
 
   i {
     font-size: 1.5rem;
+  }
+}
+
+@media print {
+  .fiscal-receipt {
+    box-shadow: none;
   }
 }

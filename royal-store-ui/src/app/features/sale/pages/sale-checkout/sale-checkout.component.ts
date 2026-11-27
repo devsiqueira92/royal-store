@@ -6,115 +6,59 @@ import {
   computed,
   effect,
   inject,
-  input,
-  output,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import {
-  NonNullableFormBuilder,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { NonNullableFormBuilder } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
 import {
   combineLatest,
   debounceTime,
   distinctUntilChanged,
   map,
-  of,
   startWith,
-  switchMap,
-  tap,
 } from 'rxjs';
-import { TranslateService } from '@ngx-translate/core';
 import {
+  CheckoutDiscountLine,
   CheckoutResult,
-  SaleAddress,
-  SaleAddressFormControls,
 } from '../../interfaces/checkout.interface';
-import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
+import {
+  buildCheckoutTotals,
+  estimateCashbackEarned,
+} from '../../interfaces/checkout-totals.util';
 import {
   cartDiscount,
   cartSubtotal,
   cartTax,
   repriceItems,
 } from '../../interfaces/cart-totals.util';
+import { isCashShort } from '../../interfaces/cash-change.util';
+import { EMPTY_SALE_CART } from '../../interfaces/sale-cart.interface';
 import { DiscountMode } from '../../interfaces/sale-totals.interface';
+import { RegisterSaleRequest } from '../../interfaces/register-sale-request.interface';
 import { SalePriceListOption } from '../../interfaces/sale-price-list-option.interface';
-import { PriceListPickerComponent } from '../price-list-picker/price-list-picker.component';
 import { Customer } from '../../interfaces/customer.interface';
 import { PaymentEntry, PaymentState } from '../../interfaces/payment.interface';
 import {
   CASHBACK_FISCAL_TYPE,
   resolveFiscalType,
 } from '../../interfaces/payment-method-option.const';
-import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
 import { CustomerFacade } from '@app/features/customer/facade/customer.facade';
-import { CustomerAddress } from '@app/features/customer/interfaces/customer-address.interface';
 import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
 import { SaleFacade } from '../../facade/sale.facade';
-import {
-  CheckoutStep,
-  CheckoutStepsComponent,
-} from '../checkout-steps/checkout-steps.component';
-import { CheckoutSummaryComponent } from '../checkout-summary/checkout-summary.component';
-import { CustomerStepComponent } from '../customer-step/customer-step.component';
-import { PaymentStepComponent } from '../payment-step/payment-step.component';
-import { FulfillmentStepComponent } from '../fulfillment-step/fulfillment-step.component';
-import { FiscalReceiptPreviewComponent } from '../fiscal-receipt-preview/fiscal-receipt-preview.component';
-import { ViaCepService } from '@app/shared/services/via-cep.service';
 import { NotificationService } from '@app/shared/services/notification.service';
+import { DetailLayoutComponent } from '@app/shared/components/layouts/detail-layout/detail-layout.component';
+import { PriceListPickerComponent } from '../../components/price-list-picker/price-list-picker.component';
+import { CustomerPickerComponent } from '../../components/customer-picker/customer-picker.component';
+import { PaymentPanelComponent } from '../../components/payment-panel/payment-panel.component';
+import { CheckoutSummaryComponent } from '../../components/checkout-summary/checkout-summary.component';
+import { FiscalReceiptPreviewComponent } from '../../components/fiscal-receipt-preview/fiscal-receipt-preview.component';
 
-const STEPS: CheckoutStep[] = [
-  {
-    index: 1,
-    label: 'sale.checkout.steps.customer',
-    title: 'sale.checkout.customer.title',
-  },
-  {
-    index: 2,
-    label: 'sale.checkout.steps.payment',
-    title: 'sale.checkout.payment.title',
-  },
-  {
-    index: 3,
-    label: 'sale.checkout.steps.fulfillment',
-    title: 'sale.checkout.fulfillment.title',
-  },
-  {
-    index: 4,
-    label: 'sale.checkout.steps.receipt',
-    title: 'sale.checkout.receipt.title',
-  },
-];
-
-const RECEIPT_STEP = 4;
+type CheckoutPhase = 'checkout' | 'receipt';
 
 const onlyDigits = (value: string): string => value.replace(/\D/g, '');
-
-const clean = (value: string | null): string | null => value?.trim() || null;
-
-const sameAddresses = (
-  previous: CustomerAddress[],
-  current: CustomerAddress[],
-) =>
-  previous.length === current.length &&
-  previous.every((address, index) => address === current[index]);
-
-/** Null when nothing was filled in, which the API reads as "no address". */
-function toSaleAddress(value: SaleAddress): SaleAddress | null {
-  const address: SaleAddress = {
-    zipCode: value.zipCode ? onlyDigits(value.zipCode) || null : null,
-    street: clean(value.street),
-    number: clean(value.number),
-    city: clean(value.city),
-  };
-
-  return Object.values(address).some(Boolean) ? address : null;
-}
 
 function matches(customer: Customer, term: string): boolean {
   const text = term.trim().toLowerCase();
@@ -131,51 +75,85 @@ function matches(customer: Customer, term: string): boolean {
   );
 }
 
+/** Back to the POS, where the cart is still waiting (or, after a sale, a new one starts). */
+const POS_ROUTE = ['/sales'];
+
+/** Keyboard shortcuts of the page, shown on the buttons they press. */
+const SHORTCUTS = {
+  confirm: 'F9',
+  leave: 'Esc',
+} as const;
+
+/**
+ * What Escape means right now. An open dropdown handles it itself; inside a text field the first
+ * press only leaves the field, so a cashier mid-typing never loses the checkout by accident.
+ */
+function resolveEscape(event: KeyboardEvent): 'ignore' | 'blur' | 'leave' {
+  const target = event.target;
+  const overlayOpen =
+    document.querySelector('.p-select-overlay, .p-overlay-mask') !== null;
+
+  if (
+    event.defaultPrevented ||
+    overlayOpen ||
+    (target instanceof HTMLElement && target.closest('[aria-expanded="true"]'))
+  ) {
+    return 'ignore';
+  }
+
+  return target instanceof HTMLElement && target.closest('input, textarea')
+    ? 'blur'
+    : 'leave';
+}
+
+/**
+ * Checkout page for the cart kept in the store: price list, customer and payment on the left, the
+ * order summary with the confirm action on the right. Once the sale registers, the page turns into
+ * its receipt.
+ */
 @Component({
-  selector: 'app-checkout-dialog',
+  host: {
+    '(document:keydown.f9)': 'onConfirmShortcut($event)',
+    '(document:keydown.escape)': 'onLeaveShortcut($event)',
+  },
   imports: [
-    ReactiveFormsModule,
     TranslatePipe,
     ButtonModule,
-    DialogModule,
-    CheckoutStepsComponent,
-    CheckoutSummaryComponent,
+    DetailLayoutComponent,
     PriceListPickerComponent,
-    CustomerStepComponent,
-    PaymentStepComponent,
-    FulfillmentStepComponent,
+    CustomerPickerComponent,
+    PaymentPanelComponent,
+    CheckoutSummaryComponent,
     FiscalReceiptPreviewComponent,
   ],
-  templateUrl: './checkout-dialog.component.html',
-  styleUrl: './checkout-dialog.component.scss',
+  templateUrl: './sale-checkout.component.html',
+  styleUrl: './sale-checkout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CheckoutDialogComponent implements OnInit {
+export class SaleCheckoutComponent implements OnInit {
+  protected readonly posRoute = POS_ROUTE;
+  protected readonly shortcuts = SHORTCUTS;
+
+  private readonly router = inject(Router);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly customerFacade = inject(CustomerFacade);
   private readonly paymentMethodFacade = inject(PaymentMethodFacade);
   private readonly saleFacade = inject(SaleFacade);
-  private readonly viaCepService = inject(ViaCepService);
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
 
-  items = input<SaleLineItem[]>([]);
-  /** Manual sale discount as typed on the cart; re-applied over the chosen list's subtotal. */
-  discountValue = input<number>(0);
-  discountMode = input<DiscountMode>('amount');
+  /** The cart being charged; the manual discount is re-applied over the chosen list's subtotal. */
+  private readonly cart = toSignal(this.saleFacade.cart$, {
+    initialValue: EMPTY_SALE_CART,
+  });
 
-  closed = output<void>();
-  confirmed = output<CheckoutResult>();
-
-  protected readonly steps = STEPS;
-  protected readonly step = signal(1);
-  protected readonly open = signal(true);
+  protected readonly phase = signal<CheckoutPhase>('checkout');
   protected readonly payment = signal<PaymentState | null>(null);
 
   // Set only while a confirmed sale is in flight, so the effect below knows an
   // in-progress registration is one it started (and not a stale result from
-  // a previous dialog instance that never got cleared from the store).
+  // a previous checkout that never got cleared from the store).
   protected readonly awaitingResult = signal(false);
 
   protected readonly isRegisteringSale = toSignal(
@@ -190,37 +168,22 @@ export class CheckoutDialogComponent implements OnInit {
     initialValue: null,
   });
 
-  protected readonly receiptSaleId = computed(
-    () => this.registerResult()?.saleId ?? null,
+  protected readonly receiptSaleId = computed(() =>
+    this.phase() === 'receipt' ? (this.registerResult()?.saleId ?? null) : null,
+  );
+  protected readonly cashbackCredited = computed(
+    () => this.registerResult()?.cashbackEarned ?? 0,
   );
 
   /** Looked up only to attach a cashback line to the charge payload when it's redeemed. */
-  protected readonly methods = toSignal(
+  private readonly methods = toSignal(
     this.paymentMethodFacade.activePaymentMethods$,
     { initialValue: [] },
   );
 
   protected readonly search = this.fb.control('');
-
-  protected readonly form = this.fb.group({
-    customerId: this.fb.control<string | null>(null),
-    useCashback: this.fb.control(false),
-    fulfillment: this.fb.group({
-      customerAddressId: this.fb.control<string | null>(null),
-      address: this.fb.group<SaleAddressFormControls>({
-        zipCode: this.fb.control<string | null>(null, [
-          Validators.pattern(/^\d{5}-?\d{3}$/),
-        ]),
-        street: this.fb.control<string | null>(null, [
-          Validators.maxLength(200),
-        ]),
-        number: this.fb.control<string | null>(null, [
-          Validators.maxLength(20),
-        ]),
-        city: this.fb.control<string | null>(null, [Validators.maxLength(100)]),
-      }),
-    }),
-  });
+  private readonly customerId = this.fb.control<string | null>(null);
+  private readonly useCashbackControl = this.fb.control(false);
 
   private readonly customers$ = this.customerFacade.customers$;
 
@@ -236,21 +199,16 @@ export class CheckoutDialogComponent implements OnInit {
     { initialValue: [] as Customer[] },
   );
 
-  protected readonly customerId = toSignal(
-    this.form.controls.customerId.valueChanges.pipe(startWith(null)),
-    { initialValue: null },
-  );
-
   protected readonly selectedCustomer = toSignal(
     combineLatest([
       this.customers$,
-      this.form.controls.customerId.valueChanges.pipe(startWith(null)),
+      this.customerId.valueChanges.pipe(startWith(null)),
     ]).pipe(map(([list, id]) => list.find(item => item.id === id) ?? null)),
     { initialValue: null as Customer | null },
   );
 
   protected readonly useCashback = toSignal(
-    this.form.controls.useCashback.valueChanges.pipe(startWith(false)),
+    this.useCashbackControl.valueChanges.pipe(startWith(false)),
     { initialValue: false },
   );
 
@@ -258,16 +216,6 @@ export class CheckoutDialogComponent implements OnInit {
   protected readonly cashbackBalance = toSignal(
     this.customerFacade.cashbackBalance$,
     { initialValue: null as number | null },
-  );
-
-  // Active addresses of the selected customer, offered in the fulfillment step.
-  protected readonly customerAddresses = signal<CustomerAddress[]>([]);
-
-  protected readonly isAddressValid = toSignal(
-    this.form.controls.fulfillment.controls.address.statusChanges.pipe(
-      map(status => status !== 'INVALID'),
-    ),
-    { initialValue: true },
   );
 
   protected readonly priceListOptions = toSignal(
@@ -294,12 +242,19 @@ export class CheckoutDialogComponent implements OnInit {
   });
 
   // The cart priced on the chosen list: subtotal, discount and tax all follow it.
-  private readonly pricedItems = computed(() =>
-    repriceItems(this.items(), this.selectedPriceList()),
+  protected readonly pricedItems = computed(() =>
+    repriceItems(this.cart().items, this.selectedPriceList()),
   );
   private readonly subtotal = computed(() => cartSubtotal(this.pricedItems()));
+  protected readonly discountValue = computed(() => this.cart().discountValue);
+  protected readonly discountMode = computed(() => this.cart().discountMode);
+
   private readonly saleDiscount = computed(() =>
-    cartDiscount(this.subtotal(), this.discountValue(), this.discountMode()),
+    cartDiscount(
+      this.subtotal(),
+      this.cart().discountValue,
+      this.cart().discountMode,
+    ),
   );
   private readonly tax = computed(() =>
     cartTax(this.pricedItems(), this.saleDiscount()),
@@ -317,20 +272,77 @@ export class CheckoutDialogComponent implements OnInit {
     }),
   );
 
-  protected readonly canAdvance = computed(() => {
-    switch (this.step()) {
-      case 1:
-        // Totals depend on the price list, so wait for the lists before moving on.
-        return !this.isLoadingPriceLists() && !!this.selectedPriceList();
-      case 2:
-        return !!this.payment()?.valid;
-      default:
-        return this.isAddressValid();
+  /** Every deduction actually applied, in the order the summary lists them. */
+  protected readonly discountLines = computed<CheckoutDiscountLine[]>(() => {
+    // The manual discount is not listed here: the summary shows it on its own editable row.
+    const { paymentDiscount, paymentRate, cashbackApplied } = this.totals();
+
+    const lines: CheckoutDiscountLine[] = [
+      {
+        label: 'sale.checkout.summary.paymentDiscount',
+        rate: paymentRate,
+        amount: paymentDiscount,
+      },
+      {
+        label: 'sale.checkout.summary.cashback',
+        rate: null,
+        amount: cashbackApplied,
+      },
+    ];
+
+    return lines.filter(line => line.amount > 0);
+  });
+
+  /** Real discounts only — redeemed cashback is the customer's own money, not a saving. */
+  protected readonly savings = computed(
+    () => this.totals().saleDiscount + this.totals().paymentDiscount,
+  );
+
+  protected readonly cashbackEarned = computed(() =>
+    estimateCashbackEarned(this.totals()),
+  );
+
+  protected readonly unitCount = computed(() =>
+    this.cart().items.reduce((total, item) => total + item.quantity, 0),
+  );
+
+  /** What the customer handed over in cash; kept after the sale for the receipt's change line. */
+  protected readonly cashReceived = computed(
+    () => this.payment()?.details.cashReceived ?? null,
+  );
+
+  protected readonly installments = computed(
+    () => this.payment()?.details.card?.installments ?? 1,
+  );
+
+  /** Why the sale can't be confirmed yet, told to the cashier next to the disabled button. */
+  protected readonly blocker = computed<string | null>(() => {
+    if (this.isLoadingPriceLists()) {
+      return 'sale.checkout.blockers.loadingPriceLists';
     }
+
+    if (!this.selectedPriceList()) {
+      return 'sale.checkout.blockers.priceList';
+    }
+
+    const payment = this.payment();
+    if (!payment?.details.methodId) {
+      return 'sale.checkout.blockers.method';
+    }
+
+    if (payment.details.card && !payment.details.card.flag) {
+      return 'sale.checkout.blockers.brand';
+    }
+
+    if (isCashShort(payment.details.cashReceived, this.totals().total)) {
+      return 'sale.checkout.blockers.cashShort';
+    }
+
+    return payment.valid ? null : 'sale.checkout.blockers.method';
   });
 
   constructor() {
-    // Reacts only to the registration *this* confirm() started — a dialog that never
+    // Reacts only to the registration *this* confirm() started — a checkout that never
     // confirmed ignores whatever is already sitting in the store from a previous sale.
     effect(() => {
       if (!this.awaitingResult() || this.isRegisteringSale()) {
@@ -339,7 +351,7 @@ export class CheckoutDialogComponent implements OnInit {
 
       if (this.registerResult()) {
         this.awaitingResult.set(false);
-        this.step.set(RECEIPT_STEP);
+        this.phase.set('receipt');
         return;
       }
 
@@ -357,101 +369,33 @@ export class CheckoutDialogComponent implements OnInit {
     this.customerFacade.loadCustomers();
 
     this.saleFacade.loadPriceListOptions(
-      this.items().map(({ variantId, quantity }) => ({ variantId, quantity })),
+      this.cart().items.map(({ variantId, quantity }) => ({ variantId, quantity })),
     );
-    this.destroyRef.onDestroy(() => this.saleFacade.clearPriceListOptions());
-
-    const { customerId, useCashback, fulfillment } = this.form.controls;
+    // A registered sale's result must not linger: the next checkout would read it as its own.
+    this.destroyRef.onDestroy(() => {
+      this.saleFacade.clearPriceListOptions();
+      this.saleFacade.clearRegisterSaleResult();
+    });
 
     // A balance belongs to one customer, so switching customers drops the toggle and
     // refetches the usable cashback for whoever is now selected.
-    customerId.valueChanges
+    this.customerId.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(id => {
-        useCashback.setValue(false);
+        this.useCashbackControl.setValue(false);
 
         if (id) {
           this.customerFacade.loadCashbackBalance(id);
         } else {
           this.customerFacade.clearCashbackBalance();
+          this.search.setValue('');
         }
       });
+  }
 
-    const { customerAddressId, address } = fulfillment.controls;
-
-    // With a customer, the address comes read-only from their record; without
-    // one, it's typed in by hand. The customer list carries no addresses, so
-    // the details record is loaded and only trusted once it's this customer's.
-    customerId.valueChanges
-      .pipe(
-        tap(id => {
-          address.reset();
-
-          if (id) {
-            this.customerFacade.loadCustomer(id);
-            address.disable();
-          } else {
-            address.enable();
-          }
-        }),
-        switchMap(id =>
-          id
-            ? this.customerFacade.selectedCustomer$.pipe(
-                map(customer =>
-                  customer?.id === id
-                    ? (customer.addresses ?? []).filter(item => item.isActive)
-                    : [],
-                ),
-                distinctUntilChanged(sameAddresses),
-              )
-            : of([]),
-        ),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(addresses => {
-        this.customerAddresses.set(addresses);
-        // Each customer's list starts on their default delivery address.
-        customerAddressId.setValue(
-          addresses.find(item => item.isDefaultDelivery)?.id ?? null,
-        );
-      });
-
-    customerAddressId.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(id => {
-        const selected = this.customerAddresses().find(item => item.id === id);
-        address.reset(
-          selected
-            ? {
-                zipCode: selected.zipCode,
-                street: selected.street,
-                number: selected.number,
-                city: selected.city,
-              }
-            : {},
-        );
-      });
-
-    this.viaCepService
-      .lookupChanges(address.controls.zipCode)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(found => {
-        if (!found) {
-          this.notificationService.warn({
-            detail: this.translateService.instant(
-              'sale.checkout.fulfillment.zipCodeNotFound',
-            ),
-          });
-          return;
-        }
-
-        // Town-wide zip codes have no street: keep what was typed there.
-        const { street, city } = address.controls;
-        address.patchValue({
-          street: found.logradouro || street.value,
-          city: found.localidade || city.value,
-        });
-      });
+  /** Kept in the cart store, so it survives a trip back to the POS. */
+  protected changeDiscount(value: number, mode: DiscountMode): void {
+    this.saleFacade.setCartDiscount(value, mode);
   }
 
   protected selectPriceList(id: string): void {
@@ -459,37 +403,56 @@ export class CheckoutDialogComponent implements OnInit {
   }
 
   protected selectCustomer(id: string | null): void {
-    this.form.controls.customerId.setValue(id);
+    this.customerId.setValue(id);
   }
 
   protected toggleCashback(enabled: boolean): void {
-    this.form.controls.useCashback.setValue(enabled);
+    this.useCashbackControl.setValue(enabled);
   }
 
-  protected back(): void {
-    this.step.update(step => Math.max(step - 1, 1));
-  }
+  /** Same rules as the confirm button; the receipt has nothing left to confirm. */
+  protected onConfirmShortcut(event: Event): void {
+    event.preventDefault();
 
-  protected next(): void {
-    if (this.canAdvance()) {
-      // Capped before the receipt step: that one is only ever reached once the sale the
-      // user confirms on step 3 actually registers, never by stepping forward manually.
-      this.step.update(step => Math.min(step + 1, RECEIPT_STEP - 1));
+    if (!(event as KeyboardEvent).repeat) {
+      this.confirm();
     }
   }
 
-  protected close(): void {
-    if (!this.open() || this.awaitingResult()) {
+  /** Back to the POS (or on to a new sale from the receipt), unless Esc was meant for a field. */
+  protected onLeaveShortcut(event: Event): void {
+    const keyboardEvent = event as KeyboardEvent;
+    if (keyboardEvent.repeat) {
       return;
     }
 
-    this.open.set(false);
-    this.closed.emit();
+    switch (resolveEscape(keyboardEvent)) {
+      case 'blur':
+        (keyboardEvent.target as HTMLElement).blur();
+        return;
+      case 'leave':
+        event.preventDefault();
+        this.leave();
+        return;
+      default:
+        return;
+    }
+  }
+
+  protected leave(): void {
+    if (!this.awaitingResult()) {
+      this.router.navigate(POS_ROUTE);
+    }
   }
 
   protected confirm(): void {
     const payment = this.payment();
-    if (!payment?.valid || !this.canAdvance() || this.awaitingResult()) {
+    if (
+      this.phase() !== 'checkout' ||
+      !payment?.valid ||
+      this.blocker() ||
+      this.awaitingResult()
+    ) {
       return;
     }
 
@@ -515,7 +478,7 @@ export class CheckoutDialogComponent implements OnInit {
       if (cashbackMethod) {
         payments.push({
           methodId: cashbackMethod.id,
-          fiscalType: resolveFiscalType(cashbackMethod.paymentType),
+          fiscalType: CASHBACK_FISCAL_TYPE,
           amount: totals.cashbackApplied,
           discountRate: 0,
           card: null,
@@ -523,24 +486,35 @@ export class CheckoutDialogComponent implements OnInit {
       }
     }
 
-    this.awaitingResult.set(true);
-
-    this.confirmed.emit({
+    const checkout: CheckoutResult = {
       priceListId: this.selectedPriceList()?.priceListId ?? null,
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
       fulfillment: {
-        // TODO: delivery isn't supported yet, so every sale is treated as a pickup for now.
+        // TODO: delivery isn't offered at checkout yet, so every sale is a pickup for now.
         // No branch entity exists yet (RegisterSaleFulfillment.BranchId is just an opaque
         // string), and pickup requires a non-blank one, hence this placeholder.
         mode: 'pickup',
         branchId: 'main',
-        address: toSaleAddress(
-          this.form.controls.fulfillment.controls.address.getRawValue(),
-        ),
+        address: null,
       },
       payments,
       totals,
-    });
+    };
+
+    const request: RegisterSaleRequest = {
+      items: this.cart().items.map(({ variantId, quantity, productId }) => ({
+        variantId,
+        quantity,
+        productId,
+      })),
+      checkout: {
+        ...checkout,
+        customer: checkout.customer ? { id: checkout.customer.id } : null,
+      },
+    };
+
+    this.awaitingResult.set(true);
+    this.saleFacade.registerSale(request);
   }
 }

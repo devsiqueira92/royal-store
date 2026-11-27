@@ -1,37 +1,69 @@
 <div class="card-payment" [formGroup]="form()">
-  <div class="card-payment__row">
-    <span class="card-payment__label">
+  <div class="card-payment__field">
+    <span id="card-payment-brand" class="card-payment__label">
       {{ 'sale.current.payment.brand' | translate }}
+      <span class="card-payment__required" aria-hidden="true">*</span>
     </span>
-    <p-select
-      class="card-payment__control"
-      formControlName="flag"
-      [options]="flagOptions"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'sale.current.payment.brandPlaceholder' | translate"
-      [invalid]="flagInvalid()"
-      appendTo="body"
-    />
+    <div
+      class="card-payment__flags"
+      role="radiogroup"
+      aria-labelledby="card-payment-brand"
+      aria-required="true"
+      [attr.aria-invalid]="flagInvalid()"
+      [attr.aria-describedby]="flagInvalid() ? 'card-payment-brand-error' : null"
+    >
+      @for (flag of flagOptions; track flag.value) {
+        <button
+          type="button"
+          role="radio"
+          class="card-payment__flag"
+          [attr.aria-checked]="selectedFlag() === flag.value"
+          (click)="selectFlag(flag.value)"
+        >
+          {{ flag.label }}
+        </button>
+      }
+    </div>
+    @if (flagInvalid()) {
+      <small id="card-payment-brand-error" class="card-payment__error">
+        {{ 'sale.current.payment.brandPlaceholder' | translate }}
+      </small>
+    }
   </div>
 
   @if (showInstallments()) {
-    <div class="card-payment__row">
-      <span class="card-payment__label">
+    <div class="card-payment__field">
+      <label for="card-payment-installments" class="card-payment__label">
         {{ 'sale.current.payment.terms' | translate }}
-      </span>
+      </label>
       <p-select
+        inputId="card-payment-installments"
         class="card-payment__control"
         formControlName="installments"
-        [options]="installmentOptions"
+        [options]="installmentOptions()"
         optionValue="value"
         appendTo="body"
       >
         <ng-template #selectedItem let-option>
-          {{ option.label | translate }}
+          {{
+            'sale.checkout.payment.installment'
+              | translate
+                : { count: option.value, amount: (option.amount | currency) }
+          }}
         </ng-template>
-        <ng-template let-option #item>
-          {{ option.label | translate }}
+        <ng-template #item let-option>
+          <span class="card-payment__installment">
+            <span>
+              {{
+                'sale.checkout.payment.installment'
+                  | translate
+                    : { count: option.value, amount: (option.amount | currency) }
+              }}
+            </span>
+            @if (option.value === 1) {
+              <small>{{ 'sale.current.payment.singleCharge' | translate }}</small>
+            }
+          </span>
         </ng-template>
       </p-select>
     </div>

@@ -1,69 +1,75 @@
+@use '../checkout-tokens' as t;
+
 :host {
   display: block;
-  margin-bottom: 1rem;
 }
 
 .price-list-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.625rem;
 }
 
-.price-list-picker__label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+.price-list-picker__tile {
+  @include t.tile;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.375rem;
+  padding: 0.75rem 0.875rem;
 }
 
-.price-list-picker__list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.price-list-picker__name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: t.$text-muted;
+  overflow-wrap: anywhere;
+
+  [aria-checked='true'] & {
+    color: var(--p-primary-color);
+  }
 }
 
 .price-list-picker__row {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid light-dark(var(--p-surface-200), var(--p-surface-700));
-  border-radius: var(--p-border-radius-md, 0.5rem);
-  background: light-dark(var(--p-surface-0), var(--p-surface-800));
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.price-list-picker__row--selected {
-  border-color: var(--p-primary-color);
-  background: light-dark(var(--p-primary-50), var(--p-surface-700));
-}
-
-.price-list-picker__name {
-  display: flex;
-  flex: 1;
   align-items: baseline;
+  justify-content: space-between;
   gap: 0.5rem;
-  font-weight: 600;
-}
-
-.price-list-picker__name small {
-  font-size: 0.6875rem;
-  font-weight: 500;
-  color: light-dark(var(--p-surface-500), var(--p-surface-400));
 }
 
 .price-list-picker__subtotal {
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  @include t.money;
+  font-family: var(--app-font-mono);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: t.$text;
+}
+
+.price-list-picker__rule {
+  @include t.money;
+  font-family: var(--app-font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  &[data-kind='default'] {
+    font-weight: 500;
+    color: t.$text-muted;
+  }
+
+  &[data-kind='discount'] {
+    color: t.$success;
+  }
+
+  &[data-kind='surcharge'] {
+    color: light-dark(var(--p-amber-700), var(--p-amber-300));
+  }
 }
 
 .price-list-picker__empty {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  gap: 0.5rem;
   margin: 0;
   font-size: 0.875rem;
-  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+  color: t.$text-muted;
 }

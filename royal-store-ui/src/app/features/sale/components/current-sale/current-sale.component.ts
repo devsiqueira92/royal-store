@@ -5,38 +5,36 @@ import {
   inject,
   input,
   output,
-  signal,
 } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
-import { DiscountMode } from '../../interfaces/sale-totals.interface';
-import {
-  cartDiscount,
-  cartSubtotal,
-  cartTax,
-} from '../../interfaces/cart-totals.util';
+import { cartSubtotal, cartTax } from '../../interfaces/cart-totals.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
-import { CheckoutDialogComponent } from '../checkout-dialog/checkout-dialog.component';
-import { CheckoutResult } from '../../interfaces/checkout.interface';
 import { CashShift } from '@app/features/cash-shift/interfaces/cash-shift.interface';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CashShiftFacade } from '@app/features/cash-shift/facade/cash-shift.facade';
 import { DialogManagerService } from '@app/shared/services/dialog.service';
 import { OpenCashShiftComponent } from '@app/features/cash-shift/components/open-cash-shift/open-cash-shift.component';
 import { CurrentSellerFacade } from '@app/core/current-seller/facade/current-seller.facade';
+import { take } from 'rxjs';
+
+/** Key that charges the sale from anywhere on the POS, so the cashier never reaches for the mouse. */
+const CHECKOUT_SHORTCUT = 'F8';
 
 @Component({
   selector: 'app-current-sale',
+  host: {
+    '(document:keydown.f8)': 'onCheckoutShortcut($event)',
+  },
   imports: [
     CurrencyPipe,
     TranslatePipe,
     ButtonModule,
     SaleLineItemComponent,
     SaleSummaryComponent,
-    CheckoutDialogComponent,
   ],
   templateUrl: './current-sale.component.html',
   styleUrl: './current-sale.component.scss',
@@ -57,11 +55,11 @@ export class CurrentSaleComponent {
   quantityChange = output<{ variantId: string; quantity: number }>();
   removeItem = output<string>();
   clear = output<void>();
-  charge = output<CheckoutResult>();
+  /** Asked to go to checkout — only emitted once a cash shift is open. */
+  checkout = output<void>();
 
-  protected readonly discountValue = signal(0);
-  protected readonly discountMode = signal<DiscountMode>('amount');
-  protected readonly checkoutOpen = signal(false);
+  protected readonly checkoutShortcut = CHECKOUT_SHORTCUT;
+  private cashShiftDialogOpen = false;
 
   private readonly current = toSignal(this.cashShiftFacade.current$, {
     initialValue: null as CashShift | null,
@@ -69,47 +67,57 @@ export class CurrentSaleComponent {
 
   protected readonly subtotal = computed(() => cartSubtotal(this.items()));
 
-  protected readonly discountAmount = computed(() =>
-    cartDiscount(this.subtotal(), this.discountValue(), this.discountMode()),
-  );
-
-  private readonly netSubtotal = computed(
-    () => this.subtotal() - this.discountAmount(),
-  );
-
-  protected readonly tax = computed(() =>
-    cartTax(this.items(), this.discountAmount()),
-  );
+  // Before any discount: discounts are given at checkout, where the final total is worked out.
+  protected readonly tax = computed(() => cartTax(this.items(), 0));
 
   protected readonly taxPercent = computed(() => {
-    const net = this.netSubtotal();
-    return net > 0 ? (this.tax() / net) * 100 : 0;
+    const subtotal = this.subtotal();
+    return subtotal > 0 ? (this.tax() / subtotal) * 100 : 0;
   });
 
-  protected readonly total = computed(() => this.netSubtotal());
+  protected readonly total = computed(() => this.subtotal());
 
   protected onQuantityChange(variantId: string, quantity: number): void {
     this.quantityChange.emit({ variantId, quantity });
   }
 
-  protected onConfirmed(result: CheckoutResult): void {
-    // The dialog stays open: it now shows its own receipt step once the sale this emits
-    // registers, and closes itself from there.
-    this.charge.emit(result);
+  /** Same rules as the charge button: nothing happens on an empty cart. */
+  protected onCheckoutShortcut(event: Event): void {
+    event.preventDefault();
+
+    // Holding the key down repeats it; one press means one trip to checkout.
+    if ((event as KeyboardEvent).repeat || this.items().length === 0) {
+      return;
+    }
+
+    this.goToCheckout();
   }
 
-  protected checkoutModalOpen() {
+  protected goToCheckout(): void {
     if (!this.current()) {
-      this.dialogManagerService.open(OpenCashShiftComponent, {
+      this.openCashShiftDialog();
+      return;
+    }
+    this.checkout.emit();
+  }
+
+  private openCashShiftDialog(): void {
+    // The shortcut keeps working behind the dialog, so it must not stack a second one.
+    if (this.cashShiftDialogOpen) {
+      return;
+    }
+
+    this.cashShiftDialogOpen = true;
+    this.dialogManagerService
+      .open(OpenCashShiftComponent, {
         showHeader: true,
         closable: true,
         closeOnEscape: true,
         dismissableMask: false,
         width: '440px',
         height: 'auto',
-      });
-      return;
-    }
-    this.checkoutOpen.set(true);
+      })
+      .onClose.pipe(take(1))
+      .subscribe(() => (this.cashShiftDialogOpen = false));
   }
 }

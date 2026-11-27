@@ -12,6 +12,7 @@ import {
   PagedListState,
 } from '@app/shared/utils/paged-list-state.util';
 import { SalePriceListOption } from '../interfaces/sale-price-list-option.interface';
+import { EMPTY_SALE_CART, SaleCart } from '../interfaces/sale-cart.interface';
 import { SaleActions } from './sale.actions';
 
 export interface SaleState {
@@ -30,6 +31,8 @@ export interface SaleState {
   /** Price lists offered at checkout, each with the current cart priced on it. */
   priceListOptions: SalePriceListOption[];
   isLoadingPriceListOptions: boolean;
+  /** The sale being built at the POS, shared by the cart and the checkout page. */
+  cart: SaleCart;
   error: string | null;
 }
 
@@ -47,6 +50,7 @@ export const initialSaleState: SaleState = {
   lastRegisterSaleResult: null,
   priceListOptions: [],
   isLoadingPriceListOptions: false,
+  cart: EMPTY_SALE_CART,
   error: null,
 };
 
@@ -155,6 +159,8 @@ export const saleFeature = createFeature({
       ...state,
       isRegisteringSale: false,
       lastRegisterSaleResult: response,
+      // The cart is now a registered sale: the next one starts empty.
+      cart: EMPTY_SALE_CART,
     })),
     on(SaleActions.registerSaleFailure, (state, { error }): SaleState => ({
       ...state,
@@ -179,6 +185,18 @@ export const saleFeature = createFeature({
     on(SaleActions.loadPriceListOptionsFailure, (state): SaleState => ({
       ...state,
       isLoadingPriceListOptions: false,
+    })),
+    on(SaleActions.setCartItems, (state, { items }): SaleState => ({
+      ...state,
+      cart: { ...state.cart, items },
+    })),
+    on(SaleActions.setCartDiscount, (state, { value, mode }): SaleState => ({
+      ...state,
+      cart: { ...state.cart, discountValue: value, discountMode: mode },
+    })),
+    on(SaleActions.clearCart, (state): SaleState => ({
+      ...state,
+      cart: EMPTY_SALE_CART,
     })),
     on(SaleActions.clearPriceListOptions, (state): SaleState => ({
       ...state,

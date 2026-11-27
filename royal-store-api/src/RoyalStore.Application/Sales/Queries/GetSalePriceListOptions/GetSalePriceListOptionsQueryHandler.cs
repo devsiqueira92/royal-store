@@ -45,7 +45,7 @@ public sealed class GetSalePriceListOptionsQueryHandler(
             }
 
             options.Add(new SalePriceListOptionResponse(
-                list.Id, list.Name, list.IsDefault, lines.Sum(l => l.LineTotal), lines));
+                list.Id, list.Name, list.IsDefault, list.DiscountPercentage, lines.Sum(l => l.LineTotal), lines));
         }
 
         return options;

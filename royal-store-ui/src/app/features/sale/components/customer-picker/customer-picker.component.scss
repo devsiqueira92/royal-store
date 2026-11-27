@@ -1,0 +1,184 @@
+@use '../checkout-tokens' as t;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.customer-picker__search,
+.customer-picker__search ::ng-deep input {
+  width: 100%;
+}
+
+.customer-picker__results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.customer-picker__row {
+  @include t.tile;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+}
+
+.customer-picker__selected {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.5rem 0.625rem 0.75rem;
+  border: 1px solid var(--p-primary-color);
+  border-radius: t.$radius;
+  background: t.$selected-bg;
+}
+
+.customer-picker__avatar {
+  display: flex;
+  flex: 0 0 2.25rem;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: light-dark(var(--p-surface-200), var(--p-surface-700));
+  color: t.$text;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.customer-picker__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.customer-picker__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.customer-picker__meta {
+  font-size: 0.75rem;
+  color: t.$text-muted;
+}
+
+.customer-picker__tier {
+  padding: 0.0625rem 0.375rem;
+  border-radius: 999px;
+  background: light-dark(var(--p-surface-200), var(--p-surface-700));
+  color: light-dark(var(--p-surface-700), var(--p-surface-100));
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  &[data-tier='silver'],
+  &[data-tier='prata'] {
+    background: light-dark(var(--p-slate-200), var(--p-slate-700));
+    color: light-dark(var(--p-slate-800), var(--p-slate-100));
+  }
+
+  &[data-tier='gold'],
+  &[data-tier='ouro'] {
+    background: light-dark(var(--p-amber-100), var(--p-amber-900));
+    color: light-dark(var(--p-amber-800), var(--p-amber-200));
+  }
+
+  &[data-tier='vip'] {
+    background: light-dark(var(--p-purple-100), var(--p-purple-900));
+    color: light-dark(var(--p-purple-800), var(--p-purple-200));
+  }
+}
+
+.customer-picker__rate {
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: t.$success-bg;
+  color: t.$success;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.customer-picker__earn,
+.customer-picker__balance {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: t.$radius;
+
+  > i {
+    font-size: 1rem;
+  }
+}
+
+.customer-picker__earn {
+  background: t.$success-bg;
+  color: t.$success;
+}
+
+.customer-picker__balance {
+  border: 1px solid t.$border;
+  background: t.$surface-muted;
+
+  > i {
+    color: t.$text-muted;
+  }
+}
+
+.customer-picker__earn-text,
+.customer-picker__balance-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  font-size: 0.75rem;
+
+  strong {
+    font-size: 0.875rem;
+  }
+}
+
+.customer-picker__balance-text {
+  color: t.$text-muted;
+
+  strong {
+    color: t.$text;
+  }
+}
+
+.customer-picker__earn-value {
+  @include t.money;
+  font-size: 1rem;
+}
+
+.customer-picker__empty,
+.customer-picker__note,
+.customer-picker__anonymous {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: t.$text-muted;
+}
+
+.customer-picker__empty {
+  padding: 0.75rem 0;
+  text-align: center;
+}
+
+.customer-picker__anonymous {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

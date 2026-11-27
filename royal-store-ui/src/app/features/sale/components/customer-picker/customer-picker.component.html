@@ -1,0 +1,143 @@
+@if (selected(); as customer) {
+  <div class="customer-picker__selected">
+    <span class="customer-picker__avatar" aria-hidden="true">
+      {{ initial(customer.name) }}
+    </span>
+    <span class="customer-picker__info">
+      <span class="customer-picker__name">
+        {{ customer.name }}
+        <span
+          class="customer-picker__tier"
+          [attr.data-tier]="customer.loyaltyTierName.toLowerCase()"
+        >
+          {{ customer.loyaltyTierName }}
+        </span>
+      </span>
+      @if (customer.phone) {
+        <span class="customer-picker__meta">{{ customer.phone }}</span>
+      }
+    </span>
+    <p-button
+      icon="pi pi-arrow-right-arrow-left"
+      severity="secondary"
+      [text]="true"
+      [label]="'sale.checkout.customer.change' | translate"
+      (onClick)="customerSelected.emit(null)"
+    />
+  </div>
+
+  @if (cashbackRate() > 0) {
+    <div class="customer-picker__earn">
+      <i class="pi pi-star-fill" aria-hidden="true"></i>
+      <span class="customer-picker__earn-text">
+        <strong>
+          {{
+            'sale.checkout.customer.earnTitle'
+              | translate: { rate: (cashbackRate() | percent: '1.0-2') }
+          }}
+        </strong>
+        <span>{{ 'sale.checkout.customer.earnHint' | translate }}</span>
+      </span>
+      <strong class="customer-picker__earn-value">
+        +{{ cashbackEarned() | currency }}
+      </strong>
+    </div>
+  } @else {
+    <p class="customer-picker__note">
+      {{ 'sale.checkout.customer.noCashbackTier' | translate }}
+    </p>
+  }
+
+  @if ((cashbackBalance() ?? 0) > 0) {
+    <div class="customer-picker__balance">
+      <i class="pi pi-wallet" aria-hidden="true"></i>
+      <span class="customer-picker__balance-text">
+        <strong>{{ 'sale.checkout.customer.balanceTitle' | translate }}</strong>
+        <span>
+          {{
+            'sale.checkout.customer.balanceHint'
+              | translate: { amount: (cashbackBalance() | currency) }
+          }}
+        </span>
+      </span>
+      <app-switch
+        [checked]="useCashback()"
+        [ariaLabel]="'sale.checkout.customer.balanceTitle' | translate"
+        (changed)="cashbackToggled.emit($event)"
+      />
+    </div>
+  }
+} @else {
+  <p-iconfield class="customer-picker__search">
+    <p-inputicon class="pi pi-search" />
+    <input
+      pInputText
+      type="search"
+      autocomplete="off"
+      [formControl]="search()"
+      [placeholder]="'sale.checkout.customer.searchPlaceholder' | translate"
+      [attr.aria-label]="'sale.checkout.customer.searchPlaceholder' | translate"
+    />
+  </p-iconfield>
+
+  <ul class="customer-picker__results">
+    @for (customer of visibleCustomers(); track customer.id) {
+      <li>
+        <button
+          type="button"
+          class="customer-picker__row"
+          (click)="customerSelected.emit(customer.id)"
+        >
+          <span class="customer-picker__avatar" aria-hidden="true">
+            {{ initial(customer.name) }}
+          </span>
+          <span class="customer-picker__info">
+            <span class="customer-picker__name">
+              {{ customer.name }}
+              <span
+                class="customer-picker__tier"
+                [attr.data-tier]="customer.loyaltyTierName.toLowerCase()"
+              >
+                {{ customer.loyaltyTierName }}
+              </span>
+            </span>
+            @if (customer.phone) {
+              <span class="customer-picker__meta">{{ customer.phone }}</span>
+            }
+          </span>
+          @if (customer.loyaltyTierCashbackPercentage > 0) {
+            <span class="customer-picker__rate">
+              {{
+                'sale.checkout.customer.rateBadge'
+                  | translate
+                    : {
+                        rate:
+                          (customer.loyaltyTierCashbackPercentage / 100
+                          | percent: '1.0-2'),
+                      }
+              }}
+            </span>
+          }
+        </button>
+      </li>
+    } @empty {
+      <li class="customer-picker__empty">
+        {{ 'sale.checkout.customer.notFound' | translate }}
+      </li>
+    }
+  </ul>
+
+  @if (hiddenCount() > 0) {
+    <p class="customer-picker__note">
+      {{
+        'sale.checkout.customer.moreResults'
+          | translate: { count: hiddenCount() }
+      }}
+    </p>
+  }
+
+  <p class="customer-picker__anonymous">
+    <i class="pi pi-user" aria-hidden="true"></i>
+    {{ 'sale.checkout.customer.anonymousHint' | translate }}
+  </p>
+}

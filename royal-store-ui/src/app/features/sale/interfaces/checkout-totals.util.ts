@@ -15,9 +15,10 @@ export interface CheckoutTotalsInput {
 const round = (value: number): number => Math.round(value * 100) / 100;
 
 /**
- * Loyalty and payment-method rates both run over the base already net of the manual discount, so
- * they add up the way the checkout presents them ("12% = 10% loyalty + 2% payment"). Cashback is
- * capped by what is still owed, so a large balance can never push the sale below zero.
+ * The payment-method rate runs over the base already net of the manual discount. The loyalty rate
+ * is the tier's cashback percentage — what the customer earns back — so it is informational only
+ * and never reduces the total. Redeemed cashback is capped by what is still owed, so a large
+ * balance can never push the sale below zero.
  */
 export function buildCheckoutTotals(
   input: CheckoutTotalsInput,
@@ -34,17 +35,16 @@ export function buildCheckoutTotals(
 
   const base = Math.max(subtotal - saleDiscount, 0);
   const loyaltyRate = loyaltyRateOf(customer);
-  const loyaltyDiscount = round(base * loyaltyRate);
   const paymentDiscount = round(base * paymentRate);
 
-  const owed = base - loyaltyDiscount - paymentDiscount;
+  const owed = base - paymentDiscount;
   const cashbackApplied =
     useCashback && customer
       ? round(Math.min(Math.max(cashbackBalance, 0), Math.max(owed, 0)))
       : 0;
 
   const discountTotal = round(
-    saleDiscount + loyaltyDiscount + paymentDiscount + cashbackApplied,
+    saleDiscount + paymentDiscount + cashbackApplied,
   );
 
   return {
@@ -52,7 +52,7 @@ export function buildCheckoutTotals(
     base,
     saleDiscount,
     loyaltyRate,
-    loyaltyDiscount,
+    loyaltyDiscount: 0,
     paymentRate,
     paymentDiscount,
     cashbackApplied,
@@ -60,4 +60,14 @@ export function buildCheckoutTotals(
     tax,
     total: round(subtotal - discountTotal),
   };
+}
+
+/**
+ * Cashback the customer will earn on this sale, mirroring the API's accrual: the tier rate over
+ * the subtotal net of the manual discount and of any cashback redeemed on this same sale.
+ * Informational only — it is credited after the sale and never changes what is charged now.
+ */
+export function estimateCashbackEarned(totals: CheckoutTotals): number {
+  const earningBase = Math.max(totals.base - totals.cashbackApplied, 0);
+  return round(earningBase * totals.loyaltyRate);
 }

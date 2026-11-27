@@ -20,6 +20,8 @@ export class PaymentMethodListComponent {
   selected = input<string | null>(null);
   /** Cart base the discount preview is calculated over. */
   base = input<number>(0);
+  /** Accessible name of the radio group, owned by the section heading around it. */
+  labelledBy = input<string | null>(null);
 
   methodSelected = output<string>();
 

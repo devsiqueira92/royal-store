@@ -1,0 +1,71 @@
+<div class="cash-payment">
+  <div class="cash-payment__field">
+    <label for="cash-payment-received" class="cash-payment__label">
+      {{ 'sale.checkout.payment.cashReceived' | translate }}
+    </label>
+    <p-inputgroup>
+      <p-inputgroup-addon>R$</p-inputgroup-addon>
+      <p-inputnumber
+        inputId="cash-payment-received"
+        mode="decimal"
+        locale="en-US"
+        placeholder="0.00"
+        [formControl]="control()"
+        [minFractionDigits]="2"
+        [maxFractionDigits]="2"
+        [min]="0"
+        [fluid]="true"
+        [invalid]="short()"
+        [ariaDescribedBy]="'cash-payment-feedback'"
+      />
+    </p-inputgroup>
+
+    @if (quickAmounts().length > 0) {
+      <div
+        class="cash-payment__quick"
+        role="group"
+        [attr.aria-label]="'sale.checkout.payment.cashQuick' | translate"
+      >
+        @for (amount of quickAmounts(); track amount; let first = $first) {
+          <button
+            type="button"
+            class="cash-payment__chip"
+            [attr.aria-pressed]="received() === amount"
+            (click)="fill(amount)"
+          >
+            @if (first) {
+              {{ 'sale.checkout.payment.cashExact' | translate }}
+            } @else {
+              {{ amount | currency }}
+            }
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <div id="cash-payment-feedback" class="cash-payment__feedback" aria-live="polite">
+    @if (short()) {
+      <p class="cash-payment__short">
+        <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+        {{
+          'sale.checkout.payment.cashShort'
+            | translate: { amount: (total() - (received() ?? 0) | currency) }
+        }}
+      </p>
+    } @else if (change(); as amount) {
+      <div class="cash-payment__change">
+        <span>{{ 'sale.checkout.payment.cashChange' | translate }}</span>
+        <strong>{{ amount | currency }}</strong>
+      </div>
+    } @else if (change() === 0) {
+      <p class="cash-payment__hint">
+        {{ 'sale.checkout.payment.cashNoChange' | translate }}
+      </p>
+    } @else {
+      <p class="cash-payment__hint">
+        {{ 'sale.checkout.payment.cashHint' | translate }}
+      </p>
+    }
+  </div>
+</div>
