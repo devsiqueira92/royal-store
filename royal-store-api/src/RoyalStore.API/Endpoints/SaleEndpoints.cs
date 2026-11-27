@@ -6,6 +6,7 @@ using RoyalStore.Application.Loyalty.Commands.ReverseSaleCashback;
 using RoyalStore.Application.Sales.Commands.RegisterSale;
 using RoyalStore.Application.Sales.Queries.GetPosProducts;
 using RoyalStore.Application.Sales.Queries.GetSaleDetails;
+using RoyalStore.Application.Sales.Queries.GetSalePriceListOptions;
 using RoyalStore.Application.Sales.Queries.GetSaleReceipt;
 using RoyalStore.Application.Sales.Queries.GetSalesList;
 using RoyalStore.Domain.Const;
@@ -21,6 +22,8 @@ public sealed class SaleEndpoints : IEndpointDefinition
         routes.MapPost("", RegisterSale).RequireAuthorization(PolicyNames.Admin);
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.Permission(Permission.ReportsViewFinancials));
         routes.MapGet("products", GetProducts).RequireAuthorization(PolicyNames.Admin);
+        // POST: the cart to price travels in the body.
+        routes.MapPost("price-list-options", GetPriceListOptions).RequireAuthorization(PolicyNames.Admin);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.Permission(Permission.ReportsViewFinancials));
 
         routes.MapPost("{id:guid}/cashback/reversal", ReverseCashback)
@@ -79,6 +82,15 @@ public sealed class SaleEndpoints : IEndpointDefinition
         CancellationToken ct)
     {
         var result = await mediator.Send(new GetPosProductsQuery(categoryId), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> GetPriceListOptions(
+        GetSalePriceListOptionsQuery query,
+        IMediator mediator,
+        CancellationToken ct)
+    {
+        var result = await mediator.Send(query, ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 }

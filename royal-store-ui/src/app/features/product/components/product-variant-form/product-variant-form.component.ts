@@ -111,13 +111,4 @@ export class ProductVariantFormComponent {
   protected variantStatusLabelKey = computed(() => {
     return `product.form.variant.status.${this.variantStatus()}`;
   });
-
-  protected margin = computed(() => {
-    const values = this.formValues();
-    if (!values || !values.price || values.costPrice == null) {
-      return null;
-    }
-
-    return Math.round(((values.price - values.costPrice) / values.price) * 100);
-  });
 }

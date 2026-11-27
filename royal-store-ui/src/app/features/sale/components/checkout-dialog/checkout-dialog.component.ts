@@ -36,6 +36,15 @@ import {
   SaleAddressFormControls,
 } from '../../interfaces/checkout.interface';
 import { buildCheckoutTotals } from '../../interfaces/checkout-totals.util';
+import {
+  cartDiscount,
+  cartSubtotal,
+  cartTax,
+  repriceItems,
+} from '../../interfaces/cart-totals.util';
+import { DiscountMode } from '../../interfaces/sale-totals.interface';
+import { SalePriceListOption } from '../../interfaces/sale-price-list-option.interface';
+import { PriceListPickerComponent } from '../price-list-picker/price-list-picker.component';
 import { Customer } from '../../interfaces/customer.interface';
 import { PaymentEntry, PaymentState } from '../../interfaces/payment.interface';
 import {
@@ -131,6 +140,7 @@ function matches(customer: Customer, term: string): boolean {
     DialogModule,
     CheckoutStepsComponent,
     CheckoutSummaryComponent,
+    PriceListPickerComponent,
     CustomerStepComponent,
     PaymentStepComponent,
     FulfillmentStepComponent,
@@ -150,10 +160,10 @@ export class CheckoutDialogComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly translateService = inject(TranslateService);
 
-  subtotal = input<number>(0);
-  saleDiscount = input<number>(0);
-  tax = input<number>(0);
   items = input<SaleLineItem[]>([]);
+  /** Manual sale discount as typed on the cart; re-applied over the chosen list's subtotal. */
+  discountValue = input<number>(0);
+  discountMode = input<DiscountMode>('amount');
 
   closed = output<void>();
   confirmed = output<CheckoutResult>();
@@ -260,6 +270,41 @@ export class CheckoutDialogComponent implements OnInit {
     { initialValue: true },
   );
 
+  protected readonly priceListOptions = toSignal(
+    this.saleFacade.priceListOptions$,
+    { initialValue: [] as SalePriceListOption[] },
+  );
+  protected readonly isLoadingPriceLists = toSignal(
+    this.saleFacade.isLoadingPriceListOptions$,
+    { initialValue: false },
+  );
+
+  /** What the operator picked; until then the store's default list. */
+  private readonly pickedPriceListId = signal<string | null>(null);
+
+  protected readonly selectedPriceList = computed(() => {
+    const options = this.priceListOptions();
+    const picked = this.pickedPriceListId();
+
+    return (
+      options.find(option => option.priceListId === picked) ??
+      options.find(option => option.isDefault) ??
+      null
+    );
+  });
+
+  // The cart priced on the chosen list: subtotal, discount and tax all follow it.
+  private readonly pricedItems = computed(() =>
+    repriceItems(this.items(), this.selectedPriceList()),
+  );
+  private readonly subtotal = computed(() => cartSubtotal(this.pricedItems()));
+  private readonly saleDiscount = computed(() =>
+    cartDiscount(this.subtotal(), this.discountValue(), this.discountMode()),
+  );
+  private readonly tax = computed(() =>
+    cartTax(this.pricedItems(), this.saleDiscount()),
+  );
+
   protected readonly totals = computed(() =>
     buildCheckoutTotals({
       subtotal: this.subtotal(),
@@ -275,7 +320,8 @@ export class CheckoutDialogComponent implements OnInit {
   protected readonly canAdvance = computed(() => {
     switch (this.step()) {
       case 1:
-        return true;
+        // Totals depend on the price list, so wait for the lists before moving on.
+        return !this.isLoadingPriceLists() && !!this.selectedPriceList();
       case 2:
         return !!this.payment()?.valid;
       default:
@@ -309,6 +355,11 @@ export class CheckoutDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.customerFacade.loadCustomers();
+
+    this.saleFacade.loadPriceListOptions(
+      this.items().map(({ variantId, quantity }) => ({ variantId, quantity })),
+    );
+    this.destroyRef.onDestroy(() => this.saleFacade.clearPriceListOptions());
 
     const { customerId, useCashback, fulfillment } = this.form.controls;
 
@@ -403,6 +454,10 @@ export class CheckoutDialogComponent implements OnInit {
       });
   }
 
+  protected selectPriceList(id: string): void {
+    this.pickedPriceListId.set(id);
+  }
+
   protected selectCustomer(id: string | null): void {
     this.form.controls.customerId.setValue(id);
   }
@@ -471,6 +526,7 @@ export class CheckoutDialogComponent implements OnInit {
     this.awaitingResult.set(true);
 
     this.confirmed.emit({
+      priceListId: this.selectedPriceList()?.priceListId ?? null,
       customer: this.selectedCustomer(),
       useCashback: this.useCashback(),
       fulfillment: {

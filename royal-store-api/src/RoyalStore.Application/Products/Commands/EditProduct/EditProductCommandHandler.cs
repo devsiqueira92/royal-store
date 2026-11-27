@@ -96,12 +96,12 @@ public sealed class EditProductCommandHandler
 
         var variantsToAdd = command.VariantsToAdd
             .Select(v => new NewVariantRequest(
-                v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, null, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
+                v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.StockQuantity, v.MinStockQuantity))
             .ToList();
 
         var variantsToUpdate = command.VariantsToUpdate
             .Select(v => new VariantUpdateRequest(
-                v.VariantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, null, v.CostPrice, v.StockQuantity, v.MinStockQuantity))
+                v.VariantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode, v.StockQuantity, v.MinStockQuantity))
             .ToList();
 
         var existingVariantIds = product.Variants.Select(v => v.Id).ToHashSet();
@@ -109,7 +109,7 @@ public sealed class EditProductCommandHandler
         // Every list of the store, active or not: the aggregate decides which ones may be priced.
         var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
 
-        var prices = ProductPriceInputs.ForEdit(command.Prices, command.BasePrice, product, priceLists);
+        var prices = ProductPriceInputs.Resolve(command.Prices, priceLists);
         if (!prices.IsSuccess)
             return prices.Error;
 

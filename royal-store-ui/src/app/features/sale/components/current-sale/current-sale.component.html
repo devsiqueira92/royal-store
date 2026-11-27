@@ -54,10 +54,9 @@
 
   @if (checkoutOpen()) {
     <app-checkout-dialog
-      [subtotal]="subtotal()"
-      [saleDiscount]="discountAmount()"
-      [tax]="tax()"
       [items]="items()"
+      [discountValue]="discountValue()"
+      [discountMode]="discountMode()"
       (closed)="checkoutOpen.set(false)"
       (confirmed)="onConfirmed($event)"
     />

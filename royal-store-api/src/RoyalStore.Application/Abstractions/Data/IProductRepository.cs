@@ -31,4 +31,11 @@ public interface IProductRepository
     /// </summary>
     Task<IReadOnlyList<Product>> GetForCheckoutAsync(
         IReadOnlyCollection<Guid> variantIds, CancellationToken ct = default);
+
+    /// <summary>
+    /// Read-only: the active products owning the supplied variants, with those variants and every
+    /// price (and its list) — what pricing a cart on each price list needs.
+    /// </summary>
+    Task<IReadOnlyList<Product>> GetForPricingAsync(
+        IReadOnlyCollection<Guid> variantIds, CancellationToken ct = default);
 }

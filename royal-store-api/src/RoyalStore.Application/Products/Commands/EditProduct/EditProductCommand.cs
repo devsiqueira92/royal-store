@@ -11,7 +11,6 @@ public sealed record VariantInput(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);
 
@@ -22,7 +21,6 @@ public sealed record VariantUpdateInput(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);
 
@@ -40,8 +38,6 @@ public record EditProductCommand(
     string Name,
     string Sku,
     bool StockTrack,
-    // Deprecated (061): read only when Prices is absent, as the new price on the default list.
-    decimal? BasePrice,
     decimal BaseCostPrice,
     string? Description,
     string UnitOfMeasure,
@@ -60,7 +56,8 @@ public record EditProductCommand(
     bool? IsSelectiveTax = null,
     Guid? SupplierId = null,
     // Replaces the product's price set: one sale price per price list (061 FR-012).
-    IReadOnlyList<ProductPriceInput>? Prices = null,
+    // A list sent with an empty price is refused, naming the list.
+    IReadOnlyList<ProductPriceRequest>? Prices = null,
     // The cost composition list the product should end up with (064 FR-014). Absent = the current
     // list stays (FR-015); naming another unlinked list switches to it (FR-016). There is no way to
     // unlink through a save: delete the list instead.

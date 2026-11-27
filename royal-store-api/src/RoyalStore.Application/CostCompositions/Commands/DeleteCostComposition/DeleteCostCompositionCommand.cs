@@ -8,9 +8,8 @@ using RoyalStore.Domain.Common;
 namespace RoyalStore.Application.CostCompositions.Commands.DeleteCostComposition;
 
 /// <summary>
-/// Deletes a list and its lines (064 FR-012). A list linked to a product may be deleted: it is that
-/// product's composition and nothing else depends on it, so the product simply shows none afterwards.
-/// The product record is not loaded or changed (research D10).
+/// Deletes a list and its lines (064 FR-012). A list in use may be deleted: every product that used
+/// it simply shows none afterwards — the database clears their reference, so no product is loaded.
 /// </summary>
 public record DeleteCostCompositionCommand(Guid Id) : IRequest<Result>;
 
@@ -41,15 +40,14 @@ public sealed class DeleteCostCompositionCommandHandler
         if (list is null)
             return Result.Failure(Error.NotFound("costcomposition.not_found", "Cost composition was not found."));
 
-        var productId = list.ProductId;
-
+        // Products that used the list are left without one (FK set to null by the database).
         _costCompositionRepository.Remove(list);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation(
-            "Cost composition {CostCompositionId} of tenant {TenantId} deleted; it was linked to product {ProductId}.",
-            command.Id, _tenantContext.TenantId, productId);
+            "Cost composition {CostCompositionId} of tenant {TenantId} deleted; products using it now have none.",
+            command.Id, _tenantContext.TenantId);
 
         return Result.Success();
     }

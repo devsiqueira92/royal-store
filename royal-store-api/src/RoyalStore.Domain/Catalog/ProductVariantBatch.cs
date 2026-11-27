@@ -6,8 +6,6 @@ public sealed record NewVariantRequest(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? Price,
-    decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);
 
@@ -18,7 +16,5 @@ public sealed record VariantUpdateRequest(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? Price,
-    decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);

@@ -47,6 +47,8 @@ export interface FulfillmentFormControls {
 }
 
 export interface CheckoutResult {
+  /** Price list the sale is charged on; null → the store's default list. */
+  priceListId: string | null;
   customer: Customer | null;
   useCashback: boolean;
   fulfillment: FulfillmentDetails;

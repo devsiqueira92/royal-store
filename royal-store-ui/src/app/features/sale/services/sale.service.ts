@@ -12,6 +12,10 @@ import { GetSalesListParams } from '../interfaces/get-sales-list-params.interfac
 import { SaleDetails } from '../interfaces/sale-details.interface';
 import { SaleReceipt } from '../interfaces/sale-receipt.interface';
 import {
+  SalePriceListOption,
+  SalePricingItem,
+} from '../interfaces/sale-price-list-option.interface';
+import {
   CursorPage,
   CursorPageParams,
 } from '@app/shared/interfaces/cursor-page.interface';
@@ -39,6 +43,16 @@ export class SaleService {
     }
 
     return this.http.get<PosProduct[]>(`${this.apiUrl}/products`, { params });
+  }
+
+  /** Active price lists, default first, each with the cart priced on it. */
+  getPriceListOptions(
+    items: SalePricingItem[],
+  ): Observable<SalePriceListOption[]> {
+    return this.http.post<SalePriceListOption[]>(
+      `${this.apiUrl}/price-list-options`,
+      { items },
+    );
   }
 
   /** One page of the store's sales, newest first (067); `page` absent → first page. */

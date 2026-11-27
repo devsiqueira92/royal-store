@@ -43,9 +43,8 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.Property(p => p.BasePrice)
-            .HasPrecision(18, 2)
-            .IsRequired();
+        // Sale prices live only in ProductPrices.
+        builder.Ignore(p => p.DefaultSalePrice);
 
         builder.Property(p => p.BaseCostPrice)
             .HasPrecision(18, 2)

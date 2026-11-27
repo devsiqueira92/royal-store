@@ -18,6 +18,14 @@
 
   <!-- Panels stay mounted so stepping back and forth never drops what was typed. -->
   <div class="checkout-dialog__body">
+    <app-price-list-picker
+      [class.checkout-dialog__panel--hidden]="step() !== 1"
+      [options]="priceListOptions()"
+      [selectedId]="selectedPriceList()?.priceListId ?? null"
+      [loading]="isLoadingPriceLists()"
+      (selected)="selectPriceList($event)"
+    />
+
     <app-customer-step
       [class.checkout-dialog__panel--hidden]="step() !== 1"
       [customers]="filteredCustomers()"

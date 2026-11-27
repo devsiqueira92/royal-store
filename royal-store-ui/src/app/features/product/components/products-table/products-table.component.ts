@@ -11,6 +11,7 @@ import { DetailsSidebarService } from '@app/shared/services/details-sidebar.serv
 import { ProductFacade } from '../../facade/product.facade';
 import { ProductFormComponent } from '../product-form/product-form.component';
 import { getStockStatus } from '../../utils/product-stock-status.util';
+import { defaultSalePrice } from '../../utils/product-price-form.util';
 
 const DEFAULT_CATEGORY_COLOR = 'var(--p-surface-400)';
 
@@ -65,17 +66,12 @@ export class ProductsTableComponent {
     );
   }
 
+  /** The product's price on the default list: variants have no price of their own. */
   protected getPriceRange(
     product: Product,
   ): { min: number; max: number } | null {
-    if (product.variants.length === 0) {
-      return null;
-    }
-
-    const prices = product.variants.map(
-      variant => variant.price ?? product.basePrice,
-    );
-    return { min: Math.min(...prices), max: Math.max(...prices) };
+    const price = defaultSalePrice(product);
+    return price === null ? null : { min: price, max: price };
   }
 
   protected getVariantSummary(product: Product): string {

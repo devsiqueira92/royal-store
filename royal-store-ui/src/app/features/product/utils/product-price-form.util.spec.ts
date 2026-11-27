@@ -1,0 +1,75 @@
+import { ProductPrice } from '../interfaces/price-list.interface';
+import {
+  buildProductPriceGroup,
+  defaultSalePrice,
+  toProductPriceInputs,
+} from './product-price-form.util';
+
+const saved = (
+  priceListId: string,
+  salePrice: number,
+  isDefault = false,
+  minPrice: number | null = null,
+): ProductPrice => ({
+  priceListId,
+  priceListName: priceListId,
+  isDefault,
+  isActive: true,
+  salePrice,
+  minPrice,
+  discountPercentage: null,
+  basePriceListId: null,
+  suggestedPrice: null,
+  ruleStatus: 'none',
+});
+
+describe('product-price-form.util', () => {
+  it('reads the default-list price', () => {
+    expect(defaultSalePrice({ prices: [saved('a', 10), saved('d', 20, true)] })).toBe(20);
+    expect(defaultSalePrice({ prices: [] })).toBeNull();
+    expect(defaultSalePrice(null)).toBeNull();
+  });
+
+  it('table closed: sends the simple price on the default list and keeps the other saved prices', () => {
+    const inputs = toProductPriceInputs({
+      rows: [],
+      basePrice: 50,
+      defaultPriceListId: 'd',
+      saved: [saved('d', 40, true, 30), saved('a', 45)],
+    });
+
+    expect(inputs).toEqual([
+      { priceListId: 'a', salePrice: 45, minPrice: null },
+      { priceListId: 'd', salePrice: 50, minPrice: 30 },
+    ]);
+  });
+
+  it('table open: skips empty non-default rows but always sends the default row', () => {
+    const inputs = toProductPriceInputs({
+      rows: [
+        buildProductPriceGroup('d', null),
+        buildProductPriceGroup('a', null),
+        buildProductPriceGroup('b', 12),
+      ],
+      basePrice: 99,
+      defaultPriceListId: 'd',
+      saved: [],
+    });
+
+    expect(inputs).toEqual([
+      { priceListId: 'd', salePrice: null, minPrice: null },
+      { priceListId: 'b', salePrice: 12, minPrice: null },
+    ]);
+  });
+
+  it('drops a saved discount floor that no longer fits under the new price', () => {
+    const inputs = toProductPriceInputs({
+      rows: [],
+      basePrice: 20,
+      defaultPriceListId: 'd',
+      saved: [saved('d', 40, true, 30)],
+    });
+
+    expect(inputs).toEqual([{ priceListId: 'd', salePrice: 20, minPrice: null }]);
+  });
+});

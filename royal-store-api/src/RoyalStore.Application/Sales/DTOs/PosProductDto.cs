@@ -51,7 +51,9 @@ public record PosProductDto(
             variant.Color,
             variant.Barcode,
             variant.Sku ?? product.Sku,
-            variant.EffectivePrice(product),
+            // The default-list price. GetForPosAsync loads only that price and skips products
+            // without one, so the fallback is never hit in practice.
+            product.DefaultSalePrice ?? 0m,
             product.Photos.FirstOrDefault(p => p.IsCover)?.Url,
             variant.Size,
             product.StockTrack,

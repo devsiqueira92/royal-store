@@ -7,8 +7,6 @@ export interface CreateProductVariantRequest {
   optionName?: string;
   sku?: string;
   barcode?: string;
-  price?: number;
-  costPrice?: number;
   stockQuantity?: number;
   minStockQuantity?: number;
 }
@@ -18,7 +16,6 @@ export interface CreateProductRequest {
   name: string;
   sku: string;
   stockTrack: boolean;
-  basePrice: number;
   baseCostPrice: number;
   description?: string;
   unitOfMeasure: string;
@@ -38,8 +35,8 @@ export interface CreateProductRequest {
   isSelectiveTax?: boolean;
   supplierId?: string;
 
-  /** One sale price per price list. When absent the API reads `basePrice` as the default list's price. */
-  prices?: ProductPriceInput[];
+  /** One sale price per price list; the default list's is required. */
+  prices: ProductPriceInput[];
 
   /** Optional cost composition to link to the product. */
   costCompositionId?: string | null;

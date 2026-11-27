@@ -26,14 +26,17 @@ public sealed class CostCompositionRepository : ICostCompositionRepository
             .AsNoTracking()
             .OrderBy(l => l.Name)
             .ThenBy(l => l.CreatedAt)
-            .Select(l => new CostCompositionSummary(l.Id, l.ProductId, l.Name, l.TotalValue, l.Items.Count))
+            .Select(l => new CostCompositionSummary(
+                l.Id,
+                _context.Products.Count(p => p.CostCompositionId == l.Id),
+                l.Name, l.TotalValue, l.Items.Count))
             .ToListAsync(ct);
 
     public async Task<IReadOnlyList<CostCompositionList>> GetUnlinkedAsync(CancellationToken ct = default) =>
         await _context.CostCompositionLists
             .AsNoTracking()
             .Include(l => l.Items)
-            .Where(l => l.ProductId == null)
+            .Where(l => !_context.Products.Any(p => p.CostCompositionId == l.Id))
             .OrderByDescending(l => l.CreatedAt)
             .ToListAsync(ct);
 

@@ -24,6 +24,8 @@ import {
 } from '../../interfaces/update-service-request.interface';
 import { toProductPriceInputs } from '../../utils/product-price-form.util';
 import { ProductFacade } from '../../facade/product.facade';
+import { PriceListFacade } from '@app/features/price-list/facade/price-list.facade';
+import { PriceList } from '@app/features/price-list/interfaces/price-list.interface';
 import { ServiceFacade } from '../../facade/service.facade';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map, startWith, switchMap } from 'rxjs';
@@ -45,6 +47,12 @@ export class ProductFooterComponent {
   private readonly productFacade = inject(ProductFacade);
   private readonly serviceFacade = inject(ServiceFacade);
   private readonly detailsSidebarService = inject(DetailsSidebarService);
+  private readonly priceListFacade = inject(PriceListFacade);
+
+  constructor() {
+    // The default list's id is needed to send the simple price field as its price.
+    this.priceListFacade.loadPriceLists();
+  }
 
   protected readonly selectedProduct = toSignal(
     this.productFacade.selectedProduct$,
@@ -65,15 +73,37 @@ export class ProductFooterComponent {
     { initialValue: [] },
   );
 
+  private readonly priceLists = toSignal(this.priceListFacade.priceLists$, {
+    initialValue: [] as PriceList[],
+  });
+
+  // The sale prices typed so far: the price table's rows, or the simple price field.
+  private readonly priceRows = toSignal(
+    toObservable(this.formGroup).pipe(
+      switchMap(formGroup =>
+        formGroup.valueChanges.pipe(
+          startWith(null),
+          map(() => {
+            const rows = formGroup.controls.prices.controls.map(
+              group => group.controls.salePrice.value,
+            );
+            return rows.length ? rows : [formGroup.controls.basePrice.value];
+          }),
+        ),
+      ),
+    ),
+    { initialValue: [] as (number | null)[] },
+  );
+
   protected readonly summary = computed(() => {
     const rows = this.variantRows();
     const totalUnits = rows.reduce(
       (total, row) => total + (Number(row.stockQuantity) || 0),
       0,
     );
-    const prices = rows
-      .map(row => row.price)
-      .filter((price): price is number => price != null);
+    const prices = this.priceRows().filter(
+      (price): price is number => price != null,
+    );
 
     return {
       variantsCount: rows.length,
@@ -112,16 +142,21 @@ export class ProductFooterComponent {
   private submitProduct(product: Product | null): void {
     const raw = this.formGroup().getRawValue();
 
-    const prices = toProductPriceInputs(
-      this.formGroup().controls.prices.controls,
-    );
+    const prices = toProductPriceInputs({
+      rows: this.formGroup().controls.prices.controls,
+      basePrice: raw.basePrice,
+      defaultPriceListId:
+        this.priceLists().find(list => list.isDefault)?.id ??
+        product?.prices?.find(price => price.isDefault)?.priceListId ??
+        null,
+      saved: product?.prices ?? [],
+    });
 
     const baseRequest = {
       categoryId: raw.categoryId ?? '',
       name: (raw.name ?? '').trim(),
       sku: (raw.sku ?? '').trim(),
       stockTrack: !!raw.stockTrack,
-      basePrice: raw.basePrice ?? 0,
       baseCostPrice: raw.baseCostPrice ?? 0,
       description: raw.description?.trim() || undefined,
       unitOfMeasure: raw.unitOfMeasure!,
@@ -143,9 +178,7 @@ export class ProductFooterComponent {
       ivaCst: raw.ivaCst?.trim() || undefined,
       isSelectiveTax: raw.isSelectiveTax,
       supplierId: raw.supplierId ?? undefined,
-      // Backend does not read this yet; the frontend already sends it.
-      // Omitted while the price table is closed so an edit never wipes saved prices.
-      prices: prices.length ? prices : undefined,
+      prices,
       costCompositionId: raw.costCompositionId ?? null,
     };
 
@@ -270,8 +303,6 @@ export class ProductFooterComponent {
       color: variant.color?.trim() || undefined,
       sku: variant.sku?.trim() || undefined,
       barcode: variant.barcode?.trim() || undefined,
-      price: variant.price ?? undefined,
-      costPrice: variant.costPrice ?? undefined,
       stockQuantity: variant.stockQuantity ?? undefined,
       minStockQuantity: variant.minStockQuantity ?? undefined,
     };
@@ -282,10 +313,6 @@ export class ProductFooterComponent {
   ): CreateServiceVariantRequest {
     const variant = group.getRawValue();
 
-    return {
-      optionName: (variant.optionName ?? '').trim(),
-      price: variant.price ?? undefined,
-      costPrice: variant.costPrice ?? undefined,
-    };
+    return { optionName: (variant.optionName ?? '').trim() };
   }
 }

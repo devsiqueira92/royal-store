@@ -8,6 +8,8 @@ public record CreateServiceCommand(
     Guid CategoryId,
     string Name,
     string Sku,
+    // The service's one price, stored on the store's default price list (pricing rules for
+    // services are a later feature).
     decimal BasePrice,
     decimal BaseCostPrice,
     string? Description,
@@ -23,7 +25,4 @@ public record CreateServiceCommand(
     bool? IsSelectiveTax = null,
     Guid? SupplierId = null) : IRequest<Result<ProductResponse>>;
 
-public record CreateServiceVariantRequest(
-    string OptionName,
-    decimal? Price,
-    decimal? CostPrice);
+public record CreateServiceVariantRequest(string OptionName);

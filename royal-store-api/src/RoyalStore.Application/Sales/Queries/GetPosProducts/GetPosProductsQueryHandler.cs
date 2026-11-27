@@ -25,7 +25,8 @@ public sealed class GetPosProductsQueryHandler
     {
         // PosProductDto.From carries the product-level fiscal classification (Type, Origin,
         // IsSelectiveTax, IVA/ICMS/PIS-COFINS CSTs, CFOP) and stock-tracking (Product.StockTrack);
-        // no extra loading is needed here since the full Product + ProductVariant graphs are materialised.
+        // no extra loading is needed here since the full Product + ProductVariant graphs are materialised,
+        // along with the product's price on the default price list.
         var products = await _productRepository.GetForPosAsync(request.CategoryId, cancellationToken);
 
         var codes = products

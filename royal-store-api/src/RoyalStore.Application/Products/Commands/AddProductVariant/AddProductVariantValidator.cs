@@ -8,12 +8,6 @@ public sealed class AddProductVariantValidator : AbstractValidator<AddProductVar
     {
         RuleFor(x => x.ProductId).NotEmpty();
 
-        When(x => x.Price.HasValue, () =>
-            RuleFor(x => x.Price!.Value).GreaterThanOrEqualTo(0));
-
-        When(x => x.CostPrice.HasValue, () =>
-            RuleFor(x => x.CostPrice!.Value).GreaterThanOrEqualTo(0));
-
         When(x => x.StockQuantity.HasValue, () =>
             RuleFor(x => x.StockQuantity!.Value).GreaterThanOrEqualTo(0));
 

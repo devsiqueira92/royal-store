@@ -74,23 +74,4 @@ public sealed class ProductPrice : Entity, IAuditableEntity
         SalePrice = salePrice;
         MinPrice = minPrice;
     }
-
-    /// <summary>
-    /// Carries a product's former single sale price over to the store's default list (061 FR-021).
-    /// Used only by the backfill of products that existed before price lists; every other price is
-    /// created through <see cref="Product.SetPrices"/>.
-    /// </summary>
-    public static Result<ProductPrice> CreateFromLegacyPrice(
-        Guid tenantId, Guid productId, Guid defaultPriceListId, decimal legacySalePrice)
-    {
-        if (tenantId == Guid.Empty || productId == Guid.Empty || defaultPriceListId == Guid.Empty)
-            return Error.Validation("product.price_reference_required",
-                "Tenant, product and price list are required.");
-
-        var validation = Validate(legacySalePrice, null);
-        if (validation.IsFailure)
-            return validation.Error;
-
-        return new ProductPrice(tenantId, productId, defaultPriceListId, legacySalePrice, null);
-    }
 }

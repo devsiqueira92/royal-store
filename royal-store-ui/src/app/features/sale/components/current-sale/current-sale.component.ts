@@ -12,7 +12,11 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
 import { DiscountMode } from '../../interfaces/sale-totals.interface';
-import { lineItemTaxRate } from '../../interfaces/sale-tax.util';
+import {
+  cartDiscount,
+  cartSubtotal,
+  cartTax,
+} from '../../interfaces/cart-totals.util';
 import { SaleLineItemComponent } from '../sale-line-item/sale-line-item.component';
 import { SaleSummaryComponent } from '../sale-summary/sale-summary.component';
 import { CheckoutDialogComponent } from '../checkout-dialog/checkout-dialog.component';
@@ -63,43 +67,19 @@ export class CurrentSaleComponent {
     initialValue: null as CashShift | null,
   });
 
-  protected readonly subtotal = computed(() =>
-    this.items().reduce(
-      (total, item) => total + item.unitPrice * item.quantity,
-      0,
-    ),
-  );
+  protected readonly subtotal = computed(() => cartSubtotal(this.items()));
 
-  protected readonly discountAmount = computed(() => {
-    const value = this.discountValue();
-    const subtotal = this.subtotal();
-    const raw =
-      this.discountMode() === 'percent' ? (subtotal * value) / 100 : value;
-    return Math.min(Math.max(raw, 0), subtotal);
-  });
+  protected readonly discountAmount = computed(() =>
+    cartDiscount(this.subtotal(), this.discountValue(), this.discountMode()),
+  );
 
   private readonly netSubtotal = computed(
     () => this.subtotal() - this.discountAmount(),
   );
 
-  protected readonly tax = computed(() => {
-    const subtotal = this.subtotal();
-    if (subtotal <= 0) {
-      return 0;
-    }
-
-    const discount = this.discountAmount();
-
-    const rawTotal = this.items().reduce((total, item) => {
-      const lineSubtotal = item.unitPrice * item.quantity;
-      const lineNet = lineSubtotal - discount * (lineSubtotal / subtotal);
-
-      const lineTax = (lineNet * lineItemTaxRate(item)) / 100;
-      return total + Math.round(lineTax * 100) / 100;
-    }, 0);
-
-    return Math.round(rawTotal * 100) / 100;
-  });
+  protected readonly tax = computed(() =>
+    cartTax(this.items(), this.discountAmount()),
+  );
 
   protected readonly taxPercent = computed(() => {
     const net = this.netSubtotal();

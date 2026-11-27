@@ -7,7 +7,6 @@ export interface CostCompositionItem {
 export interface CostComposition {
   id: string;
   name: string;
-  productId: string | null;
   createdAt: string;
   totalValue: number;
   items: CostCompositionItem[];
@@ -16,17 +15,20 @@ export interface CostComposition {
 /** One row of GET api/cost-compositions: no lines, only their count. */
 export interface CostCompositionSummary {
   id: string;
-  productId: string | null;
+  /** How many products use the list: a cost composition is reusable. */
+  productsCount: number;
   name: string;
   totalValue: number;
   numberItems: number;
 }
 
+/** `productsCount` is not in the full response: a new list has none, an edit keeps the known count. */
 export const toCostCompositionSummary = (
   c: CostComposition,
+  productsCount = 0,
 ): CostCompositionSummary => ({
   id: c.id,
-  productId: c.productId,
+  productsCount,
   name: c.name,
   totalValue: c.totalValue,
   numberItems: c.items.length,

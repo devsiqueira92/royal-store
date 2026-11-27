@@ -23,6 +23,7 @@ public static class SaleItemEnricher
         Guid saleId,
         Product product,
         ProductVariant variant,
+        decimal unitPrice,
         IbptTax? ibptTax)
     {
         var fiscalProfile = product.ResolveFiscalProfile();
@@ -71,11 +72,12 @@ public static class SaleItemEnricher
             productName: product.Name,
             productCode: variant.Barcode ?? product.Sku,
             quantity: line.Quantity,
-            unitPrice: variant.EffectivePrice(product),
+            // Resolved by the caller on the checkout's price list (Product.SalePriceOn).
+            unitPrice: unitPrice,
             // Behaviour preserved from before price lists: the line's cost is fed the sale price.
             // That looks like a defect (cost price expected) and is deliberately NOT changed here —
             // see specs/061-product-price-lists/research.md, "Finding outside scope".
-            costPrice: variant.EffectivePrice(product),
+            costPrice: unitPrice,
             discountItem: 0m,
             catalog: catalog,
             fiscal: fiscal,

@@ -18,13 +18,6 @@ public sealed class CostCompositionListConfiguration : IEntityTypeConfiguration<
             .HasMaxLength(CostCompositionList.NameMaxLength)
             .IsRequired();
 
-        // Moves on link and unlink only. Two products naming the same list at once change the same
-        // row, which the unique index below cannot catch; this makes the second UPDATE affect zero
-        // rows and fail instead of taking the list over (064 research D4).
-        builder.Property(e => e.Version)
-            .IsRequired()
-            .IsConcurrencyToken();
-
         // Sum of the lines' amounts (064 follow-up); kept by the create and update handlers.
         builder.Property(e => e.TotalValue)
             .HasPrecision(18, 2)
@@ -35,18 +28,15 @@ public sealed class CostCompositionListConfiguration : IEntityTypeConfiguration<
         builder.Property(e => e.UpdatedAt).IsRequired();
         builder.Property(e => e.UpdatedBy).HasMaxLength(450).IsRequired();
 
-        // A product has at most one list. PostgreSQL treats NULLs as distinct, so any number of
-        // lists linked to no product coexist under this index (064 FR-002).
-        builder.HasIndex(e => e.ProductId).IsUnique();
         builder.HasIndex(e => e.TenantId);
 
-        // Optional: a list exists before its product does. Removing a product removes its list and,
-        // through the next relationship, the list's lines (064 edge case "physically removed").
-        builder.HasOne<Product>()
+        // Reusable: the foreign key is on the product, so many products can name the same list.
+        // Deleting a list leaves its products without one; deleting a product never touches the list.
+        builder.HasMany<Product>()
             .WithOne(p => p.CostComposition)
-            .HasForeignKey<CostCompositionList>(e => e.ProductId)
+            .HasForeignKey(p => p.CostCompositionId)
             .IsRequired(false)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasMany(e => e.Items)
             .WithOne()

@@ -14,6 +14,8 @@ export const {
   selectIsLoadingSaleReceipt,
   selectIsRegisteringSale,
   selectLastRegisterSaleResult,
+  selectPriceListOptions,
+  selectIsLoadingPriceListOptions,
 } = saleFeature;
 
 export const selectSales = createSelector(selectSalesList, list => list.items);

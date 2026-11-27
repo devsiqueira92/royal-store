@@ -54,6 +54,29 @@ export const registerSale = createEffect(
   },
 );
 
+export const loadPriceListOptions = createEffect(
+  (actions$ = inject(Actions), saleService = inject(SaleService)) => {
+    return actions$.pipe(
+      ofType(SaleActions.loadPriceListOptions),
+      switchMap(({ items }) =>
+        saleService.getPriceListOptions(items).pipe(
+          map(options => SaleActions.loadPriceListOptionsSuccess({ options })),
+          catchError((error: HttpErrorResponse) =>
+            of(
+              SaleActions.loadPriceListOptionsFailure({
+                error: error.error?.message ?? 'error.unknowError',
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  {
+    functional: true,
+  },
+);
+
 export const refreshCashShiftAfterSale = createEffect(
   (actions$ = inject(Actions)) => {
     return actions$.pipe(

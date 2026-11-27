@@ -105,20 +105,29 @@ public sealed class ProductRepository : IProductRepository
         if (supplierId.HasValue)
             query = query.Where(p => p.SupplierId == supplierId.Value);
 
-        // Every product has at least one variant, so a plain (inner) join is enough — no product
-        // is ever dropped by it — and GroupBy(x => 1) gets all three aggregates, including a
+        // Every product has at least one variant, so a plain (inner) join on variants is enough — no
+        // product is ever dropped by it. The default-list price is left-joined: a product without
+        // one still counts, valued at zero. GroupBy(x => 1) gets all three aggregates, including a
         // distinct product count, in a single round trip instead of three.
-        var totals = await query
-            .SelectMany(p => p.Variants, (p, v) => new { p, v })
+        var defaultPrices = _context.ProductPrices.Where(pp => pp.PriceList.IsDefault);
+
+        var totals = await (
+                from p in query
+                from v in p.Variants
+                join dp in defaultPrices on p.Id equals dp.ProductId into prices
+                from price in prices.DefaultIfEmpty()
+                select new
+                {
+                    ProductId = p.Id,
+                    Quantity = v.StockQuantity ?? 0,
+                    SalePrice = price == null ? 0m : price.SalePrice
+                })
             .GroupBy(x => 1)
             .Select(g => new
             {
-                // BasePrice is the product's price on the default list (061). A variant no longer
-                // has a sale price of its own, and a service option — the only kind that still
-                // does — never carries stock, so it contributed nothing to this sum before either.
-                StockValue = g.Sum(x => x.p.BasePrice * (x.v.StockQuantity ?? 0)),
-                TotalQuantity = g.Sum(x => x.v.StockQuantity ?? 0),
-                Result = g.Select(x => x.p.Id).Distinct().Count()
+                StockValue = g.Sum(x => x.SalePrice * x.Quantity),
+                TotalQuantity = g.Sum(x => x.Quantity),
+                Result = g.Select(x => x.ProductId).Distinct().Count()
             })
             .FirstOrDefaultAsync(ct);
 
@@ -151,7 +160,13 @@ public sealed class ProductRepository : IProductRepository
 
     public async Task<IReadOnlyList<Product>> GetForCatalogAsync(DateTimeOffset? since, CancellationToken ct = default)
     {
-        var query = _context.Products.AsQueryable();
+        // Variants and the default-list price feed CatalogProductDto.
+        var query = _context.Products
+            .Include(p => p.Variants)
+            .Include(p => p.Prices.Where(pp => pp.PriceList.IsDefault))
+                .ThenInclude(pp => pp.PriceList)
+            .AsSplitQuery()
+            .AsQueryable();
         query = since.HasValue
             ? query.Where(p => p.UpdatedAt > since.Value)
             : query.Where(p => p.IsActive);
@@ -167,13 +182,20 @@ public sealed class ProductRepository : IProductRepository
             .Include(p => p.Variants)
             .Include(p => p.Photos)
             .Include(p => p.TaxProfileTemplate)
-            .Where(p => p.IsActive);
+            // POS shows the price on the store's default list: ProductPrices joined to PriceLists
+            // filtered by IsDefault.
+            .Include(p => p.Prices.Where(pp => pp.PriceList.IsDefault))
+                .ThenInclude(pp => pp.PriceList)
+            .Where(p => p.IsActive && p.Prices.Any(pp => pp.PriceList.IsDefault));
 
         if (categoryId.HasValue)
             query = query.Where(p => p.CategoryId == categoryId.Value);
 
+        // Split query: Variants, Photos and Prices are sibling collections; one statement would
+        // multiply their rows per product.
         return await query
             .OrderBy(p => p.Name)
+            .AsSplitQuery()
             .ToListAsync(ct);
     }
 
@@ -185,10 +207,28 @@ public sealed class ProductRepository : IProductRepository
 
         // Tracked, not AsNoTracking: RegisterSaleCommandHandler debits stock on these same
         // instances right after enriching the sale lines, and needs EF to pick up that change.
+        // Prices (with their list) are loaded so each line is charged on the checkout's price list.
         return await _context.Products
             .Include(p => p.Variants.Where(v => variantIds.Contains(v.Id)))
             .Include(p => p.TaxProfileTemplate)
+            .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
             .Where(p => p.IsActive && p.Variants.Any(v => variantIds.Contains(v.Id)))
+            .AsSplitQuery()
+            .ToListAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<Product>> GetForPricingAsync(
+        IReadOnlyCollection<Guid> variantIds, CancellationToken ct = default)
+    {
+        if (variantIds.Count == 0)
+            return [];
+
+        return await _context.Products
+            .AsNoTracking()
+            .Include(p => p.Variants.Where(v => variantIds.Contains(v.Id)))
+            .Include(p => p.Prices).ThenInclude(pp => pp.PriceList)
+            .Where(p => p.IsActive && p.Variants.Any(v => variantIds.Contains(v.Id)))
+            .AsSplitQuery()
             .ToListAsync(ct);
     }
 }
