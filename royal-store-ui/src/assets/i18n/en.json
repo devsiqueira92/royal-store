@@ -479,8 +479,8 @@
     "subtitle": "Reusable cost breakdowns, linked or not to a product.",
     "newCostComposition": "New composition",
     "empty": "No cost compositions found.",
-    "linked": "Linked",
-    "unlinked": "Unlinked",
+    "linked": "In use ({{count}})",
+    "unlinked": "Not in use",
     "edit": "Edit composition",
     "columns": {
       "name": "Name",

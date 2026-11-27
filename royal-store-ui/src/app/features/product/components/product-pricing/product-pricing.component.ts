@@ -229,19 +229,10 @@ export class ProductPricingComponent {
 
   protected onCostCompositionChange(): void {
     this.recalculateCostPrice();
-    this.cascadeCostPriceToVariants();
   }
 
   protected onProductCostBlur(): void {
     this.recalculateCostPrice();
-    this.cascadeCostPriceToVariants();
-  }
-
-  protected onBasePriceBlur(): void {
-    const basePrice = this.formGroup().controls.basePrice.value;
-    this.variants().controls.forEach(group => {
-      group.controls.price.setValue(basePrice);
-    });
   }
 
   protected onProfitMarginBlur(): void {
@@ -254,7 +245,6 @@ export class ProductPricingComponent {
 
     const basePrice = roundCents(costPrice * (1 + percent / 100));
     this.formGroup().controls.basePrice.setValue(basePrice);
-    this.onBasePriceBlur();
   }
 
   /** `totalValue` of the selected composition; 0 when none is selected. */
@@ -280,12 +270,5 @@ export class ProductPricingComponent {
       (this.productCost.value ?? 0) + this.selectedCompositionTotal(),
     );
     this.formGroup().controls.baseCostPrice.setValue(total);
-  }
-
-  private cascadeCostPriceToVariants(): void {
-    const baseCostPrice = this.formGroup().controls.baseCostPrice.value;
-    this.variants().controls.forEach(group => {
-      group.controls.costPrice.setValue(baseCostPrice);
-    });
   }
 }

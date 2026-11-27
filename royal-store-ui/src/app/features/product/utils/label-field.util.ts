@@ -177,10 +177,7 @@ export const toLabelSampleProduct = (
         priceListId: list.id,
         priceListName: list.name,
         isDefault: list.isDefault,
-        value:
-          price?.salePrice ??
-          price?.suggestedPrice ??
-          (list.isDefault ? (variant?.price ?? product.basePrice) : null),
+        value: price?.salePrice ?? price?.suggestedPrice ?? null,
       };
     }),
   };

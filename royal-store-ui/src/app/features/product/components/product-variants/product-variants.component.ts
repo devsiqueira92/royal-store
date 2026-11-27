@@ -239,11 +239,6 @@ export class ProductVariantsComponent {
       barcode: new FormControl(source?.barcode ?? null, [
         Validators.maxLength(14),
       ]),
-      price: new FormControl(source?.price ?? null, [Validators.min(0)]),
-      costPrice: new FormControl(source?.costPrice ?? null, [
-        Validators.min(0),
-      ]),
-
       stockQuantity: new FormControl(source?.stockQuantity ?? null, [
         Validators.min(0),
       ]),

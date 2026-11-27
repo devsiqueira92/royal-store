@@ -34,9 +34,12 @@
             {{ costComposition.name }}
           </td>
           <td>
-            @if (costComposition.productId) {
+            @if (costComposition.productsCount > 0) {
               <p-tag
-                [value]="'costComposition.linked' | translate"
+                [value]="
+                  'costComposition.linked'
+                    | translate: { count: costComposition.productsCount }
+                "
                 severity="info"
               />
             } @else {

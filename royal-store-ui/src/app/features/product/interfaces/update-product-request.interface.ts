@@ -11,7 +11,6 @@ export interface UpdateProductRequest {
   name: string;
   sku: string;
   stockTrack: boolean;
-  basePrice: number;
   baseCostPrice: number;
   description?: string;
   unitOfMeasure: string;
@@ -33,8 +32,8 @@ export interface UpdateProductRequest {
   isSelectiveTax?: boolean;
   supplierId?: string;
 
-  /** Replaces the product's price set: one sale price per price list. */
-  prices?: ProductPriceInput[];
+  /** Replaces the product's price set: one sale price per price list; the default list's is required. */
+  prices: ProductPriceInput[];
 
   /** Cost composition to link; null unlinks the current one. */
   costCompositionId?: string | null;

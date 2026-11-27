@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
 } from '@angular/core';
 import {
@@ -12,12 +11,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
-import {
-  Customer,
-  CustomerFormControls,
-} from '../../interfaces/customer.interface';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, take, tap } from 'rxjs';
+import { CustomerFormControls } from '../../interfaces/customer.interface';
 import { CashbackEntry } from '../../interfaces/cashback-entry.interface';
 import {
   CustomerAddress,
@@ -37,9 +33,9 @@ import { ButtonComponent } from '@app/shared/components/button/button.component'
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { CustomerCashbackHistoryComponent } from '../customer-cashback-history/customer-cashback-history.component';
 import { CustomerAddressesComponent } from '../customer-addresses/customer-addresses.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-customer-form',
   imports: [
     ReactiveFormsModule,
     InputFieldComponent,
@@ -48,6 +44,7 @@ import { CustomerAddressesComponent } from '../customer-addresses/customer-addre
     ButtonComponent,
     CustomerAddressesComponent,
     CustomerCashbackHistoryComponent,
+    AsyncPipe,
   ],
   templateUrl: './customer-form.component.html',
   styleUrl: './customer-form.component.scss',
@@ -58,14 +55,19 @@ export class CustomerFormComponent {
   private readonly loyaltyTierFacade = inject(LoyaltyTierFacade);
   private readonly detailsSidebarService = inject(DetailsSidebarService);
 
+  protected readonly selectedCustomer$ =
+    this.customerFacade.selectedCustomer$.pipe(
+      filter(customer => !!customer),
+      take(1),
+      tap(customer => {
+        this.formGroup.patchValue({ ...customer });
+        this.setAddresses(customer?.addresses ?? []);
+      }),
+    );
+
   protected readonly isCreateMode = computed(
     () =>
       this.detailsSidebarService.contentToRender()?.props?.mode === 'create',
-  );
-
-  protected readonly selectedCustomer = toSignal(
-    this.customerFacade.selectedCustomer$,
-    { initialValue: null as Customer | null },
   );
 
   protected readonly cashbackHistory = toSignal(
@@ -92,14 +94,9 @@ export class CustomerFormComponent {
   constructor() {
     this.loyaltyTierFacade.loadLoyaltyTiers();
 
-    effect(() => {
-      if (this.isCreateMode()) {
-        this.enterCreateMode();
-        return;
-      }
-
-      this.populateForm(this.selectedCustomer());
-    });
+    this.customerFacade.saved$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.onClose());
   }
 
   protected onClose(): void {
@@ -113,11 +110,20 @@ export class CustomerFormComponent {
       return;
     }
 
-    const { name, document, phone, birthDate, loyaltyTierId } =
+    const { id, name, document, phone, birthDate, loyaltyTierId } =
       this.formGroup.getRawValue();
+
     const addresses = this.formGroup.controls.addresses;
 
-    if (this.isCreateMode()) {
+    if (id) {
+      this.customerFacade.updateCustomer(id, {
+        name: (name ?? '').trim(),
+        phone: phone?.trim() || null,
+        birthDate: birthDate || null,
+        loyaltyTierId,
+        addresses: toCustomerAddressChangeRequests(addresses),
+      });
+    } else {
       this.customerFacade.createCustomer({
         name: (name ?? '').trim(),
         document: document?.trim() || null,
@@ -126,49 +132,7 @@ export class CustomerFormComponent {
         loyaltyTierId,
         addresses: toCustomerAddressRequests(addresses),
       });
-    } else {
-      const customer = this.selectedCustomer();
-      if (!customer) {
-        return;
-      }
-
-      this.customerFacade.updateCustomer(customer.id, {
-        name: (name ?? '').trim(),
-        phone: phone?.trim() || null,
-        birthDate: birthDate || null,
-        loyaltyTierId,
-        addresses: toCustomerAddressChangeRequests(addresses),
-      });
     }
-
-    this.onClose();
-  }
-
-  private enterCreateMode(): void {
-    this.formGroup.controls.document.enable();
-    this.formGroup.reset({
-      id: null,
-      name: null,
-      document: null,
-      phone: null,
-      birthDate: null,
-      loyaltyTierId: null,
-    });
-    this.setAddresses([]);
-  }
-
-  private populateForm(customer: Customer | null): void {
-    // The API has no endpoint to change a document once the customer exists.
-    this.formGroup.controls.document.disable();
-    this.formGroup.reset({
-      id: customer?.id ?? null,
-      name: customer?.name ?? null,
-      document: customer?.document ?? null,
-      phone: customer?.phone ?? null,
-      birthDate: customer?.birthDate ?? null,
-      loyaltyTierId: customer?.loyaltyTierId ?? null,
-    });
-    this.setAddresses(customer?.addresses ?? []);
   }
 
   private setAddresses(addresses: CustomerAddress[]): void {
@@ -177,7 +141,6 @@ export class CustomerFormComponent {
     for (const address of addresses) {
       array.push(buildCustomerAddressGroup(address), { emitEvent: false });
     }
-    // A single emission, so the address list re-reads its rows once.
     array.updateValueAndValidity();
   }
 

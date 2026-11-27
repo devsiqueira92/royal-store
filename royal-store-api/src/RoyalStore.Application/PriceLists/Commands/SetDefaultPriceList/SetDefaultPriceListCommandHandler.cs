@@ -37,8 +37,8 @@ public sealed class SetDefaultPriceListCommandHandler
     {
         try
         {
-            // One transaction: the swap and the re-mirroring of every product's legacy price either
-            // all happen or none do. A failed Result rolls everything back.
+            // One transaction: unmarking the old default and marking the new one either both happen
+            // or neither does. A failed Result rolls everything back.
             var result = await _unitOfWork.ExecuteInTransactionAsync(
                 ct => SwitchAsync(command.Id, ct), cancellationToken);
 
@@ -96,22 +96,11 @@ public sealed class SetDefaultPriceListCommandHandler
 
         await _unitOfWork.SaveChangesAsync(ct);
 
-        // The legacy single price — still what sales, the POS and the offline catalog read — must
-        // now mean "the price on the new default list" (FR-020). A product that turns out to have
-        // no price there (created while this was running) fails the whole switch.
-        var products = await _priceListRepository.GetProductsWithPriceOnAsync(target.Id, ct);
-        foreach (var product in products)
-        {
-            var mirrored = product.MirrorDefaultPrice(target);
-            if (mirrored.IsFailure)
-                return mirrored.Error;
-        }
-
-        await _unitOfWork.SaveChangesAsync(ct);
-
+        // Nothing to re-mirror: sales, the POS and the offline catalog read the default-list price
+        // straight from ProductPrices.
         _logger.LogInformation(
-            "Default price list for tenant {TenantId} is now {PriceListId}; {ProductsRepriced} products re-mirrored.",
-            _tenantContext.TenantId, target.Id, products.Count);
+            "Default price list for tenant {TenantId} is now {PriceListId}.",
+            _tenantContext.TenantId, target.Id);
 
         return PriceListResponse.From(target, counts.GetValueOrDefault(target.Id), storeLists);
     }

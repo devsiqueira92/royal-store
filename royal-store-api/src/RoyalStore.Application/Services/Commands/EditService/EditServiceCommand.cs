@@ -4,16 +4,9 @@ using RoyalStore.Domain.Common;
 
 namespace RoyalStore.Application.Services.Commands.EditService;
 
-public sealed record ServiceVariantInput(
-    string OptionName,
-    decimal? Price,
-    decimal? CostPrice);
+public sealed record ServiceVariantInput(string OptionName);
 
-public sealed record ServiceVariantUpdateInput(
-    Guid VariantId,
-    string OptionName,
-    decimal? Price,
-    decimal? CostPrice);
+public sealed record ServiceVariantUpdateInput(Guid VariantId, string OptionName);
 
 public record EditServiceCommand(
     Guid Id,
@@ -21,6 +14,8 @@ public record EditServiceCommand(
     Guid CategoryId,
     string Name,
     string Sku,
+    // The service's one price, stored on the store's default price list (pricing rules for
+    // services are a later feature).
     decimal BasePrice,
     decimal BaseCostPrice,
     string? Description,

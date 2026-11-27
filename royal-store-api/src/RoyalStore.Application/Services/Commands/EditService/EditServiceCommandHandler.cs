@@ -2,6 +2,7 @@ using MediatR;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
+using RoyalStore.Application.Products;
 using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
@@ -16,6 +17,7 @@ public sealed class EditServiceCommandHandler
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly ISupplierRepository _supplierRepository;
+    private readonly IPriceListRepository _priceListRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -26,6 +28,7 @@ public sealed class EditServiceCommandHandler
         ICategoryRepository categoryRepository,
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
         ISupplierRepository supplierRepository,
+        IPriceListRepository priceListRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -35,6 +38,7 @@ public sealed class EditServiceCommandHandler
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _supplierRepository = supplierRepository;
+        _priceListRepository = priceListRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -69,18 +73,25 @@ public sealed class EditServiceCommandHandler
         }
 
         var variantsToAdd = command.VariantsToAdd
-            .Select(v => new NewVariantRequest(null, null, v.OptionName, null, null, v.Price, v.CostPrice, null, null))
+            .Select(v => new NewVariantRequest(null, null, v.OptionName, null, null, null, null))
             .ToList();
 
         var variantsToUpdate = command.VariantsToUpdate
-            .Select(v => new VariantUpdateRequest(v.VariantId, null, null, v.OptionName, null, null, v.Price, v.CostPrice, null, null))
+            .Select(v => new VariantUpdateRequest(v.VariantId, null, null, v.OptionName, null, null, null, null))
             .ToList();
 
         var existingVariantIds = service.Variants.Select(v => v.Id).ToHashSet();
 
+        // Every list of the store, active or not: the aggregate decides which ones may be priced.
+        var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
+
+        var prices = ProductPriceInputs.ForDefaultList(command.BasePrice, service, priceLists);
+        if (!prices.IsSuccess)
+            return prices.Error;
+
         var updateResult = service.UpdateServiceWithVariants(
             command.CategoryId, command.Name, command.Sku,
-            command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
+            prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Nbs, command.IssCode,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax,
@@ -95,6 +106,13 @@ public sealed class EditServiceCommandHandler
         foreach (var variant in newVariants)
             await _productRepository.AddVariantAsync(variant, cancellationToken);
 
+        // Children added to an already-tracked aggregate are registered explicitly.
+        foreach (var price in updateResult.Value.Added)
+            await _productRepository.AddPriceAsync(price, cancellationToken);
+
+        foreach (var price in updateResult.Value.Removed)
+            _productRepository.RemovePrice(price);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var userId = _currentUserService.CurrentUserId ?? "unknown";
@@ -105,6 +123,8 @@ public sealed class EditServiceCommandHandler
             userId,
             cancellationToken);
 
-        return ProductResponse.From(service);
+        // Re-read so the response carries each new price's list.
+        var saved = await _productRepository.GetByIdAsync(service.Id, cancellationToken);
+        return ProductResponse.From(saved!);
     }
 }

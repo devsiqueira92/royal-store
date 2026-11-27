@@ -10,11 +10,11 @@ public interface ICostCompositionRepository
     /// filter: a list of another store comes back as null.</summary>
     Task<CostCompositionList?> GetByIdAsync(Guid id, CancellationToken ct = default);
 
-    /// <summary>Every list of the store, linked or not, by name, with the lines counted by the database
-    /// rather than loaded (064 FR-028).</summary>
+    /// <summary>Every list of the store, used or not, by name, with the lines and the products using it
+    /// counted by the database rather than loaded (064 FR-028).</summary>
     Task<IReadOnlyList<CostCompositionSummary>> GetSummariesAsync(CancellationToken ct = default);
 
-    /// <summary>The store's lists linked to no product, newest first, each with its lines (064 FR-025).</summary>
+    /// <summary>The store's lists used by no product, newest first, each with its lines (064 FR-025).</summary>
     Task<IReadOnlyList<CostCompositionList>> GetUnlinkedAsync(CancellationToken ct = default);
 
     void Remove(CostCompositionList list);

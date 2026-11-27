@@ -13,6 +13,7 @@ import { ExpenseRecurrenceService } from '@app/features/expense/services/expense
 import { Product } from '@app/features/product/interfaces/product.interface';
 import { ProductService } from '@app/features/product/services/product.service';
 import { PricingResultComponent } from '../../components/pricing-result/pricing-result.component';
+import { defaultSalePrice } from '@app/features/product/utils/product-price-form.util';
 import {
   CardFee,
   CardFeeMethod,
@@ -107,6 +108,8 @@ export class PriceCalculatorComponent {
   protected readonly selectedProduct = computed(
     () => this.products().find((product) => product.id === this.selectedProductId()) ?? null,
   );
+  /** The selected product's price on the default list — its current sale price. */
+  protected readonly selectedProductPrice = computed(() => defaultSalePrice(this.selectedProduct()));
 
   protected readonly cost = signal<number | null>(null);
   protected readonly taxRate = signal<number>(this.initial.taxRate);

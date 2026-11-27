@@ -6,9 +6,9 @@ using RoyalStore.Domain.Common;
 namespace RoyalStore.Application.CostCompositions.Queries.GetUnlinkedCostCompositions;
 
 /// <summary>
-/// The store's lists linked to no product (064 FR-025) — abandoned before the product was saved, or
-/// replaced on a product. Nothing deletes them on its own, so this is how the manager finds them to
-/// reuse (by naming one in a product save) or delete.
+/// The store's lists used by no product (064 FR-025) — never named in a product save, or replaced on
+/// every product that used them. Nothing deletes them on its own, so this is how the manager finds
+/// them to reuse (by naming one in a product save) or delete.
 /// </summary>
 public record GetUnlinkedCostCompositionsQuery()
     : IRequest<Result<IReadOnlyList<CostCompositionResponse>>>;

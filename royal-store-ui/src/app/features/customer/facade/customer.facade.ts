@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { map } from 'rxjs';
 import { CreateCustomerRequest } from '../interfaces/create-customer-request.interface';
 import { UpdateCustomerRequest } from '../interfaces/update-customer-request.interface';
 import { CustomerActions } from '../store/customer.actions';
@@ -19,6 +21,7 @@ import {
 })
 export class CustomerFacade {
   private store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
   customers$ = this.store.select(selectCustomers);
   selectedCustomer$ = this.store.select(selectSelectedCustomer);
@@ -28,6 +31,14 @@ export class CustomerFacade {
   isLoadingHistory$ = this.store.select(selectIsLoadingHistory);
   isLoadingBalance$ = this.store.select(selectIsLoadingBalance);
   error$ = this.store.select(selectError);
+
+  saved$ = this.actions$.pipe(
+    ofType(
+      CustomerActions.createCustomerSuccess,
+      CustomerActions.updateCustomerSuccess,
+    ),
+    map(({ customer }) => customer),
+  );
 
   loadCustomers(): void {
     this.store.dispatch(CustomerActions.loadCustomers());

@@ -16,10 +16,12 @@ public record CatalogProductDto(
     bool IsActive,
     DateTimeOffset UpdatedAt)
 {
+    /// <summary><c>Price</c> is the product's price on the default list; requires its prices loaded
+    /// with their list (<c>GetForCatalogAsync</c>).</summary>
     public static CatalogProductDto From(Product p)
     {
         var first = p.Variants.FirstOrDefault();
         return new(p.Id, p.CategoryId, p.Name, first?.Sku, first?.Barcode,
-            first?.EffectivePrice(p) ?? p.BasePrice, p.UnitOfMeasure, p.Ncm, p.Cest, p.Origin, p.IsActive, p.UpdatedAt);
+            p.DefaultSalePrice ?? 0m, p.UnitOfMeasure, p.Ncm, p.Cest, p.Origin, p.IsActive, p.UpdatedAt);
     }
 }

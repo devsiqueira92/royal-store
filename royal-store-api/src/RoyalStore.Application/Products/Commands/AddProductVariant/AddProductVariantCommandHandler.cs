@@ -34,7 +34,7 @@ public sealed class AddProductVariantCommandHandler
         var variantResult = product.AddVariant(
             _tenantContext.TenantId,
             command.Size, command.Color, command.OptionName, command.Sku, command.Barcode,
-            command.Price, command.CostPrice, command.StockQuantity, command.MinStockQuantity);
+            command.StockQuantity, command.MinStockQuantity);
 
         if (!variantResult.IsSuccess)
             return variantResult.Error;

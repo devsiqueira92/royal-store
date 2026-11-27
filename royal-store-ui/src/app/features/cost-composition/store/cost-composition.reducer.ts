@@ -70,7 +70,7 @@ export const costCompositionFeature = createFeature({
         ...state,
         costCompositions: state.costCompositions.map(c =>
           c.id === costComposition.id
-            ? toCostCompositionSummary(costComposition)
+            ? toCostCompositionSummary(costComposition, c.productsCount)
             : c,
         ),
         selectedCostComposition:

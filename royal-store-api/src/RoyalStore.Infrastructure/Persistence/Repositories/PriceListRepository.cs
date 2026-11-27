@@ -46,9 +46,10 @@ public sealed class PriceListRepository : IPriceListRepository
     public async Task<bool> HasProductPricesAsync(Guid id, CancellationToken ct = default) =>
         await _context.ProductPrices.AnyAsync(pp => pp.PriceListId == id, ct);
 
+    // Services included: they are priced on the default list as well, so a list cannot become the
+    // default while any catalog line would be left without a price there.
     public async Task<int> CountProductsWithoutPriceAsync(Guid id, CancellationToken ct = default) =>
-        await _context.Products.CountAsync(
-            p => p.Type == ItemType.Product && !p.Prices.Any(pp => pp.PriceListId == id), ct);
+        await _context.Products.CountAsync(p => !p.Prices.Any(pp => pp.PriceListId == id), ct);
 
     public async Task<IReadOnlyDictionary<Guid, int>> GetProductCountsAsync(CancellationToken ct = default)
     {
@@ -59,12 +60,6 @@ public sealed class PriceListRepository : IPriceListRepository
 
         return counts.ToDictionary(c => c.PriceListId, c => c.Count);
     }
-
-    public async Task<IReadOnlyList<Product>> GetProductsWithPriceOnAsync(Guid id, CancellationToken ct = default) =>
-        await _context.Products
-            .Include(p => p.Prices.Where(pp => pp.PriceListId == id))
-            .Where(p => p.Type == ItemType.Product)
-            .ToListAsync(ct);
 
     public async Task<int> CountListsBasedOnAsync(Guid id, CancellationToken ct = default) =>
         await _context.PriceLists.CountAsync(l => l.BasePriceListId == id, ct);

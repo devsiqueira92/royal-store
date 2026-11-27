@@ -1,4 +1,5 @@
 import { Product } from './product.interface';
+import { defaultSalePrice } from '../utils/product-price-form.util';
 
 export interface LabelProduct {
   id: string;
@@ -17,12 +18,15 @@ export interface LabelProduct {
  */
 export function toLabelProducts(products: Product[]): LabelProduct[] {
   return products.flatMap(product => {
+    // Variants have no price of their own: every label shows the default-list price.
+    const price = defaultSalePrice(product) ?? 0;
+
     if (product.variants.length === 0) {
       return [
         {
           id: product.id,
           name: product.name,
-          price: product.basePrice,
+          price,
           barcode: product.sku,
           sku: product.sku,
         },
@@ -36,7 +40,7 @@ export function toLabelProducts(products: Product[]): LabelProduct[] {
           name: variant.optionName
             ? `${product.name} - ${variant.optionName}`
             : product.name,
-          price: variant.price ?? product.basePrice,
+          price,
           barcode: variant.barcode ?? product.sku,
           sku: variant.sku ?? product.sku,
         },

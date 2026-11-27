@@ -38,7 +38,6 @@ export interface Product {
   type?: number;
   categoryId: string;
   categoryName: string;
-  basePrice: number;
   baseCostPrice?: number;
   categoryColor?: string;
   name: string;
@@ -57,6 +56,7 @@ export interface Product {
   variants: ProductVariant[];
   supplierId?: string | null;
   supplierName?: string | null;
+  /** The only sale prices: one per price list, the default list's always present. */
   prices?: ProductPrice[];
   /** Linked cost composition; its `totalValue` is part of `baseCostPrice`. */
   costCompositionId?: string | null;
@@ -86,8 +86,6 @@ export interface ProductVariant {
   optionName?: string;
   sku?: string;
   barcode?: string;
-  price?: number | null;
-  costPrice?: number | null;
   stockQuantity?: number | null;
   minStockQuantity?: number | null;
 }
@@ -99,8 +97,6 @@ export interface ProductVariantFormControls {
   optionName: FormControl<string | null>;
   sku: FormControl<string | null>;
   barcode: FormControl<string | null>;
-  price: FormControl<number | null>;
-  costPrice: FormControl<number | null>;
   stockQuantity: FormControl<number | null>;
   minStockQuantity: FormControl<number | null>;
 }
@@ -112,6 +108,7 @@ export interface ProductFormControls {
   name: FormControl<string | null>;
   sku: FormControl<string | null>;
   description: FormControl<string | null>;
+  /** UI-only: the default-list price while the price table is closed. Sent inside `prices`. */
   basePrice: FormControl<number | null>;
   baseCostPrice: FormControl<number | null>;
   unitOfMeasure: FormControl<string | null>;
@@ -142,7 +139,7 @@ export interface ProductFormControls {
 
   variants: FormArray<FormGroup<ProductVariantFormControls>>;
 
-  /** One group per price list; the default list's sale price mirrors `basePrice`. */
+  /** One group per price list while the price table is open; empty otherwise. */
   prices: FormArray<FormGroup<ProductPriceFormControls>>;
 
   /** Optional cost composition; its total plus the product cost gives `baseCostPrice`. */

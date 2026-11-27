@@ -222,9 +222,6 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<Guid?>("ProductId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
@@ -240,14 +237,7 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
 
-                    b.Property<int>("Version")
-                        .IsConcurrencyToken()
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProductId")
-                        .IsUnique();
 
                     b.HasIndex("TenantId");
 
@@ -382,16 +372,15 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<decimal>("BasePrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Cest")
                         .HasMaxLength(7)
                         .HasColumnType("character varying(7)");
+
+                    b.Property<Guid?>("CostCompositionId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -508,6 +497,8 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("CostCompositionId");
 
                     b.HasIndex("NormalizedName");
 
@@ -689,10 +680,6 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<decimal?>("CostPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
-
                     b.Property<decimal?>("MinStockQuantity")
                         .HasPrecision(18, 3)
                         .HasColumnType("numeric(18,3)");
@@ -706,10 +693,6 @@ namespace RoyalStore.Infrastructure.Migrations
                     b.Property<string>("OptionName")
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<decimal?>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
@@ -2962,14 +2945,6 @@ namespace RoyalStore.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RoyalStore.Domain.Catalog.CostCompositionList", b =>
-                {
-                    b.HasOne("RoyalStore.Domain.Catalog.Product", null)
-                        .WithOne("CostComposition")
-                        .HasForeignKey("RoyalStore.Domain.Catalog.CostCompositionList", "ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("RoyalStore.Domain.Catalog.PriceList", b =>
                 {
                     b.HasOne("RoyalStore.Domain.Catalog.PriceList", null)
@@ -2985,6 +2960,11 @@ namespace RoyalStore.Infrastructure.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("RoyalStore.Domain.Catalog.CostCompositionList", "CostComposition")
+                        .WithMany()
+                        .HasForeignKey("CostCompositionId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("RoyalStore.Domain.Suppliers.Supplier", "Supplier")
                         .WithMany()
@@ -3036,6 +3016,8 @@ namespace RoyalStore.Infrastructure.Migrations
                         });
 
                     b.Navigation("Category");
+
+                    b.Navigation("CostComposition");
 
                     b.Navigation("Measure")
                         .IsRequired();
@@ -3568,8 +3550,6 @@ namespace RoyalStore.Infrastructure.Migrations
 
             modelBuilder.Entity("RoyalStore.Domain.Catalog.Product", b =>
                 {
-                    b.Navigation("CostComposition");
-
                     b.Navigation("Photos");
 
                     b.Navigation("Prices");

@@ -7,9 +7,9 @@ namespace RoyalStore.Domain.Catalog;
 /// A product's cost breakdown as a list of its own (064): free-text cost lines with an amount,
 /// created before the product exists and tied to it by a product save that names the list.
 /// <para>
-/// A list belongs to one store and is linked to at most one product — to none until a product is
-/// saved with its identifier. Only <see cref="Product"/> links and unlinks it, so the rules about
-/// which list a product may use stay in one place.
+/// A list belongs to one store and is reusable: any number of the store's products may use it. The
+/// link lives on the product (<see cref="Product.CostCompositionId"/>), so the list knows nothing
+/// about who uses it.
 /// </para>
 /// <para>
 /// Informative only: it never feeds <see cref="Product.BaseCostPrice"/>.
@@ -26,16 +26,6 @@ public sealed class CostCompositionList : Entity, IAuditableEntity
     /// characters; names are not required to be unique.</summary>
     public string Name { get; private set; } = string.Empty;
 
-    /// <summary>The product this list is linked to; null until a product save names the list.</summary>
-    public Guid? ProductId { get; private set; }
-
-    /// <summary>
-    /// Concurrency token. Moves on link and unlink and on nothing else: two products naming the same
-    /// list at the same instant change the same row, and this makes the second one fail instead of
-    /// silently taking the list over (064 research D4). Editing the lines never touches it.
-    /// </summary>
-    public int Version { get; private set; }
-
     public ICollection<ProductCostItem> Items { get; private set; } = [];
 
     /// <summary>
@@ -51,8 +41,6 @@ public sealed class CostCompositionList : Entity, IAuditableEntity
     public DateTimeOffset UpdatedAt { get; set; }
     public string UpdatedBy { get; set; } = string.Empty;
 
-    public bool IsLinked => ProductId.HasValue;
-
     private CostCompositionList() : base(Guid.NewGuid()) { }
 
     private CostCompositionList(Guid tenantId) : base(Guid.NewGuid())
@@ -61,7 +49,7 @@ public sealed class CostCompositionList : Entity, IAuditableEntity
     }
 
     /// <summary>
-    /// Creates a list linked to no product. All lines are new: a line id sent here refers to nothing,
+    /// Creates a list used by no product yet. All lines are new: a line id sent here refers to nothing,
     /// so it fails as not found, exactly as in <see cref="ReplaceItems"/>.
     /// </summary>
     public static Result<CostCompositionList> Create(
@@ -102,7 +90,7 @@ public sealed class CostCompositionList : Entity, IAuditableEntity
     /// Replaces this list's lines with the submitted set (064 FR-010): lines with an id are updated,
     /// lines without one are added, stored lines left out are removed, and the order sent is the order
     /// kept (FR-009). Nothing changes unless every line is valid (FR-008). Zero lines is allowed (FR-007).
-    /// Does not move <see cref="Version"/> — editing lines is not linking.
+    /// Products using the list see the new lines at once.
     /// </summary>
     public Result<ProductCostItemChanges> ReplaceItems(IReadOnlyList<ProductCostItemInput> items)
     {
@@ -174,23 +162,7 @@ public sealed class CostCompositionList : Entity, IAuditableEntity
 
     /// <summary>
     /// Sets <see cref="TotalValue"/> to the sum of the lines' amounts. Amounts have at most two
-    /// decimals, so the sum is exact and needs no rounding. Does not move <see cref="Version"/> — a
-    /// total is not a link.
+    /// decimals, so the sum is exact and needs no rounding.
     /// </summary>
     public void RecalculateTotal() => TotalValue = Items.Sum(i => i.Value);
-
-    /// <summary>Called only by <see cref="Product"/> when a product save names this list.</summary>
-    internal void LinkTo(Guid productId)
-    {
-        ProductId = productId;
-        Version++;
-    }
-
-    /// <summary>Called only by <see cref="Product"/> when its save names another list. The list stays
-    /// stored and can be found among the store's lists linked to no product (064 FR-016, FR-025).</summary>
-    internal void Unlink()
-    {
-        ProductId = null;
-        Version++;
-    }
 }

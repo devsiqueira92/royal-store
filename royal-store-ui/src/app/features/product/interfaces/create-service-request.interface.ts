@@ -1,13 +1,12 @@
 export interface CreateServiceVariantRequest {
   optionName: string;
-  price?: number;
-  costPrice?: number;
 }
 
 export interface CreateServiceRequest {
   categoryId: string;
   name: string;
   sku: string;
+  /** The service's one price; the API stores it on the default price list. */
   basePrice: number;
   baseCostPrice: number;
   description?: string;

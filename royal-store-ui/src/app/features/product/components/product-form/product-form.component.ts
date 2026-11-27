@@ -34,6 +34,7 @@ import { ProductLogisticsComponent } from '../product-logistics/product-logistic
 import { TaxProfileTemplateFacade } from '@app/core/tax-profile-template/facade/tax-profile-template.facade';
 import { TaxProfileTemplate } from '@app/core/tax-profile-template/interfaces/tax-profile-template.interface';
 import { ProductPriceFormControls } from '../../interfaces/price-list.interface';
+import { defaultSalePrice } from '../../utils/product-price-form.util';
 
 // Advanced fiscal controls driven by the tax profile template's override matrix.
 // `cest` is intentionally excluded — it's a free Product field, not template-driven.
@@ -131,7 +132,10 @@ export class ProductFormComponent {
       // Rebuilt before the patch: patchValue only fills rows that already
       // exist, and ProductPricingComponent reseeds from these rows once the
       // id changes.
-      this.formGroup.patchValue({ ...product });
+      // The simple price field is the default-list price: there is no other sale price.
+      this.formGroup.patchValue(
+        product ? { ...product, basePrice: defaultSalePrice(product) } : {},
+      );
     });
 
     // The store owns the active flag: this mirrors it back into the control

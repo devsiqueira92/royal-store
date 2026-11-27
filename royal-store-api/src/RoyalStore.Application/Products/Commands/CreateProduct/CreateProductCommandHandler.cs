@@ -76,11 +76,12 @@ public sealed class CreateProductCommandHandler
         // Every list of the store, active or not: the aggregate decides which ones may be priced.
         var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
 
-        var prices = ProductPriceInputs.ForCreate(command.Prices, command.BasePrice, priceLists);
+        // Every product is created with its prices: at least the one on the default list.
+        var prices = ProductPriceInputs.Resolve(command.Prices, priceLists);
         if (!prices.IsSuccess)
             return prices.Error;
 
-// Named by identifier. A list that does not exist, or belongs to another store (the tenant filter
+        // Named by identifier. A list that does not exist, or belongs to another store (the tenant filter
         // hides it), is refused before anything is created or changed (064 FR-017).
         CostCompositionList? costComposition = null;
         if (command.CostCompositionId.HasValue)
@@ -106,9 +107,9 @@ public sealed class CreateProductCommandHandler
 
         foreach (var v in command.Variants ?? [])
         {
-            // No sale price: a product variant is priced by the product's price lists (061 FR-024).
+            // No price: a variant is priced by the product's price lists.
             var variantResult = product.AddVariant(tenantId, v.Size, v.Color, v.OptionName, v.Sku, v.Barcode,
-                null, v.CostPrice, v.StockQuantity, v.MinStockQuantity);
+                v.StockQuantity, v.MinStockQuantity);
             if (!variantResult.IsSuccess)
                 return variantResult.Error;
         }

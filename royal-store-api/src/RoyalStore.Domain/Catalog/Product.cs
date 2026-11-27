@@ -18,7 +18,6 @@ public sealed class Product : Entity, IAuditableEntity
     public string UnitOfMeasure { get; private set; } = "UN";
     public ItemType Type { get; private set; }
     public bool StockTrack { get; private set; }
-    public decimal BasePrice { get; private set; }
     public decimal BaseCostPrice { get; private set; }
     public string? Ncm { get; private set; }
     public string? Cest { get; private set; }
@@ -39,16 +38,21 @@ public sealed class Product : Entity, IAuditableEntity
     public ICollection<ProductVariant> Variants { get; private set; } = [];
     public ICollection<ProductPhoto> Photos { get; private set; } = [];
 
-    /// <summary>One sale price per price list (061). Services have none — they keep
-    /// <see cref="BasePrice"/> as their single price.</summary>
+    /// <summary>One sale price per price list (061) — the only place a sale price is stored. Every
+    /// product has at least the price on the store's default list.</summary>
     public ICollection<ProductPrice> Prices { get; private set; } = [];
+
+    /// <summary>The price on the store's default list. Requires <see cref="Prices"/> loaded with
+    /// their <see cref="ProductPrice.PriceList"/>; null when it is not loaded or missing.</summary>
+    public decimal? DefaultSalePrice =>
+        Prices.FirstOrDefault(p => p.PriceList is { IsDefault: true })?.SalePrice;
 
     /// <summary>
     /// The product's cost composition (064): a list of free-text cost lines with an amount, created on
-    /// its own and linked here by a product save that names it. Read navigation — the foreign key
-    /// (<see cref="CostCompositionList.ProductId"/>) is on the list. Informative only:
-    /// <see cref="BaseCostPrice"/> is never derived from it.
+    /// its own and named by a product save. Reusable: many products may use the same list.
+    /// Informative only: <see cref="BaseCostPrice"/> is never derived from it.
     /// </summary>
+    public Guid? CostCompositionId { get; private set; }
     public CostCompositionList? CostComposition { get; private set; }
 
     public DateTimeOffset CreatedAt { get; set; }
@@ -59,7 +63,7 @@ public sealed class Product : Entity, IAuditableEntity
     private Product() : base(Guid.NewGuid()) { }
 
     private Product(Guid id, Guid tenantId, Guid categoryId, string name, string sku, ItemType type,
-        bool stockTrack, decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        bool stockTrack, decimal baseCostPrice, string? description, string unitOfMeasure,
         string? ncm, string? cest, string origin, string? nbs, string? issCode,
         Guid taxProfileTemplateId, bool overrideTaxProfile,
         string? defaultCfop, string? icmsCst, string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
@@ -73,7 +77,6 @@ public sealed class Product : Entity, IAuditableEntity
         Type = type;
         IsActive = true;
         StockTrack = stockTrack;
-        BasePrice = basePrice;
         BaseCostPrice = baseCostPrice;
         Description = description;
         UnitOfMeasure = unitOfMeasure;
@@ -95,8 +98,8 @@ public sealed class Product : Entity, IAuditableEntity
     private static string? Normalize(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
-    private static Result<(Guid TenantId, Guid CategoryId, string Name, string Sku, decimal BasePrice, decimal BaseCostPrice)>
-        ValidateCommonFields(Guid tenantId, Guid categoryId, string name, string sku, decimal basePrice, decimal baseCostPrice)
+    private static Result<(Guid TenantId, Guid CategoryId, string Name, string Sku, decimal BaseCostPrice)>
+        ValidateCommonFields(Guid tenantId, Guid categoryId, string name, string sku, decimal baseCostPrice)
     {
         if (tenantId == Guid.Empty)
             return Error.Validation("product.tenant_required", "Tenant identifier is required.");
@@ -120,13 +123,10 @@ public sealed class Product : Entity, IAuditableEntity
         if (sku.Length > 50)
             return Error.Validation("product.sku_too_long", "SKU must not exceed 50 characters.");
 
-        if (basePrice < 0)
-            return Error.Validation("product.base_price_negative", "Base price must be zero or greater.");
-
         if (baseCostPrice < 0)
             return Error.Validation("product.base_cost_price_negative", "Base cost price must be zero or greater.");
 
-        return (tenantId, categoryId, name, sku, basePrice, baseCostPrice);
+        return (tenantId, categoryId, name, sku, baseCostPrice);
     }
 
     private static Result ValidateTaxOverride(
@@ -179,9 +179,8 @@ public sealed class Product : Entity, IAuditableEntity
         Supplier? supplier = null,
         CostCompositionList? costComposition = null)
     {
-        // The sale price is no longer an input: it comes from the price lists and is mirrored into
-        // BasePrice by ApplyPrices below.
-        var common = ValidateCommonFields(tenantId, categoryId, name, sku, 0m, baseCostPrice);
+        // The sale price lives only in the price lists, applied by ApplyPrices below.
+        var common = ValidateCommonFields(tenantId, categoryId, name, sku, baseCostPrice);
         if (!common.IsSuccess)
             return common.Error;
 
@@ -200,10 +199,10 @@ public sealed class Product : Entity, IAuditableEntity
         if (string.IsNullOrWhiteSpace(unitOfMeasure))
             unitOfMeasure = "UN";
 
-        var (tid, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
+        var (tid, cid, trimmedName, trimmedSku, bcp) = common.Value;
 
         var product = new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Product,
-            stockTrack, bp, bcp, description, unitOfMeasure, Normalize(ncm), Normalize(cest), origin,
+            stockTrack, bcp, description, unitOfMeasure, Normalize(ncm), Normalize(cest), origin,
             null, null, taxProfileTemplate.Id, overrideTaxProfile,
             overrideTaxProfile ? Normalize(defaultCfop) : null,
             overrideTaxProfile ? Normalize(icmsCst) : null,
@@ -229,15 +228,18 @@ public sealed class Product : Entity, IAuditableEntity
         return product;
     }
 
+    /// <param name="prices">One price per price list; the store's default list is mandatory.</param>
+    /// <param name="tenantLists">Every price list of the store, active or not.</param>
     public static Result<Product> CreateService(
         Guid tenantId, Guid categoryId, string name, string sku,
-        decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
+        decimal baseCostPrice, string? description, string unitOfMeasure,
         string nbs, string issCode,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax, string origin,
         Supplier? supplier = null)
     {
-        var common = ValidateCommonFields(tenantId, categoryId, name, sku, basePrice, baseCostPrice);
+        var common = ValidateCommonFields(tenantId, categoryId, name, sku, baseCostPrice);
         if (!common.IsSuccess)
             return common.Error;
 
@@ -255,10 +257,10 @@ public sealed class Product : Entity, IAuditableEntity
         if (string.IsNullOrWhiteSpace(unitOfMeasure))
             unitOfMeasure = "UN";
 
-        var (tid, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
+        var (tid, cid, trimmedName, trimmedSku, bcp) = common.Value;
 
-        return new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Service,
-            stockTrack: false, bp, bcp, description, unitOfMeasure, ncm: null, cest: null, origin: origin,
+        var service = new Product(Guid.NewGuid(), tid, cid, trimmedName, trimmedSku, ItemType.Service,
+            stockTrack: false, bcp, description, unitOfMeasure, ncm: null, cest: null, origin: origin,
             Normalize(nbs), Normalize(issCode), taxProfileTemplate.Id, overrideTaxProfile,
             defaultCfop: null, icmsCst: null,
             overrideTaxProfile ? Normalize(pisCofinsCst) : null,
@@ -270,6 +272,12 @@ public sealed class Product : Entity, IAuditableEntity
             SupplierId = supplier?.Id,
             Supplier = supplier
         };
+
+        var pricesResult = service.ApplyPrices(prices, tenantLists);
+        if (!pricesResult.IsSuccess)
+            return pricesResult.Error;
+
+        return service;
     }
 
     public Result<ProductPriceChanges> UpdateProductFields(
@@ -288,13 +296,12 @@ public sealed class Product : Entity, IAuditableEntity
         if (!IsActive)
             return Error.Validation("product.inactive", "Inactive products cannot be updated.");
 
-        var common = ValidateCommonFields(TenantId, categoryId, name, sku, BasePrice, baseCostPrice);
+        var common = ValidateCommonFields(TenantId, categoryId, name, sku, baseCostPrice);
         if (!common.IsSuccess)
             return common.Error;
 
         if (string.IsNullOrWhiteSpace(ncm))
             return Error.Validation("product.ncm_required", "NCM is required.");
-
 
         var measureResult = ProductMeasure.Create(netWeight, grossWeight, width, height, length);
         if (!measureResult.IsSuccess)
@@ -306,13 +313,12 @@ public sealed class Product : Entity, IAuditableEntity
             return overrideResult.Error;
 
         // Last check before anything is assigned: the prices are validated as a whole and only then
-        // applied, so a rejected price leaves the product untouched (061 FR-013). BasePrice is
-        // written there too, as the mirror of the default-list price.
+        // applied, so a rejected price leaves the product untouched (061 FR-013).
         var pricesResult = ApplyPrices(prices, tenantLists);
         if (!pricesResult.IsSuccess)
             return pricesResult.Error;
 
-        var (_, cid, trimmedName, trimmedSku, _, bcp) = common.Value;
+        var (_, cid, trimmedName, trimmedSku, bcp) = common.Value;
 
         CategoryId = cid;
         Name = trimmedName;
@@ -340,41 +346,46 @@ public sealed class Product : Entity, IAuditableEntity
         return pricesResult.Value;
     }
 
-    public Result UpdateServiceFields(
+    public Result<ProductPriceChanges> UpdateServiceFields(
         Guid categoryId, string name, string sku,
-        decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
+        decimal baseCostPrice, string? description, string unitOfMeasure,
         string nbs, string issCode,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
         Supplier? supplier = null)
     {
         if (Type != ItemType.Service)
-            return Result.Failure(Error.Validation("product.wrong_kind", "This catalog line is not a service."));
+            return Error.Validation("product.wrong_kind", "This catalog line is not a service.");
 
         if (!IsActive)
-            return Result.Failure(Error.Validation("product.inactive", "Inactive services cannot be updated."));
+            return Error.Validation("product.inactive", "Inactive services cannot be updated.");
 
-        var common = ValidateCommonFields(TenantId, categoryId, name, sku, basePrice, baseCostPrice);
+        var common = ValidateCommonFields(TenantId, categoryId, name, sku, baseCostPrice);
         if (!common.IsSuccess)
-            return Result.Failure(common.Error);
+            return common.Error;
 
         if (string.IsNullOrWhiteSpace(nbs))
-            return Result.Failure(Error.Validation("product.nbs_required", "NBS is required."));
+            return Error.Validation("product.nbs_required", "NBS is required.");
 
         if (string.IsNullOrWhiteSpace(issCode))
-            return Result.Failure(Error.Validation("product.iss_code_required", "ISS code is required."));
+            return Error.Validation("product.iss_code_required", "ISS code is required.");
 
         var overrideResult = ValidateTaxOverride(taxProfileTemplate, ItemType.Service, overrideTaxProfile,
             pisCofinsCst, ivaCst, isSelectiveTax);
         if (!overrideResult.IsSuccess)
-            return overrideResult;
+            return overrideResult.Error;
 
-        var (_, cid, trimmedName, trimmedSku, bp, bcp) = common.Value;
+        // Last check before anything is assigned, as for a product (061 FR-013).
+        var pricesResult = ApplyPrices(prices, tenantLists);
+        if (!pricesResult.IsSuccess)
+            return pricesResult.Error;
+
+        var (_, cid, trimmedName, trimmedSku, bcp) = common.Value;
 
         CategoryId = cid;
         Name = trimmedName;
         Sku = trimmedSku;
-        BasePrice = bp;
         BaseCostPrice = bcp;
         Description = description;
         UnitOfMeasure = string.IsNullOrWhiteSpace(unitOfMeasure) ? "UN" : unitOfMeasure;
@@ -390,7 +401,7 @@ public sealed class Product : Entity, IAuditableEntity
         Supplier = supplier;
         Version++;
 
-        return Result.Success();
+        return pricesResult.Value;
     }
 
     public Result<ProductPriceChanges> UpdateProductWithVariants(
@@ -431,9 +442,10 @@ public sealed class Product : Entity, IAuditableEntity
         return fieldsResult.Value;
     }
 
-    public Result UpdateServiceWithVariants(
+    public Result<ProductPriceChanges> UpdateServiceWithVariants(
         Guid categoryId, string name, string sku,
-        decimal basePrice, decimal baseCostPrice, string? description, string unitOfMeasure,
+        IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists,
+        decimal baseCostPrice, string? description, string unitOfMeasure,
         string nbs, string issCode,
         TaxProfileTemplate taxProfileTemplate, bool overrideTaxProfile,
         string? pisCofinsCst, string? ivaCst, bool? isSelectiveTax,
@@ -441,14 +453,18 @@ public sealed class Product : Entity, IAuditableEntity
         IReadOnlyList<VariantUpdateRequest> variantsToUpdate,
         Supplier? supplier = null)
     {
-        var fieldsResult = UpdateServiceFields(categoryId, name, sku, basePrice, baseCostPrice,
+        var fieldsResult = UpdateServiceFields(categoryId, name, sku, prices, tenantLists, baseCostPrice,
             description, unitOfMeasure, nbs, issCode,
             taxProfileTemplate, overrideTaxProfile, pisCofinsCst, ivaCst, isSelectiveTax,
             supplier);
         if (!fieldsResult.IsSuccess)
-            return fieldsResult;
+            return fieldsResult.Error;
 
-        return ApplyVariantChanges(variantsToAdd, variantsToUpdate);
+        var variantsResult = ApplyVariantChanges(variantsToAdd, variantsToUpdate);
+        if (!variantsResult.IsSuccess)
+            return variantsResult.Error;
+
+        return fieldsResult.Value;
     }
 
     private Result ApplyVariantChanges(
@@ -464,7 +480,7 @@ public sealed class Product : Entity, IAuditableEntity
         foreach (var update in variantsToUpdate)
         {
             var updateResult = UpdateVariant(update.VariantId, update.Size, update.Color, update.OptionName,
-                update.Sku, update.Barcode, update.Price, update.CostPrice, update.StockQuantity, update.MinStockQuantity);
+                update.Sku, update.Barcode, update.StockQuantity, update.MinStockQuantity);
             if (!updateResult.IsSuccess)
                 return Result.Failure(AttributeError(updateResult.Error, $"Variant '{update.VariantId}'"));
         }
@@ -472,7 +488,7 @@ public sealed class Product : Entity, IAuditableEntity
         foreach (var add in variantsToAdd)
         {
             var addResult = AddVariant(TenantId, add.Size, add.Color, add.OptionName,
-                add.Sku, add.Barcode, add.Price, add.CostPrice, add.StockQuantity, add.MinStockQuantity);
+                add.Sku, add.Barcode, add.StockQuantity, add.MinStockQuantity);
             if (!addResult.IsSuccess)
                 return Result.Failure(AttributeError(addResult.Error, $"New variant"));
         }
@@ -512,31 +528,21 @@ public sealed class Product : Entity, IAuditableEntity
     /// <summary>
     /// The non-mutating half of <see cref="UseCostComposition"/>: whether <paramref name="list"/> may
     /// become this product's cost composition (064 FR-017). <c>null</c> is always fine — it means
-    /// "leave the composition as it is" (FR-015).
+    /// "leave the composition as it is" (FR-015). A list already used by other products is fine too:
+    /// lists are reusable.
     /// </summary>
     private Result CheckCostComposition(CostCompositionList? list)
     {
-        if (list is null)
-            return Result.Success();
-
         // A list of another store is simply not a list this product can see (FR-017).
-        if (list.TenantId != TenantId)
+        if (list is not null && list.TenantId != TenantId)
             return Result.Failure(Error.NotFound("costcomposition.not_found", "Cost composition was not found."));
-
-        // Already this product's list: nothing to refuse and nothing to change (FR-018).
-        if (CostComposition?.Id == list.Id)
-            return Result.Success();
-
-        if (list.ProductId is { } otherProductId && otherProductId != Id)
-            return Result.Failure(Error.Conflict("costcomposition.already_linked",
-                "That cost composition is already linked to another product."));
 
         return Result.Success();
     }
 
     /// <summary>
     /// Makes <paramref name="list"/> this product's cost composition (064 FR-013, FR-014, FR-016).
-    /// The list this product had before, if any, stays stored and is left linked to no product.
+    /// The list this product had before stays stored and untouched for the other products using it.
     /// <para>
     /// Adds no <see cref="Version"/> bump of its own: every product update already bumps it, so an
     /// update that only switches the list is a real product change for the existing stale-save
@@ -549,11 +555,10 @@ public sealed class Product : Entity, IAuditableEntity
         if (check.IsFailure)
             return check;
 
-        if (list is null || CostComposition?.Id == list.Id)
+        if (list is null || CostCompositionId == list.Id)
             return Result.Success();
 
-        CostComposition?.Unlink();
-        list.LinkTo(Id);
+        CostCompositionId = list.Id;
         CostComposition = list;
 
         return Result.Success();
@@ -566,9 +571,6 @@ public sealed class Product : Entity, IAuditableEntity
     /// </summary>
     public Result<ProductPrice> RemovePrice(Guid priceListId)
     {
-        if (Type != ItemType.Product)
-            return Error.Validation("product.wrong_kind", "This catalog line is not a physical product.");
-
         var price = Prices.FirstOrDefault(p => p.PriceListId == priceListId);
         if (price is null)
             return Error.NotFound("product.price_not_found", "This product has no price on that list.");
@@ -584,29 +586,6 @@ public sealed class Product : Entity, IAuditableEntity
         Prices.Remove(price);
         Version++;
         return price;
-    }
-
-    /// <summary>
-    /// Re-points the legacy single price at this product's price on the store's (new) default list.
-    /// Called for every product when the default list changes, so <see cref="BasePrice"/> — still
-    /// read by sales, the POS and the offline catalog — keeps meaning "the default-list price"
-    /// (061 FR-020).
-    /// </summary>
-    public Result MirrorDefaultPrice(PriceList defaultList)
-    {
-        if (Type != ItemType.Product)
-            return Result.Failure(Error.Validation("product.wrong_kind", "This catalog line is not a physical product."));
-
-        if (defaultList.TenantId != TenantId || !defaultList.IsDefault)
-            return Result.Failure(Error.Validation("product.price_list_invalid", "That is not this store's default price list."));
-
-        var price = Prices.FirstOrDefault(p => p.PriceListId == defaultList.Id);
-        if (price is null)
-            return Result.Failure(Error.Conflict("product.default_price_required",
-                $"Product '{Name}' has no price on the default list."));
-
-        BasePrice = price.SalePrice;
-        return Result.Success();
     }
 
     /// <summary>
@@ -626,7 +605,7 @@ public sealed class Product : Entity, IAuditableEntity
             && list.SuggestPrice(basePrice.SalePrice) is { } suggested)
             return suggested;
 
-        return Prices.FirstOrDefault(p => p.PriceList.IsDefault)?.SalePrice;
+        return DefaultSalePrice;
     }
 
     /// <summary>
@@ -661,9 +640,6 @@ public sealed class Product : Entity, IAuditableEntity
     private Result<ProductPriceChanges> ApplyPrices(
         IReadOnlyList<ProductPriceInput> prices, IReadOnlyList<PriceList> tenantLists)
     {
-        if (Type != ItemType.Product)
-            return Error.Validation("product.wrong_kind", "This catalog line is not a physical product.");
-
         // Lists of another store are simply not this product's lists (FR-023).
         var lists = tenantLists.Where(l => l.TenantId == TenantId).ToDictionary(l => l.Id);
 
@@ -731,10 +707,6 @@ public sealed class Product : Entity, IAuditableEntity
             }
         }
 
-        // The legacy single price stays as the mirror of the default-list price for as long as
-        // the column exists (FR-019, FR-020).
-        BasePrice = defaultInput.SalePrice;
-
         return new ProductPriceChanges(added, removed);
     }
 
@@ -760,8 +732,7 @@ public sealed class Product : Entity, IAuditableEntity
     }
 
     public Result<ProductVariant> AddVariant(Guid tenantId, string? size, string? color, string? optionName,
-        string? sku, string? barcode, decimal? price, decimal? costPrice,
-        decimal? stockQuantity, decimal? minStockQuantity)
+        string? sku, string? barcode, decimal? stockQuantity, decimal? minStockQuantity)
     {
         size = string.IsNullOrWhiteSpace(size) ? null : size.Trim();
         color = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
@@ -780,13 +751,8 @@ public sealed class Product : Entity, IAuditableEntity
             return Error.Validation("variant.size_or_color_required", "Each variant must have at least one of Size or Color.");
         }
 
-        // A product variant has no sale price of its own — it is priced by the product's price
-        // lists (061 FR-024). Only a service option keeps one.
-        if (Type != ItemType.Service)
-            price = null;
-
-        var validation = ProductVariant.Validate(Type, StockTrack, BasePrice, BaseCostPrice,
-            sku, barcode, price, costPrice, stockQuantity, minStockQuantity);
+        // A variant has no price of its own — it is priced by the product's price lists.
+        var validation = ProductVariant.Validate(StockTrack, sku, barcode, stockQuantity, minStockQuantity);
         if (!validation.IsSuccess)
             return validation.Error;
 
@@ -796,7 +762,7 @@ public sealed class Product : Entity, IAuditableEntity
                 : "A variant with the same size and color already exists for this product.");
 
         var variant = new ProductVariant(Id, tenantId, size, color, optionName, sku, barcode,
-            price, costPrice, stockQuantity, minStockQuantity);
+            stockQuantity, minStockQuantity);
         Variants.Add(variant);
         Version++;
         return variant;
@@ -817,8 +783,7 @@ public sealed class Product : Entity, IAuditableEntity
     }
 
     public Result UpdateVariant(Guid variantId, string? size, string? color, string? optionName,
-        string? sku, string? barcode, decimal? price, decimal? costPrice,
-        decimal? stockQuantity, decimal? minStockQuantity)
+        string? sku, string? barcode, decimal? stockQuantity, decimal? minStockQuantity)
     {
         var variant = Variants.FirstOrDefault(v => v.Id == variantId);
         if (variant is null)
@@ -846,8 +811,8 @@ public sealed class Product : Entity, IAuditableEntity
                 ? "A variant with the same option name already exists for this service."
                 : "A variant with the same size and color already exists for this product."));
 
-        var updateResult = variant.Update(size, color, optionName, sku, barcode, price, costPrice,
-            stockQuantity, minStockQuantity, Type, StockTrack, BasePrice, BaseCostPrice);
+        var updateResult = variant.Update(size, color, optionName, sku, barcode,
+            stockQuantity, minStockQuantity, StockTrack);
         if (updateResult.IsSuccess)
             Version++;
 

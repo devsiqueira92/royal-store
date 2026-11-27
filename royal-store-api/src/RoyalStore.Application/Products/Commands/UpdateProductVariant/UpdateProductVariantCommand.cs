@@ -12,7 +12,5 @@ public record UpdateProductVariantCommand(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? Price,
-    decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity) : IRequest<Result<ProductVariantResponse>>;

@@ -26,12 +26,6 @@ public sealed class ProductVariantConfiguration : IEntityTypeConfiguration<Produ
 
         builder.Property(v => v.Barcode).HasMaxLength(14);
 
-        builder.Property(v => v.Price)
-            .HasPrecision(18, 2);
-
-        builder.Property(v => v.CostPrice)
-            .HasPrecision(18, 2);
-
         builder.Property(v => v.StockQuantity)
             .HasPrecision(18, 3);
 

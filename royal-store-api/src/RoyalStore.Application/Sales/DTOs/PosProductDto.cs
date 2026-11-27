@@ -51,7 +51,9 @@ public record PosProductDto(
             variant.Color,
             variant.Barcode,
             variant.Sku ?? product.Sku,
-            DefaultListPrice(product),
+            // The default-list price. GetForPosAsync loads only that price and skips products
+            // without one, so the fallback is never hit in practice.
+            product.DefaultSalePrice ?? 0m,
             product.Photos.FirstOrDefault(p => p.IsCover)?.Url,
             variant.Size,
             product.StockTrack,
@@ -74,10 +76,4 @@ public record PosProductDto(
             ibptTax?.Source,
             ibptTax?.Key);
     }
-
-    // Price shown at the POS comes from the default price list (ProductPrices ⋈ PriceLists.IsDefault),
-    // not from Products.BasePrice nor ProductVariants.Price/CostPrice. GetForPosAsync loads only that
-    // price and skips products without one, so the fallback is never hit in practice.
-    private static decimal DefaultListPrice(Product product) =>
-        product.Prices.FirstOrDefault(pp => pp.PriceList.IsDefault)?.SalePrice ?? 0m;
 }

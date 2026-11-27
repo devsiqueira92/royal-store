@@ -10,8 +10,6 @@ public record CreateProductCommand(
     string Name,
     string Sku,
     bool StockTrack,
-    // Deprecated (061): read only when Prices is absent, as one price on the default list.
-    decimal? BasePrice,
     decimal BaseCostPrice,
     string? Description,
     string UnitOfMeasure,
@@ -32,8 +30,9 @@ public record CreateProductCommand(
     string? IvaCst = null,
     bool? IsSelectiveTax = null,
     Guid? SupplierId = null,
-    // One sale price per price list; the default list is mandatory (061 FR-010).
-    IReadOnlyList<ProductPriceInput>? Prices = null,
+    // One sale price per price list; the default list is mandatory (061 FR-010). A list sent with
+    // an empty price is refused, naming the list.
+    IReadOnlyList<ProductPriceRequest>? Prices = null,
     // The cost composition list to link to the new product: the identifier returned by
     // POST /api/cost-compositions. Absent = no composition (064 FR-013).
     Guid? CostCompositionId = null) : IRequest<Result<ProductResponse>>;
@@ -44,6 +43,5 @@ public record CreateVariantRequest(
     string? OptionName,
     string? Sku,
     string? Barcode,
-    decimal? CostPrice,
     decimal? StockQuantity,
     decimal? MinStockQuantity);

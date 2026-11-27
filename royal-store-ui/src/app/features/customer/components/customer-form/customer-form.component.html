@@ -46,17 +46,15 @@
       [addresses]="formGroup.controls.addresses"
     ></app-customer-addresses>
   </app-form-layout>
-
-  @if (!isCreateMode()) {
+  @if (selectedCustomer$ | async; as customer) {
     <app-form-layout title="customer.form.section.cashback" [index]="3">
       <app-customer-cashback-history
         [entries]="cashbackHistory()"
         [isLoading]="isLoadingHistory()"
-        [balance]="selectedCustomer()?.cashbackBalance ?? 0"
+        [balance]="customer?.cashbackBalance ?? 0"
       ></app-customer-cashback-history>
     </app-form-layout>
   }
-
   <div class="customer-form__footer">
     <app-button
       label="customer.form.cancel"

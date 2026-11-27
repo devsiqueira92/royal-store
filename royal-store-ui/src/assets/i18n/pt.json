@@ -479,8 +479,8 @@
     "subtitle": "Composições de custo reutilizáveis, vinculadas ou não a um produto.",
     "newCostComposition": "Nova composição",
     "empty": "Nenhuma composição de custo encontrada.",
-    "linked": "Vinculada",
-    "unlinked": "Sem vínculo",
+    "linked": "Em uso ({{count}})",
+    "unlinked": "Sem uso",
     "edit": "Editar composição",
     "columns": {
       "name": "Nome",

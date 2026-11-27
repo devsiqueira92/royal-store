@@ -45,42 +45,17 @@ public sealed class EditServiceValidator : AbstractValidator<EditServiceCommand>
         });
 
         RuleForEach(x => x.VariantsToAdd).Custom((v, context) =>
-        {
-            var command = (EditServiceCommand)context.InstanceToValidate;
-            ValidateVariant(v.OptionName, v.Price, v.CostPrice, command.BasePrice, command.BaseCostPrice, context);
-        });
+            ValidateVariant(v.OptionName, context));
 
         RuleForEach(x => x.VariantsToUpdate).Custom((v, context) =>
-        {
-            var command = (EditServiceCommand)context.InstanceToValidate;
-            ValidateVariant(v.OptionName, v.Price, v.CostPrice, command.BasePrice, command.BaseCostPrice, context);
-        });
+            ValidateVariant(v.OptionName, context));
     }
 
-    private static void ValidateVariant(
-        string optionName, decimal? price, decimal? costPrice,
-        decimal ownerBasePrice, decimal ownerBaseCostPrice,
-        ValidationContext<EditServiceCommand> context)
+    private static void ValidateVariant(string optionName, ValidationContext<EditServiceCommand> context)
     {
         if (string.IsNullOrWhiteSpace(optionName))
             context.AddFailure("Option name is required for a service variant.");
         else if (optionName.Length > 50)
             context.AddFailure("Option name must not exceed 50 characters.");
-
-        if (price.HasValue)
-        {
-            if (price.Value < 0)
-                context.AddFailure("Variant price must be zero or greater.");
-            else if (price.Value < ownerBasePrice)
-                context.AddFailure("Variant price must be greater than the service's base price.");
-        }
-
-        if (costPrice.HasValue)
-        {
-            if (costPrice.Value < 0)
-                context.AddFailure("Variant cost price must be zero or greater.");
-            else if (costPrice.Value < ownerBaseCostPrice)
-                context.AddFailure("Variant cost price must be greater than the service's base cost price.");
-        }
     }
 }

@@ -2,6 +2,7 @@ using MediatR;
 using RoyalStore.Application.Abstractions.Data;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
+using RoyalStore.Application.Products;
 using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 using RoyalStore.Domain.Common;
@@ -16,6 +17,7 @@ public sealed class CreateServiceCommandHandler
     private readonly ICategoryRepository _categoryRepository;
     private readonly ITaxProfileTemplateRepository _taxProfileTemplateRepository;
     private readonly ISupplierRepository _supplierRepository;
+    private readonly IPriceListRepository _priceListRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISecurityAuditService _auditService;
     private readonly ITenantContext _tenantContext;
@@ -26,6 +28,7 @@ public sealed class CreateServiceCommandHandler
         ICategoryRepository categoryRepository,
         ITaxProfileTemplateRepository taxProfileTemplateRepository,
         ISupplierRepository supplierRepository,
+        IPriceListRepository priceListRepository,
         IUnitOfWork unitOfWork,
         ISecurityAuditService auditService,
         ITenantContext tenantContext,
@@ -35,6 +38,7 @@ public sealed class CreateServiceCommandHandler
         _categoryRepository = categoryRepository;
         _taxProfileTemplateRepository = taxProfileTemplateRepository;
         _supplierRepository = supplierRepository;
+        _priceListRepository = priceListRepository;
         _unitOfWork = unitOfWork;
         _auditService = auditService;
         _tenantContext = tenantContext;
@@ -63,9 +67,16 @@ public sealed class CreateServiceCommandHandler
                 return Error.Validation("product.supplier_invalid", "Supplier not found or inactive.");
         }
 
+        // Every list of the store, active or not: the aggregate decides which ones may be priced.
+        var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);
+
+        var prices = ProductPriceInputs.ForDefaultList(command.BasePrice, null, priceLists);
+        if (!prices.IsSuccess)
+            return prices.Error;
+
         var serviceResult = Product.CreateService(
             tenantId, command.CategoryId, command.Name, command.Sku,
-            command.BasePrice, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
+            prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,
             command.Nbs, command.IssCode,
             taxProfileTemplate, command.OverrideTaxProfile,
             command.PisCofinsCst, command.IvaCst, command.IsSelectiveTax, command.Origin,
@@ -78,8 +89,7 @@ public sealed class CreateServiceCommandHandler
 
         foreach (var v in command.Variants ?? [])
         {
-            var variantResult = service.AddVariant(tenantId, null, null, v.OptionName, null, null,
-                v.Price, v.CostPrice, null, null);
+            var variantResult = service.AddVariant(tenantId, null, null, v.OptionName, null, null, null, null);
             if (!variantResult.IsSuccess)
                 return variantResult.Error;
         }

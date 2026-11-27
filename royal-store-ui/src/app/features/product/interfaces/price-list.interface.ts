@@ -10,10 +10,14 @@ export interface PriceList {
   isActive: boolean;
 }
 
-/** One sale price of a product on one list. Mirrors the API's `ProductPriceInput`. */
+/**
+ * One sale price of a product on one list. Mirrors the API's `ProductPriceRequest`: a list sent
+ * with an empty `salePrice` is refused with an error naming the list.
+ */
 export interface ProductPriceInput {
   priceListId: string;
-  salePrice: number;
+  salePrice: number | null;
+  minPrice?: number | null;
 }
 
 /** One sale price of a product on one list, as the API returns it. */
