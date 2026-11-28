@@ -25,7 +25,9 @@
 
     <app-button
       [label]="
-        isCreateMode() ? 'expense.accounts.form.createSubmit' : 'expense.accounts.form.submit'
+        formGroup.controls.id.value
+          ? 'expense.accounts.form.submit'
+          : 'expense.accounts.form.createSubmit'
       "
       [disabled]="formGroup.invalid"
       [loading]="isSaving()"

@@ -608,10 +608,12 @@
       "title": "Point of Sale",
       "subtitle": "Tap an item to add it to the sale.",
       "allCategories": "All",
-      "soldOut": "Sold out",
+      "soldOut": "{{name}} is sold out.",
       "addItem": "Add to sale",
       "searchPlaceholder": "Search products",
-      "empty": "No products found."
+      "empty": "No products found.",
+      "enterHint": "Enter adds the product when the search finds just one",
+      "enterToAdd": "Enter adds {{name}}"
     },
     "history": {
       "title": "Sales history",

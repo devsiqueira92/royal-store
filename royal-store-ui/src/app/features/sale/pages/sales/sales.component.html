@@ -20,12 +20,33 @@
     <p-iconfield class="pos__search">
       <p-inputicon class="pi pi-search" />
       <input
+        #searchInput
         pInputText
         type="text"
+        autocomplete="off"
         [ngModel]="searchTerm()"
         (ngModelChange)="setSearchTerm($event)"
+        (keydown.enter)="addSearchedProduct($event)"
         [placeholder]="'sale.pos.searchPlaceholder' | translate"
+        [attr.aria-label]="'sale.pos.searchPlaceholder' | translate"
+        aria-keyshortcuts="Enter"
+        aria-describedby="pos-search-enter"
       />
+      @let target = enterTarget();
+      @let enterHint =
+        target
+          ? ('sale.pos.enterToAdd' | translate: { name: target.productName })
+          : ('sale.pos.enterHint' | translate);
+      <span
+        id="pos-search-enter"
+        class="pos__search-enter"
+        [class.pos__search-enter--ready]="!!target"
+        [attr.title]="enterHint"
+      >
+        <kbd aria-hidden="true">Enter</kbd>
+        <span aria-hidden="true">↵</span>
+        <span class="pos__sr-only">{{ enterHint }}</span>
+      </span>
     </p-iconfield>
 
     <div class="pos__grid" [class.pos__grid--loading]="isLoading()">

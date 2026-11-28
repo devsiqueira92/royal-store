@@ -608,10 +608,12 @@
       "title": "Ponto de Venda",
       "subtitle": "Toque em um item para adicioná-lo à venda.",
       "allCategories": "Todas",
-      "soldOut": "Esgotado",
+      "soldOut": "{{name}} está esgotado.",
       "addItem": "Adicionar à venda",
       "searchPlaceholder": "Buscar produtos",
-      "empty": "Nenhum produto encontrado."
+      "empty": "Nenhum produto encontrado.",
+      "enterHint": "Enter adiciona o produto quando a busca encontra um só",
+      "enterToAdd": "Enter adiciona {{name}}"
     },
     "history": {
       "title": "Histórico de vendas",

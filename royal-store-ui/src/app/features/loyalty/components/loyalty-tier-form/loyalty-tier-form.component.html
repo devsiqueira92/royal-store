@@ -47,15 +47,15 @@
       />
     </div>
 
-    @if (!isCreateMode()) {
+    @if (selectedLoyaltyTier$ | async; as tier) {
       <div class="loyalty-tier-form__field">
         <span class="loyalty-tier-form__label">
           {{ 'loyalty.form.status' | translate }}
         </span>
         <app-switch
-          [checked]="active()"
+          [checked]="tier.isActive"
           [ariaLabel]="'loyalty.toggleActive' | translate"
-          (changed)="onActiveChange($event)"
+          (changed)="onActiveChange(tier, $event)"
         />
       </div>
     }
@@ -70,7 +70,9 @@
 
     <app-button
       [label]="
-        isCreateMode() ? 'loyalty.form.createSubmit' : 'loyalty.form.submit'
+        formGroup.controls.id.value
+          ? 'loyalty.form.submit'
+          : 'loyalty.form.createSubmit'
       "
       [disabled]="formGroup.invalid"
       (onClick)="onSubmit()"

@@ -1,4 +1,5 @@
 <form class="cost-composition-form" [formGroup]="formGroup">
+  @let loadingSelected = isLoadingSelected$ | async;
   <app-form-layout
     [title]="'costComposition.form.section.items'"
     [index]="1"
@@ -61,11 +62,11 @@
     />
     <app-button
       [label]="
-        isCreateMode()
-          ? 'costComposition.form.createSubmit'
-          : 'costComposition.form.submit'
+        formGroup.controls.id.value
+          ? 'costComposition.form.submit'
+          : 'costComposition.form.createSubmit'
       "
-      [disabled]="formGroup.invalid || !canSubmit()"
+      [disabled]="formGroup.invalid || !!loadingSelected"
       (onClick)="onSubmit()"
     />
   </div>

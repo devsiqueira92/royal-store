@@ -1,19 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  Signal,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -21,7 +14,6 @@ import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 import { CheckboxModule } from 'primeng/checkbox';
-import { PriceList } from '../../interfaces/price-list.interface';
 import { PriceListFacade } from '../../facade/price-list.facade';
 import { PaymentMethodFacade } from '@app/features/payment-method/facade/payment-method.facade';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
@@ -32,7 +24,7 @@ import { SelectFieldComponent } from '@app/shared/components/form-fields/select-
 import { Options } from '@app/shared/interceptors/options.interface';
 import { InputNumberFieldComponent } from '@app/shared/components/form-fields/input-number-field/input-number-field.component';
 import { ToggleFieldComponent } from '@app/shared/components/form-fields/toggle-field/toggle-field.component';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
 
 /** −100% makes the item free; anything lower would be negative (API: PriceList.MinDiscountPercentage). */
 const MIN_RULE_PERCENTAGE = -100;
@@ -52,6 +44,7 @@ interface PriceListFormControls {
 @Component({
   selector: 'app-price-list-form',
   imports: [
+    AsyncPipe,
     ReactiveFormsModule,
     TranslatePipe,
     ButtonModule,
@@ -75,15 +68,18 @@ export class PriceListFormComponent {
   private readonly paymentFacade = inject(PaymentMethodFacade);
   private readonly sidebar = inject(DetailsSidebarService);
 
-  protected readonly isCreateMode = computed(
-    () => this.sidebar.contentToRender()?.props?.mode === 'create',
-  );
+  protected readonly formGroup = this.buildFormGroup();
 
-  protected readonly selectedPriceList = toSignal(
-    this.facade.selectedPriceList$,
-    {
-      initialValue: null as PriceList | null,
-    },
+  /**
+   * The list being edited; null while creating (the list page clears it before opening the
+   * drawer). The form is filled once per list, so a later store update never wipes what was typed.
+   */
+  protected readonly selectedPriceList$ = this.facade.selectedPriceList$.pipe(
+    tap(priceList => {
+      if (priceList && priceList.id !== this.formGroup.controls.id?.value) {
+        this.formGroup.reset({ ...priceList });
+      }
+    }),
   );
 
   protected readonly allPriceLists = toSignal(
@@ -102,16 +98,11 @@ export class PriceListFormComponent {
     },
   );
 
-  protected readonly isDefault: Signal<boolean | undefined> = computed(() => {
-    const selected = this.selectedPriceList();
-    return selected?.isDefault;
-  });
-
-  protected readonly formGroup = this.buildFormGroup();
-
   constructor() {
     this.paymentFacade.loadPaymentMethods();
-    this.formGroup.patchValue({ ...this.selectedPriceList() });
+
+    // Closed only once the API accepted the change; on failure the drawer stays open with the input.
+    this.facade.saved$.pipe(takeUntilDestroyed()).subscribe(() => this.onClose());
   }
 
   protected onClose(): void {
@@ -125,29 +116,22 @@ export class PriceListFormComponent {
       return;
     }
 
-    const { id, name, basePriceListId, discountPercentage, isDefault } =
+    const { id, name, basePriceListId, discountPercentage } =
       this.formGroup.getRawValue();
 
-    if (this.isCreateMode()) {
+    if (id) {
+      this.facade.updatePriceList(id, {
+        name: (name ?? '').trim(),
+        basePriceListId: basePriceListId ?? null,
+        discountPercentage: discountPercentage ?? null,
+      });
+    } else {
       this.facade.createPriceList({
         name: (name ?? '').trim(),
         basePriceListId: basePriceListId,
         discountPercentage: discountPercentage,
       });
-    } else {
-      this.facade.updatePriceList(id!, {
-        name: (name ?? '').trim(),
-        basePriceListId: basePriceListId ?? null,
-        discountPercentage: discountPercentage ?? null,
-      });
-
-      // if (isDefault && !this.isDefault()) {
-      //   this.facade.setDefault(id!);
-      // }
     }
-
-    this.facade.clearSelectedPriceList();
-    this.sidebar.closeDrawer();
   }
 
   private buildFormGroup(): FormGroup<PriceListFormControls> {

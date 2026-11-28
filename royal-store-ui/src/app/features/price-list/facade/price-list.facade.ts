@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { map } from 'rxjs';
 import {
   CreatePriceListRequest,
   UpdatePriceListRequest,
@@ -15,11 +17,21 @@ import {
 @Injectable({ providedIn: 'root' })
 export class PriceListFacade {
   private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
   priceLists$ = this.store.select(selectPriceLists);
   selectedPriceList$ = this.store.select(selectSelectedPriceList);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
+
+  /** Emits the list once a create or an update has succeeded on the API. */
+  saved$ = this.actions$.pipe(
+    ofType(
+      PriceListActions.createPriceListSuccess,
+      PriceListActions.updatePriceListSuccess,
+    ),
+    map(({ priceList }) => priceList),
+  );
 
   loadPriceLists(): void {
     this.store.dispatch(PriceListActions.loadPriceLists());

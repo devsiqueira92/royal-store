@@ -9,6 +9,8 @@ export interface LoyaltyTier {
 }
 
 export interface LoyaltyTierFormControls {
+  /** Null while creating; the edited tier otherwise. */
+  id: FormControl<string | null>;
   name: FormControl<string | null>;
   cashbackPercentage: FormControl<number | null>;
   cashbackValidityDays: FormControl<number | null>;

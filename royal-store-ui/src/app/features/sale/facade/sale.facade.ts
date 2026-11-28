@@ -32,6 +32,7 @@ import {
 import { SaleLineItem } from '../interfaces/sale-line-item.interface';
 import { DiscountMode } from '../interfaces/sale-totals.interface';
 import { SalePricingItem } from '../interfaces/sale-price-list-option.interface';
+import { filterPosProducts } from '../interfaces/pos-product-search.util';
 
 @Injectable({
   providedIn: 'root',
@@ -68,21 +69,9 @@ export class SaleFacade {
 
   filteredPosProducts$ = combineLatest([
     this.posProducts$,
-    toObservable(this._searchTerm).pipe(
-      debounceTime(300),
-      map(term => term.trim().toLowerCase()),
-    ),
+    toObservable(this._searchTerm).pipe(debounceTime(300)),
   ]).pipe(
-    map(([products, term]) =>
-      term
-        ? products.filter(
-            product =>
-              product.productName.toLowerCase().includes(term) ||
-              product.sku.toLowerCase().includes(term) ||
-              product.barcode?.toLowerCase().includes(term),
-          )
-        : products,
-    ),
+    map(([products, term]) => filterPosProducts(products, term)),
   );
 
   setSearchTerm(term: string): void {

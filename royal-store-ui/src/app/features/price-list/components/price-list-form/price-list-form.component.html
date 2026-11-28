@@ -1,4 +1,5 @@
 <form class="price-list-form" [formGroup]="formGroup">
+  @let priceList = selectedPriceList$ | async;
   <app-form-layout
     [title]="'priceList.form.section.details'"
     [index]="1"
@@ -11,7 +12,7 @@
       placeholder="priceList.form.namePlaceholder"
     />
 
-    @if (!isDefault()) {
+    @if (!priceList?.isDefault) {
       <app-select-field
         controlName="basePriceListId"
         [parentForm]="formGroup"
@@ -78,7 +79,9 @@
     />
     <app-button
       [label]="
-        isCreateMode() ? 'priceList.form.createSubmit' : 'priceList.form.submit'
+        formGroup.controls.id?.value
+          ? 'priceList.form.submit'
+          : 'priceList.form.createSubmit'
       "
       [disabled]="formGroup.invalid"
       (onClick)="onSubmit()"

@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { map } from 'rxjs';
 import { ExpenseActions } from '../store/expense.actions';
 import { ExpenseCategory, FinancialAccount } from '../interfaces/expense.interface';
 import {
@@ -39,6 +41,7 @@ import {
 })
 export class ExpenseFacade {
   private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
   readonly competenceMonth$ = this.store.select(selectCompetenceMonth);
   readonly items$ = this.store.select(selectMonthItems);
@@ -52,6 +55,15 @@ export class ExpenseFacade {
   readonly isLoadingCategories$ = this.store.select(selectIsLoadingCategories);
   readonly financialAccounts$ = this.store.select(selectFinancialAccounts);
   readonly selectedAccount$ = this.store.select(selectSelectedAccount);
+
+  /** Emits the account once a create or an update has succeeded on the API. */
+  readonly accountSaved$ = this.actions$.pipe(
+    ofType(
+      ExpenseActions.createAccountSuccess,
+      ExpenseActions.updateAccountSuccess,
+    ),
+    map(({ account }) => account),
+  );
   readonly accountsQuery$ = this.store.select(selectAccountsQuery);
   readonly isLoadingAccounts$ = this.store.select(selectIsLoadingAccounts);
   readonly recurrences$ = this.store.select(selectRecurrences);

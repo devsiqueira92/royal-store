@@ -100,6 +100,8 @@ export interface FinancialAccountRequest {
 }
 
 export interface FinancialAccountFormControls {
+  /** Null while creating; the edited account otherwise. */
+  id: FormControl<string | null>;
   name: FormControl<string | null>;
   type: FormControl<FinancialAccountType>;
 }

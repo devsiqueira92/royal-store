@@ -13,6 +13,8 @@ export interface Supplier {
 }
 
 export interface SupplierFormControls {
+  /** Null while creating; the edited supplier otherwise. */
+  id: FormControl<string | null>;
   name: FormControl<string | null>;
   cnpj: FormControl<string | null>;
   phone: FormControl<string | null>;

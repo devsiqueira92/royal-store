@@ -42,13 +42,13 @@
       placeholder="supplier.form.zipCodePlaceholder"
     ></app-input-field>
 
-    @if (!isCreateMode()) {
+    @if (selectedSupplier$ | async; as supplier) {
       <div class="supplier-form__field">
         <span class="supplier-form__label">{{ 'supplier.form.status' | translate }}</span>
         <app-switch
-          [checked]="active()"
+          [checked]="supplier.isActive"
           [ariaLabel]="'supplier.toggleActive' | translate"
-          (changed)="onActiveChange($event)"
+          (changed)="onActiveChange(supplier, $event)"
         />
       </div>
     }
@@ -58,8 +58,8 @@
     <app-button label="supplier.form.cancel" severity="secondary" (onClick)="onClose()"></app-button>
 
     <app-button
-      [label]="isCreateMode() ? 'supplier.form.createSubmit' : 'supplier.form.submit'"
-      [disabled]="formGroup.invalid"
+      [label]="formGroup.controls.id.value ? 'supplier.form.submit' : 'supplier.form.createSubmit'"
+      [disabled]="formGroup.invalid || !!(isLoading$ | async)"
       (onClick)="onSubmit()"
     ></app-button>
   </div>

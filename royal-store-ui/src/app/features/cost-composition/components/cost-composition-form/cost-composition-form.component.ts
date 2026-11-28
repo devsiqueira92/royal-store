@@ -1,13 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  untracked,
-} from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AsyncPipe, CurrencyPipe } from '@angular/common';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import {
   FormArray,
   FormControl,
@@ -16,7 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
-import { map, startWith } from 'rxjs';
+import { filter, map, startWith } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { FormLayoutComponent } from '@app/shared/components/layouts/form-layout/form-layout.component';
@@ -43,6 +36,7 @@ const NAME_MAX_LENGTH = 100;
   imports: [
     ReactiveFormsModule,
     TranslatePipe,
+    AsyncPipe,
     CurrencyPipe,
     ButtonModule,
     FormLayoutComponent,
@@ -58,13 +52,8 @@ export class CostCompositionFormComponent {
   private readonly facade = inject(CostCompositionFacade);
   private readonly sidebar = inject(DetailsSidebarService);
 
-  protected readonly isCreateMode = computed(
-    () => this.sidebar.contentToRender()?.props?.mode === 'create',
-  );
-
-  protected readonly selected = toSignal(this.facade.selectedCostComposition$, {
-    initialValue: null as CostComposition | null,
-  });
+  /** Null while creating; the edited composition otherwise. */
+  private readonly idControl = new FormControl<string | null>(null);
 
   protected readonly nameControl = new FormControl<string | null>(null, [
     Validators.required,
@@ -73,9 +62,26 @@ export class CostCompositionFormComponent {
 
   protected readonly items = new FormArray<FormGroup<CostItemControls>>([]);
   protected readonly formGroup = new FormGroup({
+    id: this.idControl,
     name: this.nameControl,
     items: this.items,
   });
+
+  /**
+   * The composition being edited; null while creating (the list clears it before opening the
+   * drawer). Its lines arrive with GET api/cost-compositions/{id}, after the drawer opens; the form
+   * is filled once per composition, so a later store update never wipes what was typed.
+   */
+  private readonly selectedCostComposition$ =
+    this.facade.selectedCostComposition$.pipe(
+      filter(
+        (composition): composition is CostComposition =>
+          !!composition && composition.id !== this.idControl.value,
+      ),
+    );
+
+  /** While an edited composition loads, its form would be sent as a new one — so it waits. */
+  protected readonly isLoadingSelected$ = this.facade.isLoadingSelected$;
 
   protected readonly total = toSignal(
     this.items.valueChanges.pipe(
@@ -90,29 +96,19 @@ export class CostCompositionFormComponent {
     { initialValue: 0 },
   );
 
-  /** Edit mode waits for GET api/cost-compositions/{id} before it can be saved. */
-  protected readonly canSubmit = computed(
-    () => this.isCreateMode() || this.selected() !== null,
-  );
-
-  /** Id of the composition the form was last filled from; avoids refilling over user edits. */
-  private filledId: string | null = null;
-
   constructor() {
     this.addItem();
 
-    // Edit mode: the full composition (with lines) arrives after the drawer opens.
-    effect(() => {
-      const selected = this.selected();
-      if (this.isCreateMode() || !selected || selected.id === this.filledId) {
-        return;
-      }
-      untracked(() => this.fill(selected));
-    });
+    this.selectedCostComposition$
+      .pipe(takeUntilDestroyed())
+      .subscribe(composition => this.fill(composition));
+
+    // Closed only once the API accepted the change; on failure the drawer stays open with the input.
+    this.facade.saved$.pipe(takeUntilDestroyed()).subscribe(() => this.onClose());
   }
 
   private fill(composition: CostComposition): void {
-    this.filledId = composition.id;
+    this.idControl.setValue(composition.id);
     this.nameControl.setValue(composition.name);
     this.items.clear();
     (composition.items ?? []).forEach(i => this.addItem(i));
@@ -147,9 +143,6 @@ export class CostCompositionFormComponent {
   }
 
   protected onSubmit(): void {
-    if (!this.canSubmit()) {
-      return;
-    }
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
       return;
@@ -164,13 +157,11 @@ export class CostCompositionFormComponent {
         value: i.value ?? 0,
       }));
 
-    const selected = this.selected();
-    if (this.isCreateMode() || !selected) {
-      this.facade.create({ name, items });
+    const id = this.idControl.value;
+    if (id) {
+      this.facade.update(id, { name, items });
     } else {
-      this.facade.update(selected.id, { name, items });
+      this.facade.create({ name, items });
     }
-
-    this.onClose();
   }
 }

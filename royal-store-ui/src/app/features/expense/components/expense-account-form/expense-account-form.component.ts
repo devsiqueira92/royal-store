@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { filter } from 'rxjs';
 import { ButtonComponent } from '@app/shared/components/button/button.component';
 import { InputFieldComponent } from '@app/shared/components/form-fields/input-field/input-field.component';
 import { SelectFieldComponent } from '@app/shared/components/form-fields/select-field/select-field.component';
@@ -11,6 +12,8 @@ import { Options } from '@app/shared/interceptors/options.interface';
 import { ExpenseFacade } from '../../facade/expense.facade';
 import { FinancialAccount, FinancialAccountType } from '../../interfaces/expense.interface';
 import { FinancialAccountFormControls } from '../../interfaces/expense-request.interface';
+
+const DEFAULT_ACCOUNT_TYPE: FinancialAccountType = 'bank-account';
 
 /**
  * The New / Edit financial account drawer.
@@ -39,14 +42,6 @@ export class ExpenseAccountFormComponent {
   private readonly detailsSidebarService = inject(DetailsSidebarService);
   private readonly translateService = inject(TranslateService);
 
-  protected readonly isCreateMode = computed(
-    () => this.detailsSidebarService.contentToRender()?.props?.mode === 'create',
-  );
-
-  protected readonly selectedAccount = toSignal(this.expenseFacade.selectedAccount$, {
-    initialValue: null as FinancialAccount | null,
-  });
-
   protected readonly isSaving = toSignal(this.expenseFacade.isSaving$, { initialValue: false });
 
   /**
@@ -64,14 +59,21 @@ export class ExpenseAccountFormComponent {
   protected readonly formGroup = this.buildFormGroup();
 
   constructor() {
-    effect(() => {
-      if (this.isCreateMode()) {
-        this.enterCreateMode();
-        return;
-      }
+    // The account being edited; none while creating (the list clears it before opening the drawer).
+    this.expenseFacade.selectedAccount$
+      .pipe(
+        filter(
+          (account): account is FinancialAccount =>
+            !!account && account.id !== this.formGroup.controls.id.value,
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe((account) => this.populateForm(account));
 
-      this.populateForm(this.selectedAccount());
-    });
+    // Closed only once the API accepted the change; on failure the drawer stays open with the input.
+    this.expenseFacade.accountSaved$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.onClose());
   }
 
   protected onClose(): void {
@@ -85,38 +87,25 @@ export class ExpenseAccountFormComponent {
       return;
     }
 
-    const { name, type } = this.formGroup.getRawValue();
+    const { id, name, type } = this.formGroup.getRawValue();
     const request = { name: (name ?? '').trim(), type };
 
-    if (this.isCreateMode()) {
-      this.expenseFacade.createAccount(request);
+    if (id) {
+      this.expenseFacade.updateAccount(id, request);
     } else {
-      const current = this.selectedAccount();
-      if (!current) {
-        return;
-      }
-
-      this.expenseFacade.updateAccount(current.id, request);
+      this.expenseFacade.createAccount(request);
     }
-
-    this.onClose();
   }
 
-  private enterCreateMode(): void {
-    this.formGroup.reset({ name: null, type: 'bank-account' });
-  }
-
-  private populateForm(account: FinancialAccount | null): void {
-    this.formGroup.reset({
-      name: account?.name ?? null,
-      type: account?.type ?? 'bank-account',
-    });
+  private populateForm(account: FinancialAccount): void {
+    this.formGroup.reset({ id: account.id, name: account.name, type: account.type });
   }
 
   private buildFormGroup(): FormGroup<FinancialAccountFormControls> {
     return new FormGroup<FinancialAccountFormControls>({
+      id: new FormControl(null),
       name: new FormControl(null, [Validators.required, Validators.maxLength(100)]),
-      type: new FormControl<FinancialAccountType>('bank-account', {
+      type: new FormControl<FinancialAccountType>(DEFAULT_ACCOUNT_TYPE, {
         nonNullable: true,
         validators: [Validators.required],
       }),

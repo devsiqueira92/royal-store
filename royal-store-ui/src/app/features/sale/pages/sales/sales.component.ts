@@ -2,10 +2,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
+  afterNextRender,
   inject,
   OnInit,
   computed,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,6 +23,7 @@ import { Category } from '@app/features/category/interfaces/category.interface';
 import { PosProduct } from '../../interfaces/pos-product.interface';
 import { SaleLineItem } from '../../interfaces/sale-line-item.interface';
 import { EMPTY_SALE_CART } from '../../interfaces/sale-cart.interface';
+import { singlePosMatch } from '../../interfaces/pos-product-search.util';
 import { SalesStatsComponent } from '../../components/sales-stats/sales-stats.component';
 import { CategoryFilterComponent } from '../../components/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -83,6 +87,19 @@ export class SalesComponent implements OnInit {
   protected readonly items = computed(() => this.cart().items);
   protected readonly searchTerm = this.saleFacade.searchTerm;
 
+  /** The product Enter would add right now; null when the search is blank or ambiguous. */
+  protected readonly enterTarget = computed(() =>
+    singlePosMatch(this.allProducts(), this.searchTerm()),
+  );
+
+  private readonly searchInput =
+    viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
+
+  constructor() {
+    // The POS opens ready to scan or type: the cursor starts in the product search.
+    afterNextRender(() => this.searchInput().nativeElement.focus());
+  }
+
   ngOnInit(): void {
     this.categoryFacade.loadCategories();
     this.saleFacade.loadPosProducts();
@@ -96,6 +113,38 @@ export class SalesComponent implements OnInit {
 
   protected setSearchTerm(term: string): void {
     this.saleFacade.setSearchTerm(term);
+  }
+
+  /**
+   * Enter on the search adds the product it points at — what a barcode scanner sends after the
+   * code. Matched on the full list right away: the grid below waits for the typing debounce, and a
+   * scanner presses Enter long before that.
+   */
+  protected addSearchedProduct(event: Event): void {
+    const keyboardEvent = event as KeyboardEvent;
+    if (keyboardEvent.isComposing) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const product = this.enterTarget();
+    if (!product) {
+      return;
+    }
+
+    if (product.soldOut) {
+      this.notificationService.warn({
+        detail: this.translateService.instant('sale.pos.soldOut', {
+          name: product.productName,
+        }),
+      });
+      return;
+    }
+
+    this.addProduct(product);
+    // Ready for the next item: the scanner (or the cashier) types the next code into an empty box.
+    this.saleFacade.setSearchTerm('');
   }
 
   protected addProduct(product: PosProduct): void {
@@ -186,11 +235,6 @@ export class SalesComponent implements OnInit {
     if (next !== current) {
       this.saleFacade.setCartItems(next);
     }
-  }
-
-  private findProduct(code: string) {
-    if (!code) return;
-    return this.allProducts().find(p => p.barcode === code);
   }
 
   // Untracked products (isStockTracked = false) have no ceiling to enforce.

@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { map } from 'rxjs';
 import {
   CreateCostCompositionRequest,
   UpdateCostCompositionRequest,
@@ -16,12 +18,22 @@ import {
 @Injectable({ providedIn: 'root' })
 export class CostCompositionFacade {
   private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
   costCompositions$ = this.store.select(selectCostCompositions);
   selectedCostComposition$ = this.store.select(selectSelectedCostComposition);
   isLoading$ = this.store.select(selectIsLoading);
   isLoadingSelected$ = this.store.select(selectIsLoadingSelected);
   error$ = this.store.select(selectError);
+
+  /** Emits the composition once a create or an update has succeeded on the API. */
+  saved$ = this.actions$.pipe(
+    ofType(
+      CostCompositionActions.createCostCompositionSuccess,
+      CostCompositionActions.updateCostCompositionSuccess,
+    ),
+    map(({ costComposition }) => costComposition),
+  );
 
   loadCostCompositions(): void {
     this.store.dispatch(CostCompositionActions.loadCostCompositions());

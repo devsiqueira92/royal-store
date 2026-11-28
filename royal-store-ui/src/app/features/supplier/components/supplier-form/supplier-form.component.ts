@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { tap } from 'rxjs';
 import { TranslatePipe } from '@ngx-translate/core';
 import { SupplierFacade } from '../../facade/supplier.facade';
 import { Supplier, SupplierFormControls } from '../../interfaces/supplier.interface';
@@ -13,6 +15,7 @@ import { DetailsSidebarService } from '@app/shared/services/details-sidebar.serv
 @Component({
   selector: 'app-supplier-form',
   imports: [
+    AsyncPipe,
     ReactiveFormsModule,
     TranslatePipe,
     InputFieldComponent,
@@ -28,28 +31,27 @@ export class SupplierFormComponent {
   private readonly supplierFacade = inject(SupplierFacade);
   private readonly detailsSidebarService = inject(DetailsSidebarService);
 
-  protected readonly isCreateMode = computed(
-    () => this.detailsSidebarService.contentToRender()?.props?.mode === 'create',
-  );
-
-  protected readonly selectedSupplier = toSignal(this.supplierFacade.selectedSupplier$, {
-    initialValue: null as Supplier | null,
-  });
-
-  // Active is toggled immediately through its own endpoint, never part of the submit.
-  protected readonly active = computed(() => this.selectedSupplier()?.isActive ?? false);
-
   protected readonly formGroup = this.buildFormGroup();
 
-  constructor() {
-    effect(() => {
-      if (this.isCreateMode()) {
-        this.enterCreateMode();
-        return;
+  /**
+   * The supplier being edited; null while creating (the list clears it before opening the drawer).
+   * The form is filled when a supplier arrives — once per supplier, so toggling its status (which
+   * updates the same supplier in the store) never wipes what was typed.
+   */
+  protected readonly selectedSupplier$ = this.supplierFacade.selectedSupplier$.pipe(
+    tap(supplier => {
+      if (supplier && supplier.id !== this.formGroup.controls.id.value) {
+        this.populateForm(supplier);
       }
+    }),
+  );
 
-      this.populateForm(this.selectedSupplier());
-    });
+  /** Also true while an edited supplier is still loading, so its form can't be sent half-filled. */
+  protected readonly isLoading$ = this.supplierFacade.isLoading$;
+
+  constructor() {
+    // Closed only once the API accepted the change; on failure the drawer stays open with the input.
+    this.supplierFacade.saved$.pipe(takeUntilDestroyed()).subscribe(() => this.onClose());
   }
 
   protected onClose(): void {
@@ -57,9 +59,9 @@ export class SupplierFormComponent {
     this.detailsSidebarService.closeDrawer();
   }
 
-  protected onActiveChange(active: boolean): void {
-    const supplier = this.selectedSupplier();
-    if (!supplier || active === supplier.isActive) {
+  // Active is toggled immediately through its own endpoint, never part of the submit.
+  protected onActiveChange(supplier: Supplier, active: boolean): void {
+    if (active === supplier.isActive) {
       return;
     }
 
@@ -76,7 +78,7 @@ export class SupplierFormComponent {
       return;
     }
 
-    const { name, cnpj, phone, address, city, zipCode } = this.formGroup.getRawValue();
+    const { id, name, cnpj, phone, address, city, zipCode } = this.formGroup.getRawValue();
     const request = {
       name: (name ?? '').trim(),
       cnpj: this.normalize(cnpj),
@@ -86,18 +88,11 @@ export class SupplierFormComponent {
       zipCode: this.normalize(zipCode),
     };
 
-    if (this.isCreateMode()) {
-      this.supplierFacade.createSupplier(request);
+    if (id) {
+      this.supplierFacade.updateSupplier(id, request);
     } else {
-      const supplier = this.selectedSupplier();
-      if (!supplier) {
-        return;
-      }
-
-      this.supplierFacade.updateSupplier(supplier.id, request);
+      this.supplierFacade.createSupplier(request);
     }
-
-    this.onClose();
   }
 
   private normalize(value: string | null | undefined): string | null {
@@ -105,30 +100,21 @@ export class SupplierFormComponent {
     return trimmed ? trimmed : null;
   }
 
-  private enterCreateMode(): void {
+  private populateForm(supplier: Supplier): void {
     this.formGroup.reset({
-      name: null,
-      cnpj: null,
-      phone: null,
-      address: null,
-      city: null,
-      zipCode: null,
-    });
-  }
-
-  private populateForm(supplier: Supplier | null): void {
-    this.formGroup.reset({
-      name: supplier?.name ?? null,
-      cnpj: supplier?.cnpj ?? null,
-      phone: supplier?.phone ?? null,
-      address: supplier?.address ?? null,
-      city: supplier?.city ?? null,
-      zipCode: supplier?.zipCode ?? null,
+      id: supplier.id,
+      name: supplier.name,
+      cnpj: supplier.cnpj,
+      phone: supplier.phone,
+      address: supplier.address,
+      city: supplier.city,
+      zipCode: supplier.zipCode,
     });
   }
 
   private buildFormGroup(): FormGroup<SupplierFormControls> {
     return new FormGroup<SupplierFormControls>({
+      id: new FormControl(null),
       name: new FormControl(null, [Validators.required, Validators.maxLength(150)]),
       cnpj: new FormControl(null, [Validators.maxLength(14)]),
       phone: new FormControl(null, [Validators.maxLength(20)]),

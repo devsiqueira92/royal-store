@@ -1,5 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { map } from 'rxjs';
 import { LoyaltyTierActions } from '../store/loyalty-tier.actions';
 import {
   CreateLoyaltyTierRequest,
@@ -17,11 +19,21 @@ import {
 })
 export class LoyaltyTierFacade {
   private store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
   loyaltyTiers$ = this.store.select(selectLoyaltyTiers);
   selectedLoyaltyTier$ = this.store.select(selectSelectedLoyaltyTier);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
+
+  /** Emits the tier once a create or an update has succeeded on the API. */
+  saved$ = this.actions$.pipe(
+    ofType(
+      LoyaltyTierActions.createLoyaltyTierSuccess,
+      LoyaltyTierActions.updateLoyaltyTierSuccess,
+    ),
+    map(({ loyaltyTier }) => loyaltyTier),
+  );
 
   loadLoyaltyTiers(): void {
     this.store.dispatch(LoyaltyTierActions.loadLoyaltyTiers());
