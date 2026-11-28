@@ -1,0 +1,296 @@
+<div class="account-columns">
+  <!-- Password -->
+  <form class="account-card" [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+    <header class="account-card__header">
+      <div>
+        <h2 class="account-card__title">{{ 'account.security.password.title' | translate }}</h2>
+        <p class="account-card__subtitle">
+          {{ 'account.security.password.lastChanged' | translate }}
+          {{ security().passwordChangedAt | plainDate: 'dd/MM/yyyy' }}
+        </p>
+      </div>
+    </header>
+
+    <div class="account-field">
+      <p-floatlabel variant="on">
+        <p-password
+          inputId="currentPassword"
+          formControlName="currentPassword"
+          [feedback]="false"
+          [toggleMask]="true"
+          autocomplete="current-password"
+          styleClass="w-100"
+          inputStyleClass="w-100"
+        />
+        <label for="currentPassword">
+          {{ 'account.security.password.current' | translate }}
+          <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+        </label>
+      </p-floatlabel>
+      <app-form-error [parentForm]="passwordForm" controlName="currentPassword" />
+    </div>
+
+    <div class="account-field">
+      <p-floatlabel variant="on">
+        <p-password
+          inputId="newPassword"
+          formControlName="password"
+          [feedback]="true"
+          [toggleMask]="true"
+          autocomplete="new-password"
+          styleClass="w-100"
+          inputStyleClass="w-100"
+          [promptLabel]="'account.security.password.strength.prompt' | translate"
+          [weakLabel]="'account.security.password.strength.weak' | translate"
+          [mediumLabel]="'account.security.password.strength.medium' | translate"
+          [strongLabel]="'account.security.password.strength.strong' | translate"
+        >
+          <!-- Live checklist under the meter: says which rule is missing, not just "weak". -->
+          <ng-template #footer>
+            <ul class="rules" [attr.aria-label]="'account.security.password.rulesLabel' | translate">
+              @for (rule of ruleChecks(); track rule.key) {
+                <li class="rules__item" [class.rules__item--met]="rule.met">
+                  <i [class]="rule.met ? 'pi pi-check-circle' : 'pi pi-circle'" aria-hidden="true"></i>
+                  {{ 'account.security.password.ruleItems.' + rule.key | translate }}
+                  <span class="sr-only">
+                    ({{ (rule.met ? 'account.security.password.ruleMet' : 'account.security.password.ruleMissing') | translate }})
+                  </span>
+                </li>
+              }
+            </ul>
+          </ng-template>
+        </p-password>
+        <label for="newPassword">
+          {{ 'account.security.password.new' | translate }}
+          <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+        </label>
+      </p-floatlabel>
+      <app-form-error [parentForm]="passwordForm" controlName="password" />
+    </div>
+
+    <div class="account-field">
+      <p-floatlabel variant="on">
+        <p-password
+          inputId="confirmPassword"
+          formControlName="confirmPassword"
+          [feedback]="false"
+          [toggleMask]="true"
+          autocomplete="new-password"
+          styleClass="w-100"
+          inputStyleClass="w-100"
+        />
+        <label for="confirmPassword">
+          {{ 'account.security.password.confirm' | translate }}
+          <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+        </label>
+      </p-floatlabel>
+      <app-form-error [parentForm]="passwordForm" controlName="confirmPassword" />
+    </div>
+
+    <footer class="account-card__footer">
+      <p-button
+        type="submit"
+        [label]="'account.security.password.submit' | translate"
+        icon="pi pi-key"
+        [loading]="changingPassword()"
+      />
+    </footer>
+  </form>
+
+  <!-- Two-factor -->
+  <section class="account-card">
+    <header class="account-card__header">
+      <div>
+        <h2 class="account-card__title">{{ 'account.security.twoFactor.title' | translate }}</h2>
+        <p class="account-card__subtitle">{{ 'account.security.twoFactor.subtitle' | translate }}</p>
+      </div>
+      <p-tag
+        [value]="
+          (twoFactorEnabled() ? 'account.status.enabled' : 'account.status.disabled') | translate
+        "
+        [severity]="twoFactorEnabled() ? 'success' : 'warn'"
+        [icon]="twoFactorEnabled() ? 'pi pi-check-circle' : 'pi pi-exclamation-triangle'"
+      />
+    </header>
+
+    <div class="two-factor">
+      <i
+        class="pi pi-mobile two-factor__icon"
+        [class.two-factor__icon--on]="twoFactorEnabled()"
+        aria-hidden="true"
+      ></i>
+      <p class="account-muted">
+        @if (twoFactorEnabled()) {
+          {{ 'account.security.twoFactor.enabledSince' | translate }}
+          {{ security().twoFactor.enabledAt | plainDate: 'dd/MM/yyyy' }}.
+          {{
+            'account.security.twoFactor.codesLeft'
+              | translate: { count: security().twoFactor.backupCodes.length }
+          }}
+        } @else {
+          {{ 'account.security.twoFactor.disabledHint' | translate }}
+        }
+      </p>
+    </div>
+
+    <footer class="account-card__footer">
+      @if (twoFactorEnabled()) {
+        <p-button
+          [label]="'account.security.twoFactor.disable' | translate"
+          severity="danger"
+          [text]="true"
+          [loading]="disablingTwoFactor()"
+          (onClick)="disableTwoFactor.emit()"
+        />
+        <p-button
+          [label]="'account.security.twoFactor.viewCodes' | translate"
+          icon="pi pi-list"
+          [outlined]="true"
+          (onClick)="openBackupCodes()"
+        />
+      } @else {
+        <p-button
+          [label]="'account.security.twoFactor.configure' | translate"
+          icon="pi pi-qrcode"
+          [loading]="startingTwoFactor()"
+          (onClick)="onStartTwoFactor()"
+        />
+      }
+    </footer>
+  </section>
+</div>
+
+<!-- Sessions -->
+<section class="account-card">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title">{{ 'account.security.sessions.title' | translate }}</h2>
+      <p class="account-card__subtitle">{{ 'account.security.sessions.subtitle' | translate }}</p>
+    </div>
+    <p-button
+      [label]="'account.security.sessions.endOthers' | translate"
+      icon="pi pi-sign-out"
+      severity="danger"
+      [outlined]="true"
+      size="small"
+      [disabled]="otherSessions() === 0"
+      [loading]="endingSessions()"
+      (onClick)="endOtherSessions.emit()"
+    />
+  </header>
+
+  <ul class="sessions">
+    @for (session of security().sessions; track session.id) {
+      <li class="session">
+        <!-- Device type is only shown by the icon, so it needs a text alternative. -->
+        <span
+          class="session__icon"
+          role="img"
+          [attr.aria-label]="'account.security.sessions.devices.' + session.deviceType | translate"
+        >
+          <i [class]="deviceIcons[session.deviceType]" aria-hidden="true"></i>
+        </span>
+        <div class="session__text">
+          <span class="account-option__title">
+            {{ session.browser }} · {{ session.os }}
+            @if (session.isCurrent) {
+              <p-tag
+                [value]="'account.security.sessions.current' | translate"
+                severity="success"
+                [rounded]="true"
+              />
+            }
+          </span>
+          <span class="account-muted">
+            <span class="account-mono">{{ session.ip }}</span> · {{ session.location }}
+          </span>
+        </div>
+        <span class="account-muted session__seen">
+          @if (session.isCurrent) {
+            {{ 'account.security.sessions.activeNow' | translate }}
+          } @else {
+            {{ session.lastSeenAt | date: 'dd/MM/yyyy, HH:mm' }}
+          }
+        </span>
+      </li>
+    }
+  </ul>
+</section>
+
+<!-- Activity -->
+<section class="account-card">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title">{{ 'account.security.activity.title' | translate }}</h2>
+      <p class="account-card__subtitle">{{ 'account.security.activity.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <p-timeline [value]="security().activity" class="activity">
+    <ng-template #marker let-event>
+      <span
+        class="activity__marker"
+        [class.activity__marker--risk]="isRisky(event.type)"
+        aria-hidden="true"
+      >
+        <i [class]="eventIcon(event.type)"></i>
+      </span>
+    </ng-template>
+    <ng-template #content let-event>
+      <div class="activity__item">
+        <span class="account-option__title">
+          {{ 'account.security.activity.types.' + event.type | translate }}
+        </span>
+        <span class="account-muted">
+          {{ event.occurredAt | date: 'dd/MM/yyyy, HH:mm' }} · {{ event.device }}
+        </span>
+        <span class="account-muted">
+          <span class="account-mono">{{ event.ip }}</span> · {{ event.location }}
+        </span>
+      </div>
+    </ng-template>
+  </p-timeline>
+</section>
+
+<app-two-factor-setup-dialog
+  [visible]="setupOpen()"
+  [setup]="twoFactorSetup()"
+  [confirming]="confirmingTwoFactor()"
+  (confirmed)="confirmTwoFactor.emit($event)"
+  (closed)="setupOpen.set(false)"
+/>
+
+<p-dialog
+  [header]="'account.security.twoFactor.codesTitle' | translate"
+  [visible]="backupCodesOpen()"
+  (visibleChange)="backupCodesOpen.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: '26rem', maxWidth: '95vw' }"
+>
+  <p class="account-muted codes-hint">{{ 'account.security.twoFactor.codesHint' | translate }}</p>
+  <ul class="codes">
+    @for (code of security().twoFactor.backupCodes; track code) {
+      <li class="account-mono">{{ code }}</li>
+    }
+  </ul>
+
+  <ng-template #footer>
+    <p-button
+      [label]="'account.security.twoFactor.download' | translate"
+      icon="pi pi-download"
+      severity="secondary"
+      [text]="true"
+      (onClick)="downloadBackupCodes()"
+    />
+    <p-button
+      [label]="
+        (codesCopied() ? 'account.security.twoFactor.copied' : 'account.security.twoFactor.copy')
+          | translate
+      "
+      [icon]="codesCopied() ? 'pi pi-check' : 'pi pi-copy'"
+      (onClick)="copyBackupCodes()"
+    />
+  </ng-template>
+</p-dialog>

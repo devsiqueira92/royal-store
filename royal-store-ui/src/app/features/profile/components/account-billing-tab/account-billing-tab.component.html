@@ -1,0 +1,344 @@
+@let plan = billing().plan;
+
+<!-- Plan | usage | payment: one row of equal-height cards (wraps on smaller screens). -->
+<div class="account-columns account-columns--three">
+  <!-- Current plan -->
+  <section class="account-card plan">
+    <header class="account-card__header">
+      <div>
+        <span class="account-label">{{ 'account.billing.plan.current' | translate }}</span>
+        <h2 class="plan__name">{{ plan.name }}</h2>
+      </div>
+      <p-tag
+        [value]="'account.billing.plan.status.' + plan.status | translate"
+        [severity]="planSeverity[plan.status]"
+        [rounded]="true"
+      />
+    </header>
+
+    <p class="plan__price">
+      <span class="plan__amount">{{ plan.price | currency: 'BRL' : 'symbol' : '1.2-2' }}</span>
+      <span class="account-muted">/ {{ 'account.billing.plan.cycle.' + plan.cycle | translate }}</span>
+    </p>
+    <p class="account-muted plan__renewal">
+      <i class="pi pi-calendar" aria-hidden="true"></i>
+      {{ 'account.billing.plan.renewsOn' | translate }}
+      <strong>{{ plan.renewalDate | plainDate: 'dd/MM/yyyy' }}</strong>
+    </p>
+
+    <footer class="account-card__footer">
+      <p-button
+        [label]="'account.billing.plan.cancel' | translate"
+        severity="danger"
+        [text]="true"
+        (onClick)="cancelPlan.emit()"
+      />
+      <p-button
+        [label]="'account.billing.plan.upgrade' | translate"
+        icon="pi pi-arrow-up-right"
+        (onClick)="upgrade.emit()"
+      />
+    </footer>
+  </section>
+
+  <!-- Usage -->
+  <section class="account-card">
+    <header class="account-card__header">
+      <div>
+        <h2 class="account-card__title">{{ 'account.billing.usage.title' | translate }}</h2>
+        <p class="account-card__subtitle">{{ 'account.billing.usage.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    <ul class="usage">
+      @for (metric of billing().usage; track metric.key) {
+        <li class="usage__item">
+          <div class="usage__row">
+            <span class="account-option__title">
+              {{ 'account.billing.usage.metrics.' + metric.key | translate }}
+            </span>
+            <span class="account-mono usage__count">
+              {{ metric.used | number: '1.0-1' }} / {{ metric.limit | number: '1.0-1' }}
+              {{ metric.unit ?? '' }}
+            </span>
+          </div>
+          <p-progressbar
+            [value]="usagePercent(metric)"
+            [showValue]="false"
+            [color]="usageColor(metric)"
+            styleClass="usage__bar"
+            [attr.aria-label]="'account.billing.usage.metrics.' + metric.key | translate"
+          />
+          <!-- Colour alone must not carry the warning: icon + text say it too. -->
+          @let level = usageLevel(metric);
+          @if (level !== 'normal') {
+            <p class="usage__alert" [class.usage__alert--critical]="level === 'critical'">
+              <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+              {{
+                'account.billing.usage.' + level
+                  | translate: { percent: usagePercent(metric) }
+              }}
+            </p>
+          }
+        </li>
+      }
+    </ul>
+  </section>
+
+  <!-- Payment method -->
+  <section class="account-card">
+    <header class="account-card__header">
+      <div>
+        <h2 class="account-card__title">{{ 'account.billing.card.title' | translate }}</h2>
+        <p class="account-card__subtitle">{{ 'account.billing.card.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    @let card = billing().card;
+    <div class="credit-card" aria-hidden="true">
+      <div class="credit-card__top">
+        <i class="pi pi-wifi credit-card__contactless"></i>
+        <span class="credit-card__brand">{{ card.brand }}</span>
+      </div>
+      <span class="credit-card__number">•••• •••• •••• {{ card.last4 }}</span>
+      <div class="credit-card__bottom">
+        <span>{{ card.holderName }}</span>
+        <span>{{ card.expiry }}</span>
+      </div>
+    </div>
+    <p class="sr-only">
+      {{ card.brand }} {{ 'account.billing.card.endingIn' | translate }} {{ card.last4 }},
+      {{ 'account.billing.card.expires' | translate }} {{ card.expiry }}
+    </p>
+
+    <footer class="account-card__footer">
+      <p-button
+        [label]="'account.billing.card.change' | translate"
+        icon="pi pi-credit-card"
+        [outlined]="true"
+        (onClick)="changeCard.emit()"
+      />
+    </footer>
+  </section>
+</div>
+
+<!-- Billing details: full width, fiscal data then address, rows filled edge to edge. -->
+<form class="account-card" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <header class="account-card__header">
+      <div>
+        <h2 class="account-card__title">{{ 'account.billing.details.title' | translate }}</h2>
+        <p class="account-card__subtitle">{{ 'account.billing.details.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    <div class="form-grid">
+      <app-input-field
+        class="lg-8"
+        controlName="legalName"
+        [parentForm]="form"
+        label="account.billing.details.legalName"
+      />
+
+      <div class="account-field sm-6 lg-4">
+        <p-floatlabel variant="on">
+          <p-inputmask
+            inputId="cnpj"
+            mask="99.999.999/9999-99"
+            [unmask]="true"
+            [autoClear]="false"
+            styleClass="w-100"
+            formControlName="cnpj"
+          />
+          <label for="cnpj">
+            {{ 'account.billing.details.cnpj' | translate }}
+            <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+          </label>
+        </p-floatlabel>
+        <app-form-error [parentForm]="form" controlName="cnpj" />
+      </div>
+
+      <app-input-field
+        class="sm-6 lg-4"
+        controlName="stateRegistration"
+        [parentForm]="form"
+        label="account.billing.details.stateRegistration"
+      />
+
+      <app-input-field
+        class="lg-8"
+        controlName="financeEmail"
+        [parentForm]="form"
+        label="account.billing.details.financeEmail"
+        type="email"
+        inputmode="email"
+        autocomplete="email"
+      />
+
+      <h3 class="form-section-title">{{ 'account.billing.details.address' | translate }}</h3>
+
+      <div class="account-field sm-6 lg-3">
+        <p-floatlabel variant="on">
+          <p-inputmask
+            inputId="zipCode"
+            mask="99999-999"
+            [unmask]="true"
+            [autoClear]="false"
+            styleClass="w-100"
+            autocomplete="postal-code"
+            formControlName="zipCode"
+          />
+          <label for="zipCode">
+            {{ 'account.billing.details.zipCode' | translate }}
+            <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+          </label>
+        </p-floatlabel>
+        <app-form-error [parentForm]="form" controlName="zipCode" />
+      </div>
+
+      <!-- CEP 3 | street 6 | number 3  /  complement 3 | district 3 | city 4 | UF 2 -->
+      <app-input-field
+        class="sm-6 lg-6"
+        controlName="street"
+        [parentForm]="form"
+        label="account.billing.details.street"
+      />
+      <app-input-field
+        class="sm-6 lg-3"
+        controlName="number"
+        [parentForm]="form"
+        label="account.billing.details.number"
+      />
+      <app-input-field
+        class="sm-6 lg-3"
+        controlName="complement"
+        [parentForm]="form"
+        label="account.billing.details.complement"
+      />
+      <app-input-field
+        class="sm-6 lg-3"
+        controlName="district"
+        [parentForm]="form"
+        label="account.billing.details.district"
+      />
+      <app-input-field
+        class="sm-6 lg-4"
+        controlName="city"
+        [parentForm]="form"
+        label="account.billing.details.city"
+      />
+      <app-select-field
+        class="sm-6 lg-2"
+        controlName="state"
+        [parentForm]="form"
+        label="account.billing.details.state"
+        [options]="stateOptions"
+        [filter]="true"
+      />
+    </div>
+
+    <footer class="account-card__footer">
+      <p-button
+        [label]="'account.actions.discard' | translate"
+        severity="secondary"
+        [text]="true"
+        [disabled]="form.pristine || saving()"
+        (onClick)="onReset()"
+      />
+      <p-button
+        type="submit"
+        [label]="'account.actions.save' | translate"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="form.pristine"
+      />
+    </footer>
+  </form>
+
+<!-- Invoices -->
+<section class="account-card account-card--flush">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title">{{ 'account.billing.invoices.title' | translate }}</h2>
+      <p class="account-card__subtitle">{{ 'account.billing.invoices.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <p-table
+    [value]="billing().invoices"
+    dataKey="id"
+    [paginator]="billing().invoices.length > 5"
+    [rows]="5"
+    [tableStyle]="{ 'min-width': '44rem' }"
+    styleClass="invoices"
+  >
+    <ng-template #header>
+      <tr>
+        <th>{{ 'account.billing.invoices.columns.number' | translate }}</th>
+        <th>{{ 'account.billing.invoices.columns.issuedAt' | translate }}</th>
+        <th>{{ 'account.billing.invoices.columns.dueDate' | translate }}</th>
+        <th class="text-right">{{ 'account.billing.invoices.columns.amount' | translate }}</th>
+        <th>{{ 'account.billing.invoices.columns.status' | translate }}</th>
+        <th class="text-right">{{ 'account.billing.invoices.columns.documents' | translate }}</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-invoice>
+      <tr>
+        <td>
+          <span class="account-option__title account-mono">#{{ invoice.number }}</span>
+          <span class="account-muted invoice__description">{{ invoice.description }}</span>
+        </td>
+        <td class="account-mono">{{ invoice.issuedAt | plainDate: 'dd/MM/yyyy' }}</td>
+        <td class="account-mono">{{ invoice.dueDate | plainDate: 'dd/MM/yyyy' }}</td>
+        <td class="text-right account-mono">{{ invoice.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}</td>
+        <td>
+          <p-tag
+            [value]="'account.billing.invoices.status.' + invoice.status | translate"
+            [severity]="invoiceSeverityOf(invoice)"
+          />
+        </td>
+        <td class="text-right invoice__actions">
+          <p-button
+            icon="pi pi-file-pdf"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            [disabled]="invoice.status === 'cancelled'"
+            [ariaLabel]="'account.billing.invoices.download.pdf' | translate"
+            [pTooltip]="'account.billing.invoices.download.pdf' | translate"
+            tooltipPosition="top"
+            (onClick)="download.emit({ invoice, document: 'pdf' })"
+          />
+          <p-button
+            icon="pi pi-qrcode"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            [disabled]="invoice.status !== 'pending'"
+            [ariaLabel]="'account.billing.invoices.download.boleto' | translate"
+            [pTooltip]="'account.billing.invoices.download.boleto' | translate"
+            tooltipPosition="top"
+            (onClick)="download.emit({ invoice, document: 'boleto' })"
+          />
+          <p-button
+            icon="pi pi-code"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            [disabled]="invoice.status !== 'paid'"
+            [ariaLabel]="'account.billing.invoices.download.xml' | translate"
+            [pTooltip]="'account.billing.invoices.download.xml' | translate"
+            tooltipPosition="top"
+            (onClick)="download.emit({ invoice, document: 'xml' })"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="account-muted">{{ 'account.billing.invoices.empty' | translate }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>

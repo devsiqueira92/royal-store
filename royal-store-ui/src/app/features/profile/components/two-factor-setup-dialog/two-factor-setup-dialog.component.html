@@ -1,0 +1,65 @@
+<p-dialog
+  [header]="'account.security.twoFactor.setupTitle' | translate"
+  [visible]="visible()"
+  (visibleChange)="$event || onClose()"
+  [modal]="true"
+  [draggable]="false"
+  [closable]="!confirming()"
+  [style]="{ width: '30rem', maxWidth: '95vw' }"
+>
+  <ol class="steps">
+    <li class="step">
+      <span class="step__index" aria-hidden="true">1</span>
+      <div class="step__body">
+        <p class="step__title">{{ 'account.security.twoFactor.step1' | translate }}</p>
+        <p class="step__hint">{{ 'account.security.twoFactor.step1Hint' | translate }}</p>
+
+        <div class="qr">
+          @if (qrDataUrl(); as src) {
+            <img class="qr__image" [src]="src" [alt]="'account.security.twoFactor.qrAlt' | translate" />
+          } @else {
+            <p-skeleton width="10rem" height="10rem" />
+          }
+        </div>
+
+        <span class="step__hint">{{ 'account.security.twoFactor.manualKey' | translate }}</span>
+        <code class="secret">{{ groupedSecret() }}</code>
+      </div>
+    </li>
+
+    <li class="step">
+      <span class="step__index" aria-hidden="true">2</span>
+      <div class="step__body">
+        <p class="step__title" id="otpLabel">{{ 'account.security.twoFactor.step2' | translate }}</p>
+        <p class="step__hint">{{ 'account.security.twoFactor.step2Hint' | translate }}</p>
+
+        <!-- p-inputotp has no aria input: label the six boxes as one group. -->
+        <form (ngSubmit)="onConfirm()" role="group" aria-labelledby="otpLabel">
+          <p-inputotp
+            [formControl]="code"
+            [length]="6"
+            [integerOnly]="true"
+            [autofocus]="true"
+          />
+        </form>
+      </div>
+    </li>
+  </ol>
+
+  <ng-template #footer>
+    <p-button
+      [label]="'account.actions.cancel' | translate"
+      severity="secondary"
+      [text]="true"
+      [disabled]="confirming()"
+      (onClick)="onClose()"
+    />
+    <p-button
+      [label]="'account.security.twoFactor.activate' | translate"
+      icon="pi pi-shield"
+      [disabled]="code.invalid || !setup()"
+      [loading]="confirming()"
+      (onClick)="onConfirm()"
+    />
+  </ng-template>
+</p-dialog>

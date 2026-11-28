@@ -1,0 +1,95 @@
+<section class="account-page">
+  <header class="account-page__header">
+    <div class="account-page__intro">
+      <h1 class="account-page__title">{{ 'account.title' | translate }}</h1>
+      <p class="account-page__subtitle">{{ 'account.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <p-message severity="info" icon="pi pi-info-circle" styleClass="account-page__demo">
+    {{ 'account.demoNotice' | translate: { password: mockPassword } }}
+  </p-message>
+
+  @if (account(); as data) {
+    <!-- Wrapper owns the class: overrides target its descendants, not a PrimeNG host. -->
+    <div class="account-page__tabs">
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)" [scrollable]="true">
+      <p-tablist>
+        <p-tab value="profile"><i class="pi pi-user" aria-hidden="true"></i>{{ 'account.tabs.profile' | translate }}</p-tab>
+        <p-tab value="security"><i class="pi pi-lock" aria-hidden="true"></i>{{ 'account.tabs.security' | translate }}</p-tab>
+        <p-tab value="billing"><i class="pi pi-credit-card" aria-hidden="true"></i>{{ 'account.tabs.billing' | translate }}</p-tab>
+        <p-tab value="preferences"><i class="pi pi-sliders-h" aria-hidden="true"></i>{{ 'account.tabs.preferences' | translate }}</p-tab>
+        <p-tab value="privacy"><i class="pi pi-eye-slash" aria-hidden="true"></i>{{ 'account.tabs.privacy' | translate }}</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="profile">
+          <app-account-profile-tab
+            [profile]="data.profile"
+            [saving]="isPending('saveProfile')"
+            [uploadingAvatar]="isPending('uploadAvatar')"
+            [removingAvatar]="isPending('removeAvatar')"
+            (save)="onSaveProfile($event)"
+            (avatarUpload)="onUploadAvatar($event)"
+            (avatarRemove)="onRemoveAvatar()"
+          />
+        </p-tabpanel>
+
+        <p-tabpanel value="security">
+          <app-account-security-tab
+            [security]="data.security"
+            [twoFactorSetup]="twoFactorSetup()"
+            [changingPassword]="isPending('changePassword')"
+            [startingTwoFactor]="isPending('startTwoFactor')"
+            [confirmingTwoFactor]="isPending('enableTwoFactor')"
+            [disablingTwoFactor]="isPending('disableTwoFactor')"
+            [endingSessions]="isPending('endOtherSessions')"
+            (changePassword)="onChangePassword($event)"
+            (startTwoFactor)="onStartTwoFactor()"
+            (confirmTwoFactor)="onConfirmTwoFactor($event)"
+            (disableTwoFactor)="onDisableTwoFactor()"
+            (endOtherSessions)="onEndOtherSessions()"
+          />
+        </p-tabpanel>
+
+        <p-tabpanel value="billing">
+          <app-account-billing-tab
+            [billing]="data.billing"
+            [saving]="isPending('saveBilling')"
+            (saveDetails)="onSaveBilling($event)"
+            (upgrade)="onUpgrade()"
+            (cancelPlan)="onCancelPlan()"
+            (changeCard)="onChangeCard()"
+            (download)="onDownload($event)"
+          />
+        </p-tabpanel>
+
+        <p-tabpanel value="preferences">
+          <app-account-preferences-tab
+            [preferences]="data.preferences"
+            [saving]="isPending('savePreferences')"
+            (save)="onSavePreferences($event)"
+          />
+        </p-tabpanel>
+
+        <p-tabpanel value="privacy">
+          <app-account-privacy-tab
+            [exporting]="isPending('exportData')"
+            [deleting]="isPending('deleteAccount')"
+            (exportData)="onExportData()"
+            (deleteAccount)="onDeleteAccount($event)"
+          />
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+    </div>
+  } @else {
+    <div class="account-page__loading" aria-busy="true">
+      <p-skeleton height="2.75rem" />
+      <p-skeleton height="9rem" borderRadius="0.75rem" />
+      <p-skeleton height="18rem" borderRadius="0.75rem" />
+    </div>
+  }
+</section>
+
+<p-confirmdialog key="account" [style]="{ width: '28rem', maxWidth: '95vw' }" />

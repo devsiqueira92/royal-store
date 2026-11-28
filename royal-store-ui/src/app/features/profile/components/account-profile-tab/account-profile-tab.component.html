@@ -1,0 +1,254 @@
+<section class="account-card">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title">{{ 'account.profile.avatar.title' | translate }}</h2>
+      <p class="account-card__subtitle">{{ 'account.profile.avatar.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <div class="identity">
+    @if (profile().avatarUrl; as url) {
+      <p-avatar
+        [image]="url"
+        shape="circle"
+        size="xlarge"
+        class="identity__avatar"
+        [ariaLabel]="profile().fullName"
+      />
+    } @else {
+      <p-avatar
+        [label]="initials()"
+        shape="circle"
+        size="xlarge"
+        class="identity__avatar"
+        [ariaLabel]="profile().fullName"
+      />
+    }
+
+    <div class="identity__text">
+      <span class="identity__name">{{ profile().displayName || profile().fullName }}</span>
+      <span class="identity__email">
+        <span class="account-muted">{{ profile().email }}</span>
+        <span class="identity__locked">
+          <i class="pi pi-lock" aria-hidden="true"></i>
+          {{ 'account.profile.form.emailLocked' | translate }}
+        </span>
+      </span>
+      <div class="identity__meta">
+        <p-tag
+          [value]="'account.profile.roles.' + profile().role | translate"
+          severity="info"
+          icon="pi pi-shield"
+        />
+        <span class="account-muted">
+          {{ 'account.profile.memberSince' | translate }}
+          {{ profile().memberSince | plainDate: 'MM/yyyy' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="identity__actions">
+      <p-button
+        [label]="'account.profile.avatar.change' | translate"
+        icon="pi pi-camera"
+        [outlined]="true"
+        size="small"
+        (onClick)="openAvatarDialog()"
+      />
+      <p-button
+        [label]="'account.profile.avatar.remove' | translate"
+        icon="pi pi-trash"
+        severity="secondary"
+        [text]="true"
+        size="small"
+        [disabled]="!profile().avatarUrl"
+        [loading]="removingAvatar()"
+        (onClick)="avatarRemove.emit()"
+      />
+    </div>
+  </div>
+</section>
+
+<form class="account-card" [formGroup]="formGroup" (ngSubmit)="onSubmit()">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title">{{ 'account.profile.form.title' | translate }}</h2>
+      <p class="account-card__subtitle">{{ 'account.profile.form.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <!-- Desktop: names 6+6, then CPF / phone / birth date 4+4+4. -->
+  <div class="form-grid">
+    <app-input-field
+      class="sm-6 lg-6"
+      controlName="fullName"
+      [parentForm]="formGroup"
+      label="account.profile.form.fullName"
+      autocomplete="name"
+    />
+
+    <app-input-field
+      class="sm-6 lg-6"
+      controlName="displayName"
+      [parentForm]="formGroup"
+      label="account.profile.form.displayName"
+      autocomplete="nickname"
+    />
+
+    <!-- Document: masked by default, revealed or edited on demand. -->
+    @if (documentMode() === 'editing') {
+      <div class="account-field sm-6 lg-4">
+        <p-floatlabel variant="on">
+          <p-inputmask
+            inputId="document"
+            mask="999.999.999-99"
+            [unmask]="true"
+            [autoClear]="false"
+            styleClass="w-100"
+            formControlName="document"
+          />
+          <label for="document">
+            {{ 'account.profile.form.document' | translate }}
+            <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+          </label>
+        </p-floatlabel>
+        <app-form-error [parentForm]="formGroup" controlName="document" />
+      </div>
+    } @else {
+      <div class="readonly-field sm-6 lg-4">
+        <span class="readonly-field__label">{{ 'account.profile.form.document' | translate }}</span>
+        <span class="readonly-field__value account-mono">{{ documentDisplay() }}</span>
+        <p-button
+            [icon]="documentMode() === 'visible' ? 'pi pi-eye-slash' : 'pi pi-eye'"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            size="small"
+            [ariaLabel]="
+              (documentMode() === 'visible'
+                ? 'account.profile.form.hideDocument'
+                : 'account.profile.form.showDocument'
+              ) | translate
+            "
+            [pTooltip]="
+              (documentMode() === 'visible'
+                ? 'account.profile.form.hideDocument'
+                : 'account.profile.form.showDocument'
+              ) | translate
+            "
+            (onClick)="toggleDocumentVisibility()"
+          />
+          <p-button
+            icon="pi pi-pencil"
+            [text]="true"
+            [rounded]="true"
+            severity="secondary"
+            size="small"
+            [ariaLabel]="'account.profile.form.editDocument' | translate"
+            [pTooltip]="'account.profile.form.editDocument' | translate"
+            (onClick)="editDocument()"
+          />
+      </div>
+    }
+
+    <div class="account-field sm-6 lg-4">
+      <p-floatlabel variant="on">
+        <p-inputmask
+          inputId="phone"
+          mask="(99) 99999-9999"
+          [unmask]="true"
+          [autoClear]="false"
+          styleClass="w-100"
+          autocomplete="tel-national"
+          formControlName="phone"
+        />
+        <label for="phone">{{ 'account.profile.form.phone' | translate }}</label>
+      </p-floatlabel>
+      <app-form-error [parentForm]="formGroup" controlName="phone" />
+    </div>
+
+    <app-datepicker-field
+      class="sm-6 lg-4"
+      controlName="birthDate"
+      [parentForm]="formGroup"
+      label="account.profile.form.birthDate"
+      [maxDate]="today"
+    />
+  </div>
+
+  <footer class="account-card__footer">
+    <p-button
+      [label]="'account.actions.discard' | translate"
+      severity="secondary"
+      [text]="true"
+      [disabled]="formGroup.pristine || saving()"
+      (onClick)="onReset()"
+    />
+    <p-button
+      type="submit"
+      [label]="'account.actions.save' | translate"
+      icon="pi pi-check"
+      [loading]="saving()"
+      [disabled]="formGroup.pristine"
+    />
+  </footer>
+</form>
+
+<p-dialog
+  [header]="'account.profile.avatar.dialogTitle' | translate"
+  [visible]="avatarDialogOpen()"
+  (visibleChange)="$event || closeAvatarDialog()"
+  [modal]="true"
+  [draggable]="false"
+  [dismissableMask]="!uploadingAvatar()"
+  [closable]="!uploadingAvatar()"
+  [style]="{ width: '26rem', maxWidth: '95vw' }"
+>
+  <div class="avatar-dialog">
+    <input
+      id="avatarFile"
+      type="file"
+      class="avatar-dialog__input"
+      accept="image/png,image/jpeg,image/webp"
+      (change)="onAvatarSelected($event)"
+    />
+    <label class="avatar-dialog__drop" for="avatarFile">
+      @if (avatarPreview(); as preview) {
+        <img
+          class="avatar-dialog__preview"
+          [src]="preview"
+          [alt]="'account.profile.avatar.previewAlt' | translate"
+          width="112"
+          height="112"
+        />
+      } @else {
+        <i class="pi pi-image avatar-dialog__icon" aria-hidden="true"></i>
+      }
+      <span class="account-option__title">{{ 'account.profile.avatar.pick' | translate }}</span>
+      <span class="account-muted">{{ 'account.profile.avatar.hint' | translate }}</span>
+    </label>
+
+    @if (avatarError(); as error) {
+      <p class="avatar-dialog__error" role="alert">
+        <i class="pi pi-exclamation-circle" aria-hidden="true"></i> {{ error | translate }}
+      </p>
+    }
+  </div>
+
+  <ng-template #footer>
+    <p-button
+      [label]="'account.actions.cancel' | translate"
+      severity="secondary"
+      [text]="true"
+      [disabled]="uploadingAvatar()"
+      (onClick)="closeAvatarDialog()"
+    />
+    <p-button
+      [label]="'account.profile.avatar.upload' | translate"
+      icon="pi pi-upload"
+      [disabled]="!avatarPreview()"
+      [loading]="uploadingAvatar()"
+      (onClick)="confirmAvatar()"
+    />
+  </ng-template>
+</p-dialog>

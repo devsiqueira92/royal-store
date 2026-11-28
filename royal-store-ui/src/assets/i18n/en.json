@@ -118,7 +118,13 @@
     "minlength": "Value is too short.",
     "maxlength": "Value is too long.",
     "pattern": "Invalid format.",
-    "passwordMismatch": "Passwords do not match."
+    "passwordMismatch": "Passwords do not match.",
+    "invalidCpf": "The CPF must have 11 digits.",
+    "invalidCnpj": "The CNPJ must have 14 digits.",
+    "invalidPhone": "Enter area code + number (10 or 11 digits).",
+    "invalidZipCode": "The ZIP code must have 8 digits.",
+    "invalidStateRegistration": "Use 8 to 14 digits, or ISENTO.",
+    "passwordRules": "Use at least 8 characters, with a letter and a number."
   },
   "product": {
     "title": "Products",
@@ -1838,6 +1844,375 @@
       "currentPrice": "Current price",
       "currentMargin": "Current net margin",
       "difference": "Difference to suggested"
+    }
+  },
+  "account": {
+    "title": "My account",
+    "subtitle": "Manage your details, security, subscription and preferences in one place.",
+    "demoNotice": "Demo mode: all data is fictional and nothing is sent to the server. Simulated current password: {{password}}.",
+    "tabs": {
+      "profile": "Profile",
+      "security": "Security",
+      "billing": "Plan & Invoices",
+      "preferences": "Preferences",
+      "privacy": "Privacy"
+    },
+    "actions": {
+      "save": "Save changes",
+      "discard": "Discard",
+      "cancel": "Cancel"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "profile": {
+      "memberSince": "Member since",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Administrator",
+        "manager": "Manager",
+        "seller": "Seller"
+      },
+      "avatar": {
+        "title": "Identity",
+        "subtitle": "Your photo shows in the menu, on receipts and to your team.",
+        "change": "Change photo",
+        "remove": "Remove",
+        "dialogTitle": "Change profile photo",
+        "pick": "Click to choose an image",
+        "hint": "PNG, JPG or WEBP, up to 2 MB. Square images look best.",
+        "upload": "Upload",
+        "invalidType": "Unsupported format. Use PNG, JPG or WEBP.",
+        "tooLarge": "The image is larger than 2 MB.",
+        "previewAlt": "Preview of the new profile photo"
+      },
+      "form": {
+        "title": "Personal details",
+        "subtitle": "Used on tax documents and when we contact you.",
+        "fullName": "Full name",
+        "displayName": "Display name",
+        "document": "CPF",
+        "showDocument": "Show document",
+        "hideDocument": "Hide document",
+        "editDocument": "Edit document",
+        "phone": "Phone / WhatsApp",
+        "birthDate": "Date of birth",
+        "email": "Sign-in e-mail",
+        "emailLocked": "The sign-in e-mail can only be changed by support."
+      }
+    },
+    "security": {
+      "password": {
+        "title": "Change password",
+        "lastChanged": "Last changed on",
+        "current": "Current password",
+        "new": "New password",
+        "confirm": "Confirm new password",
+        "submit": "Change password",
+        "strength": {
+          "prompt": "Enter a password",
+          "weak": "Weak",
+          "medium": "Medium",
+          "strong": "Strong"
+        },
+        "rulesLabel": "Password requirements",
+        "ruleItems": {
+          "length": "At least 8 characters",
+          "letter": "One letter",
+          "number": "One number"
+        },
+        "ruleMet": "met",
+        "ruleMissing": "missing"
+      },
+      "twoFactor": {
+        "title": "Two-factor authentication",
+        "subtitle": "A code from your authenticator app is required on every new sign-in.",
+        "enabledSince": "Enabled since",
+        "codesLeft": "{{count}} backup codes available.",
+        "disabledHint": "Your account is protected by the password only. Turn on 2FA with Google Authenticator, Authy or 1Password.",
+        "disable": "Disable",
+        "viewCodes": "View backup codes",
+        "configure": "Set up 2FA",
+        "setupTitle": "Set up two-factor authentication",
+        "step1": "Scan the QR code",
+        "step1Hint": "Open your authenticator app and add a new account from the QR code.",
+        "qrAlt": "QR code for the authenticator app",
+        "manualKey": "Can't scan it? Type this key:",
+        "step2": "Enter the 6-digit code",
+        "step2Hint": "The code changes every 30 seconds. In the demo any 6-digit code is accepted.",
+        "activate": "Enable 2FA",
+        "codesTitle": "Backup codes",
+        "codesHint": "Keep these codes somewhere safe. Each one can be used once if you lose your phone.",
+        "download": "Download .txt",
+        "copy": "Copy",
+        "copied": "Copied"
+      },
+      "sessions": {
+        "title": "Active sessions",
+        "subtitle": "Devices signed in to your account right now.",
+        "endOthers": "Sign out other sessions",
+        "current": "This device",
+        "activeNow": "Active now",
+        "devices": {
+          "desktop": "Computer",
+          "mobile": "Phone",
+          "tablet": "Tablet"
+        }
+      },
+      "activity": {
+        "title": "Activity log",
+        "subtitle": "Latest sign-in and security events.",
+        "types": {
+          "login": "Signed in",
+          "failedLogin": "Failed sign-in attempt",
+          "passwordChanged": "Password changed",
+          "twoFactorEnabled": "2FA enabled",
+          "twoFactorDisabled": "2FA disabled",
+          "newDevice": "New device signed in",
+          "sessionsEnded": "Other sessions signed out"
+        }
+      }
+    },
+    "billing": {
+      "plan": {
+        "current": "Current plan",
+        "status": {
+          "active": "Active",
+          "trialing": "Trial",
+          "pastDue": "Past due",
+          "cancelled": "Cancelled"
+        },
+        "cycle": {
+          "monthly": "month",
+          "yearly": "year"
+        },
+        "renewsOn": "Renews on",
+        "cancel": "Cancel subscription",
+        "upgrade": "Upgrade"
+      },
+      "usage": {
+        "title": "Cycle usage",
+        "subtitle": "Plan resources used since the last renewal.",
+        "metrics": {
+          "invoicesIssued": "Invoices issued",
+          "users": "Users",
+          "storage": "Storage"
+        },
+        "high": "{{percent}}% used — close to the plan limit.",
+        "critical": "{{percent}}% used — consider upgrading."
+      },
+      "details": {
+        "title": "Billing details",
+        "subtitle": "Shown on the subscription invoices.",
+        "legalName": "Legal name",
+        "cnpj": "CNPJ",
+        "stateRegistration": "State registration (or ISENTO)",
+        "financeEmail": "Finance e-mail",
+        "zipCode": "ZIP code",
+        "street": "Street",
+        "number": "Number",
+        "complement": "Complement",
+        "district": "District",
+        "city": "City",
+        "state": "State",
+        "address": "Billing address"
+      },
+      "card": {
+        "title": "Payment method",
+        "subtitle": "Charged automatically on every renewal.",
+        "endingIn": "ending in",
+        "expires": "expires",
+        "change": "Change card"
+      },
+      "invoices": {
+        "title": "Invoices",
+        "subtitle": "Subscription billing history.",
+        "columns": {
+          "number": "Invoice",
+          "issuedAt": "Issued",
+          "dueDate": "Due",
+          "amount": "Amount",
+          "status": "Status",
+          "documents": "Documents"
+        },
+        "status": {
+          "paid": "Paid",
+          "pending": "Pending",
+          "cancelled": "Cancelled"
+        },
+        "download": {
+          "pdf": "Invoice PDF",
+          "boleto": "Boleto / PIX",
+          "xml": "NF-e XML"
+        },
+        "empty": "No invoices yet."
+      }
+    },
+    "preferences": {
+      "channels": {
+        "title": "Notification channels",
+        "subtitle": "Where you want sales, cash and stock alerts.",
+        "email": {
+          "title": "E-mail",
+          "hint": "Daily digest and critical alerts."
+        },
+        "whatsapp": {
+          "title": "WhatsApp",
+          "hint": "Urgent notices, like a register open after hours."
+        },
+        "browser": {
+          "title": "Browser",
+          "hint": "Notifications while the app is open."
+        }
+      },
+      "communication": {
+        "title": "Product e-mails",
+        "subtitle": "Content Royal Store sends by e-mail.",
+        "newsletter": {
+          "title": "Newsletter",
+          "hint": "News and management tips, once a month."
+        },
+        "weeklyReports": {
+          "title": "Weekly report",
+          "hint": "The week's sales and expenses, every Monday."
+        },
+        "offers": {
+          "title": "Offers",
+          "hint": "Plan and partner promotions."
+        }
+      },
+      "region": {
+        "title": "Appearance & region",
+        "subtitle": "Theme, language and time zone used in dates and reports."
+      },
+      "theme": {
+        "label": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "language": "Language",
+      "timeZone": "Time zone",
+      "saved": "All preferences are saved.",
+      "unsaved": "You have unsaved changes."
+    },
+    "privacy": {
+      "export": {
+        "title": "Export my data (LGPD)",
+        "subtitle": "Get a copy of everything we keep about you. The download link arrives by e-mail within 48 hours.",
+        "items": {
+          "profile": "Personal details",
+          "sales": "Sales history",
+          "security": "Access logs",
+          "billing": "Invoices and payments"
+        },
+        "action": "Request my data download (.ZIP)"
+      },
+      "danger": {
+        "title": "Danger zone",
+        "subtitle": "Permanent actions that cannot be undone.",
+        "deleteTitle": "Delete my account",
+        "deleteHint": "Removes your access and all store data after 30 days.",
+        "deleteAction": "Delete my account"
+      },
+      "dialog": {
+        "title": "Delete account permanently",
+        "lead": "After 30 days, this happens and cannot be reverted:",
+        "consequences": {
+          "data": "Your personal details are erased.",
+          "sales": "Sales, products and customers are removed.",
+          "subscription": "The subscription is cancelled, with no prorated refund.",
+          "team": "Your team members lose access."
+        },
+        "password": "Enter your password to confirm",
+        "acknowledge": "I understand this action is irreversible.",
+        "confirm": "Delete account"
+      }
+    },
+    "confirm": {
+      "disableTwoFactor": {
+        "header": "Disable 2FA?",
+        "message": "Your account will rely on the password only. Backup codes stop working.",
+        "accept": "Disable"
+      },
+      "endOtherSessions": {
+        "header": "Sign out other sessions?",
+        "message": "Every other device will be signed out and need to sign in again.",
+        "accept": "Sign out sessions"
+      },
+      "cancelPlan": {
+        "header": "Cancel subscription?",
+        "message": "The plan stays active until the end of the current cycle. After that, issuing invoices is blocked.",
+        "accept": "Cancel subscription"
+      }
+    },
+    "toasts": {
+      "profileSaved": {
+        "summary": "Profile updated",
+        "detail": "Your personal details were saved."
+      },
+      "avatarUploaded": {
+        "summary": "Photo updated",
+        "detail": "Your new profile photo is now visible."
+      },
+      "avatarRemoved": {
+        "summary": "Photo removed",
+        "detail": "Your initials will show instead."
+      },
+      "passwordChanged": {
+        "summary": "Password changed",
+        "detail": "Use the new password next time you sign in."
+      },
+      "twoFactorEnabled": {
+        "summary": "2FA enabled",
+        "detail": "Keep your backup codes somewhere safe."
+      },
+      "twoFactorDisabled": {
+        "summary": "2FA disabled",
+        "detail": "Your account now relies on the password only."
+      },
+      "sessionsEnded": {
+        "summary": "Sessions signed out",
+        "detail": "Only this device is still signed in."
+      },
+      "billingSaved": {
+        "summary": "Billing details saved",
+        "detail": "Upcoming invoices will use these details."
+      },
+      "upgradeSimulated": {
+        "summary": "Upgrade",
+        "detail": "In the final version, this opens the plan comparison."
+      },
+      "cancelSimulated": {
+        "summary": "Cancellation simulated",
+        "detail": "No billing was changed in the demo."
+      },
+      "cardSimulated": {
+        "summary": "Change card",
+        "detail": "In the final version, this opens the gateway's secure checkout."
+      },
+      "preferencesSaved": {
+        "summary": "Preferences saved",
+        "detail": "Theme and language have been applied."
+      },
+      "exportRequested": {
+        "summary": "Export requested",
+        "detail": "We'll e-mail you the .ZIP download link."
+      },
+      "accountDeleted": {
+        "summary": "Deletion scheduled",
+        "detail": "Simulation: the account would be deleted in 30 days."
+      },
+      "download": {
+        "summary": "Download started",
+        "detail": "{{document}} for invoice #{{number}} (simulated)."
+      },
+      "error": {
+        "summary": "Could not complete",
+        "invalidCurrentPassword": "The current password is incorrect.",
+        "invalidCode": "Invalid code."
+      }
     }
   }
 }

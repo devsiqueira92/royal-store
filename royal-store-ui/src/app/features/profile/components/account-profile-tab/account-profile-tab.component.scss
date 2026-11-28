@@ -1,0 +1,115 @@
+@use '../../styles/account';
+
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+}
+
+.identity__avatar {
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.identity__text {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.identity__name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: light-dark(var(--p-surface-900), var(--p-surface-0));
+}
+
+.identity__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.identity__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.identity__email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+}
+
+.identity__locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: light-dark(var(--p-surface-500), var(--p-surface-400));
+
+  i {
+    font-size: 0.6875rem;
+  }
+}
+
+.avatar-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.avatar-dialog__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  border-radius: 0.75rem;
+  border: 2px dashed light-dark(var(--p-surface-300), var(--p-surface-600));
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--p-primary-color);
+  }
+}
+
+// Visually hidden but focusable through its label.
+.avatar-dialog__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.avatar-dialog__input:focus-visible + .avatar-dialog__drop {
+  outline: 2px solid var(--p-primary-color);
+  outline-offset: 2px;
+}
+
+.avatar-dialog__icon {
+  font-size: 2rem;
+  color: light-dark(var(--p-surface-400), var(--p-surface-500));
+}
+
+.avatar-dialog__preview {
+  width: 7rem;
+  height: 7rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatar-dialog__error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--p-red-500);
+}

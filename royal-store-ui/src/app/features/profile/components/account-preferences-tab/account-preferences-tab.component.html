@@ -1,0 +1,127 @@
+<form class="preferences" [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="account-columns">
+    <section class="account-card">
+      <header class="account-card__header">
+        <div>
+          <h2 class="account-card__title">{{ 'account.preferences.channels.title' | translate }}</h2>
+          <p class="account-card__subtitle">{{ 'account.preferences.channels.subtitle' | translate }}</p>
+        </div>
+      </header>
+
+      @for (row of switches; track row.control) {
+        <div class="account-option">
+          <label class="account-option__text channel" [for]="row.control">
+            <i class="channel__icon" [class]="row.icon" aria-hidden="true"></i>
+            <span>
+              <span class="account-option__title">
+                {{ 'account.preferences.channels.' + row.key + '.title' | translate }}
+              </span>
+              <span class="account-muted channel__hint">
+                {{ 'account.preferences.channels.' + row.key + '.hint' | translate }}
+              </span>
+            </span>
+          </label>
+          <p-toggleswitch [inputId]="row.control" [formControlName]="row.control" />
+        </div>
+      }
+    </section>
+
+    <section class="account-card">
+      <header class="account-card__header">
+        <div>
+          <h2 class="account-card__title">{{ 'account.preferences.communication.title' | translate }}</h2>
+          <p class="account-card__subtitle">
+            {{ 'account.preferences.communication.subtitle' | translate }}
+          </p>
+        </div>
+      </header>
+
+      @for (row of checks; track row.control) {
+        <div class="account-option account-option--check">
+          <p-checkbox [inputId]="row.control" [formControlName]="row.control" [binary]="true" />
+          <label class="account-option__text" [for]="row.control">
+            <span class="account-option__title">
+              {{ 'account.preferences.communication.' + row.key + '.title' | translate }}
+            </span>
+            <span class="account-muted">
+              {{ 'account.preferences.communication.' + row.key + '.hint' | translate }}
+            </span>
+          </label>
+        </div>
+      }
+    </section>
+  </div>
+
+  <section class="account-card">
+    <header class="account-card__header">
+      <div>
+        <h2 class="account-card__title">{{ 'account.preferences.region.title' | translate }}</h2>
+        <p class="account-card__subtitle">{{ 'account.preferences.region.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    <!-- Theme label sits on the control's top border, like the float labels beside it. -->
+    <div class="form-grid">
+      <div class="theme-field lg-4">
+        <span class="readonly-field__label" id="themeLabel">
+          {{ 'account.preferences.theme.label' | translate }}
+        </span>
+        <p-selectbutton
+          formControlName="theme"
+          [options]="themeOptions"
+          optionValue="value"
+          [allowEmpty]="false"
+          [fluid]="true"
+          ariaLabelledBy="themeLabel"
+        >
+          <ng-template #item let-option>
+            <i [class]="option.icon" aria-hidden="true"></i>
+            <span>{{ option.labelKey | translate }}</span>
+          </ng-template>
+        </p-selectbutton>
+      </div>
+
+      <app-select-field
+        class="sm-6 lg-4"
+        controlName="language"
+        [parentForm]="form"
+        label="account.preferences.language"
+        [options]="languageOptions"
+      />
+
+      <app-select-field
+        class="sm-6 lg-4"
+        controlName="timeZone"
+        [parentForm]="form"
+        label="account.preferences.timeZone"
+        [options]="timeZoneOptions"
+        [filter]="true"
+      />
+    </div>
+  </section>
+
+  <!-- One form spans three cards, so its actions live in a sticky bar that
+       also says whether anything is pending. -->
+  <footer class="action-bar" [class.action-bar--dirty]="form.dirty">
+    <span class="action-bar__status" role="status">
+      <i [class]="form.dirty ? 'pi pi-circle-fill' : 'pi pi-check-circle'" aria-hidden="true"></i>
+      {{ (form.dirty ? 'account.preferences.unsaved' : 'account.preferences.saved') | translate }}
+    </span>
+    <div class="action-bar__actions">
+      <p-button
+        [label]="'account.actions.discard' | translate"
+        severity="secondary"
+        [text]="true"
+        [disabled]="form.pristine || saving()"
+        (onClick)="onReset()"
+      />
+      <p-button
+        type="submit"
+        [label]="'account.actions.save' | translate"
+        icon="pi pi-check"
+        [loading]="saving()"
+        [disabled]="form.pristine"
+      />
+    </div>
+  </footer>
+</form>

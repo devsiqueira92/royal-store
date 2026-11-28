@@ -1,0 +1,110 @@
+<section class="account-card">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title">{{ 'account.privacy.export.title' | translate }}</h2>
+      <p class="account-card__subtitle">{{ 'account.privacy.export.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <ul class="export-list account-muted">
+    <li><i class="pi pi-user" aria-hidden="true"></i> {{ 'account.privacy.export.items.profile' | translate }}</li>
+    <li><i class="pi pi-shopping-cart" aria-hidden="true"></i> {{ 'account.privacy.export.items.sales' | translate }}</li>
+    <li><i class="pi pi-shield" aria-hidden="true"></i> {{ 'account.privacy.export.items.security' | translate }}</li>
+    <li><i class="pi pi-receipt" aria-hidden="true"></i> {{ 'account.privacy.export.items.billing' | translate }}</li>
+  </ul>
+
+  <footer class="account-card__footer account-card__footer--start">
+    <p-button
+      [label]="'account.privacy.export.action' | translate"
+      icon="pi pi-download"
+      [outlined]="true"
+      [loading]="exporting()"
+      (onClick)="exportData.emit()"
+    />
+  </footer>
+</section>
+
+<section class="account-card account-card--danger">
+  <header class="account-card__header">
+    <div>
+      <h2 class="account-card__title danger-title">
+        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i> {{ 'account.privacy.danger.title' | translate }}
+      </h2>
+      <p class="account-card__subtitle">{{ 'account.privacy.danger.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <div class="danger-row">
+    <div class="account-option__text">
+      <span class="account-option__title">{{ 'account.privacy.danger.deleteTitle' | translate }}</span>
+      <span class="account-muted">{{ 'account.privacy.danger.deleteHint' | translate }}</span>
+    </div>
+    <p-button
+      [label]="'account.privacy.danger.deleteAction' | translate"
+      icon="pi pi-trash"
+      severity="danger"
+      (onClick)="openDeleteDialog()"
+    />
+  </div>
+</section>
+
+<p-dialog
+  [header]="'account.privacy.dialog.title' | translate"
+  [visible]="deleteDialogOpen()"
+  (visibleChange)="$event || closeDeleteDialog()"
+  [modal]="true"
+  [draggable]="false"
+  [closable]="!deleting()"
+  [style]="{ width: '30rem', maxWidth: '95vw' }"
+>
+  <form [formGroup]="deleteForm" (ngSubmit)="onConfirmDelete()" class="delete-form">
+    <p class="delete-form__lead">{{ 'account.privacy.dialog.lead' | translate }}</p>
+    <ul class="delete-form__list">
+      @for (item of consequences; track item) {
+        <li><i class="pi pi-times" aria-hidden="true"></i> {{ 'account.privacy.dialog.consequences.' + item | translate }}</li>
+      }
+    </ul>
+
+    <div class="account-field">
+      <p-floatlabel variant="on">
+        <p-password
+          inputId="deletePassword"
+          formControlName="password"
+          [feedback]="false"
+          [toggleMask]="true"
+          autocomplete="current-password"
+          styleClass="w-100"
+          inputStyleClass="w-100"
+        />
+        <label for="deletePassword">
+          {{ 'account.privacy.dialog.password' | translate }}
+          <i class="pi pi-asterisk required-icon" aria-hidden="true"></i>
+        </label>
+      </p-floatlabel>
+      <app-form-error [parentForm]="deleteForm" controlName="password" />
+    </div>
+
+    <div class="delete-form__ack">
+      <p-checkbox inputId="acknowledged" formControlName="acknowledged" [binary]="true" />
+      <label for="acknowledged">{{ 'account.privacy.dialog.acknowledge' | translate }}</label>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <p-button
+      [label]="'account.actions.cancel' | translate"
+      severity="secondary"
+      [text]="true"
+      [disabled]="deleting()"
+      (onClick)="closeDeleteDialog()"
+    />
+    <p-button
+      [label]="'account.privacy.dialog.confirm' | translate"
+      icon="pi pi-trash"
+      severity="danger"
+      [disabled]="deleteForm.invalid"
+      [loading]="deleting()"
+      (onClick)="onConfirmDelete()"
+    />
+  </ng-template>
+</p-dialog>
