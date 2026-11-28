@@ -58,12 +58,11 @@
         id="amount"
       ></app-input-number-field>
 
-      <app-input-field
+      <app-datepicker-field
         controlName="dueDate"
         [parentForm]="formGroup"
         label="expense.form.dueDate"
-        type="date"
-      ></app-input-field>
+      ></app-datepicker-field>
     </div>
 
     @if (isCreateMode()) {

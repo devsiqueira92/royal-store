@@ -34,6 +34,8 @@ import {
   shiftCompetenceMonth,
   todayIso,
 } from '../../utils/expense.util';
+import { DatepickerFieldComponent } from '@app/shared/components/form-fields/datepicker-field/datepicker-field.component';
+import { formatDateOnly, parseDateOnly } from '@app/shared/utils/date-only.util';
 
 /**
  * The New / Edit expense drawer.
@@ -59,6 +61,7 @@ import {
     InputNumberFieldComponent,
     ExpenseCategoryPickerComponent,
     PlainDatePipe,
+    DatepickerFieldComponent,
   ],
   templateUrl: './expense-form.component.html',
   styleUrl: './expense-form.component.scss',
@@ -110,7 +113,10 @@ export class ExpenseFormComponent {
   protected readonly selectedCategoryId = computed(
     () => this.formValue().expenseCategoryId ?? null,
   );
-  protected readonly dueDate = computed(() => this.formValue().dueDate ?? '');
+  /** `yyyy-MM-dd` of the picked `Date`, for the string-based helpers below. */
+  protected readonly dueDate = computed(
+    () => formatDateOnly(this.formValue().dueDate) ?? '',
+  );
 
   /** The picker is not an input, so its "touched" state is tracked here. */
   private readonly categoryTouched = signal(false);
@@ -156,8 +162,9 @@ export class ExpenseFormComponent {
       return;
     }
 
-    const { description, payeeName, expenseCategoryId, amount, dueDate } =
+    const { description, payeeName, expenseCategoryId, amount } =
       this.formGroup.getRawValue();
+    const dueDate = formatDateOnly(this.formGroup.controls.dueDate.value)!;
 
     // Shared by both branches. `notes` is NOT here: a recurrence template has no
     // notes field, and sending one made the payload carry a property the API
@@ -176,10 +183,10 @@ export class ExpenseFormComponent {
       this.expenseFacade.createRecurrence({
         ...common,
         frequency: 'monthly',
-        dueDay: dayOf(dueDate!),
+        dueDay: dayOf(dueDate),
         leadDays: this.formGroup.controls.leadDays.value,
         isVariableAmount: this.formGroup.controls.isVariableAmount.value,
-        startDate: dueDate!,
+        startDate: dueDate,
         endDate: null,
         maxOccurrences: null,
       });
@@ -192,8 +199,8 @@ export class ExpenseFormComponent {
       ...common,
       // The competence month follows the due date: a bill due in December is
       // December's cost, whichever month it was typed in.
-      competenceMonth: firstDayOfMonth(dueDate!.slice(0, 7)),
-      dueDate: dueDate!,
+      competenceMonth: firstDayOfMonth(dueDate.slice(0, 7)),
+      dueDate,
     };
 
     if (this.isCreateMode()) {
@@ -241,19 +248,18 @@ export class ExpenseFormComponent {
       payeeName: expense?.payeeName ?? null,
       expenseCategoryId: expense?.category.id ?? null,
       amount: expense?.amount ?? null,
-      dueDate: expense?.dueDate ?? this.lastDayOfCurrentMonth(),
+      dueDate:
+        parseDateOnly(expense?.dueDate) ?? this.lastDayOfCurrentMonth(),
       repeatMonthly: false,
       isVariableAmount: false,
       leadDays: 10,
     });
   }
 
-  /** `yyyy-MM-dd`; day 0 of next month is the last day of this one. */
-  private lastDayOfCurrentMonth(): string {
+  /** Day 0 of next month is the last day of this one. */
+  private lastDayOfCurrentMonth(): Date {
     const now = new Date();
-    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-
-    return `${last.getFullYear()}-${`${last.getMonth() + 1}`.padStart(2, '0')}-${`${last.getDate()}`.padStart(2, '0')}`;
+    return new Date(now.getFullYear(), now.getMonth() + 1, 0);
   }
 
   private buildFormGroup(): FormGroup<ExpenseFormControls> {

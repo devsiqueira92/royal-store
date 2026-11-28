@@ -1,6 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CurrencyPipe } from '@angular/common';
 import { Options } from '@app/shared/interceptors/options.interface';
@@ -11,7 +22,8 @@ import { SelectFieldComponent } from '@app/shared/components/form-fields/select-
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { ExpenseFacade } from '../../facade/expense.facade';
 import { Expense, FinancialAccount } from '../../interfaces/expense.interface';
-import { todayIso } from '../../utils/expense.util';
+import { DatepickerFieldComponent } from '@app/shared/components/form-fields/datepicker-field/datepicker-field.component';
+import { formatDateOnly } from '@app/shared/utils/date-only.util';
 
 /**
  * Settles part or all of an expense.
@@ -31,6 +43,7 @@ import { todayIso } from '../../utils/expense.util';
     InputFieldComponent,
     InputNumberFieldComponent,
     SelectFieldComponent,
+    DatepickerFieldComponent,
   ],
   templateUrl: './expense-payment-form.component.html',
   styleUrl: './expense-payment-form.component.scss',
@@ -43,7 +56,9 @@ export class ExpensePaymentFormComponent {
     initialValue: null as Expense | null,
   });
 
-  protected readonly isSaving = toSignal(this.expenseFacade.isSaving$, { initialValue: false });
+  protected readonly isSaving = toSignal(this.expenseFacade.isSaving$, {
+    initialValue: false,
+  });
 
   private readonly accounts = toSignal(this.expenseFacade.financialAccounts$, {
     initialValue: [] as FinancialAccount[],
@@ -51,25 +66,35 @@ export class ExpensePaymentFormComponent {
 
   protected readonly accountOptions = computed<Options[]>(() =>
     this.accounts()
-      .filter((account) => account.isActive)
-      .map((account) => ({ code: account.id, description: account.name })),
+      .filter(account => account.isActive)
+      .map(account => ({ code: account.id, description: account.name })),
   );
 
   protected readonly formGroup = new FormGroup({
-    amount: new FormControl<number | null>(null, [Validators.required, Validators.min(0.01)]),
-    paidAt: new FormControl<string | null>(todayIso(), [Validators.required]),
-    financialAccountId: new FormControl<string | null>(null, [Validators.required]),
-    methodNote: new FormControl<string | null>(null, [Validators.maxLength(120)]),
+    amount: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.min(0.01),
+    ]),
+    paidAt: new FormControl<Date | null>(new Date(), [Validators.required]),
+    financialAccountId: new FormControl<string | null>(null, [
+      Validators.required,
+    ]),
+    methodNote: new FormControl<string | null>(null, [
+      Validators.maxLength(120),
+    ]),
   });
 
   constructor() {
     effect(() => {
       const expense = this.expense();
-      const onlyAccount = this.accountOptions().length === 1 ? this.accountOptions()[0].code : null;
+      const onlyAccount =
+        this.accountOptions().length === 1
+          ? this.accountOptions()[0].code
+          : null;
 
       this.formGroup.reset({
         amount: expense?.remainingBalance ?? null,
-        paidAt: todayIso(),
+        paidAt: new Date(),
         // With a single account there is nothing to choose, so it is pre-picked.
         financialAccountId: onlyAccount,
         methodNote: null,
@@ -89,11 +114,12 @@ export class ExpensePaymentFormComponent {
       return;
     }
 
-    const { amount, paidAt, financialAccountId, methodNote } = this.formGroup.getRawValue();
+    const { amount, paidAt, financialAccountId, methodNote } =
+      this.formGroup.getRawValue();
 
     this.expenseFacade.registerPayment(expense.id, {
       amount: amount ?? 0,
-      paidAt: paidAt!,
+      paidAt: formatDateOnly(paidAt)!,
       financialAccountId: financialAccountId!,
       methodNote: methodNote?.trim() || null,
       notes: null,

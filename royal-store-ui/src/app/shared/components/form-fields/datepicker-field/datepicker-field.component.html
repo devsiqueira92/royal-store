@@ -1,0 +1,34 @@
+<form [formGroup]="parentForm()" class="mb-4 form-field">
+  <p-floatlabel variant="on">
+    <p-datepicker
+      [attr.id]="controlName()"
+      class="w-100"
+      [formControlName]="controlName()"
+      [invalid]="
+        parentForm().controls[controlName()].touched &&
+        parentForm().controls[controlName()].errors
+      "
+      [minDate]="minDate()"
+      [maxDate]="maxDate()"
+      dateFormat="dd/mm/yy"
+      placeholder="dd/mm/yyyy"
+      pInputMask="99/99/9999"
+      [inline]="inline()"
+      [showWeek]="showWeek()"
+    />
+    <label [for]="controlName()"
+      >{{ label() | translate }}
+
+      @if (
+        parentForm().controls[controlName()].hasValidator(Validators.required)
+      ) {
+        <i class="pi pi-asterisk required-icon"></i>
+      }
+    </label>
+  </p-floatlabel>
+
+  <app-form-error
+    [parentForm]="parentForm()"
+    [controlName]="controlName()"
+  ></app-form-error>
+</form>

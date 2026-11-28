@@ -59,7 +59,8 @@ export interface ExpenseFormControls {
   payeeName: FormControl<string | null>;
   expenseCategoryId: FormControl<string | null>;
   amount: FormControl<number | null>;
-  dueDate: FormControl<string | null>;
+  /** Datepicker binds `Date`; converted to `yyyy-MM-dd` on submit. */
+  dueDate: FormControl<Date | null>;
   repeatMonthly: FormControl<boolean>;
   isVariableAmount: FormControl<boolean>;
   leadDays: FormControl<number>;

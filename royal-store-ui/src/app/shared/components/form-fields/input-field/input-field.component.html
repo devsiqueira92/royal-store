@@ -4,12 +4,12 @@
       [attr.id]="controlName"
       class="w-100"
       pInputText
-      [type]="type"
       [attr.min]="min"
       [attr.step]="step"
       [formControlName]="controlName"
       [invalid]="
-        parentForm.controls[controlName].touched && parentForm.controls[controlName].errors
+        parentForm.controls[controlName].touched &&
+        parentForm.controls[controlName].errors
       "
       [attr.autocomplete]="autocomplete"
       [attr.inputmode]="inputmode"
@@ -24,5 +24,8 @@
     </label>
   </p-floatlabel>
 
-  <app-form-error [parentForm]="parentForm" [controlName]="controlName"></app-form-error>
+  <app-form-error
+    [parentForm]="parentForm"
+    [controlName]="controlName"
+  ></app-form-error>
 </form>

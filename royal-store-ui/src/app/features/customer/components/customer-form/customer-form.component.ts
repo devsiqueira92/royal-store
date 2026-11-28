@@ -35,6 +35,8 @@ import { DetailsSidebarService } from '@app/shared/services/details-sidebar.serv
 import { CustomerCashbackHistoryComponent } from '../customer-cashback-history/customer-cashback-history.component';
 import { CustomerAddressesComponent } from '../customer-addresses/customer-addresses.component';
 import { AsyncPipe } from '@angular/common';
+import { DatepickerFieldComponent } from '@app/shared/components/form-fields/datepicker-field/datepicker-field.component';
+import { formatDateOnly, parseDateOnly } from '@app/shared/utils/date-only.util';
 
 @Component({
   imports: [
@@ -46,6 +48,7 @@ import { AsyncPipe } from '@angular/common';
     CustomerAddressesComponent,
     CustomerCashbackHistoryComponent,
     AsyncPipe,
+    DatepickerFieldComponent,
   ],
   templateUrl: './customer-form.component.html',
   styleUrl: './customer-form.component.scss',
@@ -61,7 +64,10 @@ export class CustomerFormComponent {
       filter(customer => !!customer),
       take(1),
       tap(customer => {
-        this.formGroup.patchValue({ ...customer });
+        this.formGroup.patchValue({
+          ...customer,
+          birthDate: parseDateOnly(customer?.birthDate),
+        });
         this.setAddresses(customer?.addresses ?? []);
       }),
     );
@@ -135,7 +141,7 @@ export class CustomerFormComponent {
       this.customerFacade.updateCustomer(id, {
         name: (name ?? '').trim(),
         phone: phone?.trim() || null,
-        birthDate: birthDate || null,
+        birthDate: formatDateOnly(birthDate),
         loyaltyTierId,
         addresses: toCustomerAddressChangeRequests(addresses),
       });
@@ -144,7 +150,7 @@ export class CustomerFormComponent {
         name: (name ?? '').trim(),
         document: document?.trim() || null,
         phone: phone?.trim() || null,
-        birthDate: birthDate || null,
+        birthDate: formatDateOnly(birthDate),
         loyaltyTierId,
         addresses: toCustomerAddressRequests(addresses),
       });

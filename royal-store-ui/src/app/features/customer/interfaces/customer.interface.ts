@@ -25,7 +25,8 @@ export interface CustomerFormControls {
   name: FormControl<string | null>;
   document: FormControl<string | null>;
   phone: FormControl<string | null>;
-  birthDate: FormControl<string | null>;
+  /** Datepicker binds `Date`; converted to `yyyy-MM-dd` on submit. */
+  birthDate: FormControl<Date | null>;
   loyaltyTierId: FormControl<string | null>;
   addresses: FormArray<FormGroup<CustomerAddressFormControls>>;
 }
