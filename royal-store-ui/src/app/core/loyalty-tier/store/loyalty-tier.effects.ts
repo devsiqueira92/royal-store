@@ -162,3 +162,26 @@ export const deactivateLoyaltyTier = createEffect(
   },
   { functional: true },
 );
+
+export const loadLoyaltyTierOptions = createEffect(
+  (actions$ = inject(Actions), service = inject(LoyaltyTierService)) => {
+    return actions$.pipe(
+      ofType(LoyaltyTierActions.loadLoyaltyTierOptions),
+      switchMap(() =>
+        service.getOptions().pipe(
+          map(options =>
+            LoyaltyTierActions.loadLoyaltyTierOptionsSuccess({ options }),
+          ),
+          catchError(error =>
+            of(
+              LoyaltyTierActions.loadLoyaltyTierOptionsFailure({
+                error: toError(error),
+              }),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
+  { functional: true },
+);

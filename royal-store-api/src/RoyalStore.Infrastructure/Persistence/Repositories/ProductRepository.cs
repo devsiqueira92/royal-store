@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 
 namespace RoyalStore.Infrastructure.Persistence.Repositories;
@@ -27,6 +28,25 @@ public sealed class ProductRepository : IProductRepository
     // Split query: variants, photos, prices and the cost composition's items are collections on the
     // same parent; in a single statement they would multiply each other's rows (5 variants x 3
     // photos x 3 price lists = 45 rows per product, before cost items).
+    // Exact match, like the (TenantId, Sku) unique index it mirrors; the query filter scopes the store.
+    public async Task<SkuOwner?> FindSkuOwnerAsync(
+        string sku, Guid? excludeProductId, CancellationToken ct = default) =>
+        await _context.Products
+            .AsNoTracking()
+            .Where(p => p.Sku == sku && (excludeProductId == null || p.Id != excludeProductId))
+            .Select(p => new SkuOwner(p.Sku, p.Name, p.IsActive))
+            .FirstOrDefaultAsync(ct);
+
+    public async Task<IReadOnlyList<SkuOwner>> FindVariantSkuOwnersAsync(
+        IReadOnlyCollection<string> skus, Guid? excludeProductId, CancellationToken ct = default) =>
+        await _context.ProductVariants
+            .AsNoTracking()
+            .Where(v => v.Sku != null && skus.Contains(v.Sku)
+                && (excludeProductId == null || v.ProductId != excludeProductId))
+            .Join(_context.Products, v => v.ProductId, p => p.Id,
+                (v, p) => new SkuOwner(v.Sku!, p.Name, p.IsActive))
+            .ToListAsync(ct);
+
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _context.Products
             .Include(p => p.Category)

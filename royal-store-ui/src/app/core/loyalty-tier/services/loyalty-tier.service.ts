@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { LoyaltyTier } from '../interfaces/loyalty-tier.interface';
+import { Options } from '@app/shared/interceptors/options.interface';
 import {
   CreateLoyaltyTierRequest,
   UpdateLoyaltyTierRequest,
@@ -17,6 +18,11 @@ export class LoyaltyTierService {
 
   getAll(): Observable<LoyaltyTier[]> {
     return this.http.get<LoyaltyTier[]>(this.apiUrl);
+  }
+
+  /** Active tiers as `{ code: id, description: name }`, for dropdowns. */
+  getOptions(): Observable<Options[]> {
+    return this.http.get<Options[]>(`${this.apiUrl}/options`);
   }
 
   getById(id: string): Observable<LoyaltyTier> {

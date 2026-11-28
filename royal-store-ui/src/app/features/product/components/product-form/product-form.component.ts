@@ -2,9 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
 } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
 import {
   FormArray,
   FormControl,
@@ -14,7 +14,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { startWith } from 'rxjs';
+import { filter, startWith, withLatestFrom } from 'rxjs';
+import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import {
   ItemType,
   Product,
@@ -41,6 +42,7 @@ import { defaultSalePrice } from '../../utils/product-price-form.util';
 
 @Component({
   imports: [
+    AsyncPipe,
     ReactiveFormsModule,
     FormsModule,
     ToggleFieldComponent,
@@ -59,16 +61,14 @@ import { defaultSalePrice } from '../../utils/product-price-form.util';
 export class ProductFormComponent {
   private readonly productFacade = inject(ProductFacade);
   private readonly taxProfileTemplateFacade = inject(TaxProfileTemplateFacade);
-  protected readonly selectedProduct = toSignal(
-    this.productFacade.selectedProduct$,
-    { initialValue: null as Product | null },
-  );
-
-  protected readonly loading = toSignal(this.productFacade.isLoading$, {
-    initialValue: false as boolean,
-  });
+  private readonly detailsSidebarService = inject(DetailsSidebarService);
 
   protected readonly formGroup = this.buildFormGroup();
+
+  /** The item being edited; null while creating (the list clears it before opening the drawer). */
+  protected readonly selectedProduct$ = this.productFacade.selectedProduct$;
+
+  protected readonly isLoading$ = this.productFacade.isLoading$;
 
   protected readonly itemType = toSignal(
     this.formGroup.controls.type.valueChanges.pipe(
@@ -114,40 +114,21 @@ export class ProductFormComponent {
     return this.formGroup.controls.variants;
   }
 
-  // Patch once per loaded item: re-patching on every store emission would
-  // replay the type/tax cascades (and reset the tax template) each time a
-  // variant is deleted.
-  private patchedProductId: string | null | undefined = undefined;
-
   constructor() {
-    effect(() => {
-      const product = this.selectedProduct();
-      const productId = product?.id ?? null;
+    // Filled here, not from the template's async pipe: the patch cascades into value streams other
+    // signals read, and signals can't be written while the template renders.
+    this.selectedProduct$
+      .pipe(
+        filter((product): product is Product => !!product),
+        takeUntilDestroyed(),
+      )
+      .subscribe(product => this.fillFrom(product));
 
-      if (productId === this.patchedProductId) {
-        return;
-      }
-      this.patchedProductId = productId;
+    // Closed only once the API accepted the save; on failure the drawer stays open with the input.
+    this.productFacade.saved$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.close());
 
-      // Rebuilt before the patch: patchValue only fills rows that already
-      // exist, and ProductPricingComponent reseeds from these rows once the
-      // id changes.
-      // The simple price field is the default-list price: there is no other sale price.
-      this.formGroup.patchValue(
-        product ? { ...product, basePrice: defaultSalePrice(product) } : {},
-      );
-    });
-
-    // The store owns the active flag: this mirrors it back into the control
-    // so a rejected enable/disable rolls the toggle back.
-    effect(() => {
-      const isActive = this.selectedProduct()?.isActive ?? true;
-      const control = this.formGroup.controls.isActive;
-
-      if (control.value !== isActive) {
-        control.setValue(isActive, { emitEvent: false });
-      }
-    });
     this.formGroup.controls.type.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(type => this.applyItemType(type as ItemType));
@@ -161,8 +142,39 @@ export class ProductFormComponent {
       .subscribe(override => this.applyFiscalOverride(!!override));
 
     this.formGroup.controls.isActive.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(isActive => this.applyActiveState(!!isActive));
+      .pipe(
+        withLatestFrom(this.productFacade.selectedProduct$),
+        takeUntilDestroyed(),
+      )
+      .subscribe(([isActive, product]) =>
+        this.applyActiveState(product, !!isActive),
+      );
+  }
+
+  /**
+   * Patched once per item: re-patching on every store emission would replay the type/tax
+   * cascades (and reset the tax template) each time a variant is deleted. The active flag is
+   * mirrored on every emission, though — the store owns it, so a rejected enable/disable rolls
+   * the toggle back.
+   */
+  private fillFrom(product: Product): void {
+    if (product.id !== this.formGroup.controls.id.value) {
+      // The simple price field is the default-list price: there is no other sale price.
+      this.formGroup.patchValue({
+        ...product,
+        basePrice: defaultSalePrice(product),
+      });
+    }
+
+    const { isActive } = this.formGroup.controls;
+    if (isActive.value !== product.isActive) {
+      isActive.setValue(product.isActive, { emitEvent: false });
+    }
+  }
+
+  private close(): void {
+    this.productFacade.clearSelectedProduct();
+    this.detailsSidebarService.closeDrawer();
   }
 
   /**
@@ -172,9 +184,7 @@ export class ProductFormComponent {
    * when the control merely echoes what the store already holds (the patch
    * that fills the form on load).
    */
-  private applyActiveState(isActive: boolean): void {
-    const product = this.selectedProduct();
-
+  private applyActiveState(product: Product | null, isActive: boolean): void {
     if (!product || product.isActive === isActive) {
       return;
     }

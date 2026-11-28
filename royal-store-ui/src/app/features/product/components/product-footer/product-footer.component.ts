@@ -28,7 +28,7 @@ import { PriceListFacade } from '@app/features/price-list/facade/price-list.faca
 import { PriceList } from '@app/features/price-list/interfaces/price-list.interface';
 import { ServiceFacade } from '../../facade/service.facade';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { map, startWith, switchMap } from 'rxjs';
+import { map, startWith, switchMap, take } from 'rxjs';
 import { DetailsSidebarService } from '@app/shared/services/details-sidebar.service';
 import { CurrencyPipe } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -43,6 +43,8 @@ export class ProductFooterComponent {
   itemType = input.required<number>();
   formGroup = input.required<FormGroup<ProductFormControls>>();
   variants = input.required<FormArray<FormGroup<ProductVariantFormControls>>>();
+  /** An edited item is still loading (or a save is in flight): its form can't be sent yet. */
+  loading = input<boolean>(false);
 
   private readonly productFacade = inject(ProductFacade);
   private readonly serviceFacade = inject(ServiceFacade);
@@ -53,11 +55,6 @@ export class ProductFooterComponent {
     // The default list's id is needed to send the simple price field as its price.
     this.priceListFacade.loadPriceLists();
   }
-
-  protected readonly selectedProduct = toSignal(
-    this.productFacade.selectedProduct$,
-    { initialValue: null as Product | null },
-  );
 
   // Zoneless: FormArray mutations don't trigger change detection on their
   // own, so the summary is recomputed from the array's value stream.
@@ -121,22 +118,34 @@ export class ProductFooterComponent {
   protected onSubmit(event: Event): void {
     event.preventDefault();
 
-    if (this.formGroup().invalid || this.variants().length === 0) {
+    if (
+      this.loading() ||
+      this.formGroup().invalid ||
+      this.variants().length === 0
+    ) {
       this.formGroup().markAllAsTouched();
       return;
     }
 
-    const isService = this.itemType() === 1;
-    const product = this.selectedProduct();
+    // The form's id decides create vs. update. The stored item is still needed on update for its
+    // version, original variants and saved prices. The drawer closes once the save succeeds
+    // (ProductFormComponent listens for it), so a failed save keeps what was typed.
+    const id = this.formGroup().controls.id.value;
 
-    if (isService) {
-      this.submitService(product);
-    } else {
-      this.submitProduct(product);
-    }
+    this.productFacade.selectedProduct$
+      .pipe(take(1))
+      .subscribe(stored => {
+        const product = id && stored?.id === id ? stored : null;
+        if (id && !product) {
+          return;
+        }
 
-    this.productFacade.clearSelectedProduct();
-    this.detailsSidebarService.closeDrawer();
+        if (this.itemType() === 1) {
+          this.submitService(product);
+        } else {
+          this.submitProduct(product);
+        }
+      });
   }
 
   private submitProduct(product: Product | null): void {

@@ -89,6 +89,12 @@ public sealed class EditServiceCommandHandler
         if (!prices.IsSuccess)
             return prices.Error;
 
+        // Services share the products' SKU space; their variants carry no SKU.
+        var skuCheck = await ProductSkuGuard.EnsureAvailableAsync(
+            _productRepository, command.Sku, [], service.Id, cancellationToken);
+        if (skuCheck.IsFailure)
+            return skuCheck.Error;
+
         var updateResult = service.UpdateServiceWithVariants(
             command.CategoryId, command.Name, command.Sku,
             prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,

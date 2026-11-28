@@ -10,6 +10,7 @@ import {
 import {
   selectLoyaltyTiers,
   selectSelectedLoyaltyTier,
+  selectLoyaltyTierOptions,
   selectIsLoading,
   selectError,
 } from '../store/loyalty-tier.selectors';
@@ -23,6 +24,8 @@ export class LoyaltyTierFacade {
 
   loyaltyTiers$ = this.store.select(selectLoyaltyTiers);
   selectedLoyaltyTier$ = this.store.select(selectSelectedLoyaltyTier);
+  /** Active tiers for dropdowns; call `loadLoyaltyTierOptions` first. */
+  loyaltyTierOptions$ = this.store.select(selectLoyaltyTierOptions);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
 
@@ -37,6 +40,10 @@ export class LoyaltyTierFacade {
 
   loadLoyaltyTiers(): void {
     this.store.dispatch(LoyaltyTierActions.loadLoyaltyTiers());
+  }
+
+  loadLoyaltyTierOptions(): void {
+    this.store.dispatch(LoyaltyTierActions.loadLoyaltyTierOptions());
   }
 
   loadLoyaltyTier(id: string): void {

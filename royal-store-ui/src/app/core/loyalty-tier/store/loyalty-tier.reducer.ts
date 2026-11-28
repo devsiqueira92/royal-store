@@ -1,10 +1,13 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { LoyaltyTier } from '../interfaces/loyalty-tier.interface';
+import { Options } from '@app/shared/interceptors/options.interface';
 import { LoyaltyTierActions } from './loyalty-tier.actions';
 
 export interface LoyaltyTierState {
   loyaltyTiers: LoyaltyTier[];
   selectedLoyaltyTier: LoyaltyTier | null;
+  /** Active tiers for dropdowns; separate from `loyaltyTiers`, which lists every tier. */
+  loyaltyTierOptions: Options[];
   isLoading: boolean;
   error: string | null;
 }
@@ -12,6 +15,7 @@ export interface LoyaltyTierState {
 export const initialLoyaltyTierState: LoyaltyTierState = {
   loyaltyTiers: [],
   selectedLoyaltyTier: null,
+  loyaltyTierOptions: [],
   isLoading: false,
   error: null,
 };
@@ -54,6 +58,22 @@ export const loyaltyTierFeature = createFeature({
   name: 'loyaltyTier',
   reducer: createReducer(
     initialLoyaltyTierState,
+    // Kept off `isLoading`: that flag drives the tier screens, a dropdown filling in must not.
+    on(
+      LoyaltyTierActions.loadLoyaltyTierOptionsSuccess,
+      (state, { options }): LoyaltyTierState => ({
+        ...state,
+        loyaltyTierOptions: options,
+      }),
+    ),
+    on(
+      LoyaltyTierActions.loadLoyaltyTierOptionsFailure,
+      (state, { error }): LoyaltyTierState => ({
+        ...state,
+        loyaltyTierOptions: [],
+        error,
+      }),
+    ),
     on(
       LoyaltyTierActions.loadLoyaltyTiers,
       LoyaltyTierActions.loadLoyaltyTier,

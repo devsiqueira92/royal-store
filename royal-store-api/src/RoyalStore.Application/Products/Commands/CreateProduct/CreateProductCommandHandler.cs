@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Products;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Products.DTOs;
@@ -90,6 +91,12 @@ public sealed class CreateProductCommandHandler
             if (costComposition is null)
                 return Error.NotFound("costcomposition.not_found", "Cost composition was not found.");
         }
+
+        var skuCheck = await ProductSkuGuard.EnsureAvailableAsync(
+            _productRepository, command.Sku, (command.Variants ?? []).Select(v => v.Sku),
+            productId: null, cancellationToken);
+        if (skuCheck.IsFailure)
+            return skuCheck.Error;
 
         var productResult = Product.CreateProduct(
             tenantId, command.CategoryId, command.Name, command.Sku, command.StockTrack,

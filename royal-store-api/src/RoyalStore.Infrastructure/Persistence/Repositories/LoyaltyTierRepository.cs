@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Loyalty;
 
 namespace RoyalStore.Infrastructure.Persistence.Repositories;
@@ -24,6 +25,16 @@ public sealed class LoyaltyTierRepository : ILoyaltyTierRepository
 
     public async Task<IReadOnlyList<LoyaltyTier>> GetAllAsync(CancellationToken ct = default) =>
         await _context.LoyaltyTiers.ToListAsync(ct);
+
+    // The query filter already limits rows to this store.
+    public async Task<IReadOnlyList<OptionResponse>> GetActiveOptionsAsync(CancellationToken ct = default) =>
+        await _context.LoyaltyTiers
+            .AsNoTracking()
+            .Where(t => t.Active)
+            .OrderBy(t => t.CashbackPercentage)
+            .ThenBy(t => t.Name)
+            .Select(t => new OptionResponse(t.Id.ToString(), t.Name))
+            .ToListAsync(ct);
 
     public async Task<bool> ExistsByNameAsync(string name, Guid? excludeId, CancellationToken ct = default) =>
         await _context.LoyaltyTiers.AnyAsync(

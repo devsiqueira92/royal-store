@@ -12,7 +12,8 @@ import {
   Validators,
 } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { filter, map, take, tap } from 'rxjs';
+import { combineLatest, filter, map, take, tap } from 'rxjs';
+import { Options } from '@app/shared/interceptors/options.interface';
 import { CustomerFormControls } from '../../interfaces/customer.interface';
 import { CashbackEntry } from '../../interfaces/cashback-entry.interface';
 import {
@@ -80,19 +81,34 @@ export class CustomerFormComponent {
     { initialValue: false },
   );
 
+  /**
+   * Active tiers, plus the edited customer's own tier when it has since been deactivated — so the
+   * dropdown still shows (and keeps) what the customer has.
+   */
   protected readonly tierOptions = toSignal(
-    this.loyaltyTierFacade.loyaltyTiers$.pipe(
-      map(tiers =>
-        tiers.map(tier => ({ code: tier.id, description: tier.name })),
+    combineLatest([
+      this.loyaltyTierFacade.loyaltyTierOptions$,
+      this.customerFacade.selectedCustomer$,
+    ]).pipe(
+      map(([options, customer]) =>
+        customer && !options.some(o => o.code === customer.loyaltyTierId)
+          ? [
+              ...options,
+              {
+                code: customer.loyaltyTierId,
+                description: customer.loyaltyTierName,
+              },
+            ]
+          : options,
       ),
     ),
-    { initialValue: [] },
+    { initialValue: [] as Options[] },
   );
 
   protected readonly formGroup = this.buildFormGroup();
 
   constructor() {
-    this.loyaltyTierFacade.loadLoyaltyTiers();
+    this.loyaltyTierFacade.loadLoyaltyTierOptions();
 
     this.customerFacade.saved$
       .pipe(takeUntilDestroyed())

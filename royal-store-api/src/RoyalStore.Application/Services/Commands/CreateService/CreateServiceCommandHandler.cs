@@ -74,6 +74,12 @@ public sealed class CreateServiceCommandHandler
         if (!prices.IsSuccess)
             return prices.Error;
 
+        // Services share the products' SKU space; their variants carry no SKU.
+        var skuCheck = await ProductSkuGuard.EnsureAvailableAsync(
+            _productRepository, command.Sku, [], productId: null, cancellationToken);
+        if (skuCheck.IsFailure)
+            return skuCheck.Error;
+
         var serviceResult = Product.CreateService(
             tenantId, command.CategoryId, command.Name, command.Sku,
             prices.Value, priceLists, command.BaseCostPrice, command.Description, command.UnitOfMeasure,

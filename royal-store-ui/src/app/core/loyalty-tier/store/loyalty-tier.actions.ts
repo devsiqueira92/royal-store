@@ -1,5 +1,6 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { LoyaltyTier } from '../interfaces/loyalty-tier.interface';
+import { Options } from '@app/shared/interceptors/options.interface';
 import {
   CreateLoyaltyTierRequest,
   UpdateLoyaltyTierRequest,
@@ -11,6 +12,10 @@ export const LoyaltyTierActions = createActionGroup({
     'Load Loyalty Tiers': emptyProps(),
     'Load Loyalty Tiers Success': props<{ loyaltyTiers: LoyaltyTier[] }>(),
     'Load Loyalty Tiers Failure': props<{ error: string }>(),
+
+    'Load Loyalty Tier Options': emptyProps(),
+    'Load Loyalty Tier Options Success': props<{ options: Options[] }>(),
+    'Load Loyalty Tier Options Failure': props<{ error: string }>(),
 
     'Load Loyalty Tier': props<{ id: string }>(),
     'Load Loyalty Tier Success': props<{ loyaltyTier: LoyaltyTier }>(),

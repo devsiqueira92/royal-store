@@ -1,3 +1,4 @@
+using RoyalStore.Application.DTOs;
 using RoyalStore.Domain.Loyalty;
 
 namespace RoyalStore.Application.Abstractions.Data;
@@ -8,6 +9,9 @@ public interface ILoyaltyTierRepository
     Task AddRangeAsync(IEnumerable<LoyaltyTier> tiers, CancellationToken ct = default);
     Task<LoyaltyTier?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<LoyaltyTier>> GetAllAsync(CancellationToken ct = default);
+
+    /// <summary>The store's active tiers as dropdown entries (id, name), lowest cashback first.</summary>
+    Task<IReadOnlyList<OptionResponse>> GetActiveOptionsAsync(CancellationToken ct = default);
     Task<bool> ExistsByNameAsync(string name, Guid? excludeId, CancellationToken ct = default);
     Task UpdateAsync(LoyaltyTier tier, CancellationToken ct = default);
     Task DeleteAsync(LoyaltyTier tier, CancellationToken ct = default);

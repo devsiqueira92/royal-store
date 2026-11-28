@@ -1,5 +1,8 @@
 <form class="product-form" [formGroup]="formGroup">
-  @if (selectedProduct() !== null) {
+  @let product = selectedProduct$ | async;
+  @let loading = isLoading$ | async;
+
+  @if (product) {
     <div class="product-form__active">
       <app-toggle-field
         [parentForm]="formGroup"
@@ -10,46 +13,44 @@
     </div>
   }
 
-  @if (!loading()) {
-    <app-item-type-selector
-      (valueChange)="onItemTypeChange($event)"
-      [disabled]="selectedProduct() !== null"
-    ></app-item-type-selector>
+  <!-- @if (!loading) { -->
+  <app-item-type-selector
+    (valueChange)="onItemTypeChange($event)"
+    [disabled]="!!product"
+  ></app-item-type-selector>
 
-    <app-product-detail
-      [formGroup]="formGroup"
-      [variants]="variants"
-      [itemType]="itemType()"
-    ></app-product-detail>
+  <app-product-detail
+    [formGroup]="formGroup"
+    [variants]="variants"
+    [itemType]="itemType()"
+  ></app-product-detail>
 
-    <app-product-pricing
-      [formGroup]="formGroup"
-      [variants]="variants"
-    ></app-product-pricing>
+  <app-product-pricing
+    [formGroup]="formGroup"
+    [variants]="variants"
+  ></app-product-pricing>
 
-    <app-product-taxes
-      [parentForm]="formGroup"
-      [itemType]="itemType()"
-      [templates]="taxTemplates()"
-      [helperText]="taxHelperText()"
-    ></app-product-taxes>
+  <app-product-taxes
+    [parentForm]="formGroup"
+    [itemType]="itemType()"
+    [templates]="taxTemplates()"
+    [helperText]="taxHelperText()"
+  ></app-product-taxes>
 
-    <app-product-variants
-      [formGroup]="formGroup"
-      [variants]="variants"
-      [itemType]="itemType()"
-    ></app-product-variants>
+  <app-product-variants
+    [formGroup]="formGroup"
+    [variants]="variants"
+    [itemType]="itemType()"
+  ></app-product-variants>
 
-    @if (itemType() === 0) {
-      <app-product-logistics
-        [formGroup]="formGroup"
-      ></app-product-logistics>
-    }
+  @if (itemType() === 0) {
+    <app-product-logistics [formGroup]="formGroup"></app-product-logistics>
   }
 
   <app-product-footer
     [formGroup]="formGroup"
     [variants]="variants"
     [itemType]="itemType()"
+    [loading]="!!loading"
   ></app-product-footer>
 </form>

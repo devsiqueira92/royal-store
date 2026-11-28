@@ -1,3 +1,4 @@
+using RoyalStore.Application.Products.DTOs;
 using RoyalStore.Domain.Catalog;
 
 namespace RoyalStore.Application.Abstractions.Data;
@@ -14,6 +15,15 @@ public interface IProductRepository
     void RemovePrice(ProductPrice price);
 
     Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>The item (active or not) holding <paramref name="sku"/> in this store, other than
+    /// <paramref name="excludeProductId"/>; null when the SKU is free.</summary>
+    Task<SkuOwner?> FindSkuOwnerAsync(string sku, Guid? excludeProductId, CancellationToken ct = default);
+
+    /// <summary>The items (active or not) whose variants hold any of <paramref name="skus"/> in this
+    /// store, other than <paramref name="excludeProductId"/>'s own variants.</summary>
+    Task<IReadOnlyList<SkuOwner>> FindVariantSkuOwnersAsync(
+        IReadOnlyCollection<string> skus, Guid? excludeProductId, CancellationToken ct = default);
     Task<IReadOnlyList<Product>> GetAllAsync(
         bool? isActive, Guid? categoryId, StockStatus? stockStatus, Guid? supplierId,
         string? normalizedSearchTerm, CancellationToken ct = default);

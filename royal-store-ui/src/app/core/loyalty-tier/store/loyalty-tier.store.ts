@@ -1,5 +1,6 @@
 import {
   loadLoyaltyTiers,
+  loadLoyaltyTierOptions,
   loadLoyaltyTier,
   createLoyaltyTier,
   updateLoyaltyTier,
@@ -10,6 +11,7 @@ import {
 
 export const loyaltyTierStore = {
   loadLoyaltyTiers,
+  loadLoyaltyTierOptions,
   loadLoyaltyTier,
   createLoyaltyTier,
   updateLoyaltyTier,

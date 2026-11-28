@@ -1,7 +1,9 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 import { combineLatest, debounceTime, map, skip } from 'rxjs';
+import { ServiceActions } from '../store/service.actions';
 import { CreateProductRequest } from '../interfaces/create-product-request.interface';
 import { UpdateProductRequest } from '../interfaces/update-product-request.interface';
 import { GetProductsParams } from '../interfaces/get-products-params.interface';
@@ -23,6 +25,7 @@ import {
 })
 export class ProductFacade {
   private store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
   products$ = this.store.select(selectAllProducts);
   selectedProduct$ = this.store.select(selectSelectedProduct);
@@ -31,6 +34,17 @@ export class ProductFacade {
   productVariants$ = this.store.select(productVariants);
   isLoading$ = this.store.select(selectIsLoading);
   error$ = this.store.select(selectError);
+
+  /** Emits the item once a product or service create/update has succeeded on the API. */
+  saved$ = this.actions$.pipe(
+    ofType(
+      ProductActions.createProductSuccess,
+      ProductActions.updateProductSuccess,
+      ServiceActions.createServiceSuccess,
+      ServiceActions.updateServiceSuccess,
+    ),
+    map(({ product }) => product),
+  );
 
   // Filter state driving the server-side list: each setter below mutates one
   // of these signals, which are combined into a single GetProductsQuery and

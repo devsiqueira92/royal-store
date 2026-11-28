@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RoyalStore.Application.Abstractions.Data;
+using RoyalStore.Application.Products;
 using RoyalStore.Application.Abstractions.Security;
 using RoyalStore.Application.Abstractions.Services;
 using RoyalStore.Application.Products.DTOs;
@@ -105,6 +106,20 @@ public sealed class EditProductCommandHandler
             .ToList();
 
         var existingVariantIds = product.Variants.Select(v => v.Id).ToHashSet();
+
+        // The SKUs the variants will hold once saved: the edited ones' new SKUs, the untouched ones'
+        // current SKUs, and the added ones'.
+        var updatedVariantIds = command.VariantsToUpdate.Select(v => v.VariantId).ToHashSet();
+        var finalVariantSkus = product.Variants
+            .Where(v => !updatedVariantIds.Contains(v.Id))
+            .Select(v => v.Sku)
+            .Concat(command.VariantsToUpdate.Select(v => v.Sku))
+            .Concat(command.VariantsToAdd.Select(v => v.Sku));
+
+        var skuCheck = await ProductSkuGuard.EnsureAvailableAsync(
+            _productRepository, command.Sku, finalVariantSkus, product.Id, cancellationToken);
+        if (skuCheck.IsFailure)
+            return skuCheck.Error;
 
         // Every list of the store, active or not: the aggregate decides which ones may be priced.
         var priceLists = await _priceListRepository.GetAllAsync(null, cancellationToken);

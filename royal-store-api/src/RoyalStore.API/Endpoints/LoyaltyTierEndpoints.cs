@@ -6,6 +6,7 @@ using RoyalStore.Application.Loyalty.Commands.DeactivateLoyaltyTier;
 using RoyalStore.Application.Loyalty.Commands.DeleteLoyaltyTier;
 using RoyalStore.Application.Loyalty.Commands.UpdateLoyaltyTier;
 using RoyalStore.Application.Loyalty.Queries.GetLoyaltyTierById;
+using RoyalStore.Application.Loyalty.Queries.GetLoyaltyTierOptions;
 using RoyalStore.Application.Loyalty.Queries.GetLoyaltyTiers;
 using RoyalStore.Domain.Const;
 
@@ -25,6 +26,8 @@ public sealed class LoyaltyTierEndpoints : IEndpointDefinition
         routes.MapPatch("{id:guid}/deactivate", Deactivate).RequireAuthorization(PolicyNames.Admin);
 
         routes.MapGet("", GetAll).RequireAuthorization(PolicyNames.StaffRead);
+        // Active tiers as { code, description }, for dropdowns (e.g. the customer form).
+        routes.MapGet("options", GetOptions).RequireAuthorization(PolicyNames.StaffRead);
         routes.MapGet("{id:guid}", GetById).RequireAuthorization(PolicyNames.StaffRead);
     }
 
@@ -68,6 +71,12 @@ public sealed class LoyaltyTierEndpoints : IEndpointDefinition
     private static async Task<IResult> GetAll(IMediator mediator, CancellationToken ct)
     {
         var result = await mediator.Send(new GetLoyaltyTiersQuery(), ct);
+        return result.ToHttpResult(r => TypedResults.Ok(r));
+    }
+
+    private static async Task<IResult> GetOptions(IMediator mediator, CancellationToken ct)
+    {
+        var result = await mediator.Send(new GetLoyaltyTierOptionsQuery(), ct);
         return result.ToHttpResult(r => TypedResults.Ok(r));
     }
 
